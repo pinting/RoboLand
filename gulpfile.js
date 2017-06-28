@@ -12,8 +12,10 @@ gulp.task("build-client", function()
 {
     return clientProject
         .src()
+        .pipe(maps.init())
         .pipe(clientProject())
         .js
+        .pipe(maps.write())
         .pipe(gulp.dest(""));
 });
 

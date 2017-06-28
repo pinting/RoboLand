@@ -1,1 +1,1 @@
-The `www` folder contains the client. There is *no import or export* here, because the ES6 module support in the modern browsers are still in an early stage. Files in the lib directory bundled as `index.js`.
+The `www` folder contains the client. There is *no import or export* here, because the ES6 module support in the modern browsers are still in an early stage. Files in the lib directory bundled into `index.js`.
