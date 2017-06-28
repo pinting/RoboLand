@@ -1,7 +1,6 @@
 const gulp = require("gulp");
 const tsc = require("gulp-typescript");
-const copy = require("gulp-copy");
-const del = require("del");
+const maps = require("gulp-sourcemaps");
 
 var clientProject = tsc.createProject("tsconfig.www.json");
 var serverProject = tsc.createProject("tsconfig.json");
@@ -25,8 +24,10 @@ gulp.task("build-server", function()
 {
     return serverProject
         .src()
+        .pipe(maps.init())
         .pipe(serverProject())
         .js
+        .pipe(maps.write())
         .pipe(gulp.dest("out"));
 });
 
