@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+		"outFile": "out/www/lib/main.js",
+        "target": "es6",
+        "module": "none"
+    },
+    "include": [
+        "src/www/lib/**/*"
+    ]
+}
