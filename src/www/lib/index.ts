@@ -1,4 +1,4 @@
-/// <reference path="Robot.ts" />
+import { Robot } from "./Robot"
 
 var canvas = document.getElementById("canvas");
 var robot = new Robot();

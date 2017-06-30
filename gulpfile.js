@@ -1,40 +1,66 @@
 const gulp = require("gulp");
 const tsc = require("gulp-typescript");
 const maps = require("gulp-sourcemaps");
+const rename = require("gulp-rename");
+const sequence = require("run-sequence");
+const del = require("del");
+const browserify = require("browserify");
+const tsify = require("tsify");
+const path = require("path");
+const source = require("vinyl-source-stream");
+const buffer = require("vinyl-buffer");
 
-var clientProject = tsc.createProject("tsconfig.www.json");
-var serverProject = tsc.createProject("tsconfig.json");
+var tsconfig = {
+    "outDir": "out",
+    "target": "es6",
+    "module": "commonjs",
+    "inlineSources": true,
+    "inlineSourceMap": true,
+    "removeComments": true
+};
 
 /**
- * Build client scripts
+ * Clean up output directory.
  */
-gulp.task("build-client", function() 
-{
-    return clientProject
-        .src()
-        .pipe(maps.init())
-        .pipe(clientProject())
-        .js
-        .pipe(maps.write())
-        .pipe(gulp.dest(""));
+gulp.task("clean", function() {
+    return del("out");
 });
 
 /**
- * Build server scripts
+ * Build client and server modules.
+ * We build client twice, because the server can reuse code this way.
+ * It can require modules, but not bundled ones.
  */
-gulp.task("build-server", function() 
+gulp.task("build-all", function() 
 {
-    return serverProject
-        .src()
+    return gulp
+        .src("src/**/*.ts")
         .pipe(maps.init())
-        .pipe(serverProject())
+        .pipe(tsc(tsconfig))
         .js
+        .pipe(maps.mapSources(function(sourcePath, file) {
+            return sourcePath; // It is fine for now
+        }))
         .pipe(maps.write())
         .pipe(gulp.dest("out"));
 });
 
 /**
- * Copy static files and resources
+ * Build and bundle client modules into one file - needed for older browsers.
+ */
+gulp.task("build-bundle-client", function() 
+{
+    return browserify({ "debug": true })
+        .add(path.resolve(__dirname, "src/www/lib/index.ts"))
+        .plugin(tsify, tsconfig) // Tsfiy is needed for sourcemaps to work
+        .bundle()
+        .pipe(source("index.bundle.js"))
+        .pipe(buffer())
+        .pipe(gulp.dest("out/www/lib"));
+});
+
+/**
+ * Copy static files and resources.
  */
 gulp.task("copy-static", function() 
 {
@@ -43,4 +69,9 @@ gulp.task("copy-static", function()
         .pipe(gulp.dest("out/www/"));
 });
 
-gulp.task("default", ["copy-static", "build-client", "build-server"]);
+/**
+ * Default action.
+ */
+gulp.task("default", function() {
+    sequence("clean", ["build-all", "build-bundle-client", "copy-static"]);
+});

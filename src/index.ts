@@ -4,13 +4,12 @@ import * as path from "path"
 export function main(port: number = 80)
 {
     const app = express();
+
+    app.use("/lib/src", express.static(path.join(__dirname, "../src")));
     
-    var www = express.static(path.join(__dirname, "www"));
-
-    app.use("/www", www);
-    app.use("/", www);
-
-    app.use("/src", express.static(path.join(__dirname, "src")));
+    app.use("/src", express.static(path.join(__dirname, "../src")));
+    
+    app.use("/", express.static(path.join(__dirname, "www")));
 
     app.listen(port, function () 
     {
