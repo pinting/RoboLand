@@ -3,7 +3,10 @@ export class Coord
     public X: number;
     public Y: number;
 
-    constructor(x: number, y: number)
+    /**
+     * Construct a new coord.
+     */
+    constructor(x: number = 0, y: number = 0)
     {
         this.X = x;
         this.Y = y;

@@ -1,6 +1,6 @@
 import { GroundCell } from "./GroundCell"
 import { IRobot } from "../Robot/IRobot";
-import { Movement } from "../Movement";
+import { MoveType } from "../MoveType";
 
 export class WaterCell extends GroundCell
 {
@@ -16,8 +16,8 @@ export class WaterCell extends GroundCell
      * Enter a cell with a robot and kill it.
      * @param robot 
      */
-    public MoveHere(robot: IRobot): Movement 
+    public MoveHere(robot: IRobot): MoveType 
     {
-        return Movement.Killed;
+        return MoveType.Killed;
     }
 }

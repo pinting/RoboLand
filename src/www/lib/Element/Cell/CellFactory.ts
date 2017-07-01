@@ -6,6 +6,11 @@ import { Coord } from "../../Coord";
 
 export class CellFactory
 {
+    /**
+     * Create a new ICell based on the given CellType enum.
+     * @param type
+     * @param position
+     */
     public static Factory(type: CellType, position: Coord): ICell
     {
         switch(type)

@@ -1,9 +1,9 @@
 import { IRobot } from "./IRobot";
 import { Coord } from "../../Coord";
 import { Map } from "../../Map";
-import { Movement } from "../Movement";
+import { MoveType } from "../MoveType";
 
-export class Robot implements IRobot
+export class BasicRobot implements IRobot
 {
     protected health: number = 1.0;
     protected damage: number = 0.1;
@@ -12,6 +12,15 @@ export class Robot implements IRobot
     private killed: boolean = false;
 
     protected map: Map = Map.GetInstance();
+
+    /**
+     * Construct a new BasicRobot.
+     * @param position
+     */
+    public constructor(position: Coord)
+    {
+        this.position = position;
+    }
 
     /**
      * Get the cell texture.
@@ -32,13 +41,13 @@ export class Robot implements IRobot
 
         switch(cell.MoveHere(this))
         {
-            case Movement.Blocked:
+            case MoveType.Blocked:
                 return false; // Do nothing
-            case Movement.Killed:
+            case MoveType.Killed:
                 this.map.RemoveRobot(this);
                 this.map.OnUpdate();
                 return false;
-            case Movement.Successed:
+            case MoveType.Successed:
                 this.position = next;
                 this.map.OnUpdate();
                 return true;

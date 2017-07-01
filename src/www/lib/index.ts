@@ -1,34 +1,56 @@
-import { Map } from "./Map"
-import { Constants } from "./Constants"
-import { Coord } from "./Coord"
+import { Map } from "./Map";
+import { Coord } from "./Coord";
+import { IElement } from "./Element/IElement";
+import { Utils } from "./Utils";
 
 const canvas = <HTMLCanvasElement>document.getElementById("canvas");
 const context = canvas.getContext("2d");
+const map = Map.GetInstance();
 
-var map = Map.GetInstance();
+// Fixed for now
+const size: number = 30;
 
 map.OnUpdate = () => 
 {
-    canvas.width = Constants.CellSize * Constants.MapSize;
-    canvas.height = Constants.CellSize * Constants.MapSize;
+    canvas.width = size * map.GetSize();
+    canvas.height = size * map.GetSize();
 
-    for(let x = 0; x < Constants.MapSize; x++)
+    /**
+     * Draw the given element onto the canvas.
+     * @param e
+     * @param callback
+     */
+    var draw = (e: IElement, callback: () => void) =>
     {
-        for(let y = 0; y < Constants.MapSize; y++)
+        let coord = e.GetPosition();
+        let x = coord.X;
+        let y = coord.Y;
+
+        let image = new Image();
+        
+        image.onload = () => 
         {
-            let cell = map.GetCell(new Coord(x, y));
-            let image = new Image();
+            context.drawImage(image, x * size, y * size, size, size);
+            callback();
+        };
 
-            image.onload = () => 
+        image.src = e.GetTexture();
+    };
+
+    var i = 0;
+
+    // Draw cells first
+    map.GetMap().forEach(cell => 
+    {
+        draw(cell, () => 
+        {
+            // When the last was drawn, start drawing the robots
+            if(++i == map.GetSize())
             {
-                let s = Constants.CellSize;
-
-                context.drawImage(image, x * s, y * s, s, s);
-            };
-
-            image.src = cell.GetTexture();
-        }
-    }
+                map.GetRobots().forEach(robot => draw(robot, Utils.Noop))
+            }
+        })
+    });
 };
 
-map.Load("res/map.json").then(() => map.OnUpdate());
+map.Load("res/map.json");

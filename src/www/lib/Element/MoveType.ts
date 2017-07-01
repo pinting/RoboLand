@@ -1,4 +1,4 @@
-export enum Movement
+export enum MoveType
 {
     Successed,
     Blocked,

@@ -1,7 +1,7 @@
 import { ICell } from "./ICell"
 import { IRobot } from "../Robot/IRobot";
 import { Coord } from "../../Coord";
-import { Movement } from "../Movement";
+import { MoveType } from "../MoveType";
 
 export class GroundCell implements ICell
 {
@@ -37,16 +37,16 @@ export class GroundCell implements ICell
      * Enter a cell with a robot.
      * @param robot 
      */
-    public MoveHere(robot: IRobot): Movement 
+    public MoveHere(robot: IRobot): MoveType 
     {
         if(this.robot == null) 
         {
-            return Movement.Blocked;
+            return MoveType.Blocked;
         }
 
         this.robot = robot;
 
-        return Movement.Successed;
+        return MoveType.Successed;
     }
 
     /**
