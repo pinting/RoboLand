@@ -1,7 +1,7 @@
 {
   "name": "roboland",
   "version": "0.0.1",
-  "description": "Educational games for kids",
+  "description": "Educational game for kids",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
