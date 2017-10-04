@@ -1,3 +1,5 @@
+import { ICommand } from './ICommand';
+import { IMessage } from './IMessage';
 import { Parser } from './Parser';
 import { Adapter } from './Adapter';
 import { Map } from "../Map";
@@ -9,6 +11,8 @@ declare var self: any;
 
 export class Runner
 {
+    private readonly speed: number = 200;
+
     private adapter: Adapter;
     private parser: Parser;
     private worker: Worker;
@@ -26,45 +30,44 @@ export class Runner
         this.worker = new Worker(url);
         this.parser = new Parser();
 
+        /**
+         * Handler for new commands (from the worker)
+         */
         this.worker.onmessage = (e) =>
         {
-            if(!e.data || !e.data.length) 
+            let command: ICommand = e.data;
+
+            if(!command || command.length < 1) 
             {
                 return;
             }
 
-            switch(e.data[0])
-            {
-                case "move":
-                    this.adapter.move(e.data[1], e.data[2]);
-                    break;
-                case "test":
-                    this.adapter.test(e.data[1], e.data[2]);
-                    break;
-                case "attack":
-                    this.adapter.attack()
-                    break;
-            }
+            this.worker.postMessage(<IMessage>{
+                type: "result",
+                name: command[0],
+                result: this.adapter[command[0]].apply(this.adapter, command.slice(1))
+            });
         };
     }
 
     /**
      * Push new code to the worker.
      */
-    public Push(code: string)
+    public Push(code: string): void
     {
         this.parser.Parse(code);
-        this.worker.postMessage({
+        this.worker.postMessage(<IMessage>{
+            type: "init",
             code: this.parser.GetCode(),
             labels: this.parser.GetLabels(),
-            speed: 100
+            speed: this.speed
         });
     }
 
     /**
      * Terminate the worker.
      */
-    public Terimnate()
+    public Terimnate(): void
     {
         this.worker.terminate();
     }
@@ -75,59 +78,103 @@ export class Runner
      */
     private Worker(): void
     {
+        // Run the code line outside of the init scope
         let run = f => (new Function(f))();
 
         (() => 
         {
+            // Code and labels which can be pushed from the host application
             let code: string[];
             let labels: { [id: string] : number; };
-            
+
+            // Results are coming from the host
+            let results: { [id: string] : any; } = {};
+
+            // Wait is true, if the worker is waiting for results
+            let wait = false;
+
+            // Current interval
             let runner = null;
+
+            // Next line the execute
             let next = 0;
 
-            self.onmessage = function(e) 
+            /**
+             * Message the host to execute a function
+             * @param name Name of the function
+             * @param args Arguments of the function
+             */
+            let command = (name: string, args: any[]) =>
             {
-                code = e.data.code;
-                labels = e.data.labels;
-
-                if(runner != null) 
+                if(results[name]) 
                 {
-                    clearInterval(runner);
+                    let result = results[name];
+                    delete results[name];
+
+                    wait = false;
+
+                    return result;
                 }
+                
+                wait = true;
+                self.postMessage(<ICommand>[name].concat(args));
+            }
 
-                runner = setInterval(function() 
+            /**
+             * Proceed to the next line of code (or wait)
+             */
+            let proceed = () =>
+            {
+                run(code[next]);
+
+                if(!wait)
                 {
-                    if(next >= 0 && next < code.length)
-                    {
-                        run(code[next]);
-                        next = next + 1 < code.length ? next + 1 : -1;
-                    }
-                    else
+                    next = next + 1 < code.length ? next + 1 : -1;
+                }
+            };
+
+            /**
+             * Handler for new messages (from the host)
+             */
+            self.onmessage = (e) =>
+            {
+                var message: IMessage = e.data;
+
+                if(message.type == "init")
+                {
+                    code = message.code;
+                    labels = message.labels;
+    
+                    // Create a new interval
+                    if(runner != null) 
                     {
                         clearInterval(runner);
                     }
-                }, e.data.speed);
+    
+                    runner = setInterval(() =>
+                    {
+                        if(next >= 0 && next < code.length)
+                        {
+                            proceed();
+                        }
+                        else
+                        {
+                            // Clear the interval if there is no code left
+                            clearInterval(runner);
+                        }
+                    }, message.speed);
+                }
+                else if(message.type == "result")
+                {
+                    results[message.name] = message.result;
+                    proceed(); // Do the next line on result
+                }
             };
 
-            self.move = function(dx: number, dy: number) 
-            {
-                self.postMessage(["move", dx, dy]);
-            };
-
-            self.test = function(dx: number, dy: number) 
-            {
-                self.postMessage(["test", dx, dy]);
-            };
-            
-            self.attack = function(dx: number, dy: number) 
-            {
-                self.postMessage(["attack"]);
-            };
-
-            self.goto = function(label: string)
-            {
-                next = labels[label] || -1;
-            };
+            self.move = (dx, dy) => command("move", [dx, dy]);
+            self.test = (dx, dy) => command("test", [dx, dy]);
+            self.attack = () => command("attack", []);
+            self.goto = (label: string) => next = labels[label] || -1;
         })();
     }
 }
