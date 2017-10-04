@@ -3,9 +3,35 @@
 <head>
     <title>RoboLand</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+        #canvas {
+            width: 300px;
+            height: 300px;
+        }
+
+        .right {
+            width: 300px;
+            float: right;
+            display: grid;
+        }
+
+        #code {
+            width: 100%;
+            height: 280px;
+        }
+
+        #push {
+            width: 100%;
+            height: 20px;
+        }
+    </style>
 </head>
 <body>
-	<canvas id="canvas" width="600" height="600"></canvas>
+    <canvas id="canvas"></canvas>
+    <div class="right">
+        <textarea id="code" spellcheck="false"></textarea>
+        <button id="push">Push</button>
+    </div>
     <script type="text/javascript" src="lib/index.bundle.js"></script>
 </body>
 </html>

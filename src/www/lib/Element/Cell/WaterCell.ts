@@ -1,11 +1,20 @@
 import { GroundCell } from "./GroundCell"
 import { IRobot } from "../Robot/IRobot";
 import { MoveType } from "../MoveType";
+import { CellType } from "./CellType";
 
 export class WaterCell extends GroundCell
 {
     /**
-     * Get the cell texture.
+     * Get the type of the cell.
+     */
+    public GetType(): CellType
+    {
+        return CellType.Water;
+    }
+
+    /**
+     * Get the texture of the cell.
      */
     public GetTexture(): string
     {

@@ -11,7 +11,7 @@ export class CellFactory
      * @param type
      * @param position
      */
-    public static Factory(type: CellType, position: Coord): ICell
+    public static FromType(type: CellType, position: Coord): ICell
     {
         switch(type)
         {

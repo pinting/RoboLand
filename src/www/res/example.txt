@@ -1,0 +1,11 @@
+GOTO v IF test(0, 1)
+# Move horizontally
+LABEL h
+CALL move(1, 0)
+CALL move(-1, 0)
+GOTO h
+# Move vertically
+LABEL v
+CALL move(0, 1)
+CALL move(0, -1)
+GOTO v

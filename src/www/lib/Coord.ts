@@ -38,4 +38,12 @@ export class Coord
     {
         return new Coord(this.X + other.X, this.Y + other.Y);
     }
+
+    /**
+     * Clone the coord.
+     */
+    public Clone(): Coord
+    {
+        return new Coord(this.X, this.Y);
+    }
 }

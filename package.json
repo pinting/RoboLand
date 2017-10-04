@@ -4,6 +4,8 @@
   "description": "Educational game for kids",
   "main": "index.js",
   "scripts": {
+    "start": "node .",
+    "build": "gulp",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

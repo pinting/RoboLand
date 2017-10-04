@@ -9,9 +9,6 @@ export class BasicRobot implements IRobot
     protected damage: number = 0.1;
 
     private position: Coord;
-    private killed: boolean = false;
-
-    protected map: Map = Map.GetInstance();
 
     /**
      * Construct a new BasicRobot.
@@ -20,6 +17,13 @@ export class BasicRobot implements IRobot
     public constructor(position: Coord)
     {
         this.position = position;
+
+        var cell = Map.GetInstance().GetCell(position);
+
+        if(cell != null)
+        {
+            cell.MoveHere(this);
+        }
     }
 
     /**
@@ -36,22 +40,40 @@ export class BasicRobot implements IRobot
      */
     public Move(direction: Coord): boolean
     {
-        var next = this.position.Difference(direction);
-        var cell = this.map.GetCell(next);
-
-        switch(cell.MoveHere(this))
+        if(Math.abs(Math.abs(direction.X) - Math.abs(direction.Y)) == 0)
         {
-            case MoveType.Blocked:
-                return false; // Do nothing
-            case MoveType.Killed:
-                this.map.RemoveRobot(this);
-                this.map.OnUpdate();
-                return false;
-            case MoveType.Successed:
-                this.position = next;
-                this.map.OnUpdate();
-                return true;
+            return false; // Only allow left, right, top and bottom movement
         }
+
+        const map = Map.GetInstance();
+
+        var lastCell = map.GetCell(this.position);
+        var nextCoord = this.position.Difference(direction);
+        var nextCell = map.GetCell(nextCoord);
+
+        if(lastCell == null || nextCell == null)
+        {
+            return false;
+        }
+
+        switch(nextCell.MoveHere(this))
+        {
+            case MoveType.Blocked: // Do nothing
+                return false;
+            case MoveType.Killed: // Move away and kill it
+                lastCell.MoveAway();
+                map.RemoveRobot(this);
+                map.OnUpdate();
+                return false;
+            case MoveType.Successed: // Move away
+                lastCell.MoveAway();
+                map.OnUpdate();
+                break;
+        }
+
+        this.position = nextCoord;
+
+        return true;
     }
 
     /**

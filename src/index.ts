@@ -13,6 +13,6 @@ export function main(port: number = 80)
 
     app.listen(port, function () 
     {
-        console.log(`RoboLand listening on port ${port}}!`);
+        console.log(`RoboLand listening on port ${port}!`);
     });
 }

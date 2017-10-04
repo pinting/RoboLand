@@ -2,6 +2,7 @@ import { ICell } from "./ICell"
 import { IRobot } from "../Robot/IRobot";
 import { Coord } from "../../Coord";
 import { MoveType } from "../MoveType";
+import { CellType } from "./CellType"
 
 export class GroundCell implements ICell
 {
@@ -18,7 +19,15 @@ export class GroundCell implements ICell
     }
 
     /**
-     * Get the cell texture.
+     * Get the type of the cell.
+     */
+    public GetType(): CellType
+    {
+        return CellType.Ground;
+    }
+
+    /**
+     * Get the texture of the cell.
      */
     public GetTexture(): string
     {
@@ -39,7 +48,7 @@ export class GroundCell implements ICell
      */
     public MoveHere(robot: IRobot): MoveType 
     {
-        if(this.robot == null) 
+        if(this.robot != null) 
         {
             return MoveType.Blocked;
         }

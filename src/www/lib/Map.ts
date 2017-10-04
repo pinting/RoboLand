@@ -10,8 +10,10 @@ import { BasicRobot } from "./Element/Robot/BasicRobot";
 
 export class Map
 {
+    private readonly robotCount: number = 2;
+
     private robots: Array<IRobot>;
-    private map: Array<ICell>;
+    private cells: Array<ICell>;
 
     private size: number;
 
@@ -41,18 +43,18 @@ export class Map
     {
         this.size = size;
         this.robots = [];
-        this.map = [];
+        this.cells = [];
 
         for(var i = 0; i < size * size; i++)
         {
             let x = i % size;
             let y = Math.floor(i / size);
 
-            this.map[i] = new GroundCell(new Coord(x, y));
+            this.cells[i] = new GroundCell(new Coord(x, y));
         }
 
-        this.robots.push(new BasicRobot(new Coord(0, 0)));
-        this.robots.push(new BasicRobot(new Coord(1, 0)));
+        this.robots.push(new BasicRobot(new Coord(Utils.Random(0, size - 1), 0)));
+        this.robots.push(new BasicRobot(new Coord(Utils.Random(0, size - 1), size - 1)));
 
         this.OnUpdate();
     }
@@ -82,7 +84,7 @@ export class Map
             return;
         }
 
-        this.map = [];
+        this.cells = [];
         this.robots = [];
         this.size = raw.shift(); // First element is the size
 
@@ -97,10 +99,10 @@ export class Map
             let type: CellType = raw[i];
 
             // Create cell based on the CellType
-            this.map[i] = CellFactory.Factory(type, new Coord(x, y));
+            this.cells[i] = CellFactory.FromType(type, new Coord(x, y));
 
             // If the cell is ground and there is 0 or 1 robot, try to add one
-            if(robotCount < 2 && type == CellType.Ground)
+            if(robotCount < this.robotCount && type == CellType.Ground)
             {
                 // Give the cell 5% chance
                 if(Utils.Random(0, 20) == 1)
@@ -119,7 +121,7 @@ export class Map
 
         // If the map is loaded, but too few robots were added, add new ones
         // based on the [save if for later] spots
-        for(; robotSpots.length > 0 && robotCount < 2; robotCount++)
+        for(; robotSpots.length > 0 && robotCount < this.robotCount; robotCount++)
         {
             let coord = robotSpots.splice(Utils.Random(0, robotSpots.length - 1), 1)[0];
             let robot = new BasicRobot(coord);
@@ -131,24 +133,43 @@ export class Map
     }
 
     /**
-     * Get a cell by coord.
-     * @param coord 
+     * Get an element from the given array by coord.
+     * @param form
+     * @param coord
      */
-    public GetCell(coord: Coord): ICell
+    private GetElement(form: IElement[], coord: Coord): IElement
     {
-        var result: ICell = null;
+        var result: IElement = null;
 
-        this.map.some(cell => 
+        form.some(e => 
         {
-            if(cell.GetPosition().Is(coord)) 
+            if(e.GetPosition().Is(coord)) 
             {
-                result = cell;
+                result = e;
 
                 return true;
             }
         });
 
         return result;
+    }
+
+    /**
+     * Get a cell by coord.
+     * @param coord 
+     */
+    public GetCell(coord: Coord): ICell
+    {
+        return <ICell>this.GetElement(this.cells, coord);
+    }
+
+    /**
+     * Get a robot by coord.
+     * @param coord 
+     */
+    public GetRobot(coord: Coord): IRobot
+    {
+        return <IRobot>this.GetElement(this.robots, coord);
     }
 
     /**
@@ -176,9 +197,9 @@ export class Map
     /**
      * Get the cells of the map.
      */
-    public GetMap(): Array<ICell>
+    public GetCells(): Array<ICell>
     {
-        return this.map;
+        return this.cells;
     }
 
     /**
@@ -194,7 +215,7 @@ export class Map
      */
     public GetElements(): Array<IElement>
     {
-        return (<IElement[]>this.map).concat(<IElement[]>this.robots);
+        return (<IElement[]>this.cells).concat(<IElement[]>this.robots);
     }
 
     /**
