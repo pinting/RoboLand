@@ -118,18 +118,27 @@ export class Runner
                 
                 wait = true;
                 self.postMessage(<ICommand>[name].concat(args));
-            }
+
+                throw new Error("Waiting for results!");
+            };
 
             /**
              * Proceed to the next line of code (or wait)
              */
             let proceed = () =>
             {
-                run(code[next]);
-
-                if(!wait)
+                try 
                 {
-                    next = next + 1 < code.length ? next + 1 : -1;
+                    run(code[next]);
+                    
+                    if(!wait)
+                    {
+                        next = next + 1 < code.length ? next + 1 : -1;
+                    }
+                }
+                catch(e)
+                {
+                    return;
                 }
             };
 

@@ -81,7 +81,7 @@ map.OnUpdate = () =>
 
             if(++i == last.length)
             {
-                last.splice(0);
+                last = [];
 
                 // Redraw robots
                 map.GetRobots().forEach(robot => 
