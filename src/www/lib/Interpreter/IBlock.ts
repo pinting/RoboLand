@@ -1,6 +1,6 @@
 export interface IBlock
 {
-    a: string | IBlock;
-    m: "*" | "/" | "+" | "-";
-    b: string | IBlock;
+    left: string | IBlock;
+    right: string | IBlock;
+    method: "*" | "/" | "+" | "-";
 }
