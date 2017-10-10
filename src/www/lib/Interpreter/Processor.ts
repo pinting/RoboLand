@@ -1,6 +1,6 @@
 import { IBlock } from './IBlock';
 
-export class Calculator
+export class Processor
 {
     /**
      * Get the position of the nearest bracket closure.
@@ -89,7 +89,7 @@ export class Calculator
     {
         if(!block.method) 
         {
-            const result = parseFloat(block);
+            const result = block.length == 0 ? 0 : parseFloat(block);
 
             if(result == NaN) throw new Error("NaN was the result!");
 
@@ -169,7 +169,9 @@ export class Calculator
             args.forEach(arg => resolved.push(this.Resolve(arg, context)));
 
             // Get result
-            const result = context[name].apply(context, resolved);
+            const result = parseFloat(context[name].apply(context, resolved));
+
+            if(result == NaN) throw new Error("NaN was the result!");
 
             // Replace function with the result
             input = input.substring(0, start.index) + result + input.substring(range[1] + 1, input.length);
@@ -178,7 +180,9 @@ export class Calculator
         // Replace variables with actual data
         while((start = input.match(/[A-Za-z][A-Za-z0-9]*/)) != null)
         {
-            const result = context[start[0]];
+            const result = parseFloat(context[start[0]]);
+            
+            if(result == NaN) throw new Error("NaN was the result!");
 
             input = input.substring(0, start.index) + result + input.substring(start.index + start[0].length, input.length);
         }

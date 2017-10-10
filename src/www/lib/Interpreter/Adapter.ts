@@ -19,9 +19,9 @@ export class Adapter
      * @param dx
      * @param dy
      */
-    public move(dx: number, dy: number): boolean
+    public move(dx: number, dy: number): number
     {
-        return this.robot.Move(new Coord(dx, dy));
+        return this.robot.Move(new Coord(dx, dy)) ? 1 : 0;
     }
 
     /**
@@ -29,17 +29,17 @@ export class Adapter
      * @param dx
      * @param dy 
      */
-    public test(dx: number, dy: number): boolean
+    public test(dx: number, dy: number): number
     {
         var cell = this.map.GetCell(this.robot.GetPosition().Difference(new Coord(dx, dy)));
 
-        return cell != null && cell.GetType() == CellType.Ground;
+        return cell != null && cell.GetType() == CellType.Ground ? 1 : 0;
     }
 
     /**
      * Try to attack someone around the player
      */
-    public attack(): boolean
+    public attack(): number
     {
         var result: IRobot = null;
 
@@ -55,6 +55,6 @@ export class Adapter
             return false;
         });
 
-        return result != null && this.robot.Attack(result);
+        return result != null && this.robot.Attack(result) ? 1 : 0;
     }
 }

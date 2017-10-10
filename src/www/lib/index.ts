@@ -1,11 +1,9 @@
-import { Calculator } from './Interpreter/Calculator';
-import { Adapter } from './Compiler/Adapter';
-import { Runner } from './Compiler/Runner';
+import { Processor } from './Interpreter/Processor';
+import { Runner } from './Interpreter/Runner';
 import { Map } from "./Map";
 import { Coord } from "./Coord";
 import { IElement } from "./Element/IElement";
 import { Utils } from "./Utils";
-import { Parser } from "./Compiler/Parser";
 
 const canvas = <HTMLCanvasElement>document.getElementById("canvas");
 const context = canvas.getContext("2d");
@@ -18,7 +16,7 @@ let runner: Runner;
 
 // Make map and some classes available for outside usage
 window["map"] = map;
-window["out"] = { Coord, Map, Utils, Parser, Runner, Adapter, Calculator };
+window["out"] = { Coord, Map, Utils, Processor };
 
 var last: Array<Coord> = [];
 
@@ -102,7 +100,7 @@ Utils.Get("res/example.txt").then(function(e)
 
 document.getElementById("push").onclick = function(e)
 {
-    runner.Push((<HTMLTextAreaElement>document.getElementById("code")).value);
+    runner.Run((<HTMLTextAreaElement>document.getElementById("code")).value);
 };
 
 map.Load("res/map.json");
