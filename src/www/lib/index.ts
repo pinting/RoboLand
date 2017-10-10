@@ -1,3 +1,4 @@
+import { Calculator } from './Interpreter/Calculator';
 import { Adapter } from './Compiler/Adapter';
 import { Runner } from './Compiler/Runner';
 import { Map } from "./Map";
@@ -17,7 +18,7 @@ let runner: Runner;
 
 // Make map and some classes available for outside usage
 window["map"] = map;
-window["out"] = { Coord, Map, Utils, Parser, Runner, Adapter };
+window["out"] = { Coord, Map, Utils, Parser, Runner, Adapter, Calculator };
 
 var last: Array<Coord> = [];
 
