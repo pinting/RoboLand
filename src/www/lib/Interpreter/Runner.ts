@@ -61,25 +61,32 @@ export class Runner
     {
         if(this.counter < 0 && this.counter >= this.parser.Code.length)
         {
-            clearInterval(this.interval);
+            this.Stop();
             return;
         }
 
         let line = this.parser.Code[this.counter++];
 
-        switch(line[0])
+        try
         {
-            case "LABEL":
-                break;
-            case "GOTO":
-                this.ExecuteGoto(line);
-                break;
-            case "CALL":
-                this.ExecuteCall(line);
-                break;
-            case "SET":
-                this.ExecuteSet(line);
-                break;
+            switch(line[0])
+            {
+                case "LABEL":
+                    break;
+                case "GOTO":
+                    this.ExecuteGoto(line);
+                    break;
+                case "CALL":
+                    this.ExecuteCall(line);
+                    break;
+                case "SET":
+                    this.ExecuteSet(line);
+                    break;
+            }
+        }
+        catch(e)
+        {
+            this.Stop();
         }
     }
 
