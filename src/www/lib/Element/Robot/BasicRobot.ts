@@ -5,8 +5,10 @@ import { MoveType } from "../MoveType";
 
 export class BasicRobot implements IRobot
 {
+    protected readonly map = Map.GetInstance();
+
     protected health: number = 1.0;
-    protected damage: number = 0.1;
+    protected damage: number = 1.0;
 
     private position: Coord;
 
@@ -45,11 +47,9 @@ export class BasicRobot implements IRobot
             return false; // Only allow left, right, top and bottom movement
         }
 
-        const map = Map.GetInstance();
-
-        var lastCell = map.GetCell(this.position);
+        var lastCell = this.map.GetCell(this.position);
         var nextCoord = this.position.Difference(direction);
-        var nextCell = map.GetCell(nextCoord);
+        var nextCell = this.map.GetCell(nextCoord);
 
         if(lastCell == null || nextCell == null)
         {
@@ -62,18 +62,15 @@ export class BasicRobot implements IRobot
                 return false;
             case MoveType.Killed: // Move away and kill it
                 lastCell.MoveAway();
-                map.RemoveRobot(this);
-                map.OnUpdate();
+                this.position = nextCoord;
+                this.Kill();
                 return false;
             case MoveType.Successed: // Move away
                 lastCell.MoveAway();
-                map.OnUpdate();
-                break;
+                this.position = nextCoord;
+                this.map.OnUpdate();
+                return true;
         }
-
-        this.position = nextCoord;
-
-        return true;
     }
 
     /**
@@ -105,5 +102,29 @@ export class BasicRobot implements IRobot
     public Damage(damage: number): void
     {
         this.health -= damage;
+
+        if(this.health <= 0)
+        {
+            this.Kill();
+        }
+    }
+
+    /**
+     * Kill the robot.
+     */
+    private Kill(): void
+    {
+        this.health = 0;
+
+        this.map.RemoveRobot(this);
+        this.map.OnUpdate();
+    }
+
+    /**
+     * Check if the robot is alive.
+     */
+    public IsAlive(): boolean
+    {
+        return this.health > 0;
     }
 }

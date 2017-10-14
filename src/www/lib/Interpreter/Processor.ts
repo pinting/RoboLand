@@ -2,6 +2,8 @@ import { IBlock } from './IBlock';
 
 export class Processor
 {
+    public Context: Object;
+
     /**
      * Get the position of the nearest bracket closure.
      * @param input 
@@ -91,7 +93,7 @@ export class Processor
         {
             const result = block.length == 0 ? 0 : parseFloat(block);
 
-            if(result == NaN) throw new Error("NaN was the result!");
+            if(result == NaN) throw new Error("Not a number!");
 
             return result;
         }
@@ -130,16 +132,17 @@ export class Processor
     }
 
     /**
-     * Resolve functions and variables.
-     * @param input
-     * @param context JavaScript Object.
+     * Resolve functions in a string.
+     * @param input 
+     * @param context 
      */
-    public Resolve(input: string, context: Object): number
+    private ResolveFunctions(input: string): string
     {
-        let start: RegExpMatchArray;
+        const pattern = /[A-Za-z][A-Za-z0-9]*\(/;
+        
+        let start: RegExpMatchArray = null;
 
-        // Resolve functions
-        while((start = input.match(/[A-Za-z][A-Za-z0-9]*\(/)) != null)
+        while((start = input.match(pattern)) != null)
         {
             const range = this.GetInner(input.substr(start.index)).map(p => p + start.index);
             const name = input.substring(start.index, range[0]);
@@ -166,28 +169,49 @@ export class Processor
             }
 
             // Resolve arguments
-            args.forEach(arg => resolved.push(this.Resolve(arg, context)));
+            args.forEach(arg => resolved.push(this.Solve(arg)));
 
             // Get result
-            const result = parseFloat(context[name].apply(context, resolved));
+            const result = parseFloat(this.Context[name].apply(this.Context, resolved));
 
-            if(result == NaN) throw new Error("NaN was the result!");
+            if(result == NaN) throw new Error("Not a number!");
 
             // Replace function with the result
             input = input.substring(0, start.index) + result + input.substring(range[1] + 1, input.length);
         }
 
-        // Replace variables with actual data
-        while((start = input.match(/[A-Za-z][A-Za-z0-9]*/)) != null)
+        return input;
+    }
+
+    /**
+     * Resolve variables in a string.
+     * @param input 
+     */
+    private ResolveVariables(input: string): string
+    {
+        const pattern = /[A-Za-z][A-Za-z0-9]*/;
+
+        let start: RegExpMatchArray = null;
+        
+        while((start = input.match(pattern)) != null)
         {
-            const result = parseFloat(context[start[0]]);
+            const result = parseFloat(this.Context[start[0]]);
             
-            if(result == NaN) throw new Error("NaN was the result!");
+            if(result == NaN) throw new Error("Not a number!");
 
             input = input.substring(0, start.index) + result + input.substring(start.index + start[0].length, input.length);
         }
 
-        // Solve the math problem
-        return this.Calculate(input);
+        return input;
+    }
+
+    /**
+     * Resolve functions and variables then calculate the math problem.
+     * @param input
+     * @param context JavaScript Object.
+     */
+    public Solve(input: string): number
+    {
+        return this.Calculate(this.ResolveVariables(this.ResolveFunctions(input)));
     }
 }

@@ -9,7 +9,6 @@ export class Runner
 
     // Set at every parse
     private counter: number;
-    private context: { [id: string] : number | Function; };
     private interval;
 
     // Set in constructor
@@ -33,13 +32,13 @@ export class Runner
         this.Stop();
         this.parser.Parse(code);
 
-        this.counter = 0;
-        this.context = {
+        this.processor.Context = {
             move: this.adapter.move.bind(this.adapter),
             test: this.adapter.test.bind(this.adapter),
             attack: this.adapter.attack.bind(this.adapter)
         };
 
+        this.counter = 0;
         this.interval = setInterval(() => this.ExecuteLine(), this.speed);
     }
 
@@ -96,18 +95,17 @@ export class Runner
      */
     private ExecuteGoto(parameters: string[]): void
     {
+        const set = () => this.counter = this.parser.Labels.hasOwnProperty(parameters[1]) ? this.parser.Labels[parameters[1]] : -1;
+
         if(parameters.length == 2)
         {
-            this.counter = this.parser.Labels[parameters[1]] || -1;
+            set();
         }
         else if(parameters.length >= 4)
         {
             let condition = parameters.slice(3).join(" ");
             
-            if(this.processor.Resolve(condition, this.context) != 0)
-            {
-                this.counter = this.parser.Labels[parameters[1]] || -1;
-            }
+            if(this.processor.Solve(condition) != 0) set();
         }
         else
         {
@@ -128,7 +126,7 @@ export class Runner
         
         let call = parameters.slice(1).join(" ");
 
-        this.processor.Resolve(call, this.context);
+        this.processor.Solve(call);
     }
 
     /**
@@ -144,6 +142,6 @@ export class Runner
 
         let call = parameters.slice(2).join(" ");
 
-        this.context[parameters[1]] = this.processor.Resolve(call, this.context);
+        this.processor.Context[parameters[1]] = this.processor.Solve(call);
     }
 }

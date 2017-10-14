@@ -25,7 +25,7 @@ export class Adapter
     }
 
     /**
-     * Test if the given direction is safe
+     * Test if the given direction is safe.
      * @param dx
      * @param dy 
      */
@@ -37,7 +37,7 @@ export class Adapter
     }
 
     /**
-     * Try to attack someone around the player
+     * Try to attack someone around the player.
      */
     public attack(): number
     {

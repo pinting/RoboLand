@@ -1,3 +1,4 @@
+import { IRobot } from './Element/Robot/IRobot';
 import { Processor } from './Interpreter/Processor';
 import { Runner } from './Interpreter/Runner';
 import { Map } from "./Map";
@@ -5,52 +6,64 @@ import { Coord } from "./Coord";
 import { IElement } from "./Element/IElement";
 import { Utils } from "./Utils";
 
-const canvas = <HTMLCanvasElement>document.getElementById("canvas");
-const context = canvas.getContext("2d");
+Utils.Extract(window, { Coord, Map, Utils, Processor, Runner });
 
-// Fixed for now
-const size: number = 30;
+const canvas = <HTMLCanvasElement>document.getElementById("canvas");
+const context = <CanvasRenderingContext2D>canvas.getContext("2d");
+
+const codeTextarea = <HTMLTextAreaElement>document.getElementById("code");
+const pushButton = <HTMLButtonElement>document.getElementById("push");
+const stopButton = <HTMLButtonElement>document.getElementById("stop");
 
 let map: Map = Map.GetInstance();
-let runner: Runner;
+let runner: Runner = null;
 
-// Make map and some classes available for outside usage
-window["map"] = map;
-window["out"] = { Coord, Map, Utils, Processor };
+const last: Array<Coord> = [];
 
-var last: Array<Coord> = [];
+let player: IRobot = null;
+let enemy: IRobot = null;
 
-map.OnUpdate = () => 
+const size: number = 30;
+
+/**
+ * Draw the given element onto the canvas.
+ * @param e
+ * @param callback
+ */
+const draw = (e: IElement, loaded: () => void) =>
 {
-    /**
-     * Draw the given element onto the canvas.
-     * @param e
-     * @param callback
-     */
-    var draw = (e: IElement, loaded: () => void) =>
+    let coord = e.GetPosition();
+    let x = coord.X;
+    let y = coord.Y;
+
+    let image = new Image();
+    
+    image.onload = () => 
     {
-        let coord = e.GetPosition();
-        let x = coord.X;
-        let y = coord.Y;
-
-        let image = new Image();
-        
-        image.onload = () => 
-        {
-            context.drawImage(image, x * size, y * size, size, size);
-            loaded();
-        };
-
-        image.src = e.GetTexture();
+        context.drawImage(image, x * size, y * size, size, size);
+        loaded();
     };
 
+    image.src = e.GetTexture();
+};
+
+/**
+ * Update the canvas.
+ */
+const update = () => 
+{
     if(!runner) 
     {
-        runner = new Runner(map.GetRobots()[0]);
+        player = map.GetRobots()[0];
+        enemy = map.GetRobots()[1];
+
+        runner = new Runner(player);
+
         canvas.width = size * map.GetSize();
         canvas.height = size * map.GetSize();
+        canvas.onclick = e => update();
         
-        var i = 0;
+        let i = 0;
 
         // Draw cells first
         map.GetCells().forEach(cell => 
@@ -71,7 +84,7 @@ map.OnUpdate = () =>
     }
     else
     {
-        var i = 0;
+        let i = 0;
 
         // Only draw cells where the robots were
         last.forEach(c => 
@@ -80,7 +93,8 @@ map.OnUpdate = () =>
 
             if(++i == last.length)
             {
-                last = [];
+                // Clear the array
+                last.length = 0;
 
                 // Redraw robots
                 map.GetRobots().forEach(robot => 
@@ -91,16 +105,22 @@ map.OnUpdate = () =>
             }
         });
     }
+
+    if(!player.IsAlive() || !enemy.IsAlive())
+    {
+        alert(player.IsAlive() ? "You won!" : "You lose!");
+
+        stopButton.disabled = true;
+        pushButton.disabled = true;
+
+        runner.Stop();
+    }
 };
 
-Utils.Get("res/example.txt").then(function(e)
-{
-    (<HTMLTextAreaElement>document.getElementById("code")).value = e
-});
+pushButton.onclick = e => runner.Run(codeTextarea.value);
+stopButton.onclick = e => runner.Stop();
 
-document.getElementById("push").onclick = function(e)
-{
-    runner.Run((<HTMLTextAreaElement>document.getElementById("code")).value);
-};
-
+Utils.Get("res/example.txt").then(result => codeTextarea.value = result);
 map.Load("res/map.json");
+
+map.OnUpdate = update;

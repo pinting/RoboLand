@@ -10,7 +10,7 @@ export class Utils
     {
         return new Promise<string>(resolve => 
         {
-            var request = new XMLHttpRequest();
+            let request = new XMLHttpRequest();
 
             request.open(method, url, true);
 
@@ -68,6 +68,22 @@ export class Utils
     public static Random(min: number, max: number): number
     {
         return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+    /**
+     * Copy properties from one object to another.
+     * @param to 
+     * @param from 
+     */
+    public static Extract(to: Object, from: Object) 
+    {
+        for (let key in from) 
+        {
+            if(to.hasOwnProperty(key))
+            {
+                to[key] = from[key];
+            }
+        }
     }
 
     /**
