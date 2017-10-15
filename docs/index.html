@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RoboLand</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+        * { 
+            box-sizing: border-box; 
+        }
+
+        body {
+            background: rgb(245, 235, 245);
+        }
+
+        .wrapper {
+            width: 300px;
+            display: grid;
+            margin: auto;
+            text-align: center;
+        }
+
+        #canvas {
+            width: 300px;
+            height: 300px;
+        }
+
+        #code {
+            width: 300px;
+            height: 350px;
+            resize: none;
+        }
+
+        #push, #stop {
+            width: 300px;
+            height: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <canvas id="canvas"></canvas>
+        <textarea id="code" spellcheck="false"></textarea>
+        <button id="push">Push</button>
+        <button id="stop">Stop</button>
+    </div>
+    <script type="text/javascript" src="lib/index.bundle.js"></script>
+</body>
+</html>
