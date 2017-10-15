@@ -14,6 +14,7 @@ const context = <CanvasRenderingContext2D>canvas.getContext("2d");
 const codeTextarea = <HTMLTextAreaElement>document.getElementById("code");
 const pushButton = <HTMLButtonElement>document.getElementById("push");
 const stopButton = <HTMLButtonElement>document.getElementById("stop");
+const lineInput = <HTMLButtonElement>document.getElementById("line");
 
 let map: Map = Map.GetInstance();
 let runner: Runner = null;
@@ -58,6 +59,11 @@ const update = () =>
         enemy = map.GetRobots()[1];
 
         runner = new Runner(player);
+
+        runner.OnLine = (line, count) => 
+        {
+            lineInput.value = `${count}: ${line}`;
+        };
 
         canvas.width = size * map.GetSize();
         canvas.height = size * map.GetSize();

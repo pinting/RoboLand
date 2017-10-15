@@ -19,6 +19,8 @@ var tsconfig = {
     "removeComments": true
 };
 
+var clientOut = "out/www/";
+
 /**
  * Clean up output directory.
  */
@@ -31,7 +33,7 @@ gulp.task("clean", function() {
  * We build client twice, because the server can reuse code this way.
  * It can require modules, but not bundled ones.
  */
-gulp.task("build-all", function() 
+gulp.task("build", function() 
 {
     return gulp
         .src("src/**/*.ts")
@@ -48,7 +50,7 @@ gulp.task("build-all", function()
 /**
  * Build and bundle client modules into one file - needed for older browsers.
  */
-gulp.task("build-bundle-client", function() 
+gulp.task("bundle", function() 
 {
     return browserify({ "debug": true })
         .add(path.resolve(__dirname, "src/www/lib/index.ts"))
@@ -56,22 +58,30 @@ gulp.task("build-bundle-client", function()
         .bundle()
         .pipe(source("index.bundle.js"))
         .pipe(buffer())
-        .pipe(gulp.dest("out/www/lib"));
+        .pipe(gulp.dest(clientOut + "lib"));
 });
 
 /**
  * Copy static files and resources.
  */
-gulp.task("copy-static", function() 
+gulp.task("static", function() 
 {
     return gulp
-        .src(["src/www/**/*", "!src/www/**/*.ts"])
-        .pipe(gulp.dest("out/www/"));
+        .src(["src/www/**/*", "!src/www/**/*.ts"], { nodir: true })
+        .pipe(gulp.dest(clientOut));
+});
+
+/**
+ * Deploy demo to GitHub Pages.
+ */
+gulp.task("demo", function() {
+    clientOut = "docs/";
+    return sequence("clean", ["bundle", "static"]);
 });
 
 /**
  * Default action.
  */
 gulp.task("default", function() {
-    sequence("clean", ["build-all", "build-bundle-client", "copy-static"]);
+    return sequence("clean", ["build", "bundle", "static"]);
 });

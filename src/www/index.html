@@ -25,12 +25,16 @@
         }
 
         #code {
+            background: rgb(255, 242, 255);
+            color: rgb(25, 2, 2);
+            line-height: 14px;
+            font-size: 12px;
             width: 300px;
             height: 350px;
             resize: none;
         }
 
-        #push, #stop {
+        #push, #stop, #line {
             width: 300px;
             height: 25px;
         }
@@ -39,6 +43,7 @@
 <body>
     <div class="wrapper">
         <canvas id="canvas"></canvas>
+        <input id="line" type="text" disabled />
         <textarea id="code" spellcheck="false"></textarea>
         <button id="push">Push</button>
         <button id="stop">Stop</button>

@@ -2,6 +2,7 @@ import { Adapter } from './Adapter';
 import { Processor } from './Processor';
 import { IRobot } from './../Element/Robot/IRobot';
 import { Parser } from './Parser';
+import { Utils } from '../Utils';
 
 export class Runner
 {
@@ -65,6 +66,8 @@ export class Runner
         }
 
         let line = this.parser.Code[this.counter++];
+
+        this.OnLine(line.join(" "), this.counter - 1);
 
         try
         {
@@ -144,4 +147,17 @@ export class Runner
 
         this.processor.Context[parameters[1]] = this.processor.Solve(call);
     }
+
+    /**
+     * Get the line counter value.
+     */
+    public GetCounter(): number
+    {
+        return this.counter;
+    }
+
+    /**
+     * Executed when the next line is called.
+     */
+    public OnLine: (line: string, count: number) => void = Utils.Noop;
 }
