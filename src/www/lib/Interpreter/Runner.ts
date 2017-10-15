@@ -103,12 +103,17 @@ export class Runner
         if(parameters.length == 2)
         {
             set();
+            this.ExecuteLine();
         }
         else if(parameters.length >= 4)
         {
             let condition = parameters.slice(3).join(" ");
             
-            if(this.processor.Solve(condition) != 0) set();
+            if(this.processor.Solve(condition) != 0) 
+            {
+                set();
+                this.ExecuteLine();
+            }
         }
         else
         {
