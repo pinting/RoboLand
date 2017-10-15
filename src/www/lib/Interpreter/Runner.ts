@@ -109,7 +109,7 @@ export class Runner
         {
             let condition = parameters.slice(3).join(" ");
             
-            if(this.processor.Solve(condition) != 0) 
+            if(this.processor.Solve(condition) == 1) 
             {
                 set();
                 this.ExecuteLine();
