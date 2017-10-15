@@ -15,6 +15,15 @@ export class Adapter
     }
 
     /**
+     * Invert the given number.
+     * @param n 
+     */
+    public inv(n: number): number
+    {
+        return n == 0 ? 1 : 0;
+    }
+
+    /**
      * Move to the given direction.
      * @param dx
      * @param dy

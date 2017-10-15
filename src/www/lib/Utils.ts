@@ -79,9 +79,27 @@ export class Utils
     {
         for (let key in from) 
         {
-            if(to.hasOwnProperty(key))
+            if(from.hasOwnProperty(key))
             {
                 to[key] = from[key];
+            }
+        }
+    }
+    
+    /**
+     * Bind properties from one object to another.
+     * @param to 
+     * @param from 
+     */
+    public static Bind(to: Object, from: Object, properties: string[]) 
+    {
+        for (let key in properties) 
+        {
+            const p = properties[key];
+
+            if(from[p] !== undefined)
+            {
+                to[p] = from[p].bind(from);
             }
         }
     }

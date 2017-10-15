@@ -33,11 +33,12 @@ export class Runner
         this.Stop();
         this.parser.Parse(code);
 
-        this.processor.Context = {
-            move: this.adapter.move.bind(this.adapter),
-            test: this.adapter.test.bind(this.adapter),
-            attack: this.adapter.attack.bind(this.adapter)
-        };
+        Utils.Bind(this.processor.Context = {}, this.adapter, [
+            "inv",
+            "move",
+            "test",
+            "attack"
+        ]);
 
         this.counter = 0;
         this.interval = setInterval(() => this.ExecuteLine(), this.speed);
@@ -59,7 +60,7 @@ export class Runner
      */
     private ExecuteLine(): void
     {
-        if(this.counter < 0 && this.counter >= this.parser.Code.length)
+        if(this.counter < 0 || this.counter >= this.parser.Code.length)
         {
             this.Stop();
             return;
@@ -109,7 +110,7 @@ export class Runner
         {
             let condition = parameters.slice(3).join(" ");
             
-            if(this.processor.Solve(condition) == 1) 
+            if(this.processor.Solve(condition) != 0) 
             {
                 set();
                 this.ExecuteLine();
