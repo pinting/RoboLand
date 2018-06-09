@@ -1,10 +1,10 @@
-import { IRobot } from './Element/Robot/IRobot';
-import { Processor } from './Interpreter/Processor';
-import { Runner } from './Interpreter/Runner';
-import { Map } from "./Map";
-import { Coord } from "./Coord";
-import { IElement } from "./Element/IElement";
-import { Utils } from "./Utils";
+import { IRobot } from './scripts/Element/Robot/IRobot';
+import { Processor } from './scripts/Interpreter/Processor';
+import { Runner } from './scripts/Interpreter/Runner';
+import { Map } from "./scripts/Map";
+import { Coord } from "./scripts/Coord";
+import { IElement } from "./scripts/Element/IElement";
+import { Utils } from "./scripts/Utils";
 
 Utils.Extract(window, { Coord, Map, Utils, Processor, Runner });
 
@@ -24,7 +24,7 @@ const last: Array<Coord> = [];
 let player: IRobot = null;
 let enemy: IRobot = null;
 
-const size: number = 30;
+const size: number = 5;
 
 /**
  * Draw the given element onto the canvas.

@@ -9,8 +9,10 @@ const tsify = require("tsify");
 const path = require("path");
 const source = require("vinyl-source-stream");
 const buffer = require("vinyl-buffer");
+const watch = require("gulp-watch");
 
-var tsconfig = {
+let tsconfig = 
+{
     "outDir": "out",
     "target": "es6",
     "module": "commonjs",
@@ -19,12 +21,13 @@ var tsconfig = {
     "removeComments": true
 };
 
-var clientOut = "out/www/";
+let clientOut = "out/www/";
 
 /**
  * Clean up output directory.
  */
-gulp.task("clean", function() {
+gulp.task("clean", function() 
+{
     return del("out");
 });
 
@@ -53,12 +56,12 @@ gulp.task("build", function()
 gulp.task("bundle", function() 
 {
     return browserify({ "debug": true })
-        .add(path.resolve(__dirname, "src/www/lib/index.ts"))
+        .add(path.resolve(__dirname, "src/www/index.ts"))
         .plugin(tsify, tsconfig) // Tsfiy is needed for sourcemaps to work
         .bundle()
         .pipe(source("index.bundle.js"))
         .pipe(buffer())
-        .pipe(gulp.dest(clientOut + "lib"));
+        .pipe(gulp.dest(clientOut));
 });
 
 /**
@@ -74,7 +77,8 @@ gulp.task("static", function()
 /**
  * Deploy demo to GitHub Pages.
  */
-gulp.task("demo", function() {
+gulp.task("demo", function()
+{
     clientOut = "docs/";
     return sequence("clean", ["bundle", "static"]);
 });
@@ -82,6 +86,16 @@ gulp.task("demo", function() {
 /**
  * Default action.
  */
-gulp.task("default", function() {
+gulp.task("default", function() 
+{
     return sequence("clean", ["build", "bundle", "static"]);
+});
+
+/**
+ * Watch.
+ */
+gulp.task("watch", function ()
+{
+    gulp.watch("src/www/**/*.ts" , ["bundle", "build"])
+    gulp.watch(["src/www/**/*", "!src/www/**/*.ts"], ["static"]);
 });
