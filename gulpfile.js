@@ -32,11 +32,11 @@ gulp.task("clean", function()
 });
 
 /**
- * Build client and server modules.
- * We build client twice, because the server can reuse code this way.
+ * Compile client and server modules.
+ * We compile client twice, because the server can reuse code this way.
  * It can require modules, but not bundled ones.
  */
-gulp.task("build", function() 
+gulp.task("compile", function() 
 {
     return gulp
         .src("src/**/*.ts")
@@ -51,7 +51,7 @@ gulp.task("build", function()
 });
 
 /**
- * Build and bundle client modules into one file - needed for older browsers.
+ * Compile and bundle client modules into one file - needed for older browsers.
  */
 gulp.task("bundle", function() 
 {
@@ -84,11 +84,11 @@ gulp.task("demo", function()
 });
 
 /**
- * Default action.
+ * Build.
  */
-gulp.task("default", function() 
+gulp.task("build", function() 
 {
-    return sequence("clean", ["build", "bundle", "static"]);
+    return sequence("clean", ["compile", "bundle", "static"]);
 });
 
 /**
@@ -96,6 +96,6 @@ gulp.task("default", function()
  */
 gulp.task("watch", function ()
 {
-    gulp.watch("src/www/**/*.ts" , ["bundle", "build"])
+    gulp.watch("src/www/**/*.ts" , ["bundle", "compile"])
     gulp.watch(["src/www/**/*", "!src/www/**/*.ts"], ["static"]);
 });
