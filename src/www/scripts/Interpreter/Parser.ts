@@ -1,4 +1,4 @@
-import { IRobot } from './../Element/Robot/IRobot';
+import { IActor } from './../Element/Actor/IActor';
 import { Adapter } from './Adapter';
 import { Processor } from './Processor';
 

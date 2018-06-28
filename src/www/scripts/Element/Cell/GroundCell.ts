@@ -1,5 +1,5 @@
 import { ICell } from "./ICell"
-import { IRobot } from "../Robot/IRobot";
+import { IActor } from "../Actor/IActor";
 import { Coord } from "../../Coord";
 import { MoveType } from "../MoveType";
 import { CellType } from "./CellType"
@@ -7,7 +7,7 @@ import { CellType } from "./CellType"
 export class GroundCell implements ICell
 {
     protected position: Coord;
-    protected robot: IRobot;
+    protected actor: IActor;
 
     /**
      * Construct a new empty cell - ground.
@@ -43,17 +43,17 @@ export class GroundCell implements ICell
     }
 
     /**
-     * Enter a cell with a robot.
-     * @param robot 
+     * Enter a cell with a actor.
+     * @param actor 
      */
-    public MoveHere(robot: IRobot): MoveType 
+    public MoveHere(actor: IActor): MoveType 
     {
-        if(this.robot != null) 
+        if(this.actor != null) 
         {
             return MoveType.Blocked;
         }
 
-        this.robot = robot;
+        this.actor = actor;
 
         return MoveType.Successed;
     }
@@ -63,6 +63,6 @@ export class GroundCell implements ICell
      */
     public MoveAway(): void 
     {
-        this.robot = null;
+        this.actor = null;
     }
 }

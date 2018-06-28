@@ -1,16 +1,16 @@
 import { Map } from '../Map';
-import { IRobot } from "../Element/Robot/IRobot";
+import { IActor } from "../Element/Actor/IActor";
 import { Coord } from "../Coord";
 import { CellType } from "../Element/Cell/CellType";
 
 export class Adapter
 {
-    private robot: IRobot;
+    private actor: IActor;
     private map: Map;
 
-    constructor(robot: IRobot)
+    constructor(actor: IActor)
     {
-        this.robot = robot;
+        this.actor = actor;
         this.map = Map.GetInstance();
     }
 
@@ -30,7 +30,7 @@ export class Adapter
      */
     public move(dx: number, dy: number): number
     {
-        return this.robot.Move(new Coord(dx, dy)) ? 1 : 0;
+        return this.actor.Move(new Coord(dx, dy)) ? 1 : 0;
     }
 
     /**
@@ -40,7 +40,7 @@ export class Adapter
      */
     public test(dx: number, dy: number): number
     {
-        var cell = this.map.GetCell(this.robot.GetPosition().Difference(new Coord(dx, dy)));
+        var cell = this.map.GetCell(this.actor.GetPosition().Difference(new Coord(dx, dy)));
 
         return cell != null && cell.GetType() == CellType.Ground ? 1 : 0;
     }
@@ -50,13 +50,13 @@ export class Adapter
      */
     public attack(): number
     {
-        var result: IRobot = null;
+        var result: IActor = null;
 
-        this.map.GetRobots().some(robot => 
+        this.map.GetActors().some(actor => 
         {
-            if(robot.GetPosition().GetDistance(this.robot.GetPosition()) == 1) 
+            if(actor.GetPosition().GetDistance(this.actor.GetPosition()) == 1) 
             {
-                result = robot;
+                result = actor;
 
                 return true;
             }
@@ -64,6 +64,6 @@ export class Adapter
             return false;
         });
 
-        return result != null && this.robot.Attack(result) ? 1 : 0;
+        return result != null && this.actor.Attack(result) ? 1 : 0;
     }
 }

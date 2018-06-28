@@ -1,10 +1,10 @@
 import { Coord } from "../../Coord";
 import { IElement } from "../IElement";
 
-export interface IRobot extends IElement
+export interface IActor extends IElement
 {
     Move(direction: Coord): boolean
-    Attack(robot: IRobot): boolean
+    Attack(actor: IActor): boolean
     Damage(damage: number): void
     IsAlive(): boolean;
 }

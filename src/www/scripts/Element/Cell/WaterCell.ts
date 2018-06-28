@@ -1,5 +1,5 @@
 import { GroundCell } from "./GroundCell"
-import { IRobot } from "../Robot/IRobot";
+import { IActor } from "../Actor/IActor";
 import { MoveType } from "../MoveType";
 import { CellType } from "./CellType";
 
@@ -22,10 +22,10 @@ export class WaterCell extends GroundCell
     }
 
     /**
-     * Enter a cell with a robot and kill it.
-     * @param robot 
+     * Enter a cell with a actor and kill it.
+     * @param actor 
      */
-    public MoveHere(robot: IRobot): MoveType 
+    public MoveHere(actor: IActor): MoveType 
     {
         return MoveType.Killed;
     }

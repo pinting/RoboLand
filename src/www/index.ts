@@ -1,4 +1,4 @@
-import { IRobot } from './scripts/Element/Robot/IRobot';
+import { IActor } from './scripts/Element/Actor/IActor';
 import { Processor } from './scripts/Interpreter/Processor';
 import { Runner } from './scripts/Interpreter/Runner';
 import { Map } from "./scripts/Map";
@@ -21,8 +21,8 @@ let runner: Runner = null;
 
 const last: Array<Coord> = [];
 
-let player: IRobot = null;
-let enemy: IRobot = null;
+let player: IActor = null;
+let enemy: IActor = null;
 
 const size: number = 5;
 
@@ -55,8 +55,8 @@ const update = () =>
 {
     if(!runner) 
     {
-        player = map.GetRobots()[0];
-        enemy = map.GetRobots()[1];
+        player = map.GetActors()[0];
+        enemy = map.GetActors()[1];
 
         runner = new Runner(player);
 
@@ -76,13 +76,13 @@ const update = () =>
         {
             draw(cell, () => 
             {
-                // When the last was drawn, start drawing the robots
+                // When the last was drawn, start drawing the actors
                 if(++i == map.GetSize())
                 {
-                    map.GetRobots().forEach(robot => 
+                    map.GetActors().forEach(actor => 
                     {
-                        last.push(robot.GetPosition().Clone());
-                        draw(robot, Utils.Noop);
+                        last.push(actor.GetPosition().Clone());
+                        draw(actor, Utils.Noop);
                     })
                 }
             })
@@ -92,7 +92,7 @@ const update = () =>
     {
         let i = 0;
 
-        // Only draw cells where the robots were
+        // Only draw cells where the actors were
         last.forEach(c => 
         {
             draw(map.GetCell(c), Utils.Noop);
@@ -102,11 +102,11 @@ const update = () =>
                 // Clear the array
                 last.length = 0;
 
-                // Redraw robots
-                map.GetRobots().forEach(robot => 
+                // Redraw actors
+                map.GetActors().forEach(actor => 
                 {
-                    last.push(robot.GetPosition().Clone());
-                    draw(robot, Utils.Noop);
+                    last.push(actor.GetPosition().Clone());
+                    draw(actor, Utils.Noop);
                 });
             }
         });

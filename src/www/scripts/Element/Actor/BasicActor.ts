@@ -1,9 +1,9 @@
-import { IRobot } from "./IRobot";
+import { IActor } from "./IActor";
 import { Coord } from "../../Coord";
 import { Map } from "../../Map";
 import { MoveType } from "../MoveType";
 
-export class BasicRobot implements IRobot
+export class BasicActor implements IActor
 {
     protected readonly map = Map.GetInstance();
 
@@ -13,7 +13,7 @@ export class BasicRobot implements IRobot
     private position: Coord;
 
     /**
-     * Construct a new BasicRobot.
+     * Construct a new BasicActor.
      * @param position
      */
     public constructor(position: Coord)
@@ -33,11 +33,11 @@ export class BasicRobot implements IRobot
      */
     public GetTexture(): string
     {
-        return "res/robot.png";
+        return "res/actor.png";
     }
 
     /**
-     * Move robot in a direction.
+     * Move actor in a direction.
      * @param direction
      */
     public Move(direction: Coord): boolean
@@ -74,21 +74,21 @@ export class BasicRobot implements IRobot
     }
 
     /**
-     * Attack an other robot if it is one cell away.
-     * @param robot 
+     * Attack an other actor if it is one cell away.
+     * @param actor 
      */
-    public Attack(robot: IRobot): boolean
+    public Attack(actor: IActor): boolean
     {
-        if(this.position.GetDistance(robot.GetPosition()) > 1)
+        if(this.position.GetDistance(actor.GetPosition()) > 1)
         {
             return false;
         }
 
-        robot.Damage(this.damage);
+        actor.Damage(this.damage);
     }
 
     /**
-     * Get the position of the robot.
+     * Get the position of the actor.
      */
     public GetPosition(): Coord 
     {
@@ -96,7 +96,7 @@ export class BasicRobot implements IRobot
     }
 
     /**
-     * Do damage to this robot.
+     * Do damage to this actor.
      * @param damage Amount of the damage.
      */
     public Damage(damage: number): void
@@ -110,18 +110,18 @@ export class BasicRobot implements IRobot
     }
 
     /**
-     * Kill the robot.
+     * Kill the actor.
      */
     private Kill(): void
     {
         this.health = 0;
 
-        this.map.RemoveRobot(this);
+        this.map.RemoveActor(this);
         this.map.OnUpdate();
     }
 
     /**
-     * Check if the robot is alive.
+     * Check if the actor is alive.
      */
     public IsAlive(): boolean
     {

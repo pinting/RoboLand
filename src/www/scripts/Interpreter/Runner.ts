@@ -1,6 +1,6 @@
 import { Adapter } from './Adapter';
 import { Processor } from './Processor';
-import { IRobot } from './../Element/Robot/IRobot';
+import { IActor } from './../Element/Actor/IActor';
 import { Parser } from './Parser';
 import { Utils } from '../Utils';
 
@@ -17,9 +17,9 @@ export class Runner
     private processor: Processor;
     private parser: Parser;
 
-    public constructor(robot: IRobot)
+    public constructor(actor: IActor)
     {
-        this.adapter = new Adapter(robot);
+        this.adapter = new Adapter(actor);
         this.processor = new Processor;
         this.parser = new Parser;
     }

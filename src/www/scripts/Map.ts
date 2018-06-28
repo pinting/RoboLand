@@ -1,18 +1,18 @@
 import { ICell } from "./Element/Cell/ICell";
 import { GroundCell } from "./Element/Cell/GroundCell";
 import { Coord } from "./Coord";
-import { IRobot } from "./Element/Robot/IRobot";
+import { IActor } from "./Element/Actor/IActor";
 import { IElement } from "./Element/IElement";
 import { Utils } from "./Utils";
 import { CellFactory } from "./Element/Cell/CellFactory";
 import { CellType } from "./Element/Cell/CellType";
-import { BasicRobot } from "./Element/Robot/BasicRobot";
+import { BasicActor } from "./Element/Actor/BasicActor";
 
 export class Map
 {
-    private readonly robotCount: number = 2;
+    private readonly actorCount: number = 2;
 
-    private robots: Array<IRobot>;
+    private actors: Array<IActor>;
     private cells: Array<ICell>;
 
     private size: number;
@@ -42,7 +42,7 @@ export class Map
     public Init(size: number)
     {
         this.size = size;
-        this.robots = [];
+        this.actors = [];
         this.cells = [];
 
         for(var i = 0; i < size * size; i++)
@@ -53,8 +53,8 @@ export class Map
             this.cells[i] = new GroundCell(new Coord(x, y));
         }
 
-        this.robots.push(new BasicRobot(new Coord(Utils.Random(0, size - 1), 0)));
-        this.robots.push(new BasicRobot(new Coord(Utils.Random(0, size - 1), size - 1)));
+        this.actors.push(new BasicActor(new Coord(Utils.Random(0, size - 1), 0)));
+        this.actors.push(new BasicActor(new Coord(Utils.Random(0, size - 1), size - 1)));
 
         this.OnUpdate();
     }
@@ -85,11 +85,11 @@ export class Map
         }
 
         this.cells = [];
-        this.robots = [];
+        this.actors = [];
         this.size = raw.shift(); // First element is the size
 
-        var robotSpots = new Array<Coord>();
-        var robotCount = 0;
+        var actorSpots = new Array<Coord>();
+        var actorCount = 0;
 
         for(let i = 0; i < raw.length; i++)
         {
@@ -101,32 +101,32 @@ export class Map
             // Create cell based on the CellType
             this.cells[i] = CellFactory.FromType(type, new Coord(x, y));
 
-            // If the cell is ground and there is 0 or 1 robot, try to add one
-            if(robotCount < this.robotCount && type == CellType.Ground)
+            // If the cell is ground and there is 0 or 1 actor, try to add one
+            if(actorCount < this.actorCount && type == CellType.Ground)
             {
                 // Give the cell 5% chance
                 if(Utils.Random(0, 20) == 1)
                 {
-                    // Add a new robot and increment robot count
-                    this.robots.push(new BasicRobot(new Coord(x, y)));
-                    robotCount++;
+                    // Add a new actor and increment actor count
+                    this.actors.push(new BasicActor(new Coord(x, y)));
+                    actorCount++;
                 }
                 else
                 {
                     // If the cell lost, save it for later
-                    robotSpots.push(new Coord(x, y))
+                    actorSpots.push(new Coord(x, y))
                 }
             }
         }
 
-        // If the map is loaded, but too few robots were added, add new ones
+        // If the map is loaded, but too few actors were added, add new ones
         // based on the [save if for later] spots
-        for(; robotSpots.length > 0 && robotCount < this.robotCount; robotCount++)
+        for(; actorSpots.length > 0 && actorCount < this.actorCount; actorCount++)
         {
-            let coord = robotSpots.splice(Utils.Random(0, robotSpots.length - 1), 1)[0];
-            let robot = new BasicRobot(coord);
+            let coord = actorSpots.splice(Utils.Random(0, actorSpots.length - 1), 1)[0];
+            let actor = new BasicActor(coord);
 
-            this.robots.push(robot);
+            this.actors.push(actor);
         }
 
         this.OnUpdate();
@@ -164,25 +164,25 @@ export class Map
     }
 
     /**
-     * Get a robot by coord.
+     * Get a actor by coord.
      * @param coord 
      */
-    public GetRobot(coord: Coord): IRobot
+    public GetActor(coord: Coord): IActor
     {
-        return <IRobot>this.GetElement(this.robots, coord);
+        return <IActor>this.GetElement(this.actors, coord);
     }
 
     /**
-     * Remove a robot from the list.
-     * @param robot 
+     * Remove a actor from the list.
+     * @param actor 
      */
-    public RemoveRobot(robot: IRobot)
+    public RemoveActor(actor: IActor)
     {
-        var index = this.robots.indexOf(robot);
+        var index = this.actors.indexOf(actor);
 
         if(index >= 0)
         {
-            this.robots.splice(index, 1);
+            this.actors.splice(index, 1);
         }
     }
 
@@ -203,19 +203,19 @@ export class Map
     }
 
     /**
-     * Get the robots of the map.
+     * Get the actors of the map.
      */
-    public GetRobots(): Array<IRobot>
+    public GetActors(): Array<IActor>
     {
-        return this.robots;
+        return this.actors;
     }
 
     /**
-     * Return elements of the map (robots and cells).
+     * Return elements of the map (actors and cells).
      */
     public GetElements(): Array<IElement>
     {
-        return (<IElement[]>this.cells).concat(<IElement[]>this.robots);
+        return (<IElement[]>this.cells).concat(<IElement[]>this.actors);
     }
 
     /**

@@ -63,15 +63,15 @@ class GroundCell {
     GetPosition() {
         return this.position;
     }
-    MoveHere(robot) {
-        if (this.robot != null) {
+    MoveHere(actor) {
+        if (this.actor != null) {
             return MoveType_1.MoveType.Blocked;
         }
-        this.robot = robot;
+        this.actor = actor;
         return MoveType_1.MoveType.Successed;
     }
     MoveAway() {
-        this.robot = null;
+        this.actor = null;
     }
 }
 exports.GroundCell = GroundCell;
@@ -88,7 +88,7 @@ class WaterCell extends GroundCell_1.GroundCell {
     GetTexture() {
         return "res/water.png";
     }
-    MoveHere(robot) {
+    MoveHere(actor) {
         return MoveType_1.MoveType.Killed;
     }
 }
@@ -107,7 +107,7 @@ var MoveType;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Map_1 = require("../../Map");
 const MoveType_1 = require("../MoveType");
-class BasicRobot {
+class BasicActor {
     constructor(position) {
         this.map = Map_1.Map.GetInstance();
         this.health = 1.0;
@@ -119,7 +119,7 @@ class BasicRobot {
         }
     }
     GetTexture() {
-        return "res/robot.png";
+        return "res/actor.png";
     }
     Move(direction) {
         if (Math.abs(Math.abs(direction.X) - Math.abs(direction.Y)) == 0) {
@@ -146,11 +146,11 @@ class BasicRobot {
                 return true;
         }
     }
-    Attack(robot) {
-        if (this.position.GetDistance(robot.GetPosition()) > 1) {
+    Attack(actor) {
+        if (this.position.GetDistance(actor.GetPosition()) > 1) {
             return false;
         }
-        robot.Damage(this.damage);
+        actor.Damage(this.damage);
     }
     GetPosition() {
         return this.position;
@@ -163,14 +163,14 @@ class BasicRobot {
     }
     Kill() {
         this.health = 0;
-        this.map.RemoveRobot(this);
+        this.map.RemoveActor(this);
         this.map.OnUpdate();
     }
     IsAlive() {
         return this.health > 0;
     }
 }
-exports.BasicRobot = BasicRobot;
+exports.BasicActor = BasicActor;
 },{"../../Map":12,"../MoveType":6}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -178,30 +178,30 @@ const Map_1 = require("../Map");
 const Coord_1 = require("../Coord");
 const CellType_1 = require("../Element/Cell/CellType");
 class Adapter {
-    constructor(robot) {
-        this.robot = robot;
+    constructor(actor) {
+        this.actor = actor;
         this.map = Map_1.Map.GetInstance();
     }
     inv(n) {
         return n == 0 ? 1 : 0;
     }
     move(dx, dy) {
-        return this.robot.Move(new Coord_1.Coord(dx, dy)) ? 1 : 0;
+        return this.actor.Move(new Coord_1.Coord(dx, dy)) ? 1 : 0;
     }
     test(dx, dy) {
-        var cell = this.map.GetCell(this.robot.GetPosition().Difference(new Coord_1.Coord(dx, dy)));
+        var cell = this.map.GetCell(this.actor.GetPosition().Difference(new Coord_1.Coord(dx, dy)));
         return cell != null && cell.GetType() == CellType_1.CellType.Ground ? 1 : 0;
     }
     attack() {
         var result = null;
-        this.map.GetRobots().some(robot => {
-            if (robot.GetPosition().GetDistance(this.robot.GetPosition()) == 1) {
-                result = robot;
+        this.map.GetActors().some(actor => {
+            if (actor.GetPosition().GetDistance(this.actor.GetPosition()) == 1) {
+                result = actor;
                 return true;
             }
             return false;
         });
-        return result != null && this.robot.Attack(result) ? 1 : 0;
+        return result != null && this.actor.Attack(result) ? 1 : 0;
     }
 }
 exports.Adapter = Adapter;
@@ -376,10 +376,10 @@ const Processor_1 = require("./Processor");
 const Parser_1 = require("./Parser");
 const Utils_1 = require("../Utils");
 class Runner {
-    constructor(robot) {
+    constructor(actor) {
         this.speed = 300;
         this.OnLine = Utils_1.Utils.Noop;
-        this.adapter = new Adapter_1.Adapter(robot);
+        this.adapter = new Adapter_1.Adapter(actor);
         this.processor = new Processor_1.Processor;
         this.parser = new Parser_1.Parser;
     }
@@ -478,10 +478,10 @@ const Coord_1 = require("./Coord");
 const Utils_1 = require("./Utils");
 const CellFactory_1 = require("./Element/Cell/CellFactory");
 const CellType_1 = require("./Element/Cell/CellType");
-const BasicRobot_1 = require("./Element/Robot/BasicRobot");
+const BasicActor_1 = require("./Element/Actor/BasicActor");
 class Map {
     constructor() {
-        this.robotCount = 2;
+        this.actorCount = 2;
         this.OnUpdate = Utils_1.Utils.Noop;
     }
     static GetInstance() {
@@ -492,15 +492,15 @@ class Map {
     }
     Init(size) {
         this.size = size;
-        this.robots = [];
+        this.actors = [];
         this.cells = [];
         for (var i = 0; i < size * size; i++) {
             let x = i % size;
             let y = Math.floor(i / size);
             this.cells[i] = new GroundCell_1.GroundCell(new Coord_1.Coord(x, y));
         }
-        this.robots.push(new BasicRobot_1.BasicRobot(new Coord_1.Coord(Utils_1.Utils.Random(0, size - 1), 0)));
-        this.robots.push(new BasicRobot_1.BasicRobot(new Coord_1.Coord(Utils_1.Utils.Random(0, size - 1), size - 1)));
+        this.actors.push(new BasicActor_1.BasicActor(new Coord_1.Coord(Utils_1.Utils.Random(0, size - 1), 0)));
+        this.actors.push(new BasicActor_1.BasicActor(new Coord_1.Coord(Utils_1.Utils.Random(0, size - 1), size - 1)));
         this.OnUpdate();
     }
     Load(url) {
@@ -516,29 +516,29 @@ class Map {
                 return;
             }
             this.cells = [];
-            this.robots = [];
+            this.actors = [];
             this.size = raw.shift();
-            var robotSpots = new Array();
-            var robotCount = 0;
+            var actorSpots = new Array();
+            var actorCount = 0;
             for (let i = 0; i < raw.length; i++) {
                 let x = i % this.size;
                 let y = Math.floor(i / this.size);
                 let type = raw[i];
                 this.cells[i] = CellFactory_1.CellFactory.FromType(type, new Coord_1.Coord(x, y));
-                if (robotCount < this.robotCount && type == CellType_1.CellType.Ground) {
+                if (actorCount < this.actorCount && type == CellType_1.CellType.Ground) {
                     if (Utils_1.Utils.Random(0, 20) == 1) {
-                        this.robots.push(new BasicRobot_1.BasicRobot(new Coord_1.Coord(x, y)));
-                        robotCount++;
+                        this.actors.push(new BasicActor_1.BasicActor(new Coord_1.Coord(x, y)));
+                        actorCount++;
                     }
                     else {
-                        robotSpots.push(new Coord_1.Coord(x, y));
+                        actorSpots.push(new Coord_1.Coord(x, y));
                     }
                 }
             }
-            for (; robotSpots.length > 0 && robotCount < this.robotCount; robotCount++) {
-                let coord = robotSpots.splice(Utils_1.Utils.Random(0, robotSpots.length - 1), 1)[0];
-                let robot = new BasicRobot_1.BasicRobot(coord);
-                this.robots.push(robot);
+            for (; actorSpots.length > 0 && actorCount < this.actorCount; actorCount++) {
+                let coord = actorSpots.splice(Utils_1.Utils.Random(0, actorSpots.length - 1), 1)[0];
+                let actor = new BasicActor_1.BasicActor(coord);
+                this.actors.push(actor);
             }
             this.OnUpdate();
         });
@@ -556,13 +556,13 @@ class Map {
     GetCell(coord) {
         return this.GetElement(this.cells, coord);
     }
-    GetRobot(coord) {
-        return this.GetElement(this.robots, coord);
+    GetActor(coord) {
+        return this.GetElement(this.actors, coord);
     }
-    RemoveRobot(robot) {
-        var index = this.robots.indexOf(robot);
+    RemoveActor(actor) {
+        var index = this.actors.indexOf(actor);
         if (index >= 0) {
-            this.robots.splice(index, 1);
+            this.actors.splice(index, 1);
         }
     }
     GetSize() {
@@ -571,15 +571,15 @@ class Map {
     GetCells() {
         return this.cells;
     }
-    GetRobots() {
-        return this.robots;
+    GetActors() {
+        return this.actors;
     }
     GetElements() {
-        return this.cells.concat(this.robots);
+        return this.cells.concat(this.actors);
     }
 }
 exports.Map = Map;
-},{"./Coord":1,"./Element/Cell/CellFactory":2,"./Element/Cell/CellType":3,"./Element/Cell/GroundCell":4,"./Element/Robot/BasicRobot":7,"./Utils":13}],13:[function(require,module,exports){
+},{"./Coord":1,"./Element/Cell/CellFactory":2,"./Element/Cell/CellType":3,"./Element/Cell/GroundCell":4,"./Element/Actor/BasicActor":7,"./Utils":13}],13:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -684,8 +684,8 @@ const draw = (e, loaded) => {
 };
 const update = () => {
     if (!runner) {
-        player = map.GetRobots()[0];
-        enemy = map.GetRobots()[1];
+        player = map.GetActors()[0];
+        enemy = map.GetActors()[1];
         runner = new Runner_1.Runner(player);
         runner.OnLine = (line, count) => {
             lineInput.value = `${count}: ${line}`;
@@ -697,9 +697,9 @@ const update = () => {
         map.GetCells().forEach(cell => {
             draw(cell, () => {
                 if (++i == map.GetSize()) {
-                    map.GetRobots().forEach(robot => {
-                        last.push(robot.GetPosition().Clone());
-                        draw(robot, Utils_1.Utils.Noop);
+                    map.GetActors().forEach(actor => {
+                        last.push(actor.GetPosition().Clone());
+                        draw(actor, Utils_1.Utils.Noop);
                     });
                 }
             });
@@ -711,9 +711,9 @@ const update = () => {
             draw(map.GetCell(c), Utils_1.Utils.Noop);
             if (++i == last.length) {
                 last.length = 0;
-                map.GetRobots().forEach(robot => {
-                    last.push(robot.GetPosition().Clone());
-                    draw(robot, Utils_1.Utils.Noop);
+                map.GetActors().forEach(actor => {
+                    last.push(actor.GetPosition().Clone());
+                    draw(actor, Utils_1.Utils.Noop);
                 });
             }
         });
