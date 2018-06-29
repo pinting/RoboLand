@@ -2,7 +2,7 @@ import { ICell } from "./ICell"
 import { IActor } from "../Actor/IActor";
 import { Coord } from "../../Coord";
 import { MoveType } from "../MoveType";
-import { CellType } from "./CellType"
+import { ElementType } from "../ElementType"
 
 export class GroundCell implements ICell
 {
@@ -21,9 +21,9 @@ export class GroundCell implements ICell
     /**
      * Get the type of the cell.
      */
-    public GetType(): CellType
+    public GetType(): ElementType
     {
-        return CellType.Ground;
+        return ElementType.GroundCell;
     }
 
     /**

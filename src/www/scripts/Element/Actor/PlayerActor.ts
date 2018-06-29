@@ -2,8 +2,9 @@ import { IActor } from "./IActor";
 import { Map } from "../../Map";
 import { MoveType } from "../MoveType";
 import { Coord } from "../../Coord";
+import { ElementType } from "../ElementType";
 
-export class BasicActor implements IActor
+export class PlayerActor implements IActor
 {
     protected readonly map = Map.GetInstance();
 
@@ -13,19 +14,27 @@ export class BasicActor implements IActor
     private position: Coord;
 
     /**
-     * Construct a new BasicActor.
+     * Construct a new PlayerActor.
      * @param position
      */
     public constructor(position: Coord)
     {
         this.position = position;
 
-        let cell = Map.GetInstance().GetCell(position);
+        const cell = Map.GetInstance().GetCell(position);
 
         if(cell != null)
         {
             cell.MoveHere(this);
         }
+    }
+
+    /**
+     * Get the type of the actor.
+     */
+    public GetType(): ElementType
+    {
+        return ElementType.PlayerActor;
     }
 
     /**

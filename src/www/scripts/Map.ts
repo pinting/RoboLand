@@ -4,9 +4,10 @@ import { Coord } from "./Coord";
 import { IActor } from "./Element/Actor/IActor";
 import { IElement } from "./Element/IElement";
 import { Utils } from "./Utils";
-import { CellFactory } from "./Element/Cell/CellFactory";
-import { CellType } from "./Element/Cell/CellType";
-import { BasicActor } from "./Element/Actor/BasicActor";
+import { ElementFactory } from "./Element/ElementFactory";
+import { ElementType } from "./Element/ElementType";
+import { PlayerActor } from "./Element/Actor/PlayerActor";
+import { IRawMap } from "./IRawMap";
 
 export class Map
 {
@@ -51,8 +52,8 @@ export class Map
             this.cells[i] = new GroundCell(new Coord(x, y));
         }
 
-        this.actors.push(new BasicActor(new Coord(Utils.Random(0, size - 1), 0)));
-        this.actors.push(new BasicActor(new Coord(Utils.Random(0, size - 1), size - 1)));
+        this.actors.push(new PlayerActor(new Coord(Utils.Random(0, size - 1), 0)));
+        this.actors.push(new PlayerActor(new Coord(Utils.Random(0, size - 1), size - 1)));
 
         this.OnUpdate();
     }
@@ -60,19 +61,19 @@ export class Map
     /**
      * Load a map from an external file. The JSON needs to contain an array of numbers.
      * The first number will determinate the size of the map, while the others will
-     * tell the interpreter type of the cell based on the CellType enum.
+     * tell the interpreter type of the cell based on the ElementType enum.
      * @param url 
      */
     public async Load(url: string): Promise<void>
     {
-        let raw: Array<number>;
+        let raw: IRawMap;
 
         try
         {
             raw = JSON.parse(await Utils.Get(url));
 
             // Check if it is a valid map array
-            if(raw == null && raw.length < 2 && raw.length != Math.pow(raw[0], 2) + 1)
+            if(raw == null || raw.Size < 2 || raw.Cells.length != Math.pow(raw.Size, 2))
             {
                 return;
             }
@@ -84,16 +85,26 @@ export class Map
 
         this.cells = [];
         this.actors = [];
-        this.size = raw.shift(); // First element is the size
+        this.size = raw.Size;
 
-        for(let i = 0; i < raw.length; i++)
+        for(let i = 0; i < raw.Cells.length; i++)
         {
             let x = i % this.size;
             let y = Math.floor(i / this.size);
 
-            let type: CellType = raw[i];
+            let type: ElementType = raw.Cells[i];
 
-            this.cells[i] = CellFactory.FromType(type, new Coord(x, y));
+            this.cells[i] = <ICell>ElementFactory.FromType(type, new Coord(x, y));
+        }
+
+        for(let i = 0; i < raw.Actors.length; i++) 
+        {
+            const data = raw.Actors[i];
+
+            const type = data.T;
+            const coord = new Coord(data.X, data.Y);
+
+            this.actors.push(<IActor>ElementFactory.FromType(type, coord));
         }
 
         this.OnUpdate();
@@ -136,6 +147,11 @@ export class Map
      */
     public GetCellNear(coord: Coord): ICell
     {
+        if(coord.X < 0 || coord.Y < 0 || coord.X >= this.size || coord.Y >= this.size) 
+        {
+            return null;
+        }
+
         let result: ICell = null;
         let min = Infinity;
 

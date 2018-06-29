@@ -23,39 +23,39 @@ exports.Coord = Coord;
 },{}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const CellType_1 = require("./CellType");
+const ElementType_1 = require("./ElementType");
 const GroundCell_1 = require("./GroundCell");
 const WaterCell_1 = require("./WaterCell");
 class CellFactory {
     static FromType(type, position) {
         switch (type) {
-            case CellType_1.CellType.Ground:
+            case ElementType_1.ElementType.Ground:
                 return new GroundCell_1.GroundCell(position);
-            case CellType_1.CellType.Water:
+            case ElementType_1.ElementType.Water:
                 return new WaterCell_1.WaterCell(position);
         }
     }
 }
 exports.CellFactory = CellFactory;
-},{"./CellType":3,"./GroundCell":4,"./WaterCell":5}],3:[function(require,module,exports){
+},{"./ElementType":3,"./GroundCell":4,"./WaterCell":5}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-let CellType;
-(function (CellType) {
-    CellType[CellType["Ground"] = 0] = "Ground";
-    CellType[CellType["Water"] = 1] = "Water";
-})(CellType = exports.CellType || (exports.CellType = {}));
+let ElementType;
+(function (ElementType) {
+    ElementType[ElementType["Ground"] = 0] = "Ground";
+    ElementType[ElementType["Water"] = 1] = "Water";
+})(ElementType = exports.ElementType || (exports.ElementType = {}));
 },{}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const MoveType_1 = require("../MoveType");
-const CellType_1 = require("./CellType");
+const ElementType_1 = require("./ElementType");
 class GroundCell {
     constructor(position) {
         this.position = position;
     }
     GetType() {
-        return CellType_1.CellType.Ground;
+        return ElementType_1.ElementType.Ground;
     }
     GetTexture() {
         return "res/ground.png";
@@ -75,15 +75,15 @@ class GroundCell {
     }
 }
 exports.GroundCell = GroundCell;
-},{"../MoveType":6,"./CellType":3}],5:[function(require,module,exports){
+},{"../MoveType":6,"./ElementType":3}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const GroundCell_1 = require("./GroundCell");
 const MoveType_1 = require("../MoveType");
-const CellType_1 = require("./CellType");
+const ElementType_1 = require("./ElementType");
 class WaterCell extends GroundCell_1.GroundCell {
     GetType() {
-        return CellType_1.CellType.Water;
+        return ElementType_1.ElementType.Water;
     }
     GetTexture() {
         return "res/water.png";
@@ -93,7 +93,7 @@ class WaterCell extends GroundCell_1.GroundCell {
     }
 }
 exports.WaterCell = WaterCell;
-},{"../MoveType":6,"./CellType":3,"./GroundCell":4}],6:[function(require,module,exports){
+},{"../MoveType":6,"./ElementType":3,"./GroundCell":4}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 let MoveType;
@@ -107,7 +107,7 @@ let MoveType;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Map_1 = require("../../Map");
 const MoveType_1 = require("../MoveType");
-class BasicActor {
+class PlayerActor {
     constructor(position) {
         this.map = Map_1.Map.GetInstance();
         this.health = 1.0;
@@ -170,13 +170,13 @@ class BasicActor {
         return this.health > 0;
     }
 }
-exports.BasicActor = BasicActor;
+exports.PlayerActor = PlayerActor;
 },{"../../Map":12,"../MoveType":6}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Map_1 = require("../Map");
 const Coord_1 = require("../Coord");
-const CellType_1 = require("../Element/Cell/CellType");
+const ElementType_1 = require("../Element/Cell/ElementType");
 class Adapter {
     constructor(actor) {
         this.actor = actor;
@@ -190,7 +190,7 @@ class Adapter {
     }
     test(dx, dy) {
         let cell = this.map.GetCell(this.actor.GetPosition().Difference(new Coord_1.Coord(dx, dy)));
-        return cell != null && cell.GetType() == CellType_1.CellType.Ground ? 1 : 0;
+        return cell != null && cell.GetType() == ElementType_1.ElementType.Ground ? 1 : 0;
     }
     attack() {
         let result = null;
@@ -205,7 +205,7 @@ class Adapter {
     }
 }
 exports.Adapter = Adapter;
-},{"../Coord":1,"../Element/Cell/CellType":3,"../Map":12}],9:[function(require,module,exports){
+},{"../Coord":1,"../Element/Cell/ElementType":3,"../Map":12}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Parser {
@@ -477,8 +477,8 @@ const GroundCell_1 = require("./Element/Cell/GroundCell");
 const Coord_1 = require("./Coord");
 const Utils_1 = require("./Utils");
 const CellFactory_1 = require("./Element/Cell/CellFactory");
-const CellType_1 = require("./Element/Cell/CellType");
-const BasicActor_1 = require("./Element/Actor/BasicActor");
+const ElementType_1 = require("./Element/Cell/ElementType");
+const PlayerActor_1 = require("./Element/Actor/PlayerActor");
 class Map {
     constructor() {
         this.actorCount = 2;
@@ -499,8 +499,8 @@ class Map {
             let y = Math.floor(i / size);
             this.cells[i] = new GroundCell_1.GroundCell(new Coord_1.Coord(x, y));
         }
-        this.actors.push(new BasicActor_1.BasicActor(new Coord_1.Coord(Utils_1.Utils.Random(0, size - 1), 0)));
-        this.actors.push(new BasicActor_1.BasicActor(new Coord_1.Coord(Utils_1.Utils.Random(0, size - 1), size - 1)));
+        this.actors.push(new PlayerActor_1.PlayerActor(new Coord_1.Coord(Utils_1.Utils.Random(0, size - 1), 0)));
+        this.actors.push(new PlayerActor_1.PlayerActor(new Coord_1.Coord(Utils_1.Utils.Random(0, size - 1), size - 1)));
         this.OnUpdate();
     }
     Load(url) {
@@ -525,9 +525,9 @@ class Map {
                 let y = Math.floor(i / this.size);
                 let type = raw[i];
                 this.cells[i] = CellFactory_1.CellFactory.FromType(type, new Coord_1.Coord(x, y));
-                if (actorCount < this.actorCount && type == CellType_1.CellType.Ground) {
+                if (actorCount < this.actorCount && type == ElementType_1.ElementType.Ground) {
                     if (Utils_1.Utils.Random(0, 20) == 1) {
-                        this.actors.push(new BasicActor_1.BasicActor(new Coord_1.Coord(x, y)));
+                        this.actors.push(new PlayerActor_1.PlayerActor(new Coord_1.Coord(x, y)));
                         actorCount++;
                     }
                     else {
@@ -537,7 +537,7 @@ class Map {
             }
             for (; actorSpots.length > 0 && actorCount < this.actorCount; actorCount++) {
                 let coord = actorSpots.splice(Utils_1.Utils.Random(0, actorSpots.length - 1), 1)[0];
-                let actor = new BasicActor_1.BasicActor(coord);
+                let actor = new PlayerActor_1.PlayerActor(coord);
                 this.actors.push(actor);
             }
             this.OnUpdate();
@@ -579,7 +579,7 @@ class Map {
     }
 }
 exports.Map = Map;
-},{"./Coord":1,"./Element/Cell/CellFactory":2,"./Element/Cell/CellType":3,"./Element/Cell/GroundCell":4,"./Element/Actor/BasicActor":7,"./Utils":13}],13:[function(require,module,exports){
+},{"./Coord":1,"./Element/Cell/CellFactory":2,"./Element/Cell/ElementType":3,"./Element/Cell/GroundCell":4,"./Element/Actor/PlayerActor":7,"./Utils":13}],13:[function(require,module,exports){
 "use strict";
 let __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {

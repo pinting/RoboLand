@@ -1,16 +1,16 @@
 import { GroundCell } from "./GroundCell"
 import { IActor } from "../Actor/IActor";
 import { MoveType } from "../MoveType";
-import { CellType } from "./CellType";
+import { ElementType } from "../ElementType";
 
 export class WaterCell extends GroundCell
 {
     /**
      * Get the type of the cell.
      */
-    public GetType(): CellType
+    public GetType(): ElementType
     {
-        return CellType.Water;
+        return ElementType.WaterCell;
     }
 
     /**

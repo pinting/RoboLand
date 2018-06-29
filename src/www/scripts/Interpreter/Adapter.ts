@@ -1,7 +1,7 @@
 import { Map } from '../Map';
 import { IActor } from "../Element/Actor/IActor";
 import { Coord } from "../Coord";
-import { CellType } from "../Element/Cell/CellType";
+import { ElementType } from "../Element/ElementType";
 
 export class Adapter
 {
@@ -42,7 +42,7 @@ export class Adapter
     {
         let cell = this.map.GetCell(this.actor.GetPosition().Add(new Coord(dx, dy)));
 
-        return cell != null && cell.GetType() == CellType.Ground ? 1 : 0;
+        return cell != null && cell.GetType() == ElementType.GroundCell ? 1 : 0;
     }
 
     /**

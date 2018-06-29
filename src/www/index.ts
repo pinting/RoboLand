@@ -97,8 +97,9 @@ const update = () =>
 };
 
 map.OnUpdate = update;
-map.Init(8);
+map.Load("res/map.json");
 
+// Only for debug
 window["map"] = map;
 window["out"] = {
     Coord
