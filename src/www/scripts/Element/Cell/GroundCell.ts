@@ -6,8 +6,8 @@ import { CellType } from "./CellType"
 
 export class GroundCell implements ICell
 {
+    protected actors: IActor[] = [];
     protected position: Coord;
-    protected actor: IActor;
 
     /**
      * Construct a new empty cell - ground.
@@ -48,21 +48,22 @@ export class GroundCell implements ICell
      */
     public MoveHere(actor: IActor): MoveType 
     {
-        if(this.actor != null) 
-        {
-            return MoveType.Blocked;
-        }
-
-        this.actor = actor;
+        this.actors.push(actor);
 
         return MoveType.Successed;
     }
 
     /**
      * Leave cell.
+     * @param actor 
      */
-    public MoveAway(): void 
+    public MoveAway(actor: IActor): void 
     {
-        this.actor = null;
+        const index = this.actors.indexOf(actor);
+
+        if(index >= 0) 
+        {
+            this.actors.splice(index, 1);
+        }
     }
 }

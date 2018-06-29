@@ -8,5 +8,5 @@ export interface ICell extends IElement
 {
     GetType(): CellType;
     MoveHere(actor: IActor): MoveType;
-    MoveAway(): void;
+    MoveAway(actor: IActor): void;
 }

@@ -10,8 +10,6 @@ import { BasicActor } from "./Element/Actor/BasicActor";
 
 export class Map
 {
-    private readonly actorCount: number = 2;
-
     private actors: Array<IActor>;
     private cells: Array<ICell>;
 
@@ -45,7 +43,7 @@ export class Map
         this.actors = [];
         this.cells = [];
 
-        for(var i = 0; i < size * size; i++)
+        for(let i = 0; i < size * size; i++)
         {
             let x = i % size;
             let y = Math.floor(i / size);
@@ -67,7 +65,7 @@ export class Map
      */
     public async Load(url: string): Promise<void>
     {
-        var raw: Array<number>;
+        let raw: Array<number>;
 
         try
         {
@@ -88,9 +86,6 @@ export class Map
         this.actors = [];
         this.size = raw.shift(); // First element is the size
 
-        var actorSpots = new Array<Coord>();
-        var actorCount = 0;
-
         for(let i = 0; i < raw.length; i++)
         {
             let x = i % this.size;
@@ -98,35 +93,7 @@ export class Map
 
             let type: CellType = raw[i];
 
-            // Create cell based on the CellType
             this.cells[i] = CellFactory.FromType(type, new Coord(x, y));
-
-            // If the cell is ground and there is 0 or 1 actor, try to add one
-            if(actorCount < this.actorCount && type == CellType.Ground)
-            {
-                // Give the cell 5% chance
-                if(Utils.Random(0, 20) == 1)
-                {
-                    // Add a new actor and increment actor count
-                    this.actors.push(new BasicActor(new Coord(x, y)));
-                    actorCount++;
-                }
-                else
-                {
-                    // If the cell lost, save it for later
-                    actorSpots.push(new Coord(x, y))
-                }
-            }
-        }
-
-        // If the map is loaded, but too few actors were added, add new ones
-        // based on the [save if for later] spots
-        for(; actorSpots.length > 0 && actorCount < this.actorCount; actorCount++)
-        {
-            let coord = actorSpots.splice(Utils.Random(0, actorSpots.length - 1), 1)[0];
-            let actor = new BasicActor(coord);
-
-            this.actors.push(actor);
         }
 
         this.OnUpdate();
@@ -139,7 +106,7 @@ export class Map
      */
     private GetElement(form: IElement[], coord: Coord): IElement
     {
-        var result: IElement = null;
+        let result: IElement = null;
 
         form.some(e => 
         {
@@ -164,6 +131,59 @@ export class Map
     }
 
     /**
+     * Get the nearest cell to the given coord.
+     * @param coord 
+     */
+    public GetCellNear(coord: Coord): ICell
+    {
+        let result: ICell = null;
+        let min = Infinity;
+
+        this.cells.forEach(e => 
+        {
+            const center = e.GetPosition().Clone();
+
+            center.X = center.X + 0.5;
+            center.Y = center.Y + 0.5;
+
+            const distance = center.GetDistance(coord);
+
+            if(distance < min) 
+            {
+                min = distance;
+                result = e;
+            }
+        });
+
+        return result;
+    }
+
+    /**
+     * Get cells around coord.
+     * @param coord 
+     */
+    public GetCellAround(coord: Coord): ICell[]
+    {
+        const result = [];
+        const center = coord.Floor();
+
+        for(let x = -1; x <= 1; x++) 
+        {
+            for(let y = -1; y <= 1; y++) 
+            {
+                const cell = this.GetCell(center.Add(new Coord(x, y)));
+
+                if(cell) 
+                {
+                    result.push(cell);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Get a actor by coord.
      * @param coord 
      */
@@ -178,7 +198,7 @@ export class Map
      */
     public RemoveActor(actor: IActor)
     {
-        var index = this.actors.indexOf(actor);
+        let index = this.actors.indexOf(actor);
 
         if(index >= 0)
         {

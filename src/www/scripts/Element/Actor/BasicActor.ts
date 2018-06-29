@@ -1,7 +1,7 @@
 import { IActor } from "./IActor";
-import { Coord } from "../../Coord";
 import { Map } from "../../Map";
 import { MoveType } from "../MoveType";
+import { Coord } from "../../Coord";
 
 export class BasicActor implements IActor
 {
@@ -20,7 +20,7 @@ export class BasicActor implements IActor
     {
         this.position = position;
 
-        var cell = Map.GetInstance().GetCell(position);
+        let cell = Map.GetInstance().GetCell(position);
 
         if(cell != null)
         {
@@ -42,14 +42,14 @@ export class BasicActor implements IActor
      */
     public Move(direction: Coord): boolean
     {
-        if(Math.abs(Math.abs(direction.X) - Math.abs(direction.Y)) == 0)
+        if(Math.abs(direction.X) > 1 || Math.abs(direction.Y) > 1)
         {
-            return false; // Only allow left, right, top and bottom movement
+            return false; // Only allow 1 length movement
         }
 
-        var lastCell = this.map.GetCell(this.position);
-        var nextCoord = this.position.Difference(direction);
-        var nextCell = this.map.GetCell(nextCoord);
+        let lastCell = this.map.GetCellNear(this.position);
+        let nextCoord = this.position.Add(direction);
+        let nextCell = this.map.GetCellNear(nextCoord);
 
         if(lastCell == null || nextCell == null)
         {
@@ -61,12 +61,12 @@ export class BasicActor implements IActor
             case MoveType.Blocked: // Do nothing
                 return false;
             case MoveType.Killed: // Move away and kill it
-                lastCell.MoveAway();
+                lastCell.MoveAway(this);
                 this.position = nextCoord;
                 this.Kill();
                 return false;
             case MoveType.Successed: // Move away
-                lastCell.MoveAway();
+                lastCell.MoveAway(this);
                 this.position = nextCoord;
                 this.map.OnUpdate();
                 return true;
@@ -90,7 +90,7 @@ export class BasicActor implements IActor
     /**
      * Get the position of the actor.
      */
-    public GetPosition(): Coord 
+    public GetPosition(): Coord
     {
         return this.position;
     }

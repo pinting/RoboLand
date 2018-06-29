@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){let a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);let f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}let l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){let n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}let i=typeof require=="function"&&require;for(let o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Coord {
@@ -40,7 +40,7 @@ exports.CellFactory = CellFactory;
 },{"./CellType":3,"./GroundCell":4,"./WaterCell":5}],3:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var CellType;
+let CellType;
 (function (CellType) {
     CellType[CellType["Ground"] = 0] = "Ground";
     CellType[CellType["Water"] = 1] = "Water";
@@ -96,7 +96,7 @@ exports.WaterCell = WaterCell;
 },{"../MoveType":6,"./CellType":3,"./GroundCell":4}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var MoveType;
+let MoveType;
 (function (MoveType) {
     MoveType[MoveType["Successed"] = 0] = "Successed";
     MoveType[MoveType["Blocked"] = 1] = "Blocked";
@@ -113,7 +113,7 @@ class BasicActor {
         this.health = 1.0;
         this.damage = 1.0;
         this.position = position;
-        var cell = Map_1.Map.GetInstance().GetCell(position);
+        let cell = Map_1.Map.GetInstance().GetCell(position);
         if (cell != null) {
             cell.MoveHere(this);
         }
@@ -125,9 +125,9 @@ class BasicActor {
         if (Math.abs(Math.abs(direction.X) - Math.abs(direction.Y)) == 0) {
             return false;
         }
-        var lastCell = this.map.GetCell(this.position);
-        var nextCoord = this.position.Difference(direction);
-        var nextCell = this.map.GetCell(nextCoord);
+        let lastCell = this.map.GetCell(this.position);
+        let nextCoord = this.position.Difference(direction);
+        let nextCell = this.map.GetCell(nextCoord);
         if (lastCell == null || nextCell == null) {
             return false;
         }
@@ -189,11 +189,11 @@ class Adapter {
         return this.actor.Move(new Coord_1.Coord(dx, dy)) ? 1 : 0;
     }
     test(dx, dy) {
-        var cell = this.map.GetCell(this.actor.GetPosition().Difference(new Coord_1.Coord(dx, dy)));
+        let cell = this.map.GetCell(this.actor.GetPosition().Difference(new Coord_1.Coord(dx, dy)));
         return cell != null && cell.GetType() == CellType_1.CellType.Ground ? 1 : 0;
     }
     attack() {
-        var result = null;
+        let result = null;
         this.map.GetActors().some(actor => {
             if (actor.GetPosition().GetDistance(this.actor.GetPosition()) == 1) {
                 result = actor;
@@ -464,7 +464,7 @@ class Runner {
 exports.Runner = Runner;
 },{"../Utils":13,"./Adapter":8,"./Parser":9,"./Processor":10}],12:[function(require,module,exports){
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+let __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
@@ -494,7 +494,7 @@ class Map {
         this.size = size;
         this.actors = [];
         this.cells = [];
-        for (var i = 0; i < size * size; i++) {
+        for (let i = 0; i < size * size; i++) {
             let x = i % size;
             let y = Math.floor(i / size);
             this.cells[i] = new GroundCell_1.GroundCell(new Coord_1.Coord(x, y));
@@ -505,7 +505,7 @@ class Map {
     }
     Load(url) {
         return __awaiter(this, void 0, void 0, function* () {
-            var raw;
+            let raw;
             try {
                 raw = JSON.parse(yield Utils_1.Utils.Get(url));
                 if (raw == null && raw.length < 2 && raw.length != Math.pow(raw[0], 2) + 1) {
@@ -518,8 +518,8 @@ class Map {
             this.cells = [];
             this.actors = [];
             this.size = raw.shift();
-            var actorSpots = new Array();
-            var actorCount = 0;
+            let actorSpots = new Array();
+            let actorCount = 0;
             for (let i = 0; i < raw.length; i++) {
                 let x = i % this.size;
                 let y = Math.floor(i / this.size);
@@ -544,7 +544,7 @@ class Map {
         });
     }
     GetElement(form, coord) {
-        var result = null;
+        let result = null;
         form.some(e => {
             if (e.GetPosition().Is(coord)) {
                 result = e;
@@ -560,7 +560,7 @@ class Map {
         return this.GetElement(this.actors, coord);
     }
     RemoveActor(actor) {
-        var index = this.actors.indexOf(actor);
+        let index = this.actors.indexOf(actor);
         if (index >= 0) {
             this.actors.splice(index, 1);
         }
@@ -581,7 +581,7 @@ class Map {
 exports.Map = Map;
 },{"./Coord":1,"./Element/Cell/CellFactory":2,"./Element/Cell/CellType":3,"./Element/Cell/GroundCell":4,"./Element/Actor/BasicActor":7,"./Utils":13}],13:[function(require,module,exports){
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+let __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }

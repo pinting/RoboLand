@@ -40,7 +40,7 @@ export class Adapter
      */
     public test(dx: number, dy: number): number
     {
-        var cell = this.map.GetCell(this.actor.GetPosition().Difference(new Coord(dx, dy)));
+        let cell = this.map.GetCell(this.actor.GetPosition().Add(new Coord(dx, dy)));
 
         return cell != null && cell.GetType() == CellType.Ground ? 1 : 0;
     }
@@ -50,7 +50,7 @@ export class Adapter
      */
     public attack(): number
     {
-        var result: IActor = null;
+        let result: IActor = null;
 
         this.map.GetActors().some(actor => 
         {

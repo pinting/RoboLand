@@ -31,10 +31,10 @@ export class Coord
     }
 
     /**
-     * Calculate the difference with another coord.
+     * Add a coord to this one.
      * @param other 
      */
-    public Difference(other: Coord): Coord
+    public Add(other: Coord): Coord
     {
         return new Coord(this.X + other.X, this.Y + other.Y);
     }
@@ -45,5 +45,13 @@ export class Coord
     public Clone(): Coord
     {
         return new Coord(this.X, this.Y);
+    }
+
+    /**
+     * Floor the coord.
+     */
+    public Floor(): Coord
+    {
+        return new Coord(Math.floor(this.X), Math.floor(this.Y));
     }
 }

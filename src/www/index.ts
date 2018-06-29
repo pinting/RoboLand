@@ -1,4 +1,3 @@
-import { IActor } from './scripts/Element/Actor/IActor';
 import { Processor } from './scripts/Interpreter/Processor';
 import { Runner } from './scripts/Interpreter/Runner';
 import { Map } from "./scripts/Map";
@@ -11,20 +10,12 @@ Utils.Extract(window, { Coord, Map, Utils, Processor, Runner });
 const canvas = <HTMLCanvasElement>document.getElementById("canvas");
 const context = <CanvasRenderingContext2D>canvas.getContext("2d");
 
-const codeTextarea = <HTMLTextAreaElement>document.getElementById("code");
-const pushButton = <HTMLButtonElement>document.getElementById("push");
-const stopButton = <HTMLButtonElement>document.getElementById("stop");
-const lineInput = <HTMLButtonElement>document.getElementById("line");
-
-let map: Map = Map.GetInstance();
-let runner: Runner = null;
+const map: Map = Map.GetInstance();
 
 const last: Array<Coord> = [];
+const size: number = 30;
 
-let player: IActor = null;
-let enemy: IActor = null;
-
-const size: number = 5;
+let init = true;
 
 /**
  * Draw the given element onto the canvas.
@@ -53,18 +44,8 @@ const draw = (e: IElement, loaded: () => void) =>
  */
 const update = () => 
 {
-    if(!runner) 
+    if(init) 
     {
-        player = map.GetActors()[0];
-        enemy = map.GetActors()[1];
-
-        runner = new Runner(player);
-
-        runner.OnLine = (line, count) => 
-        {
-            lineInput.value = `${count}: ${line}`;
-        };
-
         canvas.width = size * map.GetSize();
         canvas.height = size * map.GetSize();
         canvas.onclick = e => update();
@@ -87,6 +68,8 @@ const update = () =>
                 }
             })
         });
+
+        init = false;
     }
     else
     {
@@ -95,7 +78,7 @@ const update = () =>
         // Only draw cells where the actors were
         last.forEach(c => 
         {
-            draw(map.GetCell(c), Utils.Noop);
+            map.GetCellAround(c).forEach(cell => draw(cell, Utils.Noop));
 
             if(++i == last.length)
             {
@@ -111,22 +94,12 @@ const update = () =>
             }
         });
     }
-
-    if(!player.IsAlive() || !enemy.IsAlive())
-    {
-        alert(player.IsAlive() ? "You won!" : "You lose!");
-
-        stopButton.disabled = true;
-        pushButton.disabled = true;
-
-        runner.Stop();
-    }
 };
 
-pushButton.onclick = e => runner.Run(codeTextarea.value);
-stopButton.onclick = e => runner.Stop();
-
-Utils.Get("res/example.txt").then(result => codeTextarea.value = result);
-map.Load("res/map.json");
-
 map.OnUpdate = update;
+map.Init(8);
+
+window["map"] = map;
+window["out"] = {
+    Coord
+};
