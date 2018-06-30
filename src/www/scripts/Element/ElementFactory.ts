@@ -17,12 +17,15 @@ export class ElementFactory
     {
         switch(type)
         {
+            // Cells
             case ElementType.GroundCell:
                 return new GroundCell(position);
             case ElementType.WaterCell:
                 return new WaterCell(position);
             case ElementType.StoneCell:
                 return new StoneCell(position);
+            
+            // Actors
             case ElementType.PlayerActor:
                 return new PlayerActor(position);
         }

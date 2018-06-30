@@ -71,6 +71,8 @@ const update = () =>
 
         canvas.width = dpi * size.X;
         canvas.height = dpi * size.Y;
+        canvas.style.width = dpi * size.X + "px";
+        canvas.style.height = dpi * size.Y + "px";
         canvas.onclick = e => update();
         
         let i = 0;
