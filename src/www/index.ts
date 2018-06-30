@@ -115,9 +115,3 @@ const update = () =>
 
 map.OnUpdate = update;
 map.Load("res/map.json");
-
-// Only for debug
-window["map"] = map;
-window["out"] = {
-    Coord
-};
