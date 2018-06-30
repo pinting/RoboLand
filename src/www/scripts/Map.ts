@@ -124,6 +124,14 @@ export class Map
     }
 
     /**
+     * Return elements of the map (robots and cells).
+     */
+    public GetElements(): Array<IElement>
+    {
+        return (<IElement[]>this.cells).concat(<IElement[]>this.actors);
+    }
+
+    /**
      * Get the cells of the map.
      */
     public GetCells(): Array<ICell>

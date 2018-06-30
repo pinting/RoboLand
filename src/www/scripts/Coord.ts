@@ -52,7 +52,7 @@ export class Coord
      */
     public Floor(): Coord
     {
-        return new Coord(Math.floor(this.X), Math.floor(this.Y));
+        return this.F(n => Math.floor(n));
     }
 
     /**
@@ -60,7 +60,16 @@ export class Coord
      */
     public Ceil(): Coord
     {
-        return new Coord(Math.ceil(this.X), Math.ceil(this.Y));
+        return this.F(n => Math.ceil(n));
+    }
+
+    /**
+     * Round up the coordinates.
+     * @param d Decimal places to round up.
+     */
+    public Round(d = 0): Coord
+    {
+        return this.F(n => Math.round(n * Math.pow(10, d)) / Math.pow(10, d));
     }
 
     /**

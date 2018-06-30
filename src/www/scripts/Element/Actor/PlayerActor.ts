@@ -59,14 +59,22 @@ export class PlayerActor implements IActor
      */
     public Move(direction: Coord): boolean
     {
-        if(this.GetPos().GetDistance(this.GetPos().Add(direction)) > 1.0)
-        {
-            return false; // Only allow 1 length movement
-        }
+        // Get sizes
+        const size = this.GetSize();
+        const mapSize = this.map.GetSize();
 
         // Calculate the next position
-        const prevPos = this.GetPos();
-        const nextPos = prevPos.Add(direction);
+        const prevPos = this.GetPos().Round(3);
+        const nextPos = prevPos.Add(direction).Round(3);
+
+        // Check if it goes out of the map
+        if(nextPos.X + size.X > mapSize.X || 
+            nextPos.Y + size.Y > mapSize.Y ||
+            nextPos.X < 0 || 
+            nextPos.Y < 0) 
+        {
+            return false;
+        }
         
         // Get the currently covered cells and the next ones
         const prevCells = this.map.GetCellBetween(prevPos, prevPos.Add(this.GetSize()));
