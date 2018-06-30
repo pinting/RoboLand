@@ -42,7 +42,15 @@ export class PlayerActor implements IActor
      */
     public GetTexture(): string
     {
-        return "res/actor.png";
+        return "res/player.png";
+    }
+
+    /**
+     * Get the size of the actor.
+     */
+    public GetSize(): Coord
+    {
+        return new Coord(1.0, 1.0);
     }
 
     /**
@@ -51,35 +59,58 @@ export class PlayerActor implements IActor
      */
     public Move(direction: Coord): boolean
     {
-        if(Math.abs(direction.X) > 1 || Math.abs(direction.Y) > 1)
+        if(this.GetPos().GetDistance(this.GetPos().Add(direction)) > 1.0)
         {
             return false; // Only allow 1 length movement
         }
 
-        let lastCell = this.map.GetCellNear(this.position);
-        let nextCoord = this.position.Add(direction);
-        let nextCell = this.map.GetCellNear(nextCoord);
+        // Calculate the next position
+        const prevPos = this.GetPos();
+        const nextPos = prevPos.Add(direction);
+        
+        // Get the currently covered cells and the next ones
+        const prevCells = this.map.GetCellBetween(prevPos, prevPos.Add(this.GetSize()));
+        const nextCells = this.map.GetCellBetween(nextPos, nextPos.Add(this.GetSize()));
 
-        if(lastCell == null || nextCell == null)
+        if(!prevCells.length || !nextCells.length)
         {
             return false;
         }
 
-        switch(nextCell.MoveHere(this))
+        // Remove intersection 
+        const prevFiltered = prevCells.filter(c => !nextCells.includes(c));
+        const nextFiltered = nextCells.filter(c => !prevCells.includes(c));
+
+        // Check if one of the cells blocks the movement
+        const failed = nextFiltered.some(cell => 
         {
-            case MoveType.Blocked: // Do nothing
-                return false;
-            case MoveType.Killed: // Move away and kill it
-                lastCell.MoveAway(this);
-                this.position = nextCoord;
-                this.Kill();
-                return false;
-            case MoveType.Successed: // Move away
-                lastCell.MoveAway(this);
-                this.position = nextCoord;
-                this.map.OnUpdate();
-                return true;
+            switch(cell.MoveHere(this))
+            {
+                case MoveType.Blocked: // Do nothing
+                    return true;
+                case MoveType.Killed: // Kill it
+                    this.Kill();
+                    return true;
+                case MoveType.Successed: // Move away
+                    return false;
+            }
+        });
+
+        // If the movement failed, revert
+        if(failed)
+        {
+            nextFiltered.forEach(c => c.MoveAway(this));
+            return false;
         }
+
+        // If it was successful, move away from the old cells
+        prevFiltered.forEach(c => c.MoveAway(this));
+
+        // Update
+        this.position = nextPos;
+        this.map.OnUpdate();
+
+        return true;
     }
 
     /**
@@ -88,7 +119,7 @@ export class PlayerActor implements IActor
      */
     public Attack(actor: IActor): boolean
     {
-        if(this.position.GetDistance(actor.GetPosition()) > 1)
+        if(this.position.GetDistance(actor.GetPos()) > 1)
         {
             return false;
         }
@@ -99,7 +130,7 @@ export class PlayerActor implements IActor
     /**
      * Get the position of the actor.
      */
-    public GetPosition(): Coord
+    public GetPos(): Coord
     {
         return this.position;
     }
@@ -125,6 +156,14 @@ export class PlayerActor implements IActor
     {
         this.health = 0;
 
+        const from = this.GetPos();
+        const to = this.GetPos().Add(this.GetSize());
+        const cells = this.map.GetCellBetween(from, to);
+
+        // Clear actor from the cells itself
+        cells.forEach(c => c.MoveAway(this));
+
+        // Remove from the map
         this.map.RemoveActor(this);
         this.map.OnUpdate();
     }

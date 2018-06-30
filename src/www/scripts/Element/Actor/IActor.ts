@@ -3,7 +3,6 @@ import { IElement } from "../IElement";
 
 export interface IActor extends IElement
 {
-    GetPosition(): Coord;
     Move(direction: Coord): boolean
     Attack(actor: IActor): boolean
     Damage(damage: number): void

@@ -2,6 +2,7 @@ import { GroundCell } from "./GroundCell"
 import { IActor } from "../Actor/IActor";
 import { MoveType } from "../MoveType";
 import { ElementType } from "../ElementType";
+import { Coord } from "../../Coord";
 
 export class WaterCell extends GroundCell
 {

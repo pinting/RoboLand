@@ -60,7 +60,7 @@ class GroundCell {
     GetTexture() {
         return "res/ground.png";
     }
-    GetPosition() {
+    GetPos() {
         return this.position;
     }
     MoveHere(actor) {
@@ -147,12 +147,12 @@ class PlayerActor {
         }
     }
     Attack(actor) {
-        if (this.position.GetDistance(actor.GetPosition()) > 1) {
+        if (this.position.GetDistance(actor.GetPos()) > 1) {
             return false;
         }
         actor.Damage(this.damage);
     }
-    GetPosition() {
+    GetPos() {
         return this.position;
     }
     Damage(damage) {
@@ -189,13 +189,13 @@ class Adapter {
         return this.actor.Move(new Coord_1.Coord(dx, dy)) ? 1 : 0;
     }
     test(dx, dy) {
-        let cell = this.map.GetCell(this.actor.GetPosition().Difference(new Coord_1.Coord(dx, dy)));
+        let cell = this.map.GetCell(this.actor.GetPos().Difference(new Coord_1.Coord(dx, dy)));
         return cell != null && cell.GetType() == ElementType_1.ElementType.Ground ? 1 : 0;
     }
     attack() {
         let result = null;
         this.map.GetActors().some(actor => {
-            if (actor.GetPosition().GetDistance(this.actor.GetPosition()) == 1) {
+            if (actor.GetPos().GetDistance(this.actor.GetPos()) == 1) {
                 result = actor;
                 return true;
             }
@@ -546,7 +546,7 @@ class Map {
     GetElement(form, coord) {
         let result = null;
         form.some(e => {
-            if (e.GetPosition().Is(coord)) {
+            if (e.GetPos().Is(coord)) {
                 result = e;
                 return true;
             }
@@ -672,7 +672,7 @@ let player = null;
 let enemy = null;
 const size = 30;
 const draw = (e, loaded) => {
-    let coord = e.GetPosition();
+    let coord = e.GetPos();
     let x = coord.X;
     let y = coord.Y;
     let image = new Image();
@@ -698,7 +698,7 @@ const update = () => {
             draw(cell, () => {
                 if (++i == map.GetSize()) {
                     map.GetActors().forEach(actor => {
-                        last.push(actor.GetPosition().Clone());
+                        last.push(actor.GetPos().Clone());
                         draw(actor, Utils_1.Utils.Noop);
                     });
                 }
@@ -712,7 +712,7 @@ const update = () => {
             if (++i == last.length) {
                 last.length = 0;
                 map.GetActors().forEach(actor => {
-                    last.push(actor.GetPosition().Clone());
+                    last.push(actor.GetPos().Clone());
                     draw(actor, Utils_1.Utils.Noop);
                 });
             }

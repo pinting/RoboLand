@@ -4,6 +4,7 @@ import { ElementType } from "./ElementType";
 export interface IElement
 {
     GetType(): ElementType;
-    GetPosition(): Coord;
+    GetPos(): Coord;
+    GetSize(): Coord;
     GetTexture(): string;
 }

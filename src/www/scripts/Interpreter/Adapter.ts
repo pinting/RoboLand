@@ -40,7 +40,7 @@ export class Adapter
      */
     public test(dx: number, dy: number): number
     {
-        let cell = this.map.GetCell(this.actor.GetPosition().Add(new Coord(dx, dy)));
+        let cell = this.map.GetCell(this.actor.GetPos().Add(new Coord(dx, dy)));
 
         return cell != null && cell.GetType() == ElementType.GroundCell ? 1 : 0;
     }
@@ -54,7 +54,7 @@ export class Adapter
 
         this.map.GetActors().some(actor => 
         {
-            if(actor.GetPosition().GetDistance(this.actor.GetPosition()) == 1) 
+            if(actor.GetPos().GetDistance(this.actor.GetPos()) == 1) 
             {
                 result = actor;
 

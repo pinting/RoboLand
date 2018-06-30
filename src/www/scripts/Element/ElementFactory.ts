@@ -4,6 +4,7 @@ import { WaterCell } from "./Cell/WaterCell";
 import { PlayerActor } from "./Actor/PlayerActor";
 import { Coord } from "../Coord";
 import { IElement } from "./IElement";
+import { StoneCell } from "./Cell/StoneCell";
 
 export class ElementFactory
 {
@@ -20,6 +21,8 @@ export class ElementFactory
                 return new GroundCell(position);
             case ElementType.WaterCell:
                 return new WaterCell(position);
+            case ElementType.StoneCell:
+                return new StoneCell(position);
             case ElementType.PlayerActor:
                 return new PlayerActor(position);
         }

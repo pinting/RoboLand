@@ -12,8 +12,8 @@ const context = <CanvasRenderingContext2D>canvas.getContext("2d");
 
 const map: Map = Map.GetInstance();
 
-const last: Array<Coord> = [];
-const size: number = 30;
+const last: Array<{from: Coord, to: Coord}> = [];
+const dpi: number = 30;
 
 let init = true;
 
@@ -24,20 +24,41 @@ let init = true;
  */
 const draw = (e: IElement, loaded: () => void) =>
 {
-    let coord = e.GetPosition();
-    let x = coord.X;
-    let y = coord.Y;
+    const coord = e.GetPos();
+    const size = e.GetSize();
 
-    let image = new Image();
+    const x = coord.X;
+    const y = coord.Y;
+    const w = size.X;
+    const h = size.Y;
+
+    const image = new Image();
     
     image.onload = () => 
     {
-        context.drawImage(image, x * size, y * size, size, size);
+        context.drawImage(image, x * dpi, y * dpi, w * dpi, h * dpi);
         loaded();
     };
 
     image.src = e.GetTexture();
 };
+
+/**
+ * Draw actors.
+ */
+const drawActors = () => 
+{
+    map.GetActors().forEach(actor => 
+    {
+        last.push(
+        {
+            from: actor.GetPos().Clone(),
+            to: actor.GetPos().Add(actor.GetSize())
+        });
+
+        draw(actor, Utils.Noop);
+    });
+}
 
 /**
  * Update the canvas.
@@ -46,8 +67,10 @@ const update = () =>
 {
     if(init) 
     {
-        canvas.width = size * map.GetSize();
-        canvas.height = size * map.GetSize();
+        const size = map.GetSize();
+
+        canvas.width = dpi * size.X;
+        canvas.height = dpi * size.Y;
         canvas.onclick = e => update();
         
         let i = 0;
@@ -58,13 +81,9 @@ const update = () =>
             draw(cell, () => 
             {
                 // When the last was drawn, start drawing the actors
-                if(++i == map.GetSize())
+                if(++i == size.X * size.Y)
                 {
-                    map.GetActors().forEach(actor => 
-                    {
-                        last.push(actor.GetPosition().Clone());
-                        draw(actor, Utils.Noop);
-                    })
+                    drawActors();
                 }
             })
         });
@@ -76,9 +95,9 @@ const update = () =>
         let i = 0;
 
         // Only draw cells where the actors were
-        last.forEach(c => 
+        last.forEach(({from, to}) => 
         {
-            map.GetCellAround(c).forEach(cell => draw(cell, Utils.Noop));
+            map.GetCellBetween(from, to).forEach(cell => draw(cell, Utils.Noop));
 
             if(++i == last.length)
             {
@@ -86,11 +105,7 @@ const update = () =>
                 last.length = 0;
 
                 // Redraw actors
-                map.GetActors().forEach(actor => 
-                {
-                    last.push(actor.GetPosition().Clone());
-                    draw(actor, Utils.Noop);
-                });
+                drawActors();
             }
         });
     }

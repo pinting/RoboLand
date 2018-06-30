@@ -48,10 +48,27 @@ export class Coord
     }
 
     /**
-     * Floor the coord.
+     * Floor the coordinates.
      */
     public Floor(): Coord
     {
         return new Coord(Math.floor(this.X), Math.floor(this.Y));
+    }
+
+    /**
+     * Ceil the coordinates.
+     */
+    public Ceil(): Coord
+    {
+        return new Coord(Math.ceil(this.X), Math.ceil(this.Y));
+    }
+
+    /**
+     * Execute a function on the coordinates.
+     * @param f Function to execute.
+     */
+    public F(f: (n: number) => number): Coord
+    {
+        return new Coord(f(this.X), f(this.Y));
     }
 }

@@ -2,11 +2,15 @@ import { ElementType } from "./Element/ElementType";
 
 export interface IRawMap
 {
-    Size: number;
+    Size: {
+        X: number;
+        Y: number;
+    };
     Actors: Array<{
         X: number;
         Y: number;
-        T: ElementType;
+        Type: ElementType;
+        Tag?: string;
     }>;
     Cells: Array<ElementType>;
 }

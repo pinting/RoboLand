@@ -13,6 +13,7 @@ const watch = require("gulp-watch");
 
 let tsconfig = 
 {
+    "lib": ["es2016", "es2017", "dom"],
     "outDir": "out",
     "target": "es6",
     "module": "commonjs",
