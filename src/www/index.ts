@@ -88,8 +88,8 @@ const update = () =>
     if(player)
     {
         const direction = new Coord(
-            keys["A"] ? -0.1 : keys["D"] ? 0.1 : 0, 
-            keys["W"] ? -0.1 : keys["S"] ? 0.1 : 0
+            keys["A"] ? -0.05 : keys["D"] ? 0.05 : 0, 
+            keys["W"] ? -0.05 : keys["S"] ? 0.05 : 0
         );
     
         player.Move(direction);

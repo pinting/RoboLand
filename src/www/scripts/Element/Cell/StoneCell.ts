@@ -22,7 +22,7 @@ export class StoneCell extends GroundCell
     }
 
     /**
-     * Enter a cell with a actor and kill it.
+     * Enter a cell with a actor and block it.
      * @param actor 
      */
     public MoveHere(actor: IActor): MoveType 
