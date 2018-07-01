@@ -50,7 +50,7 @@ export class PlayerActor implements IActor
      */
     public GetSize(): Coord
     {
-        return new Coord(1.0, 1.0);
+        return new Coord(0.8, 0.8);
     }
 
     /**
@@ -68,10 +68,8 @@ export class PlayerActor implements IActor
         const nextPos = prevPos.Add(direction).Round(3);
 
         // Check if it goes out of the map
-        if(nextPos.X + size.X > mapSize.X || 
-            nextPos.Y + size.Y > mapSize.Y ||
-            nextPos.X < 0 || 
-            nextPos.Y < 0) 
+        if(!nextPos.Inside(new Coord(0, 0), mapSize) || 
+            !nextPos.Add(size).Inside(new Coord(0, 0), mapSize))
         {
             return false;
         }

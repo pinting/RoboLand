@@ -21,33 +21,54 @@ const dpi: number = 30;
 /**
  * Load map and images.
  */
-const load = async (url) =>
+const load = async (url): Promise<void> =>
 {
-    return new Promise<void>(async (resolve, reject) => 
+    const loadTextures = async (): Promise<void> =>
     {
-        await map.Load(url);
-
-        const elements = map.GetElements();
-        let i = 0;
-
-        elements.forEach(element =>
+        return new Promise<void>((resolve, reject) => 
         {
-            const image = new Image();
-                
-            image.onload = () => 
+            const elements = map.GetElements();
+            let i = 0;
+    
+            elements.forEach(element =>
             {
-                textures[element.GetTexture()] = image;
-
-                if(++i == elements.length) 
+                if(!element)
                 {
-                    resolve();
+                    i++;
+                    return;
                 }
-            };
-        
-            image.onerror = () => reject();
-            image.src = element.GetTexture();
+    
+                const id = element.GetTexture();
+
+                if(textures[id] !== undefined)
+                {
+                    i++;
+                    return;
+                }
+
+                const texture = new Image();
+    
+                texture.onerror = () => reject();
+                texture.onload = () => 
+                {
+                    textures[id] = texture;
+    
+                    if(++i == elements.length) 
+                    {
+                        resolve();
+                    }
+                };
+            
+                texture.src = id;
+                textures[id] = null;
+            });
         });
-    });
+    }
+
+    await map.Load(url);
+    await loadTextures();
+
+    return Promise.resolve();
 }
 
 /**
@@ -56,6 +77,11 @@ const load = async (url) =>
  */
 const draw = (element: IElement) =>
 {
+    if(!element)
+    {
+        return;
+    }
+    
     const coord = element.GetPos();
     const size = element.GetSize();
     const image = textures[element.GetTexture()];

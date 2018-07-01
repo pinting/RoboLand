@@ -80,4 +80,31 @@ export class Coord
     {
         return new Coord(f(this.X), f(this.Y));
     }
+
+    /**
+     * Check if the coordinate is inside the intersection of two points.
+     * @param from 
+     * @param to 
+     */
+    public Inside(from: Coord, to: Coord): boolean
+    {
+        if(from.X <= this.X && from.Y <= this.Y && to.X >= this.X && to.Y >= this.Y)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if two objects all collide.
+     * @param a A from point
+     * @param as A to point
+     * @param b B from point
+     * @param bs B to point
+     */
+    static Collide(a: Coord, as: Coord, b: Coord, bs: Coord): boolean
+    {
+        return as.X > b.X && a.X < bs.X && as.Y > b.Y && a.Y < bs.Y;
+    }
 }

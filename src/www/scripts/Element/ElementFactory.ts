@@ -17,6 +17,9 @@ export class ElementFactory
     {
         switch(type)
         {
+            case ElementType.Null:
+                return null;
+            
             // Cells
             case ElementType.GroundCell:
                 return new GroundCell(position);

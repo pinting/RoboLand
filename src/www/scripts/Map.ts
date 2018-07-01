@@ -7,7 +7,6 @@ import { Utils } from "./Utils";
 import { ElementFactory } from "./Element/ElementFactory";
 import { ElementType } from "./Element/ElementType";
 import { PlayerActor } from "./Element/Actor/PlayerActor";
-import { IRawMap } from "./IRawMap";
 
 export class Map
 {
@@ -73,7 +72,19 @@ export class Map
      */
     public async Load(url: string): Promise<boolean>
     {
-        let raw: IRawMap;
+        let raw: {
+            Size: {
+                X: number;
+                Y: number;
+            };
+            Actors: Array<{
+                X: number;
+                Y: number;
+                Type: ElementType;
+                Tag?: string;
+            }>;
+            Cells: Array<ElementType>;
+        };
 
         try 
         {
@@ -164,16 +175,21 @@ export class Map
         let result: ICell = null;
         let min = Infinity;
 
-        this.cells.forEach(e => 
+        this.cells.forEach(cell => 
         {
-            const size = e.GetSize();
-            const center = e.GetPos().Add(size.F(n => n / 2));
+            if(!cell)
+            {
+                return;
+            }
+            
+            const size = cell.GetSize();
+            const center = cell.GetPos().Add(size.F(n => n / 2));
             const distance = center.GetDistance(coord);
 
             if(distance < min) 
             {
                 min = distance;
-                result = e;
+                result = cell;
             }
         });
 
@@ -192,13 +208,21 @@ export class Map
         from = from.Floor();
         to = to.Ceil();
 
-        for(let y = from.Y; y < to.Y; y++)
+        this.cells.forEach(cell => 
         {
-            for(let x = from.X; x < to.X; x++)
+            if(!cell)
             {
-                result.push(this.GetCell(new Coord(x, y)));
+                return;
             }
-        }
+
+            const cellFrom = cell.GetPos();
+            const cellTo = cell.GetPos().Add(cell.GetSize());
+
+            if(Coord.Collide(from, to, cellFrom, cellTo))
+            {
+                result.push(cell);
+            }
+        });
 
         return result;
     }
@@ -218,7 +242,7 @@ export class Map
     public GetActor(id: Coord | string): IActor
     {
         if(id instanceof Coord) {
-            return this.actors.find(e => e.GetPos().Is(<Coord>id));
+            return this.actors.find(e => e && e.GetPos().Is(<Coord>id));
         }
 
         return this.tagged[id];

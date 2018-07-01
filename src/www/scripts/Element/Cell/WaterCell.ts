@@ -15,6 +15,14 @@ export class WaterCell extends GroundCell
     }
 
     /**
+     * Get the size of the cell.
+     */
+    public GetSize(): Coord
+    {
+        return new Coord(2.0, 1.0);
+    }
+
+    /**
      * Get the texture of the cell.
      */
     public GetTexture(): string
