@@ -1,7 +1,3 @@
-import { IActor } from './../Element/Actor/IActor';
-import { Adapter } from './Adapter';
-import { Processor } from './Processor';
-
 export class Parser
 {
     public Code: string[][];

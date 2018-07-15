@@ -1,10 +1,11 @@
 import { GroundCell } from "./GroundCell"
-import { IActor } from "../Actor/IActor";
+import { BaseActor } from "../Actor/BaseActor";
 import { MoveType } from "../MoveType";
 import { ElementType } from "../ElementType";
 import { Coord } from "../../Coord";
+import { BaseCell } from "./BaseCell";
 
-export class WaterCell extends GroundCell
+export class WaterCell extends BaseCell
 {
     /**
      * Get the type of the cell.
@@ -34,7 +35,7 @@ export class WaterCell extends GroundCell
      * Enter a cell with a actor and kill it.
      * @param actor 
      */
-    public MoveHere(actor: IActor): MoveType 
+    public MoveHere(actor: BaseActor): MoveType 
     {
         return MoveType.Killed;
     }

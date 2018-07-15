@@ -1,17 +1,16 @@
 import { Map } from '../Map';
-import { IActor } from "../Element/Actor/IActor";
 import { Coord } from "../Coord";
 import { ElementType } from "../Element/ElementType";
+import { PlayerActor } from '../Element/Actor/PlayerActor';
 
 export class Adapter
 {
-    private actor: IActor;
-    private map: Map;
+    private readonly map: Map = Map.GetInstance();
+    private actor: PlayerActor;
 
-    constructor(actor: IActor)
+    constructor(actor: PlayerActor)
     {
         this.actor = actor;
-        this.map = Map.GetInstance();
     }
 
     /**
@@ -40,9 +39,10 @@ export class Adapter
      */
     public test(dx: number, dy: number): number
     {
-        let cell = this.map.GetCell(this.actor.GetPos().Add(new Coord(dx, dy)));
+        const coord = this.actor.GetPos().Add(new Coord(dx, dy));
+        const cell = this.map.GetCells().Get(coord)[0];
 
-        return cell != null && cell.GetType() == ElementType.GroundCell ? 1 : 0;
+        return cell && cell.GetType() == ElementType.GroundCell ? 1 : 0;
     }
 
     /**
@@ -50,11 +50,13 @@ export class Adapter
      */
     public attack(): number
     {
-        let result: IActor = null;
+        let result: PlayerActor = null;
 
-        this.map.GetActors().some(actor => 
+        this.map.GetActors().ForEach(actor => 
         {
-            if(actor.GetPos().GetDistance(this.actor.GetPos()) == 1) 
+            const distance = actor.GetPos().GetDistance(this.actor.GetPos());
+
+            if(actor instanceof PlayerActor && distance <= 1.0) 
             {
                 result = actor;
 

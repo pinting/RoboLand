@@ -2,11 +2,21 @@ import { Processor } from './scripts/Interpreter/Processor';
 import { Runner } from './scripts/Interpreter/Runner';
 import { Map } from "./scripts/Map";
 import { Coord } from "./scripts/Coord";
-import { IElement } from "./scripts/Element/IElement";
+import { BaseElement } from "./scripts/Element/BaseElement";
 import { Utils } from "./scripts/Utils";
+import { BaseActor } from './scripts/Element/Actor/BaseActor';
+import { PlayerActor } from './scripts/Element/Actor/PlayerActor';
 
 // For debug
-Utils.Extract(window, { Coord, Map, Utils, Processor, Runner });
+Utils.Extract(window, { 
+    Coord, 
+    Map,
+    Utils,
+    Processor,
+    Runner,
+    BaseActor,
+    PlayerActor
+});
 
 const canvas = <HTMLCanvasElement>document.getElementById("canvas");
 const context = <CanvasRenderingContext2D>canvas.getContext("2d");
@@ -30,7 +40,7 @@ const load = async (url): Promise<void> =>
             const elements = map.GetElements();
             let i = 0;
     
-            elements.forEach(element =>
+            elements.ForEach(element =>
             {
                 if(!element)
                 {
@@ -53,7 +63,7 @@ const load = async (url): Promise<void> =>
                 {
                     textures[id] = texture;
     
-                    if(++i == elements.length) 
+                    if(++i == elements.GetLength()) 
                     {
                         resolve();
                     }
@@ -75,7 +85,7 @@ const load = async (url): Promise<void> =>
  * Draw the given element onto the canvas.
  * @param element
  */
-const draw = (element: IElement) =>
+const draw = (element: BaseElement) =>
 {
     if(!element)
     {
@@ -106,10 +116,10 @@ const update = () =>
     canvas.style.width = dpi * size.X + "px";
     canvas.style.height = dpi * size.Y + "px";
     
-    map.GetCells().forEach(e => draw(e));
-    map.GetActors().forEach(e => draw(e));
+    map.GetCells().ForEach(e => draw(e));
+    map.GetActors().ForEach(e => draw(e));
 
-    const player = map.GetActor("player");
+    const player = <PlayerActor>map.GetActors().Get("player")[0];
 
     if(player)
     {

@@ -1,33 +1,12 @@
-import { IActor } from "./IActor";
-import { Map } from "../../Map";
+import { BaseActor } from "./BaseActor";
 import { MoveType } from "../MoveType";
 import { Coord } from "../../Coord";
 import { ElementType } from "../ElementType";
 
-export class PlayerActor implements IActor
+export class PlayerActor extends BaseActor
 {
-    protected readonly map = Map.GetInstance();
-
     protected health: number = 1.0;
     protected damage: number = 1.0;
-
-    private position: Coord;
-
-    /**
-     * Construct a new PlayerActor.
-     * @param position
-     */
-    public constructor(position: Coord)
-    {
-        this.position = position;
-
-        const cell = Map.GetInstance().GetCell(position);
-
-        if(cell != null)
-        {
-            cell.MoveHere(this);
-        }
-    }
 
     /**
      * Get the type of the actor.
@@ -75,8 +54,10 @@ export class PlayerActor implements IActor
         }
         
         // Get the currently covered cells and the next ones
-        const prevCells = this.map.GetCellBetween(prevPos, prevPos.Add(this.GetSize()));
-        const nextCells = this.map.GetCellBetween(nextPos, nextPos.Add(this.GetSize()));
+        const cells = this.map.GetCells();
+        
+        const prevCells = cells.GetBetween(prevPos, prevPos.Add(this.GetSize()));
+        const nextCells = cells.GetBetween(nextPos, nextPos.Add(this.GetSize()));
 
         if(!prevCells.length || !nextCells.length)
         {
@@ -114,7 +95,7 @@ export class PlayerActor implements IActor
 
         // Update
         this.position = nextPos;
-        this.map.OnUpdate();
+        this.map.OnUpdate(this);
 
         return true;
     }
@@ -123,7 +104,7 @@ export class PlayerActor implements IActor
      * Attack an other actor if it is one cell away.
      * @param actor 
      */
-    public Attack(actor: IActor): boolean
+    public Attack(actor: PlayerActor): boolean
     {
         if(this.position.GetDistance(actor.GetPos()) > 1)
         {
@@ -153,6 +134,8 @@ export class PlayerActor implements IActor
         {
             this.Kill();
         }
+
+        this.map.OnUpdate(this);
     }
 
     /**
@@ -164,14 +147,13 @@ export class PlayerActor implements IActor
 
         const from = this.GetPos();
         const to = this.GetPos().Add(this.GetSize());
-        const cells = this.map.GetCellBetween(from, to);
+        const cells = this.map.GetCells().GetBetween(from, to);
 
         // Clear actor from the cells itself
         cells.forEach(c => c.MoveAway(this));
-
-        // Remove from the map
-        this.map.RemoveActor(this);
-        this.map.OnUpdate();
+        
+        // Dispose
+        this.Dispose();
     }
 
     /**

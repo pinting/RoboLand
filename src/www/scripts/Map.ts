@@ -1,19 +1,18 @@
-import { ICell } from "./Element/Cell/ICell";
-import { GroundCell } from "./Element/Cell/GroundCell";
 import { Coord } from "./Coord";
-import { IActor } from "./Element/Actor/IActor";
-import { IElement } from "./Element/IElement";
+import { BaseActor } from "./Element/Actor/BaseActor";
 import { Utils } from "./Utils";
-import { ElementFactory } from "./Element/ElementFactory";
 import { ElementType } from "./Element/ElementType";
-import { PlayerActor } from "./Element/Actor/PlayerActor";
+import { BaseCell } from "./Element/Cell/BaseCell";
+import { BaseElement } from "./Element/BaseElement";
+import { ElementFactory } from "./Element/ElementFactory";
+import { IRawMap } from "./IRawMap";
+import { ElementList } from "./ElementList";
+import { IReadOnlyElementList } from "./IReadOnlyElementList";
 
 export class Map
 {
-    private cells: Array<ICell>;
-    private actors: Array<IActor>;
-    private tagged: { [id: string]: IActor };
-
+    private cells: Array<BaseCell>;
+    private actors: Array<BaseActor>;
     private size: Coord;
 
     /**
@@ -43,27 +42,15 @@ export class Map
     }
 
     /**
-     * Construct a simple new map. 
-     * @param size Size of the map.
+     * Init a map with null cells.
      */
-    public Init(size: number)
+    public Init(size: Coord): void
     {
-        this.size = new Coord(size, size);
+        this.size = size.Clone();
+        this.cells = new Array(size.X * size.Y).fill(null);
         this.actors = [];
-        this.cells = [];
 
-        for(let i = 0; i < size * size; i++)
-        {
-            let x = i % size;
-            let y = Math.floor(i / size);
-
-            this.cells[i] = new GroundCell(new Coord(x, y));
-        }
-
-        this.actors.push(new PlayerActor(new Coord(Math.floor(size / 2), 0)));
-        this.actors.push(new PlayerActor(new Coord(Math.floor(size / 2), size - 1)));
-
-        this.OnUpdate();
+        this.cells.forEach(cell => this.OnUpdate(cell));
     }
 
     /**
@@ -72,20 +59,10 @@ export class Map
      */
     public async Load(url: string): Promise<boolean>
     {
-        let raw: {
-            Size: {
-                X: number;
-                Y: number;
-            };
-            Actors: Array<{
-                X: number;
-                Y: number;
-                Type: ElementType;
-                Tag?: string;
-            }>;
-            Cells: Array<ElementType>;
-        };
+        // Map file structure
+        let raw: IRawMap;
 
+        // Read map file
         try 
         {
             raw = JSON.parse(await Utils.Get(url)) || {};
@@ -100,179 +77,67 @@ export class Map
             return false;
         }
 
+        this.size = new Coord(raw.Size.X, raw.Size.Y);
         this.cells = [];
         this.actors = [];
-        this.tagged = {};
-        this.size = new Coord(raw.Size.X, raw.Size.Y);
 
+        // Parse cells
         for(let i = 0; i < raw.Cells.length; i++)
         {
-            let x = i % this.size.X;
-            let y = Math.floor(i / this.size.X);
+            const type: ElementType = raw.Cells[i];
+            const coord = new Coord(i % this.size.X, Math.floor(i / this.size.X));
+            const cell = <BaseCell>ElementFactory.FromType(type, coord);
 
-            let type: ElementType = raw.Cells[i];
+            this.cells[i] = cell;
 
-            this.cells[i] = <ICell>ElementFactory.FromType(type, new Coord(x, y));
+            this.OnUpdate(cell);
         }
 
+        // Parse actors
         for(let i = 0; i < raw.Actors.length; i++) 
         {
             const data = raw.Actors[i];
 
-            const tag = data.Tag;
             const type = data.Type;
             const coord = new Coord(data.X, data.Y);
+            const actor = <BaseActor>ElementFactory.FromType(type, coord);
 
-            const actor = <IActor>ElementFactory.FromType(type, coord);
-
-            this.tagged[tag] = actor;
             this.actors.push(actor);
-        }
 
-        this.OnUpdate();
+            this.OnUpdate(actor);
+        }
 
         return true;
     }
 
     /**
-     * Return elements of the map (robots and cells).
+     * Return elements of the map (cells and actors).
      */
-    public GetElements(): Array<IElement>
+    public GetElements(): IReadOnlyElementList<BaseElement>
     {
-        return (<IElement[]>this.cells).concat(<IElement[]>this.actors);
+        const merged = (<BaseElement[]>this.cells).concat(<BaseElement[]>this.actors);
+        
+        return new ElementList<BaseElement>(merged, e => this.OnUpdate(e));
     }
 
     /**
      * Get the cells of the map.
      */
-    public GetCells(): Array<ICell>
+    public GetCells(): ElementList<BaseCell>
     {
-        return this.cells;
-    }
-
-    /**
-     * Get a cell by coord.
-     * @param coord 
-     */
-    public GetCell(coord: Coord): ICell
-    {
-        const i = coord.X + coord.Y * this.size.X;
-
-        if(i < 0 || i >= this.cells.length)
-        {
-            return null;
-        }
-
-        return this.cells[i];
-    }
-
-    /**
-     * Get the nearest cell to the given coord.
-     * @param coord 
-     */
-    public GetCellNear(coord: Coord): ICell
-    {
-        let result: ICell = null;
-        let min = Infinity;
-
-        this.cells.forEach(cell => 
-        {
-            if(!cell)
-            {
-                return;
-            }
-            
-            const size = cell.GetSize();
-            const center = cell.GetPos().Add(size.F(n => n / 2));
-            const distance = center.GetDistance(coord);
-
-            if(distance < min) 
-            {
-                min = distance;
-                result = cell;
-            }
-        });
-
-        return result;
-    }
-
-    /**
-     * Get cells between two coordinates.
-     * @param from
-     * @param to 
-     */
-    public GetCellBetween(from: Coord, to: Coord): ICell[]
-    {
-        const result = [];
-
-        from = from.Floor();
-        to = to.Ceil();
-
-        this.cells.forEach(cell => 
-        {
-            if(!cell)
-            {
-                return;
-            }
-
-            const cellFrom = cell.GetPos();
-            const cellTo = cell.GetPos().Add(cell.GetSize());
-
-            if(Coord.Collide(from, to, cellFrom, cellTo))
-            {
-                result.push(cell);
-            }
-        });
-
-        return result;
+        return new ElementList<BaseCell>(this.cells, e => this.OnUpdate(e));
     }
 
     /**
      * Get the actors of the map.
      */
-    public GetActors(): Array<IActor>
+    public GetActors(): ElementList<BaseActor>
     {
-        return this.actors;
-    }
-
-    /**
-     * Get a actor by coord or tag.
-     * @param id 
-     */
-    public GetActor(id: Coord | string): IActor
-    {
-        if(id instanceof Coord) {
-            return this.actors.find(e => e && e.GetPos().Is(<Coord>id));
-        }
-
-        return this.tagged[id];
-    }
-
-    /**
-     * Remove a actor from the list.
-     * @param actor 
-     */
-    public RemoveActor(actor: IActor)
-    {
-        const index = this.actors.indexOf(actor);
-
-        if(index >= 0)
-        {
-            this.actors.splice(index, 1);
-
-            Object.keys(this.tagged).some(key => 
-            {
-                if(this.tagged[key] == actor)
-                {
-                    delete this.tagged[key];
-                    return true;
-                }
-            });
-        }
+        return new ElementList<BaseActor>(this.actors, e => this.OnUpdate(e));
     }
 
     /**
      * Called when the map was updated.
      */
-    public OnUpdate: () => void = Utils.Noop;
+    public OnUpdate: (element: BaseElement) => void = Utils.Noop;
 }

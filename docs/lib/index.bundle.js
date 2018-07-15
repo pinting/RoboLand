@@ -556,7 +556,7 @@ class Map {
     GetCell(coord) {
         return this.GetElement(this.cells, coord);
     }
-    GetActor(coord) {
+    GetElement(coord) {
         return this.GetElement(this.actors, coord);
     }
     RemoveActor(actor) {

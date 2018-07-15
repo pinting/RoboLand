@@ -1,4 +1,6 @@
-export class Coord
+import { IExportable } from "./IExportable";
+
+export class Coord implements IExportable
 {
     public X: number;
     public Y: number;
@@ -10,6 +12,36 @@ export class Coord
     {
         this.X = x;
         this.Y = y;
+    }
+
+    /**
+     * Export coordinate.
+     */
+    public Export(): string
+    {
+        return this.X + "," + this.Y;
+    }
+
+    /**
+     * Import exported coordinates.
+     * @param input 
+     */
+    public Import(input: string): boolean
+    {
+        const parts: string[] = input.split(",");
+
+        const x = Number.parseFloat(parts[0]);
+        const y = Number.parseFloat(parts[1]);
+
+        if(!Number.isFinite(x) || !Number.isFinite(y))
+        {
+            return false;
+        }
+
+        this.X = x;
+        this.Y = y;
+
+        return true;
     }
 
     /**
@@ -73,15 +105,6 @@ export class Coord
     }
 
     /**
-     * Execute a function on the coordinates.
-     * @param f Function to execute.
-     */
-    public F(f: (n: number) => number): Coord
-    {
-        return new Coord(f(this.X), f(this.Y));
-    }
-
-    /**
      * Check if the coordinate is inside the intersection of two points.
      * @param from 
      * @param to 
@@ -106,5 +129,14 @@ export class Coord
     static Collide(a: Coord, as: Coord, b: Coord, bs: Coord): boolean
     {
         return as.X > b.X && a.X < bs.X && as.Y > b.Y && a.Y < bs.Y;
+    }
+
+    /**
+     * Execute a function on the coordinates.
+     * @param f Function to execute.
+     */
+    public F(f: (n: number) => number): Coord
+    {
+        return new Coord(f(this.X), f(this.Y));
     }
 }
