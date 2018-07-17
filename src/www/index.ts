@@ -4,8 +4,9 @@ import { Map } from "./scripts/Map";
 import { Coord } from "./scripts/Coord";
 import { BaseElement } from "./scripts/Element/BaseElement";
 import { Utils } from "./scripts/Utils";
-import { BaseActor } from './scripts/Element/Actor/BaseActor';
+import { GroundCell } from './scripts/Element/Cell/GroundCell';
 import { PlayerActor } from './scripts/Element/Actor/PlayerActor';
+import { Exportable } from './scripts/Exportable';
 
 // For debug
 Utils.Extract(window, { 
@@ -14,8 +15,9 @@ Utils.Extract(window, {
     Utils,
     Processor,
     Runner,
-    BaseActor,
-    PlayerActor
+    GroundCell,
+    PlayerActor,
+    Exportable
 });
 
 const canvas = <HTMLCanvasElement>document.getElementById("canvas");
@@ -119,7 +121,8 @@ const update = () =>
     map.GetCells().ForEach(e => draw(e));
     map.GetActors().ForEach(e => draw(e));
 
-    const player = <PlayerActor>map.GetActors().Get("player")[0];
+    // TODO: Not this way, this is temporary!
+    const player = <PlayerActor>map.GetActors().GetNear(new Coord);
 
     if(player)
     {

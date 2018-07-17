@@ -1,6 +1,6 @@
-import { IExportable } from "./IExportable";
+import { Exportable } from "./Exportable";
 
-export class Coord implements IExportable
+export class Coord extends Exportable
 {
     public X: number;
     public Y: number;
@@ -10,38 +10,10 @@ export class Coord implements IExportable
      */
     constructor(x: number = 0, y: number = 0)
     {
-        this.X = x;
-        this.Y = y;
-    }
-
-    /**
-     * Export coordinate.
-     */
-    public Export(): string
-    {
-        return this.X + "," + this.Y;
-    }
-
-    /**
-     * Import exported coordinates.
-     * @param input 
-     */
-    public Import(input: string): boolean
-    {
-        const parts: string[] = input.split(",");
-
-        const x = Number.parseFloat(parts[0]);
-        const y = Number.parseFloat(parts[1]);
-
-        if(!Number.isFinite(x) || !Number.isFinite(y))
-        {
-            return false;
-        }
+        super();
 
         this.X = x;
         this.Y = y;
-
-        return true;
     }
 
     /**

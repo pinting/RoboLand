@@ -1,19 +1,10 @@
 import { BaseActor } from "../Actor/BaseActor";
 import { MoveType } from "../MoveType";
-import { ElementType } from "../ElementType";
 import { Coord } from "../../Coord";
 import { BaseCell } from "./BaseCell";
 
 export class StoneCell extends BaseCell
 {
-    /**
-     * Get the type of the cell.
-     */
-    public GetType(): ElementType
-    {
-        return ElementType.StoneCell;
-    }
-
     /**
      * Get the size of the cell.
      */

@@ -1,7 +1,4 @@
-import { ElementType } from "../ElementType";
-import { Map } from "../../Map";
 import { Coord } from "../../Coord";
-import { Utils } from "../../Utils";
 import { BaseElement } from "../BaseElement";
 
 export abstract class BaseActor extends BaseElement
@@ -35,7 +32,6 @@ export abstract class BaseActor extends BaseElement
         }
     }
     
-    abstract GetType(): ElementType;
     abstract GetPos(): Coord;
     abstract GetSize(): Coord;
     abstract GetTexture(): string;

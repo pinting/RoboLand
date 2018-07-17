@@ -1,20 +1,11 @@
 import { BaseActor } from "./BaseActor";
 import { MoveType } from "../MoveType";
 import { Coord } from "../../Coord";
-import { ElementType } from "../ElementType";
 
 export class PlayerActor extends BaseActor
 {
     protected health: number = 1.0;
     protected damage: number = 1.0;
-
-    /**
-     * Get the type of the actor.
-     */
-    public GetType(): ElementType
-    {
-        return ElementType.PlayerActor;
-    }
 
     /**
      * Get the cell texture.

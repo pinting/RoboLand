@@ -10,6 +10,10 @@ export class Server
 
     private mapUrl: string;
 
+    /**
+     * TODO
+     * @param mapUrl 
+     */
     public constructor(mapUrl: string)
     {
         this.mapUrl = mapUrl;
@@ -19,20 +23,25 @@ export class Server
         this.map.Load(mapUrl);
     }
 
-    private OnMessage(id: string, type: MessageType, payload: string)
+    /**
+     * TODO
+     * @param client 
+     * @param type 
+     * @param payload 
+     */
+    private OnMessage(client: IClient, type: MessageType, payload: string)
     {
-        if(type == MessageType.Init) {
-            // TODO: Kick the client!
-            return;
-        }
-
         // TODO
     }
 
+    /**
+     * TODO
+     * @param element 
+     */
     private SendElement(element: BaseElement)
     {
         const type = element.IsDisposed() ? MessageType.Set : MessageType.Remove;
-        const payload = element.Export();
+        const payload = JSON.stringify(element.ExportAll());
 
         this.clients.forEach(client => 
         {
@@ -40,13 +49,16 @@ export class Server
         });
     }
     
+    /**
+     * TODO
+     * @param client 
+     */
     public Add(client: IClient)
     {
-        client.OnMessage = (type, payload) =>
-        {
-            this.OnMessage(client.GetId(), type, payload);
-        };
+        client.OnMessage = (type, payload) => this.OnMessage(client, type, payload);
 
-        client.SendMessage(MessageType.Init, this.map.GetSize().Export());
+        const payload = JSON.stringify(this.map.GetSize().ExportAll());
+
+        client.SendMessage(MessageType.Init, payload);
     }
 }

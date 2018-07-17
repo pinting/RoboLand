@@ -1,7 +1,7 @@
 import { Map } from '../Map';
 import { Coord } from "../Coord";
-import { ElementType } from "../Element/ElementType";
 import { PlayerActor } from '../Element/Actor/PlayerActor';
+import { GroundCell } from '../Element/Cell/GroundCell';
 
 export class Adapter
 {
@@ -42,7 +42,7 @@ export class Adapter
         const coord = this.actor.GetPos().Add(new Coord(dx, dy));
         const cell = this.map.GetCells().Get(coord)[0];
 
-        return cell && cell.GetType() == ElementType.GroundCell ? 1 : 0;
+        return cell && cell instanceof GroundCell ? 1 : 0;
     }
 
     /**

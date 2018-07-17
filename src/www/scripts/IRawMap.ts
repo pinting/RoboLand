@@ -1,5 +1,3 @@
-import { ElementType } from "./Element/ElementType";
-
 export interface IRawMap
 {
     Size: {
@@ -9,7 +7,11 @@ export interface IRawMap
     Actors: Array<{
         X: number;
         Y: number;
-        Type: ElementType
+        Class: string
     }>;
-    Cells: Array<ElementType>;
+    Cells: Array<{
+        X: number;
+        Y: number;
+        Class: string
+    }>;
 }

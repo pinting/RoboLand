@@ -1,7 +1,6 @@
 import { BaseActor } from "../Actor/BaseActor";
 import { MoveType } from "../MoveType";
 import { Coord } from "../../Coord";
-import { ElementType } from "../ElementType";
 import { BaseElement } from "../BaseElement";
 
 export abstract class BaseCell extends BaseElement
@@ -63,7 +62,6 @@ export abstract class BaseCell extends BaseElement
         }
     }
     
-    abstract GetType(): ElementType;
     abstract GetSize(): Coord;
     abstract GetTexture(): string;
 }

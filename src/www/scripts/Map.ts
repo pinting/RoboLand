@@ -1,19 +1,18 @@
 import { Coord } from "./Coord";
 import { BaseActor } from "./Element/Actor/BaseActor";
 import { Utils } from "./Utils";
-import { ElementType } from "./Element/ElementType";
 import { BaseCell } from "./Element/Cell/BaseCell";
 import { BaseElement } from "./Element/BaseElement";
-import { ElementFactory } from "./Element/ElementFactory";
 import { IRawMap } from "./IRawMap";
 import { ElementList } from "./ElementList";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
+import { Exportable } from "./Exportable";
 
 export class Map
 {
-    private cells: Array<BaseCell>;
-    private actors: Array<BaseActor>;
-    private size: Coord;
+    private cells: Array<BaseCell> = [];
+    private actors: Array<BaseActor> = [];
+    private size: Coord = new Coord();
 
     /**
      * Singleton instance of the class.
@@ -47,7 +46,7 @@ export class Map
     public Init(size: Coord): void
     {
         this.size = size.Clone();
-        this.cells = new Array(size.X * size.Y).fill(null);
+        this.cells = [];
         this.actors = [];
 
         this.cells.forEach(cell => this.OnUpdate(cell));
@@ -67,7 +66,7 @@ export class Map
         {
             raw = JSON.parse(await Utils.Get(url)) || {};
 
-            if(!raw.Cells || !raw.Size || raw.Cells.length != raw.Size.X * raw.Size.Y) 
+            if(!raw.Size || !raw.Cells || !raw.Actors) 
             {
                 return false;
             }
@@ -84,11 +83,13 @@ export class Map
         // Parse cells
         for(let i = 0; i < raw.Cells.length; i++)
         {
-            const type: ElementType = raw.Cells[i];
-            const coord = new Coord(i % this.size.X, Math.floor(i / this.size.X));
-            const cell = <BaseCell>ElementFactory.FromType(type, coord);
+            const data = raw.Cells[i];
 
-            this.cells[i] = cell;
+            const name = data.Class;
+            const coord = new Coord(data.X, data.Y);
+            const cell = <BaseCell>Exportable.FromName(name, coord);
+
+            this.cells.push(cell);
 
             this.OnUpdate(cell);
         }
@@ -98,9 +99,9 @@ export class Map
         {
             const data = raw.Actors[i];
 
-            const type = data.Type;
+            const name = data.Class;
             const coord = new Coord(data.X, data.Y);
-            const actor = <BaseActor>ElementFactory.FromType(type, coord);
+            const actor = <BaseActor>Exportable.FromName(name, coord);
 
             this.actors.push(actor);
 
