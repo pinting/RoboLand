@@ -43,52 +43,26 @@ export class PlayerActor extends BaseActor
         {
             return false;
         }
-        
-        // Get the currently covered cells and the next ones
-        const cells = this.map.GetCells();
-        
-        const prevCells = cells.GetBetween(prevPos, prevPos.Add(this.GetSize()));
-        const nextCells = cells.GetBetween(nextPos, nextPos.Add(this.GetSize()));
 
-        if(!prevCells.length || !nextCells.length)
+        return this.SetPos(nextPos);
+    }
+
+    /**
+     * Handle movement types.
+     * @param type 
+     */
+    protected HandleMove(type: MoveType)
+    {
+        switch(type)
         {
-            return false;
+            case MoveType.Blocked: // Do nothing
+                return true;
+            case MoveType.Killed: // Kill it
+                this.Kill();
+                return true;
+            case MoveType.Successed: // Move away
+                return false;
         }
-
-        // Remove intersection 
-        const prevFiltered = prevCells.filter(c => !nextCells.includes(c));
-        const nextFiltered = nextCells.filter(c => !prevCells.includes(c));
-
-        // Check if one of the cells blocks the movement
-        const failed = nextFiltered.some(cell => 
-        {
-            switch(cell.MoveHere(this))
-            {
-                case MoveType.Blocked: // Do nothing
-                    return true;
-                case MoveType.Killed: // Kill it
-                    this.Kill();
-                    return true;
-                case MoveType.Successed: // Move away
-                    return false;
-            }
-        });
-
-        // If the movement failed, revert
-        if(failed)
-        {
-            nextFiltered.forEach(c => c.MoveAway(this));
-            return false;
-        }
-
-        // If it was successful, move away from the old cells
-        prevFiltered.forEach(c => c.MoveAway(this));
-
-        // Update
-        this.position = nextPos;
-        this.map.OnUpdate(this);
-
-        return true;
     }
 
     /**
@@ -135,13 +109,6 @@ export class PlayerActor extends BaseActor
     private Kill(): void
     {
         this.health = 0;
-
-        const from = this.GetPos();
-        const to = this.GetPos().Add(this.GetSize());
-        const cells = this.map.GetCells().GetBetween(from, to);
-
-        // Clear actor from the cells itself
-        cells.forEach(c => c.MoveAway(this));
         
         // Dispose
         this.Dispose();

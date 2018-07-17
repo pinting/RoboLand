@@ -27,6 +27,26 @@
             "X": 4,
             "Y": 5,
             "Class": "GroundCell"
+        },
+        {
+            "X": 1,
+            "Y": 1,
+            "Class": "GroundCell"
+        },
+        {
+            "X": 0,
+            "Y": 1,
+            "Class": "StoneCell"
+        },
+        {
+            "X": 0,
+            "Y": 2,
+            "Class": "StoneCell"
+        },
+        {
+            "X": 2,
+            "Y": 1,
+            "Class": "WaterCell"
         }
     ]
 }

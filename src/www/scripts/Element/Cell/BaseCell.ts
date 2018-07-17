@@ -54,9 +54,14 @@ export abstract class BaseCell extends BaseElement
      */
     public Dispose(): void
     {
+        if(this.disposed)
+        {
+            return;
+        }
+
         super.Dispose();
 
-        if(!this.disposed && this instanceof BaseCell)
+        if(this instanceof BaseCell)
         {
             this.map.GetCells().Remove(this);
         }

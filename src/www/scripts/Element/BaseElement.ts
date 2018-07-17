@@ -47,18 +47,34 @@ export abstract class BaseElement extends Exportable
 
     /**
      * Override import prop function for optimization.
-     * @param name 
-     * @param object 
+     * @param input
      */
-    protected ImportProperty(element: IExportObject): any
+    protected ImportProperty(input: IExportObject): any
     {
         // Import element
-        if(element.Class != "string" && Utils.IsUnique(element.Payload))
+        if(input.Class != "string" && Utils.IsUnique(input.Payload))
         {
-            return this.map.GetElements().Get(element.Payload)[0];
+            return this.map.GetElements().Get(input.Payload)[0];
         }
 
-        return super.ImportProperty(element);
+        return super.ImportProperty(input);
+    }
+
+    /**
+     * Override import all to handle removal from the map.
+     * @param input
+     */
+    public ImportAll(input: IExportObject[]): void
+    {
+        super.ImportAll(input);
+
+        if(this.disposed)
+        {
+            // In BaseElement this makes no sense,
+            // but in its childs the element needs
+            // to be removed from the map
+            this.Dispose();
+        }
     }
 
     /**
@@ -82,11 +98,6 @@ export abstract class BaseElement extends Exportable
      */
     public Dispose(): void
     {
-        if(this.disposed)
-        {
-            return;
-        }
-
         this.disposed = true;
     }
     
