@@ -2,6 +2,7 @@ import { Coord } from "../../Coord";
 import { BaseElement } from "../BaseElement";
 import { IExportObject } from "../../IExportObject";
 import { MoveType } from "../MoveType";
+import { Map } from "../../Map";
 
 export abstract class BaseActor extends BaseElement
 {
@@ -9,9 +10,9 @@ export abstract class BaseActor extends BaseElement
      * Construct a new PlayerActor.
      * @param position
      */
-    public constructor(position: Coord = null)
+    public constructor(position: Coord = null, map: Map = null)
     {
-        super(position);
+        super(position, map);
         this.SetPos(this.position);
     }
     

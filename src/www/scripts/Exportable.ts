@@ -151,7 +151,7 @@ export abstract class Exportable
         }
 
         // Import Exportable types
-        const instance = Exportable.FromName(input.Class);
+        const instance = Exportable.FromName(input.Class, ...(input.Args || []));
 
         instance && instance.ImportAll(input.Payload);
 

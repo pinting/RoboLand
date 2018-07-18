@@ -10,6 +10,7 @@ import { Utils } from "../Utils";
 import { IMessageIn } from "./IMessageIn";
 import { Coord } from "../Coord";
 import { BaseElement } from "../Element/BaseElement";
+import { IExportObject } from "../IExportObject";
 
 export class Client
 {
@@ -68,16 +69,16 @@ export class Client
         switch(parsed.Type)
         {
             case MessageType.Element:
-                this.SetElement(Exportable.Import(parsed.Payload))
+                this.SetElement(parsed.Payload)
                 break;
             case MessageType.Player:
                 this.SetPlayer(parsed.Payload);
                 break;
             case MessageType.Size:
-                this.map.Init(Exportable.Import(parsed.Payload));
+                this.SetSize(parsed.Payload);
                 break;
             case MessageType.Kick:
-                this.map.Init(new Coord);
+                this.Kick();
                 break;
             default:
                 // Invalid
@@ -91,8 +92,12 @@ export class Client
      * Set element.
      * @param element 
      */
-    private SetElement(element: BaseElement)
+    private SetElement(exportable: IExportObject)
     {
+        exportable.Args = [new Coord, this.map];
+
+        const element = Exportable.Import(exportable);
+
         if(element instanceof BaseCell)
         {
             this.map.GetCells().Set(element);
@@ -113,6 +118,23 @@ export class Client
 
         this.OnPlayer(Utils.Hook(player, (target, prop, args) => 
             this.SendMessage(MessageType.Command, [prop].concat(args))));
+    }
+
+    /**
+     * Set the size of the map.
+     * @param size 
+     */
+    private SetSize(exportable: IExportObject)
+    {
+        this.map.Init(Exportable.Import(exportable));
+    }
+
+    /**
+     * Kick this client of the server.
+     */
+    private Kick()
+    {
+        this.map.Init(new Coord(0, 0));
     }
 
     /**

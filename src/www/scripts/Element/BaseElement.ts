@@ -6,7 +6,7 @@ import { IExportObject } from "../IExportObject";
 
 export abstract class BaseElement extends Exportable
 {
-    protected readonly map = Map.GetInstance();
+    protected readonly map;
 
     protected disposed: boolean;
     protected position: Coord;
@@ -16,12 +16,14 @@ export abstract class BaseElement extends Exportable
      * Constructor of the BaseElement.
      * @param position
      */
-    public constructor(position: Coord = null)
+    public constructor(position: Coord = null, map: Map = null)
     {
         super();
 
-        this.disposed = false;
         this.position = position || new Coord;
+        this.map = map || Map.GetInstance();
+        
+        this.disposed = false;
         this.tag = Utils.Unique();
     }
 

@@ -5,11 +5,12 @@ import { GroundCell } from '../Element/Cell/GroundCell';
 
 export class Adapter
 {
-    private readonly map: Map = Map.GetInstance();
-    private actor: PlayerActor;
+    private readonly map: Map;
+    private readonly actor: PlayerActor;
 
-    constructor(actor: PlayerActor)
+    constructor(actor: PlayerActor, map: Map = null)
     {
+        this.map = map || Map.GetInstance();
         this.actor = actor;
     }
 

@@ -87,7 +87,7 @@ export class Map
 
             const name = data.Class;
             const coord = new Coord(data.X, data.Y);
-            const cell = <BaseCell>Exportable.FromName(name, coord);
+            const cell = <BaseCell>Exportable.FromName(name, coord, this);
 
             this.cells.push(cell);
 
@@ -101,7 +101,7 @@ export class Map
 
             const name = data.Class;
             const coord = new Coord(data.X, data.Y);
-            const actor = <BaseActor>Exportable.FromName(name, coord);
+            const actor = <BaseActor>Exportable.FromName(name, coord, this);
 
             this.actors.push(actor);
 

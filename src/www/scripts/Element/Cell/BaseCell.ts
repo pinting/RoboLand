@@ -2,6 +2,7 @@ import { BaseActor } from "../Actor/BaseActor";
 import { MoveType } from "../MoveType";
 import { Coord } from "../../Coord";
 import { BaseElement } from "../BaseElement";
+import { Map } from "../../Map";
 
 export abstract class BaseCell extends BaseElement
 {
@@ -11,9 +12,9 @@ export abstract class BaseCell extends BaseElement
      * Construct a new empty cell - ground.
      * @param position Coord of the cell.
      */
-    public constructor(position: Coord = null)
+    public constructor(position: Coord = null, map: Map = null)
     {
-        super(position);
+        super(position, map);
     }
     
     /**
