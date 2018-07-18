@@ -7,6 +7,7 @@ import { Coord } from "../Coord";
 import { BaseElement } from "../Element/BaseElement";
 import { IMessageIn } from "./IMessageIn";
 import { IMessageOut } from "./IMessageOut";
+import { IExportObject } from "../IExportObject";
 
 export class ServerClient
 {
@@ -39,11 +40,6 @@ export class ServerClient
         try 
         {
             parsed = JSON.parse(message);
-
-            if(!parsed || !parsed.Payload)
-            {
-                return;
-            }
         }
         catch(e)
         {
@@ -73,6 +69,8 @@ export class ServerClient
     {
         return new Promise<void>((resolve, reject) => 
         {
+            let timeout;
+
             // Create the message
             const message: IMessageOut = {
                 Type: type,
@@ -100,10 +98,15 @@ export class ServerClient
                 {
                     this.listeners.splice(index, 1);
                 }
+
+                if(timeout != undefined)
+                {
+                    clearTimeout(timeout);
+                }
             };
 
             // Set a timeout if ack never received
-            setTimeout(() => remove(listener) || reject(), this.timeout);
+            timeout = setTimeout(() => remove(listener) || reject(), this.timeout);
 
             // Add listener and send message
             this.listeners.push(listener);
@@ -165,5 +168,5 @@ export class ServerClient
     /**
      * Executed when the client sends a command.
      */
-    public OnCommand: (args: any[]) => void = Utils.Noop;
+    public OnCommand: (command: IExportObject) => void = Utils.Noop;
 }

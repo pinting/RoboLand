@@ -64,7 +64,7 @@ export abstract class BaseElement extends Exportable
         // Import element
         if(input.Class != "string" && Utils.IsUnique(input.Payload))
         {
-            return this.map.GetElements().Get(input.Payload)[0];
+            return this.map.GetElements().Tag(input.Payload);
         }
 
         return super.ImportProperty(input);

@@ -37,16 +37,21 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     }
 
     /**
-     * Get a element(s) by coord or tag.
-     * @param id 
-     */ 
-    public Get(id: Coord | string): Element[]
+     * Get element by tag.
+     * @param tag 
+     */
+    public Tag(tag: string): Element
     {
-        if(id instanceof Coord) {
-            return this.elements.filter(e => e && e.GetPos().Is(<Coord>id));
-        }
+        return this.elements.find(e => e && e.GetTag() == tag);
+    }
 
-        return this.elements.filter(e => e && e.GetTag() == id);
+    /**
+     * Get a element(s) by coord.
+     * @param coord 
+     */ 
+    public Get(coord: Coord): Element[]
+    {
+        return this.elements.filter(e => e && e.GetPos().Is(<Coord>coord));
     }
 
     /**
@@ -112,19 +117,22 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
 
     /**
      * Add a new element or overwrite an existing one (by tag).
-     * @param BaseActor 
+     * @param element 
      */
-    public Set(newElement: Element): void
+    public Set(element: Element): void
     {
-        const oldActors = this.Get(newElement.GetTag());
+        const old = this.Tag(element.GetTag());
 
-        if(oldActors.length)
+        if(old)
         {
-            oldActors.forEach(actor => this.Remove(actor));
+            Utils.Extract(old, element);
+        }
+        else
+        {
+            this.elements.push(element);
         }
 
-        this.elements.push(newElement);
-        this.OnUpdate(newElement);
+        this.OnUpdate(element);
     }
 
     /**

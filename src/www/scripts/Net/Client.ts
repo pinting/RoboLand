@@ -55,11 +55,6 @@ export class Client
         try 
         {
             parsed = JSON.parse(message);
-
-            if(!parsed || !parsed.Payload || !parsed.Index)
-            {
-                return;
-            }
         }
         catch(e)
         {
@@ -114,10 +109,14 @@ export class Client
      */
     private SetPlayer(tag: string)
     {
-        const player = this.map.GetActors().Get(tag)[0];
+        const player = this.map.GetActors().Tag(tag);
 
         this.OnPlayer(Utils.Hook(player, (target, prop, args) => 
-            this.SendMessage(MessageType.Command, [prop].concat(args))));
+        {
+            const exportable = Exportable.Export([prop].concat(args));
+
+            this.SendMessage(MessageType.Command, exportable);
+        }));
     }
 
     /**

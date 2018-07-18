@@ -22,7 +22,7 @@ export class BasicChannel implements IChannel
     {
         if(this.other)
         {
-            this.other.OnMessage(message);
+            setTimeout(() => this.other.OnMessage(message), Utils.Random(20, 100));
         }
     }
 

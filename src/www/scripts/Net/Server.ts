@@ -2,6 +2,9 @@ import { Map } from "../Map";
 import { BaseElement } from "../Element/BaseElement";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { ServerClient } from "./ServerClient";
+import { Exportable } from "../Exportable";
+import { IExportObject } from "../IExportObject";
+import { Coord } from "../Coord";
 
 export class Server
 {
@@ -21,17 +24,21 @@ export class Server
      * Executed when receive a new message from a client.
      * @param client 
      * @param player 
-     * @param args
+     * @param command
      */
-    private OnCommand(client: ServerClient, args: any[])
+    private OnCommand(client: ServerClient, command: IExportObject)
     {
+        const args = Exportable.Import(command);
+
         if(!args.length)
         {
             this.Kick(client);
             return;
         }
 
-        client.GetPlayer()[args[0]](...args.slice(1));
+        const player = client.GetPlayer();
+
+        player[args[0]].bind(player)(...args.slice(1));
     }
 
     /**
@@ -68,7 +75,7 @@ export class Server
     public async Add(client: ServerClient)
     {
         // Create player and add it to the map
-        const player = new PlayerActor();
+        const player = new PlayerActor(new Coord(0, 0), this.map);
 
         this.map.GetActors().Set(player);
 
@@ -76,7 +83,7 @@ export class Server
         await client.SetSize(this.map.GetSize());
 
         // Set actors
-        for(let actor of this.map.GetCells().List())
+        for(let actor of this.map.GetActors().List())
         {
             await client.SetElement(actor);
         }
@@ -88,9 +95,12 @@ export class Server
         }
         
         // Subscribe to the OnCommand callback
-        client.OnCommand = args => this.OnCommand(client, args);
+        client.OnCommand = command => this.OnCommand(client, command);
         
         // Set player
         await client.SetPlayer(player);
+
+        // Add client to the internal client list
+        this.clients.push(client);
     }
 }
