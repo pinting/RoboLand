@@ -1,64 +1,96 @@
-import { IClient } from "./IClient";
-import { MessageType } from "./MessageType";
 import { Map } from "../Map";
 import { BaseElement } from "../Element/BaseElement";
+import { PlayerActor } from "../Element/Actor/PlayerActor";
+import { ServerClient } from "./ServerClient";
 
 export class Server
 {
     private readonly map: Map;
-    private readonly clients: IClient[] = [];
-
-    private mapUrl: string;
+    private readonly clients: ServerClient[] = [];
 
     /**
-     * TODO
-     * @param mapUrl 
+     * Construct a new server.
      */
-    public constructor(mapUrl: string)
+    public constructor(map: Map)
     {
-        this.mapUrl = mapUrl;
-        this.map = new Map();
-
-        this.map.OnUpdate = element => this.SendElement(element);
-        this.map.Load(mapUrl);
+        this.map = map;
+        this.map.OnUpdate = element => this.SetElement(element);
     }
 
     /**
-     * TODO
+     * Executed when receive a new message from a client.
      * @param client 
-     * @param type 
-     * @param payload 
+     * @param player 
+     * @param args
      */
-    private OnMessage(client: IClient, type: MessageType, payload: string)
+    private OnCommand(client: ServerClient, args: any[])
     {
-        // TODO
+        if(!args.length)
+        {
+            this.Kick(client);
+            return;
+        }
+
+        client.GetPlayer()[args[0]](...args.slice(1));
     }
 
     /**
-     * TODO
+     * Kick client out of the server.
+     * @param client 
+     */
+    private Kick(client: ServerClient)
+    {
+        const index = this.clients.indexOf(client);
+
+        if(index >= 0)
+        {
+            this.clients.splice(index, 1);
+            this.map.GetActors().Remove(client.GetPlayer());
+            client.Kick();
+        }
+    }
+
+    /**
+     * Send an element to everybody (or everybody except one client).
      * @param element 
      */
-    private SendElement(element: BaseElement)
+    private SetElement(element: BaseElement, exception: ServerClient = null)
     {
-        const type = element.IsDisposed() ? MessageType.Set : MessageType.Remove;
-        const payload = JSON.stringify(element.ExportAll());
-
-        this.clients.forEach(client => 
-        {
-            client.SendMessage(type, payload);
-        });
+        this.clients
+            .filter(client => client != exception)
+            .forEach(client => client.SetElement(element));
     }
     
     /**
-     * TODO
+     * Add a new client to the server.
      * @param client 
      */
-    public Add(client: IClient)
+    public async Add(client: ServerClient)
     {
-        client.OnMessage = (type, payload) => this.OnMessage(client, type, payload);
+        // Create player and add it to the map
+        const player = new PlayerActor();
 
-        const payload = JSON.stringify(this.map.GetSize().ExportAll());
+        this.map.GetActors().Set(player);
 
-        client.SendMessage(MessageType.Init, payload);
+        // Set size
+        await client.SetSize(this.map.GetSize());
+
+        // Set actors
+        for(let actor of this.map.GetCells().List())
+        {
+            await client.SetElement(actor);
+        }
+
+        // Set cells
+        for(let cell of this.map.GetCells().List())
+        {
+            await client.SetElement(cell);
+        }
+        
+        // Subscribe to the OnCommand callback
+        client.OnCommand = args => this.OnCommand(client, args);
+        
+        // Set player
+        await client.SetPlayer(player);
     }
 }

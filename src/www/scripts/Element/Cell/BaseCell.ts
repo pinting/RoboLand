@@ -30,7 +30,11 @@ export abstract class BaseCell extends BaseElement
      */
     public MoveHere(actor: BaseActor): MoveType 
     {
-        this.actors.push(actor);
+        if(!this.actors.includes(actor))
+        {
+            this.actors.push(actor);
+            this.map.OnUpdate(this);
+        }
 
         return MoveType.Successed;
     }
@@ -46,6 +50,7 @@ export abstract class BaseCell extends BaseElement
         if(index >= 0) 
         {
             this.actors.splice(index, 1);
+            this.map.OnUpdate(this);
         }
     }
 
@@ -67,6 +72,6 @@ export abstract class BaseCell extends BaseElement
         }
     }
     
-    abstract GetSize(): Coord;
-    abstract GetTexture(): string;
+    public abstract GetSize(): Coord;
+    public abstract GetTexture(): string;
 }

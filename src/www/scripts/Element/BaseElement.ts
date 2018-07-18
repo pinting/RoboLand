@@ -26,6 +26,14 @@ export abstract class BaseElement extends Exportable
     }
 
     /**
+     * Get the tag of the element.
+     */
+    public GetTag(): string
+    {
+        return this.tag;
+    }
+
+    /**
      * Override export prop function for optimization.
      * @param name 
      * @param object 
@@ -78,14 +86,6 @@ export abstract class BaseElement extends Exportable
     }
 
     /**
-     * Get the tag of the element.
-     */
-    public GetTag(): string
-    {
-        return this.tag;
-    }
-
-    /**
      * Check if the element is disposed.
      */
     public IsDisposed(): boolean
@@ -101,7 +101,7 @@ export abstract class BaseElement extends Exportable
         this.disposed = true;
     }
     
-    abstract GetSize(): Coord;
-    abstract GetTexture(): string;
-    abstract GetPos(): Coord;
+    public abstract GetSize(): Coord;
+    public abstract GetTexture(): string;
+    public abstract GetPos(): Coord;
 }

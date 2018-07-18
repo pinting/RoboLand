@@ -1,6 +1,9 @@
 export enum MessageType
 {
-    Init = 0,
-    Set = 1,
-    Remove = 2
+    Size, // OUT
+    Element, // OUT
+    Player, // OUT
+    Kick, // OUT
+    Command, // IN
+    Ack // IN
 }

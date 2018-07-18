@@ -49,7 +49,7 @@ export abstract class Exportable
     {
         const result: IExportObject[] = [];
 
-        for (var property in this)
+        for (let property in this)
         {
             const exported = this.ExportProperty(this[property], property);
 

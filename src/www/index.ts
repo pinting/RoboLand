@@ -7,14 +7,14 @@ import { Utils } from "./scripts/Utils";
 import { GroundCell } from './scripts/Element/Cell/GroundCell';
 import { PlayerActor } from './scripts/Element/Actor/PlayerActor';
 import { Exportable } from './scripts/Exportable';
+import { Server } from './scripts/Net/Server';
 
 // For debug
 Utils.Extract(window, { 
     Coord, 
     Map,
     Utils,
-    Processor,
-    Runner,
+    Server,
     GroundCell,
     PlayerActor,
     Exportable

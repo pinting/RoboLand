@@ -14,6 +14,14 @@ export abstract class BaseActor extends BaseElement
         super(position);
         this.SetPos(this.position);
     }
+    
+    /**
+     * Get the position of the actor.
+     */
+    public GetPos(): Coord
+    {
+        return this.position;
+    }
 
     /**
      * Set the position of the actor.
@@ -21,29 +29,24 @@ export abstract class BaseActor extends BaseElement
      */
     protected SetPos(nextPos: Coord = null, prevPos: Coord = null): boolean
     {
+        const cells = this.map.GetCells();
+
         // Get the currently covered cells and the next ones
-        const prevCells = prevPos 
-            ? this.map.GetCells().GetBetween(prevPos, prevPos.Add(this.GetSize()))
+        const prev = prevPos 
+            ? cells.GetBetween(prevPos, prevPos.Add(this.GetSize()))
             : [];
         
-        const nextCells = nextPos
-            ? this.map.GetCells().GetBetween(nextPos, nextPos.Add(this.GetSize()))
+        const next = nextPos
+            ? cells.GetBetween(nextPos, nextPos.Add(this.GetSize()))
             : [];
-        
-        if(!prevCells.length && !nextCells.length)
-        {
-            return false;
-        }
 
         // Remove intersection 
-        const prevFiltered = prevCells.filter(c => !nextCells.includes(c));
-        const nextFiltered = nextCells.filter(c => !prevCells.includes(c));
+        const prevFiltered = prev.filter(c => !next.includes(c));
+        const nextFiltered = next.filter(c => !prev.includes(c));
 
         // Check if one of the cells blocks the movement
         const failed = nextFiltered.some(cell => 
-        {
-            return this.HandleMove(cell.MoveHere(this));
-        });
+            !this.HandleMove(cell.MoveHere(this)));
 
         // If the movement failed, revert
         if(failed)
@@ -55,38 +58,11 @@ export abstract class BaseActor extends BaseElement
         // If it was successful, move away from the old cells
         prevFiltered.forEach(c => c.MoveAway(this));
 
-        // Update position
+        // Update
         this.position = nextPos;
-
-        // Notify upper parts
         this.map.OnUpdate(this);
 
         return true;
-    }
-
-    /**
-     * Handle movement types.
-     * @param type 
-     */
-    protected HandleMove(type: MoveType)
-    {
-        return type != MoveType.Successed;
-    }
-
-    /**
-     * Override import all to handle position change.
-     * @param input
-     */
-    public ImportAll(input: IExportObject[]): void
-    {
-        const oldPosition = this.position;
-
-        super.ImportAll(input);
-
-        if(!this.position.Is(oldPosition))
-        {
-            this.SetPos(this.position, oldPosition);
-        }
     }
 
     /**
@@ -100,15 +76,15 @@ export abstract class BaseActor extends BaseElement
         }
         
         super.Dispose();
-        this.SetPos(null);
+        this.SetPos();
 
         if(this instanceof BaseActor)
         {
             this.map.GetActors().Remove(this);
         }
     }
-    
-    abstract GetPos(): Coord;
-    abstract GetSize(): Coord;
-    abstract GetTexture(): string;
+
+    protected abstract HandleMove(type: MoveType): boolean;
+    public abstract GetSize(): Coord;
+    public abstract GetTexture(): string;
 }

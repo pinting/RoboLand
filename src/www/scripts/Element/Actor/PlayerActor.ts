@@ -29,6 +29,16 @@ export class PlayerActor extends BaseActor
      */
     public Move(direction: Coord): boolean
     {
+        if(direction.GetDistance(new Coord(0, 0)) <= 0)
+        {
+            return false; // Does not allow movement 
+        }
+
+        if(Math.abs(Math.abs(direction.X) - Math.abs(direction.Y)) == 0)
+        {
+            return false; // Only allow left, right, top and bottom movement
+        }
+        
         // Get sizes
         const size = this.GetSize();
         const mapSize = this.map.GetSize();
@@ -44,24 +54,24 @@ export class PlayerActor extends BaseActor
             return false;
         }
 
-        return this.SetPos(nextPos);
+        return this.SetPos(nextPos, prevPos);
     }
 
     /**
      * Handle movement types.
      * @param type 
      */
-    protected HandleMove(type: MoveType)
+    protected HandleMove(type: MoveType): boolean
     {
         switch(type)
         {
             case MoveType.Blocked: // Do nothing
-                return true;
+                return false;
             case MoveType.Killed: // Kill it
                 this.Kill();
-                return true;
-            case MoveType.Successed: // Move away
                 return false;
+            case MoveType.Successed: // Move away
+                return true;
         }
     }
 
@@ -77,14 +87,6 @@ export class PlayerActor extends BaseActor
         }
 
         actor.Damage(this.damage);
-    }
-
-    /**
-     * Get the position of the actor.
-     */
-    public GetPos(): Coord
-    {
-        return this.position;
     }
 
     /**

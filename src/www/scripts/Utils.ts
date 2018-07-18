@@ -143,4 +143,30 @@ export class Utils
 
         return re.test(unique);
     }
+
+    /**
+     * Hook into the class and intercept each function call.
+     * @param object 
+     * @param hook 
+     */
+    public static Hook(object: any, hook: (target, prop, args) => void)
+    {
+        return new Proxy(object, 
+        {
+            get: (target, prop, receiver) =>
+            {
+                if(typeof target[prop] != "function")
+                {
+                    return Reflect.get(target, prop, receiver);
+                }
+
+                return (...args) =>
+                {
+                    hook(target, prop, args);
+                    
+                    return target[prop].bind(target)(...args);
+                }
+            }
+        });
+    }
 }
