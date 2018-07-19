@@ -1,21 +1,23 @@
 import { IChannel } from "./IChannel";
-import { IMessageOut } from "./IMessageOut";
 import { MessageType } from "./MessageType";
 import { Map } from "../Map";
 import { Exportable } from "../Exportable";
 import { BaseCell } from "../Element/Cell/BaseCell";
 import { BaseActor } from "../Element/Actor/BaseActor";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
-import { Utils } from "../Utils";
-import { IMessageIn } from "./IMessageIn";
+import { Helper } from "../Util/Helper";
 import { Coord } from "../Coord";
-import { BaseElement } from "../Element/BaseElement";
 import { IExportObject } from "../IExportObject";
+import { IMessage } from "./IMessage";
+import { Logger } from "../Util/Logger";
+import { LogType } from "../Util/LogType";
 
 export class Client
 {
     private readonly channel: IChannel;
     private readonly map: Map;
+
+    private outIndex: number = 0;
 
     /**
      * Construct a new client.
@@ -36,12 +38,14 @@ export class Client
      */
     private SendMessage(type: MessageType, payload: any): void
     {
-        const message: IMessageIn = {
+        const message: IMessage = {
             Type: type,
+            Index: this.outIndex++,
             Payload: payload
         };
 
         this.channel.SendMessage(JSON.stringify(message));
+        Logger.Log(this, LogType.Verbose, "Client message sent", message);
     }
 
     /**
@@ -50,7 +54,7 @@ export class Client
      */
     private OnMessage(message: string): void
     {
-        let parsed: IMessageOut;
+        let parsed: IMessage;
 
         try 
         {
@@ -60,6 +64,8 @@ export class Client
         {
             return;
         }
+
+        Logger.Log(this, LogType.Verbose, "Client message received", parsed);
         
         switch(parsed.Type)
         {
@@ -89,7 +95,8 @@ export class Client
      */
     private SetElement(exportable: IExportObject)
     {
-        exportable.Args = [new Coord, this.map];
+        // Set the args of the constructor of BaseElement 
+        exportable.Args = [null, this.map];
 
         const element = Exportable.Import(exportable);
 
@@ -111,7 +118,7 @@ export class Client
     {
         const player = this.map.GetActors().Tag(tag);
 
-        this.OnPlayer(Utils.Hook(player, (target, prop, args) => 
+        this.OnPlayer(Helper.Hook(player, (target, prop, args) => 
         {
             const exportable = Exportable.Export([prop].concat(args));
 
@@ -139,5 +146,5 @@ export class Client
     /**
      * Executed when the player is set.
      */
-    public OnPlayer: (player: PlayerActor) => void = Utils.Noop;
+    public OnPlayer: (player: PlayerActor) => void = Helper.Noop;
 }

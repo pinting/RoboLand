@@ -5,7 +5,7 @@
     },
     "Actors":
     [
-        
+
     ],
     "Cells": 
     [
@@ -15,18 +15,68 @@
             "Class": "GroundCell"
         },
         {
-            "X": 1,
-            "Y": 0,
+            "X": 0,
+            "Y": 3,
             "Class": "GroundCell"
         },
         {
-            "X": 4,
+            "X": 0,
+            "Y": 4,
+            "Class": "GroundCell"
+        },
+        {
+            "X": 0,
             "Y": 5,
             "Class": "GroundCell"
         },
         {
             "X": 1,
+            "Y": 0,
+            "Class": "GroundCell"
+        },
+        {
+            "X": 1,
             "Y": 1,
+            "Class": "GroundCell"
+        },
+        {
+            "X": 1,
+            "Y": 2,
+            "Class": "GroundCell"
+        },
+        {
+            "X": 1,
+            "Y": 3,
+            "Class": "GroundCell"
+        },
+        {
+            "X": 1,
+            "Y": 4,
+            "Class": "GroundCell"
+        },
+        {
+            "X": 1,
+            "Y": 5,
+            "Class": "GroundCell"
+        },
+        {
+            "X": 2,
+            "Y": 4,
+            "Class": "GroundCell"
+        },
+        {
+            "X": 3,
+            "Y": 4,
+            "Class": "GroundCell"
+        },
+        {
+            "X": 4,
+            "Y": 4,
+            "Class": "GroundCell"
+        },
+        {
+            "X": 4,
+            "Y": 5,
             "Class": "GroundCell"
         },
         {
@@ -41,7 +91,7 @@
         },
         {
             "X": 2,
-            "Y": 1,
+            "Y": 5,
             "Class": "WaterCell"
         }
     ]

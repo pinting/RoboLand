@@ -41,16 +41,19 @@ export abstract class BaseActor extends BaseElement
             ? cells.GetBetween(nextPos, nextPos.Add(this.GetSize()))
             : [];
 
+        // If prevPos/nextPos was given, but no cells found, return
+        if((prevPos && !prev.length) || (nextPos && !next.length))
+        {
+            return false;
+        }
+
         // Remove intersection 
         const prevFiltered = prev.filter(c => !next.includes(c));
         const nextFiltered = next.filter(c => !prev.includes(c));
 
-        // Check if one of the cells blocks the movement
-        const failed = nextFiltered.some(cell => 
-            !this.HandleMove(cell.MoveHere(this)));
-
-        // If the movement failed, revert
-        if(failed)
+        // Check if one of the cells blocks the movement.
+        // If yes, revert all movement and return.
+        if(nextFiltered.some(cell => !this.HandleMove(cell.MoveHere(this))))
         {
             nextFiltered.forEach(c => c.MoveAway(this));
             return false;
@@ -59,9 +62,11 @@ export abstract class BaseActor extends BaseElement
         // If it was successful, move away from the old cells
         prevFiltered.forEach(c => c.MoveAway(this));
 
-        // Update
+        // Update position
         this.position = nextPos;
-        this.map.OnUpdate(this);
+
+        // Update map
+        this.map.OnUpdate.Call(this);
 
         return true;
     }

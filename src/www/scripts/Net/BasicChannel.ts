@@ -1,5 +1,5 @@
 import { IChannel } from "./IChannel";
-import { Utils } from "../Utils";
+import { Helper } from "../Util/Helper";
 
 export class BasicChannel implements IChannel
 {
@@ -22,12 +22,13 @@ export class BasicChannel implements IChannel
     {
         if(this.other)
         {
-            setTimeout(() => this.other.OnMessage(message), Utils.Random(20, 100));
+            // Simulate latency between 20 and 100 ms
+            setTimeout(() => this.other.OnMessage(message), Helper.Random(20, 100));
         }
     }
 
     /**
      * Receive a message from the other peer.
      */
-    public OnMessage: (message: string) => void = Utils.Noop;
+    public OnMessage: (message: string) => void = Helper.Noop;
 }

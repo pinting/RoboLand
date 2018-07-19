@@ -1,7 +1,7 @@
 import { Adapter } from './Adapter';
 import { Processor } from './Processor';
 import { Parser } from './Parser';
-import { Utils } from '../Utils';
+import { Helper } from '../Util/Helper';
 import { PlayerActor } from '../Element/Actor/PlayerActor';
 
 export class Runner
@@ -33,7 +33,7 @@ export class Runner
         this.Stop();
         this.parser.Parse(code);
 
-        Utils.Bind(this.processor.Context = {}, this.adapter, [
+        Helper.Bind(this.processor.Context = {}, this.adapter, [
             "inv",
             "move",
             "test",
@@ -165,5 +165,5 @@ export class Runner
     /**
      * Executed when the next line is called.
      */
-    public OnLine: (line: string, count: number) => void = Utils.Noop;
+    public OnLine: (line: string, count: number) => void = Helper.Noop;
 }

@@ -1,11 +1,13 @@
 import { Coord } from "./Coord";
 import { BaseElement } from "./Element/BaseElement";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
-import { Utils } from "./Utils";
+import { Helper } from "./Util/Helper";
+import { Event } from "./Util/Event";
 
 export class ElementList<Element extends BaseElement> implements IReadOnlyElementList<Element>
 {
     private elements: Element[];
+    private onUpdate: Event<Element>;
 
     /**
      * Contstruct a new ElementList which wraps a normal Array
@@ -13,10 +15,10 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
      * @param elements Array to wrap.
      * @param onUpdate Called when there is an update (remove, set).
      */
-    public constructor(elements: Element[], onUpdate: (e: Element) => void)
+    public constructor(elements: Element[], onUpdate: Event<Element>)
     {
         this.elements = elements;
-        this.OnUpdate = onUpdate;
+        this.onUpdate = onUpdate;
     }
 
     /**
@@ -125,14 +127,14 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
 
         if(old)
         {
-            Utils.Extract(old, element);
+            Helper.Extract(old, element);
         }
         else
         {
             this.elements.push(element);
         }
 
-        this.OnUpdate(element);
+        this.onUpdate.Call(element);
     }
 
     /**
@@ -148,7 +150,7 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
             this.elements.splice(index, 1);
 
             element.Dispose();
-            this.OnUpdate(element);
+            this.onUpdate.Call(element);
 
             return true;
         }
@@ -163,9 +165,4 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     {
         return this.elements;
     }
-
-    /**
-     * Called when the list was updated.
-     */
-    public OnUpdate: (element: Element) => void = Utils.Noop;
 }

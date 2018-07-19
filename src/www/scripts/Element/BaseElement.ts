@@ -1,12 +1,12 @@
 import { Coord } from "../Coord";
-import { Utils } from "../Utils";
+import { Helper } from "../Util/Helper";
 import { Map } from "../Map";
 import { Exportable } from "../Exportable";
 import { IExportObject } from "../IExportObject";
 
 export abstract class BaseElement extends Exportable
 {
-    protected readonly map;
+    protected readonly map: Map;
 
     protected disposed: boolean;
     protected position: Coord;
@@ -24,7 +24,7 @@ export abstract class BaseElement extends Exportable
         this.map = map || Map.GetInstance();
         
         this.disposed = false;
-        this.tag = Utils.Unique();
+        this.tag = Helper.Unique();
     }
 
     /**
@@ -62,7 +62,7 @@ export abstract class BaseElement extends Exportable
     protected ImportProperty(input: IExportObject): any
     {
         // Import element
-        if(input.Class != "string" && Utils.IsUnique(input.Payload))
+        if(input.Class != "string" && Helper.IsUnique(input.Payload))
         {
             return this.map.GetElements().Tag(input.Payload);
         }

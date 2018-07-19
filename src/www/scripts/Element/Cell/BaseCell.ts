@@ -34,7 +34,7 @@ export abstract class BaseCell extends BaseElement
         if(!this.actors.includes(actor))
         {
             this.actors.push(actor);
-            this.map.OnUpdate(this);
+            this.map.OnUpdate.Call(this);
         }
 
         return MoveType.Successed;
@@ -51,7 +51,7 @@ export abstract class BaseCell extends BaseElement
         if(index >= 0) 
         {
             this.actors.splice(index, 1);
-            this.map.OnUpdate(this);
+            this.map.OnUpdate.Call(this);
         }
     }
 

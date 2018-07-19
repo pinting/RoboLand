@@ -102,7 +102,7 @@ export class PlayerActor extends BaseActor
             this.Kill();
         }
 
-        this.map.OnUpdate(this);
+        this.map.OnUpdate.Call(this);
     }
 
     /**

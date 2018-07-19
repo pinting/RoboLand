@@ -1,6 +1,6 @@
 import { MessageType } from "./MessageType";
 
-export interface IMessageOut
+export interface IMessage
 {
     Type: MessageType;
     Index: number;

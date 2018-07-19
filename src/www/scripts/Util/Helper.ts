@@ -1,4 +1,4 @@
-export class Utils
+export class Helper
 {
     /**
      * Create an async request.
@@ -48,7 +48,7 @@ export class Utils
      */
     public static async Post(url: string, data: string): Promise<string>
     {
-        return await Utils.Ajax(url, data, "POST");
+        return await Helper.Ajax(url, data, "POST");
     }
 
     /**
@@ -57,7 +57,7 @@ export class Utils
      */
     public static async Get(url: string): Promise<string>
     {
-        return await Utils.Ajax(url, null, "GET");
+        return await Helper.Ajax(url, null, "GET");
     }
 
     /**

@@ -1,7 +1,7 @@
 import { Map } from "../Map";
 import { BaseElement } from "../Element/BaseElement";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
-import { ServerClient } from "./ServerClient";
+import { Connection } from "./Connection";
 import { Exportable } from "../Exportable";
 import { IExportObject } from "../IExportObject";
 import { Coord } from "../Coord";
@@ -9,7 +9,7 @@ import { Coord } from "../Coord";
 export class Server
 {
     private readonly map: Map;
-    private readonly clients: ServerClient[] = [];
+    private readonly conns: Connection[] = [];
 
     /**
      * Construct a new server.
@@ -17,7 +17,11 @@ export class Server
     public constructor(map: Map)
     {
         this.map = map;
-        this.map.OnUpdate = element => this.SetElement(element);
+
+        // Update elements for clients except their own player
+        this.map.OnUpdate.Add(element => this.conns
+            .filter(client => element.GetTag() != client.GetPlayer().GetTag())
+            .forEach(client => client.SetElement(element)));
     }
 
     /**
@@ -26,7 +30,7 @@ export class Server
      * @param player 
      * @param command
      */
-    private OnCommand(client: ServerClient, command: IExportObject)
+    private OnCommand(client: Connection, command: IExportObject)
     {
         const args = Exportable.Import(command);
 
@@ -45,34 +49,23 @@ export class Server
      * Kick client out of the server.
      * @param client 
      */
-    private Kick(client: ServerClient)
+    private Kick(client: Connection)
     {
-        const index = this.clients.indexOf(client);
+        const index = this.conns.indexOf(client);
 
         if(index >= 0)
         {
-            this.clients.splice(index, 1);
+            this.conns.splice(index, 1);
             this.map.GetActors().Remove(client.GetPlayer());
             client.Kick();
         }
     }
 
     /**
-     * Send an element to everybody (or everybody except one client).
-     * @param element 
-     */
-    private SetElement(element: BaseElement, exception: ServerClient = null)
-    {
-        this.clients
-            .filter(client => client != exception)
-            .forEach(client => client.SetElement(element));
-    }
-    
-    /**
      * Add a new client to the server.
      * @param client 
      */
-    public async Add(client: ServerClient)
+    public async Add(client: Connection)
     {
         // Create player and add it to the map
         const player = new PlayerActor(new Coord(0, 0), this.map);
@@ -101,6 +94,6 @@ export class Server
         await client.SetPlayer(player);
 
         // Add client to the internal client list
-        this.clients.push(client);
+        this.conns.push(client);
     }
 }

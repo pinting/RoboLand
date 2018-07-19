@@ -1,12 +1,13 @@
 import { Coord } from "./Coord";
 import { BaseActor } from "./Element/Actor/BaseActor";
-import { Utils } from "./Utils";
+import { Helper } from "./Util/Helper";
 import { BaseCell } from "./Element/Cell/BaseCell";
 import { BaseElement } from "./Element/BaseElement";
 import { IRawMap } from "./IRawMap";
 import { ElementList } from "./ElementList";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
 import { Exportable } from "./Exportable";
+import { Event } from "./Util/Event";
 
 export class Map
 {
@@ -49,7 +50,7 @@ export class Map
         this.cells = [];
         this.actors = [];
 
-        this.cells.forEach(cell => this.OnUpdate(cell));
+        this.cells.forEach(cell => this.OnUpdate.Call(cell));
     }
 
     /**
@@ -64,7 +65,7 @@ export class Map
         // Read map file
         try 
         {
-            raw = JSON.parse(await Utils.Get(url)) || {};
+            raw = JSON.parse(await Helper.Get(url)) || {};
 
             if(!raw.Size || !raw.Cells || !raw.Actors) 
             {
@@ -91,7 +92,7 @@ export class Map
 
             this.cells.push(cell);
 
-            this.OnUpdate(cell);
+            this.OnUpdate.Call(cell);
         }
 
         // Parse actors
@@ -105,7 +106,7 @@ export class Map
 
             this.actors.push(actor);
 
-            this.OnUpdate(actor);
+            this.OnUpdate.Call(actor);
         }
 
         return true;
@@ -116,9 +117,9 @@ export class Map
      */
     public GetElements(): IReadOnlyElementList<BaseElement>
     {
-        const merged = (<BaseElement[]>this.cells).concat(<BaseElement[]>this.actors);
+        const all = (<BaseElement[]>this.cells).concat(<BaseElement[]>this.actors);
         
-        return new ElementList<BaseElement>(merged, e => this.OnUpdate(e));
+        return new ElementList<BaseElement>(all, this.OnUpdate);
     }
 
     /**
@@ -126,7 +127,7 @@ export class Map
      */
     public GetCells(): ElementList<BaseCell>
     {
-        return new ElementList<BaseCell>(this.cells, e => this.OnUpdate(e));
+        return new ElementList(this.cells, <Event<BaseCell>>this.OnUpdate);
     }
 
     /**
@@ -134,11 +135,11 @@ export class Map
      */
     public GetActors(): ElementList<BaseActor>
     {
-        return new ElementList<BaseActor>(this.actors, e => this.OnUpdate(e));
+        return new ElementList(this.actors, <Event<BaseActor>>this.OnUpdate);
     }
 
     /**
      * Called when the map was updated.
      */
-    public OnUpdate: (element: BaseElement) => void = Utils.Noop;
+    public OnUpdate: Event<BaseElement> = new Event<BaseElement>();
 }

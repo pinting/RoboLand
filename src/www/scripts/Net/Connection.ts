@@ -1,26 +1,28 @@
-import { Utils } from "../Utils";
+import { Helper } from "../Util/Helper";
 import { IChannel } from "./IChannel";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { Exportable } from "../Exportable";
 import { MessageType } from "./MessageType";
 import { Coord } from "../Coord";
 import { BaseElement } from "../Element/BaseElement";
-import { IMessageIn } from "./IMessageIn";
-import { IMessageOut } from "./IMessageOut";
 import { IExportObject } from "../IExportObject";
+import { IMessage } from "./IMessage";
+import { Logger } from "../Util/Logger";
+import { LogType } from "../Util/LogType";
+import { TimeoutEvent } from "../Util/TimeoutEvent";
 
-export class ServerClient
+export class Connection
 {
     private readonly timeout: number = 1000;
 
-    private listeners: Array<(ack: number) => void> = [];
-    private count: number = 0;
+    private ackEvent = new TimeoutEvent<number>(this.timeout);
+    private outIndex: number = 0;
     
     private channel: IChannel;
     private player: PlayerActor;
     
     /**
-     * Construct a new server client.
+     * Construct a new connection which communicates with a client.
      * @param channel Direct channel to the client.
      */
     constructor(channel: IChannel)
@@ -35,7 +37,7 @@ export class ServerClient
      */
     private OnMessage(message: string): void
     {
-        let parsed: IMessageIn;
+        let parsed: IMessage;
 
         try 
         {
@@ -46,13 +48,15 @@ export class ServerClient
             return;
         }
 
+        Logger.Log(this, LogType.Verbose, "Server message received", parsed);
+
         switch(parsed.Type)
         {
             case MessageType.Ack:
-                this.listeners.forEach(f => f(parsed.Payload));
+                this.ParseAck(parsed.Payload);
                 break;
             case MessageType.Command:
-                this.OnCommand(parsed.Payload);
+                this.ParseCommand(parsed)
                 break;
             default:
                 // Invalid: kick?
@@ -69,48 +73,32 @@ export class ServerClient
     {
         return new Promise<void>((resolve, reject) => 
         {
-            let timeout;
-
             // Create the message
-            const message: IMessageOut = {
+            const message: IMessage = {
                 Type: type,
-                Index: this.count++,
+                Index: this.outIndex++,
                 Payload: payload
             };
 
             // Create a new ack listener
-            const listener = ack => 
+            const listener = index => 
             {
-                if(ack === message.Index)
+                if(index === message.Index)
                 {
-                    // If ack received, remove the listener and resolve
-                    remove(listener);
+                    this.ackEvent.Remove(listener);
                     resolve();
                 }
-            };
-
-            // Remove a listener from the list
-            const remove = listener =>
-            {
-                const index = this.listeners.indexOf(listener);
-
-                if(index)
+                else if(index === null)
                 {
-                    this.listeners.splice(index, 1);
-                }
-
-                if(timeout != undefined)
-                {
-                    clearTimeout(timeout);
+                    reject();
                 }
             };
-
-            // Set a timeout if ack never received
-            timeout = setTimeout(() => remove(listener) || reject(), this.timeout);
 
             // Add listener and send message
-            this.listeners.push(listener);
+            this.ackEvent.Add(listener);
             this.channel.SendMessage(JSON.stringify(message));
+
+            Logger.Log(this, LogType.Verbose, "Server message sent", message);
         });
     }
 
@@ -148,6 +136,25 @@ export class ServerClient
 
         return this.SendMessage(MessageType.Player, player.GetTag());
     }
+
+    /**
+     * Parse incoming ACK.
+     * @param index 
+     */
+    private ParseAck(index: number)
+    {
+        this.ackEvent.Call(index);
+    }
+
+    /**
+     * Parse an incoming COMMAND.
+     * @param index 
+     * @param command 
+     */
+    public ParseCommand(message: IMessage): void
+    {
+        this.OnCommand(message.Payload);
+    }
     
     /**
      * Get the previously setted player actor.
@@ -168,5 +175,5 @@ export class ServerClient
     /**
      * Executed when the client sends a command.
      */
-    public OnCommand: (command: IExportObject) => void = Utils.Noop;
+    public OnCommand: (command: IExportObject) => void = Helper.Noop;
 }

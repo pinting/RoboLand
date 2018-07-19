@@ -1,6 +1,6 @@
 import { Map } from "./Map";
 import { BaseElement } from "./Element/BaseElement";
-import { Utils } from "./Utils";
+import { Helper } from "./Util/Helper";
 
 export class Renderer
 {
@@ -140,5 +140,5 @@ export class Renderer
     /**
      * Called when the canvas was redrawed.
      */
-    public OnUpdate: () => void = Utils.Noop;
+    public OnUpdate: () => void = Helper.Noop;
 }

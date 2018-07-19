@@ -1,15 +1,13 @@
 import { Map } from "./scripts/Map";
 import { Coord } from "./scripts/Coord";
-import { Utils } from "./scripts/Utils";
-import { GroundCell } from './scripts/Element/Cell/GroundCell';
 import { PlayerActor } from './scripts/Element/Actor/PlayerActor';
-import { Exportable } from './scripts/Exportable';
 import { Server } from './scripts/Net/Server';
 import { Renderer } from "./scripts/Renderer";
-import { Keyboard } from "./scripts/Keyboard";
-import { ServerClient } from "./scripts/Net/ServerClient";
+import { Keyboard } from "./scripts/Util/Keyboard";
+import { Connection } from "./scripts/Net/Connection";
 import { BasicChannel } from "./scripts/Net/BasicChannel";
 import { Client } from "./scripts/Net/Client";
+import { Logger } from "./scripts/Util/Logger";
 
 const cycle = (player: PlayerActor, keys: string[]) =>
 {
@@ -18,7 +16,7 @@ const cycle = (player: PlayerActor, keys: string[]) =>
         Keyboard.Keys[keys[0]] ? -0.05 : Keyboard.Keys[keys[2]] ? 0.05 : 0
     );
 
-    if(player && player.IsAlive() && direction.GetDistance(new Coord) > 0)
+    if(player && direction.GetDistance(new Coord) > 0)
     {
         player.Move(direction);
     }
@@ -27,6 +25,10 @@ const cycle = (player: PlayerActor, keys: string[]) =>
 const main = async () =>
 {
     Keyboard.Init();
+    
+    const map: Map = new Map();
+
+    await map.Load("res/map.json");
 
     const mapA: Map = new Map();
     const mapB: Map = new Map();
@@ -49,15 +51,11 @@ const main = async () =>
 
     const clientA = new Client(channelA1, mapA);
     const clientB = new Client(channelB1, mapB);
-    
-    const map: Map = new Map();
-
-    await map.Load("res/map.json");
 
     const server = new Server(map);
     
-    server.Add(new ServerClient(channelA2));
-    server.Add(new ServerClient(channelB2));
+    server.Add(new Connection(channelA2));
+    server.Add(new Connection(channelB2));
     
     clientA.OnPlayer = async player =>
     {
