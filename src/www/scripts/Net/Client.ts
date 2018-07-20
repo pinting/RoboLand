@@ -9,15 +9,11 @@ import { Helper } from "../Util/Helper";
 import { Coord } from "../Coord";
 import { IExportObject } from "../IExportObject";
 import { IMessage } from "./IMessage";
-import { Logger } from "../Util/Logger";
-import { LogType } from "../Util/LogType";
+import { AsyncHandler } from "./AsyncHandler";
 
-export class Client
+export class Client extends AsyncHandler
 {
-    private readonly channel: IChannel;
     private readonly map: Map;
-
-    private outIndex: number = 0;
 
     /**
      * Construct a new client.
@@ -25,58 +21,27 @@ export class Client
      */
     constructor(channel: IChannel, map: Map)
     {
-        this.channel = channel;
+        super(channel);
+        
         this.map = map;
-
-        this.channel.OnMessage = (message: string) => this.OnMessage(message);
-    }
-
-    /**
-     * Send a message through the channel.
-     * @param type Type of the message.
-     * @param payload Payload.
-     */
-    private SendMessage(type: MessageType, payload: any): void
-    {
-        const message: IMessage = {
-            Type: type,
-            Index: this.outIndex++,
-            Payload: payload
-        };
-
-        this.channel.SendMessage(JSON.stringify(message));
-        Logger.Log(this, LogType.Verbose, "Client message sent", message);
     }
 
     /**
      * Receive a message through the channel.
      * @param message 
      */
-    private OnMessage(message: string): void
+    protected OnMessage(message: IMessage): void
     {
-        let parsed: IMessage;
-
-        try 
-        {
-            parsed = JSON.parse(message);
-        }
-        catch(e)
-        {
-            return;
-        }
-
-        Logger.Log(this, LogType.Verbose, "Client message received", parsed);
-        
-        switch(parsed.Type)
+        switch(message.Type)
         {
             case MessageType.Element:
-                this.SetElement(parsed.Payload)
+                this.SetElement(message.Payload)
                 break;
             case MessageType.Player:
-                this.SetPlayer(parsed.Payload);
+                this.SetPlayer(message.Payload);
                 break;
             case MessageType.Size:
-                this.SetSize(parsed.Payload);
+                this.SetSize(message.Payload);
                 break;
             case MessageType.Kick:
                 this.Kick();
@@ -85,8 +50,6 @@ export class Client
                 // Invalid
                 break;
         }
-
-        this.SendMessage(MessageType.Ack, parsed.Index);
     }
 
     /**

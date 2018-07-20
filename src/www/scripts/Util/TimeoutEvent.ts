@@ -32,7 +32,7 @@ export class TimeoutEvent<T> extends Event<T>
 
         if(index >= 0)
         {
-            clearInterval(this.timers[index]);
+            clearTimeout(this.timers[index]);
             this.timers.splice(index, 1);
         }
 

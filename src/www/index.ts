@@ -8,6 +8,9 @@ import { Connection } from "./scripts/Net/Connection";
 import { BasicChannel } from "./scripts/Net/BasicChannel";
 import { Client } from "./scripts/Net/Client";
 import { Logger } from "./scripts/Util/Logger";
+import { Helper } from "./scripts/Util/Helper";
+
+Helper.Extract(window, { Logger });
 
 const cycle = (player: PlayerActor, keys: string[]) =>
 {

@@ -7,18 +7,10 @@ import { Coord } from "../Coord";
 import { BaseElement } from "../Element/BaseElement";
 import { IExportObject } from "../IExportObject";
 import { IMessage } from "./IMessage";
-import { Logger } from "../Util/Logger";
-import { LogType } from "../Util/LogType";
-import { TimeoutEvent } from "../Util/TimeoutEvent";
+import { AsyncHandler } from "./AsyncHandler";
 
-export class Connection
+export class Connection extends AsyncHandler
 {
-    private readonly timeout: number = 1000;
-
-    private ackEvent = new TimeoutEvent<number>(this.timeout);
-    private outIndex: number = 0;
-    
-    private channel: IChannel;
     private player: PlayerActor;
     
     /**
@@ -27,79 +19,24 @@ export class Connection
      */
     constructor(channel: IChannel)
     {
-        this.channel = channel;
-        this.channel.OnMessage = (message: string) => this.OnMessage(message);
+        super(channel);
     }
 
     /**
      * Receive a message through the channel.
      * @param message 
      */
-    private OnMessage(message: string): void
+    protected OnMessage(message: IMessage): void
     {
-        let parsed: IMessage;
-
-        try 
+        switch(message.Type)
         {
-            parsed = JSON.parse(message);
-        }
-        catch(e)
-        {
-            return;
-        }
-
-        Logger.Log(this, LogType.Verbose, "Server message received", parsed);
-
-        switch(parsed.Type)
-        {
-            case MessageType.Ack:
-                this.ParseAck(parsed.Payload);
-                break;
             case MessageType.Command:
-                this.ParseCommand(parsed)
+                this.ParseCommand(message)
                 break;
             default:
                 // Invalid: kick?
                 break;
         }
-    }
-
-    /**
-     * Send a message through the channel.
-     * @param type Type of the message.
-     * @param payload Payload.
-     */
-    private async SendMessage(type: MessageType, payload: any): Promise<void>
-    {
-        return new Promise<void>((resolve, reject) => 
-        {
-            // Create the message
-            const message: IMessage = {
-                Type: type,
-                Index: this.outIndex++,
-                Payload: payload
-            };
-
-            // Create a new ack listener
-            const listener = index => 
-            {
-                if(index === message.Index)
-                {
-                    this.ackEvent.Remove(listener);
-                    resolve();
-                }
-                else if(index === null)
-                {
-                    reject();
-                }
-            };
-
-            // Add listener and send message
-            this.ackEvent.Add(listener);
-            this.channel.SendMessage(JSON.stringify(message));
-
-            Logger.Log(this, LogType.Verbose, "Server message sent", message);
-        });
     }
 
     /**
@@ -129,21 +66,12 @@ export class Connection
     {
         if(this.player)
         {
-            return;
+            return Promise.resolve();
         }
 
         this.player = player;
 
         return this.SendMessage(MessageType.Player, player.GetTag());
-    }
-
-    /**
-     * Parse incoming ACK.
-     * @param index 
-     */
-    private ParseAck(index: number)
-    {
-        this.ackEvent.Call(index);
     }
 
     /**
