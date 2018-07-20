@@ -10,7 +10,7 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     private onUpdate: Event<Element>;
 
     /**
-     * Contstruct a new ElementList which wraps a normal Array
+     * Contstruct a new ElementList which wraps an element array
      * and adds some awesome functions.
      * @param elements Array to wrap.
      * @param onUpdate Called when there is an update (remove, set).

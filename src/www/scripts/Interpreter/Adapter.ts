@@ -8,6 +8,12 @@ export class Adapter
     private readonly map: Map;
     private readonly actor: PlayerActor;
 
+    /**
+     * Construct a new adapter which translates really simple
+     * function calls to normal actor calls.
+     * @param actor 
+     * @param map 
+     */
     constructor(actor: PlayerActor, map: Map = null)
     {
         this.map = map || Map.GetInstance();

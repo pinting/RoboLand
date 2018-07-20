@@ -16,7 +16,7 @@ export class Client extends MessageHandler
     private readonly map: Map;
 
     /**
-     * Construct a new client.
+     * Construct a new client which communicates with a connection.
      * @param channel 
      */
     constructor(channel: IChannel, map: Map)
@@ -53,7 +53,7 @@ export class Client extends MessageHandler
     }
 
     /**
-     * Set element.
+     * Set an element.
      * @param element 
      */
     private SetElement(exportable: IExportObject)

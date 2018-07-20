@@ -1,27 +1,26 @@
 export class Event<T>
 {
-    protected listeners: Array<(value: T) => void> = [];
+    protected listeners: { [id: number]: (value: T) => void } = {};
+    private count = 0;
 
     /**
      * Add a listener.
+     * @param callback 
      */
-    public Add(callback: (value: T) => void): void
+    public Add(callback: (value: T) => void): number
     {
-        this.listeners.push(callback);
+        this.listeners[++this.count] = callback;
+        
+        return this.count;
     }
 
     /**
      * Remove a listener.
-     * @param callback 
+     * @param id 
      */
-    public Remove(callback: (value: T) => void): void
+    public Remove(id: number): void
     {
-        const index = this.listeners.indexOf(callback);
-
-        if(index >= 0)
-        {
-            this.listeners.splice(index, 1);
-        }
+        delete this.listeners[id];
     }
 
     /**
@@ -30,6 +29,6 @@ export class Event<T>
      */
     public Call(value: T): void
     {
-        this.listeners.forEach(callback => callback(value));
+        (<any>Object).values(this.listeners).forEach(callback => callback(value));
     }
 }

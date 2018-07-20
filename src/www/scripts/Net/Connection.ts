@@ -23,7 +23,7 @@ export class Connection extends MessageHandler
     }
 
     /**
-     * Receive a message through the channel.
+     * Receive a message through the channel and parse it.
      * @param message 
      */
     protected OnMessage(message: IMessage): void
@@ -37,6 +37,16 @@ export class Connection extends MessageHandler
                 // Invalid: kick?
                 break;
         }
+    }
+
+    /**
+     * Parse an incoming COMMAND.
+     * @param index 
+     * @param command 
+     */
+    public ParseCommand(message: IMessage): void
+    {
+        this.OnCommand(message.Payload);
     }
 
     /**
@@ -73,16 +83,6 @@ export class Connection extends MessageHandler
 
         return this.SendMessage(MessageType.Player, player.GetTag());
     }
-
-    /**
-     * Parse an incoming COMMAND.
-     * @param index 
-     * @param command 
-     */
-    public ParseCommand(message: IMessage): void
-    {
-        this.OnCommand(message.Payload);
-    }
     
     /**
      * Get the previously setted player actor.
@@ -101,7 +101,8 @@ export class Connection extends MessageHandler
     }
 
     /**
-     * Executed when the client sends a command.
+     * Executed when the Connection receives a COMMAND from the client.
+     * @param command
      */
     public OnCommand: (command: IExportObject) => void = Helper.Noop;
 }

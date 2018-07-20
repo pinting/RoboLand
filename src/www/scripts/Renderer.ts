@@ -1,6 +1,6 @@
 import { Map } from "./Map";
 import { BaseElement } from "./Element/BaseElement";
-import { Helper } from "./Util/Helper";
+import { Event } from "./Util/Event";
 
 export class Renderer
 {
@@ -117,7 +117,7 @@ export class Renderer
             window.requestAnimationFrame(() => this.Update());
         }
 
-        this.OnUpdate();
+        this.OnUpdate.Call(null);
     }
 
     /**
@@ -138,7 +138,7 @@ export class Renderer
     }
 
     /**
-     * Called when the canvas was redrawed.
+     * Called upon redraw.
      */
-    public OnUpdate: () => void = Helper.Noop;
+    public OnUpdate: Event<void> = new Event();
 }

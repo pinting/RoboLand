@@ -2,14 +2,13 @@ import { IChannel } from "./IChannel";
 import { MessageType } from "./MessageType";
 import { IMessage } from "./IMessage";
 import { TimeoutEvent } from "../Util/TimeoutEvent";
+import { Event } from "../Util/Event";
 import { Logger } from "../Util/Logger";
 import { LogType } from "../Util/LogType";
 
 export abstract class MessageHandler
 {
-    private readonly timeout: number = 1000;
-    
-    private receivedEvent = new TimeoutEvent<number>(this.timeout);
+    private receivedEvent = new Event<number>();
     private outIndex: number = 0;
     private inIndex: number;
 
@@ -45,30 +44,33 @@ export abstract class MessageHandler
         switch(message.Type)
         {
             case MessageType.Element:
+                // Receive only states newer than the current one
                 if(message.Index > this.inIndex || this.inIndex === undefined)
                 {
-                    this.OnMessage(message);
                     this.inIndex = message.Index;
+                    this.OnMessage(message);
                 }
+
+                this.SendReceived(message);
                 break;
             case MessageType.Command:
             case MessageType.Player:
             case MessageType.Kick:
             case MessageType.Size:
                 this.OnMessage(message);
+                this.SendReceived(message);
                 break;
             case MessageType.Received:
                 this.ParseReceived(message);
                 break;
         }
 
-        this.SendMessage(MessageType.Received, message.Index);
         Logger.Log(this, LogType.Verbose, "Message received", message);
     }
 
     /**
      * Parse incoming ACK.
-     * @param index 
+     * @param message 
      */
     private ParseReceived(message: IMessage)
     {
@@ -76,9 +78,18 @@ export abstract class MessageHandler
     }
 
     /**
+     * Send ACK.
+     * @param message 
+     */
+    private SendReceived(message: IMessage)
+    {
+        this.SendMessage(MessageType.Received, message.Index);
+    }
+
+    /**
     * Send a message through the channel.
     * @param type Type of the message.
-    * @param payload Payload.
+    * @param payload
     */
    protected async SendMessage(type: MessageType, payload: any): Promise<void>
    {
@@ -91,22 +102,29 @@ export abstract class MessageHandler
                Payload: payload
            };
 
-           // Create a new ack listener
-           const listener = index => 
+           // Create a new RECEIVED listener if this was not
+           // a acknowledge message
+           if (message.Type != MessageType.Received) 
            {
-               if(index === message.Index)
-               {
-                   this.receivedEvent.Remove(listener);
-                   resolve();
-               }
-               else if(index === null)
-               {
-                   reject();
-               }
-           };
+                const listener = this.receivedEvent.Add(index => 
+                {
+                   if (index === message.Index) 
+                   {
+                       this.receivedEvent.Remove(listener);
+                       resolve();
+                   }
+                   else if (index === null) {
+                       reject();
+                   }
+               });
+           }
+           else
+           {
+               // Resolve immediately if RECEIVED
+               resolve();
+           }
 
-           // Add listener and send message
-           this.receivedEvent.Add(listener);
+           // Send message
            this.channel.SendMessage(JSON.stringify(message));
 
            Logger.Log(this, LogType.Verbose, "Message sent", message);

@@ -12,22 +12,24 @@ export class Server
     private readonly conns: Connection[] = [];
 
     /**
-     * Construct a new server.
+     * Construct a new server with the given map. The server gonna
+     * update each connections (clients) with the map and sync every
+     * move of the clients between them.
+     * @param map 
      */
     public constructor(map: Map)
     {
         this.map = map;
 
-        // Update elements for clients except their own player
+        // Update elements for connections except their own player
         this.map.OnUpdate.Add(element => this.conns
             .filter(conn => element.GetTag() != conn.GetPlayer().GetTag())
             .forEach(conn => conn.SetElement(element)));
     }
 
     /**
-     * Executed when receive a new message from a client.
-     * @param conn 
-     * @param player 
+     * Executed when the server receives a new message from a client/connection.
+     * @param conn
      * @param command
      */
     private OnCommand(conn: Connection, command: IExportObject)
@@ -42,6 +44,7 @@ export class Server
 
         const player = conn.GetPlayer();
 
+        // Execute command on the player
         player[args[0]].bind(player)(...args.slice(1));
     }
 
@@ -62,7 +65,9 @@ export class Server
     }
 
     /**
-     * Add a new client to the server.
+     * Add a new connection/client to the server. This represents
+     * the client on the server side - it only communicates
+     * with a Client object through an IChannel implementation.
      * @param conn 
      */
     public async Add(conn: Connection)

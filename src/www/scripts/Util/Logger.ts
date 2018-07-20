@@ -5,7 +5,7 @@ export class Logger
     public static Type: LogType = LogType.Silent;
 
     /**
-     * Log message.
+     * Log a message.
      * @param self
      * @param args 
      */

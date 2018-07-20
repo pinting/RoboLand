@@ -8,7 +8,7 @@ export class PlayerActor extends BaseActor
     protected damage: number = 1.0;
 
     /**
-     * Get the cell texture.
+     * Get the texture of the actor.
      */
     public GetTexture(): string
     {
@@ -29,9 +29,9 @@ export class PlayerActor extends BaseActor
      */
     public Move(direction: Coord): boolean
     {
-        if(direction.GetDistance(new Coord(0, 0)) <= 0)
+        if(direction.GetDistance(new Coord(0, 0)) == 0)
         {
-            return false; // Does not allow movement 
+            return false; // Does not allow 0 distance movement
         }
 
         if(Math.abs(Math.abs(direction.X) - Math.abs(direction.Y)) == 0)

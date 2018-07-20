@@ -7,7 +7,7 @@ import { Map } from "../../Map";
 export abstract class BaseActor extends BaseElement
 {
     /**
-     * Construct a new PlayerActor.
+     * Construct a new BaseActor. Abstract!
      * @param position
      */
     public constructor(position: Coord = null, map: Map = null)

@@ -2,10 +2,15 @@ import { Event } from "./Event";
 
 export class TimeoutEvent<T> extends Event<T>
 {
-    private timeout: number = 1000;
-    private timers: NodeJS.Timer[] = [];
+    private timeout: number;
+    private timers: { [id: number]: NodeJS.Timer } = {};
 
-    public constructor(timeout: number = 1000)
+    /**
+     * Create a TimeoutEvent where every listener will be removed
+     * after the given timeout and called with a null value.
+     * @param timeout 
+     */
+    public constructor(timeout: number = 5000)
     {
         super();
 
@@ -13,29 +18,34 @@ export class TimeoutEvent<T> extends Event<T>
     }
 
     /**
-     * Add a listener.
+     * Add a listener and return its id.
+     * @param callback 
      */
-    public Add(callback: (value: T) => void): void
+    public Add(callback: (value: T) => void): number
     {
-        super.Add(callback);
-        this.timers.push(setTimeout(() => 
-            callback(null) && this.Remove(callback), this.timeout));
+        const id = super.Add(callback);
+
+        this.timers[id] = setTimeout(() =>
+        {
+            callback(null);
+            this.Remove(id);
+        }, this.timeout);
+
+        return id;
     }
 
     /**
-     * Remove a listener.
-     * @param callback 
+     * Remove a listener by id.
+     * @param id 
      */
-    public Remove(callback: (value: T) => void): void
+    public Remove(id: number): void
     {
-        const index = this.listeners.indexOf(callback);
-
-        if(index >= 0)
+        if(this.timers[id])
         {
-            clearTimeout(this.timers[index]);
-            this.timers.splice(index, 1);
+            clearTimeout(this.timers[id]);
+            delete this.timers[id];
         }
 
-        super.Remove(callback);
+        super.Remove(id);
     }
 }

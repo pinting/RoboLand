@@ -7,16 +7,12 @@ import { Keyboard } from "./scripts/Util/Keyboard";
 import { Connection } from "./scripts/Net/Connection";
 import { BasicChannel } from "./scripts/Net/BasicChannel";
 import { Client } from "./scripts/Net/Client";
-import { Logger } from "./scripts/Util/Logger";
-import { Helper } from "./scripts/Util/Helper";
 
-Helper.Extract(window, { Logger });
-
-const cycle = (player: PlayerActor, keys: string[]) =>
+const cycle = (player: PlayerActor, { up, left, down, right }) =>
 {
     const direction = new Coord(
-        Keyboard.Keys[keys[1]] ? -0.05 : Keyboard.Keys[keys[3]] ? 0.05 : 0, 
-        Keyboard.Keys[keys[0]] ? -0.05 : Keyboard.Keys[keys[2]] ? 0.05 : 0
+        Keyboard.Keys[left] ? -0.05 : Keyboard.Keys[right] ? 0.05 : 0, 
+        Keyboard.Keys[up] ? -0.05 : Keyboard.Keys[down] ? 0.05 : 0
     );
 
     if(player && direction.GetDistance(new Coord) > 0)
@@ -64,9 +60,15 @@ const main = async () =>
     {
         await rendererA.Load();
         
-        const keys = ["ARROWUP", "ARROWLEFT", "ARROWDOWN", "ARROWRIGHT"];
+        const keys = 
+        {
+            up: "ARROWUP", 
+            left: "ARROWLEFT", 
+            down: "ARROWDOWN", 
+            right: "ARROWRIGHT"
+        };
 
-        rendererA.OnUpdate = () => cycle(player, keys);
+        rendererA.OnUpdate.Add(() => cycle(player, keys));
         rendererA.Start();
     };
     
@@ -74,9 +76,15 @@ const main = async () =>
     {
         await rendererB.Load();
 
-        const keys = ["W", "A", "S", "D"];
+        const keys = 
+        {
+            up: "W", 
+            left: "A", 
+            down: "S", 
+            right: "D"
+        };
         
-        rendererB.OnUpdate = () => cycle(player, keys);
+        rendererB.OnUpdate.Add(() => cycle(player, keys));
         rendererB.Start();
     };
 };

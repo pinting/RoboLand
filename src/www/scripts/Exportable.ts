@@ -6,11 +6,11 @@ export abstract class Exportable
      * Create an instance of a class by name.
      * @param className 
      */
-    public static FromName(className: string, ...args: any[]): Exportable
+    public static FromName<T extends Exportable>(name: string, ...args: any[]): T
     {
-        const find = (className): any =>
+        const find = (name): any =>
         {
-            switch(className)
+            switch(name)
             {
                 case "Coord":
                     return require("./Coord").Coord;
@@ -27,7 +27,7 @@ export abstract class Exportable
             }
         };
 
-        const classObj = find(className);
+        const classObj = find(name);
 
         return classObj && new classObj(...args);
     }
@@ -35,11 +35,10 @@ export abstract class Exportable
     /**
      * Export a property.
      * @param name
-     * @param object 
      */
-    protected ExportProperty(object: any, name: string): IExportObject
+    protected ExportProperty(name: string): IExportObject
     {
-        return Exportable.Export(object, name);
+        return Exportable.Export(this[name], name);
     }
 
     /**
@@ -51,7 +50,7 @@ export abstract class Exportable
 
         for (let property in this)
         {
-            const exported = this.ExportProperty(this[property], property);
+            const exported = this.ExportProperty(property);
 
             if(exported)
             {
@@ -63,9 +62,9 @@ export abstract class Exportable
     }
 
     /**
-     * Export 
-     * @param name 
+     * Export a whole object - including itself.
      * @param object 
+     * @param name 
      */
     public static Export(object: any, name: string = null): IExportObject
     {
@@ -75,9 +74,7 @@ export abstract class Exportable
             return {
                 Name: name,
                 Class: object.constructor.name,
-                Payload: object.map((e, i) => e instanceof Exportable 
-                    ? e.ExportProperty(e, i.toString()) 
-                    : Exportable.Export(e, i.toString()))
+                Payload: object.map((e, i) => Exportable.Export(e, i.toString()))
             };
         }
 
@@ -110,7 +107,7 @@ export abstract class Exportable
      */
     protected ImportProperty(input: IExportObject): any
     {
-        return Exportable.Import(input, this);
+        return Exportable.Import(input);
     }
 
     /**
@@ -134,14 +131,12 @@ export abstract class Exportable
      * Create a whole object.
      * @param input 
      */
-    public static Import(input: IExportObject, self: Exportable = null): any
+    public static Import(input: IExportObject): any
     {
         // Import array
         if(input.Class == "Array")
         {
-            return input.Payload.map(e => self instanceof Exportable 
-                ? self.ImportProperty(e)
-                : Exportable.Import(e, self));
+            return input.Payload.map(e => Exportable.Import(e));
         }
         
         // Import native types

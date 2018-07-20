@@ -13,7 +13,7 @@ export abstract class BaseElement extends Exportable
     protected tag: string;
 
     /**
-     * Constructor of the BaseElement.
+     * Constructor of the BaseElement. Abstract!
      * @param position
      */
     public constructor(position: Coord = null, map: Map = null)
@@ -33,41 +33,6 @@ export abstract class BaseElement extends Exportable
     public GetTag(): string
     {
         return this.tag;
-    }
-
-    /**
-     * Override export prop function for optimization.
-     * @param name 
-     * @param object 
-     */
-    protected ExportProperty(object: any, name: string): IExportObject
-    {
-        // Export element
-        if(object instanceof BaseElement)
-        {
-            return {
-                Name: name,
-                Class: object.constructor.name,
-                Payload: object.GetTag()
-            };
-        }
-
-        return super.ExportProperty(object, name);
-    }
-
-    /**
-     * Override import prop function for optimization.
-     * @param input
-     */
-    protected ImportProperty(input: IExportObject): any
-    {
-        // Import element
-        if(input.Class != "string" && Helper.IsUnique(input.Payload))
-        {
-            return this.map.GetElements().Tag(input.Payload);
-        }
-
-        return super.ImportProperty(input);
     }
 
     /**

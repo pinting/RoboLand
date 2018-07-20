@@ -3,6 +3,7 @@ import { Processor } from './Processor';
 import { Parser } from './Parser';
 import { Helper } from '../Util/Helper';
 import { PlayerActor } from '../Element/Actor/PlayerActor';
+import { Map } from '../Map';
 
 export class Runner
 {
@@ -17,9 +18,13 @@ export class Runner
     private processor: Processor;
     private parser: Parser;
 
-    public constructor(actor: PlayerActor)
+    /**
+     * Construct a new runner which executes code on a player.
+     * @param actor 
+     */
+    public constructor(actor: PlayerActor, map: Map = null)
     {
-        this.adapter = new Adapter(actor);
+        this.adapter = new Adapter(actor, map);
         this.processor = new Processor;
         this.parser = new Parser;
     }

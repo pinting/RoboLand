@@ -6,11 +6,11 @@ import { Map } from "../../Map";
 
 export abstract class BaseCell extends BaseElement
 {
-    protected actors: BaseActor[] = [];
+    protected actors: string[] = [];
 
     /**
-     * Construct a new empty cell - ground.
-     * @param position Coord of the cell.
+     * Construct a BaseCell. Abstract!
+     * @param position
      */
     public constructor(position: Coord = null, map: Map = null)
     {
@@ -18,7 +18,7 @@ export abstract class BaseCell extends BaseElement
     }
     
     /**
-     * Get the cell position.
+     * Get the position of the cell.
      */
     public GetPos(): Coord 
     {
@@ -26,14 +26,16 @@ export abstract class BaseCell extends BaseElement
     }
 
     /**
-     * Enter a cell with a actor.
+     * Enter into the cell with an actor.
      * @param actor 
      */
     public MoveHere(actor: BaseActor): MoveType 
     {
-        if(!this.actors.includes(actor))
+        const tag = actor.GetTag();
+
+        if(!this.actors.includes(tag))
         {
-            this.actors.push(actor);
+            this.actors.push(tag);
             this.map.OnUpdate.Call(this);
         }
 
@@ -41,12 +43,13 @@ export abstract class BaseCell extends BaseElement
     }
 
     /**
-     * Leave cell.
+     * Leave cell the cell with an actor.
      * @param actor 
      */
     public MoveAway(actor: BaseActor): void 
     {
-        const index = this.actors.indexOf(actor);
+        const tag = actor.GetTag();
+        const index = this.actors.indexOf(tag);
 
         if(index >= 0) 
         {

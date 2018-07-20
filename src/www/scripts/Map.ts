@@ -43,6 +43,7 @@ export class Map
 
     /**
      * Init a map with null cells.
+     * @param size
      */
     public Init(size: Coord): void
     {
@@ -59,10 +60,8 @@ export class Map
      */
     public async Load(url: string): Promise<boolean>
     {
-        // Map file structure
         let raw: IRawMap;
 
-        // Read map file
         try 
         {
             raw = JSON.parse(await Helper.Get(url)) || {};
@@ -81,39 +80,27 @@ export class Map
         this.cells = [];
         this.actors = [];
 
-        // Parse cells
-        for(let i = 0; i < raw.Cells.length; i++)
+        // Parser
+        const parse = <Element extends BaseElement>(data, out) =>
         {
-            const data = raw.Cells[i];
-
             const name = data.Class;
             const coord = new Coord(data.X, data.Y);
-            const cell = <BaseCell>Exportable.FromName(name, coord, this);
+            const cell = Exportable.FromName<Element>(name, coord, this);
 
-            this.cells.push(cell);
+            out.push(cell);
 
             this.OnUpdate.Call(cell);
         }
 
-        // Parse actors
-        for(let i = 0; i < raw.Actors.length; i++) 
-        {
-            const data = raw.Actors[i];
-
-            const name = data.Class;
-            const coord = new Coord(data.X, data.Y);
-            const actor = <BaseActor>Exportable.FromName(name, coord, this);
-
-            this.actors.push(actor);
-
-            this.OnUpdate.Call(actor);
-        }
+        // Parse cells and actors
+        raw.Cells.forEach(data => parse<BaseCell>(data, this.cells));
+        raw.Actors.forEach(data => parse<BaseActor>(data, this.actors));
 
         return true;
     }
 
     /**
-     * Return elements of the map (cells and actors).
+     * Get all elements of the map.
      */
     public GetElements(): IReadOnlyElementList<BaseElement>
     {
