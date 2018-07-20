@@ -9,9 +9,9 @@ import { Helper } from "../Util/Helper";
 import { Coord } from "../Coord";
 import { IExportObject } from "../IExportObject";
 import { IMessage } from "./IMessage";
-import { AsyncHandler } from "./AsyncHandler";
+import { MessageHandler } from "./MessageHandler";
 
-export class Client extends AsyncHandler
+export class Client extends MessageHandler
 {
     private readonly map: Map;
 

@@ -7,9 +7,9 @@ import { Coord } from "../Coord";
 import { BaseElement } from "../Element/BaseElement";
 import { IExportObject } from "../IExportObject";
 import { IMessage } from "./IMessage";
-import { AsyncHandler } from "./AsyncHandler";
+import { MessageHandler } from "./MessageHandler";
 
-export class Connection extends AsyncHandler
+export class Connection extends MessageHandler
 {
     private player: PlayerActor;
     
