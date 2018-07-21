@@ -1,15 +1,109 @@
-import { Map } from "./scripts/Map";
-import { Coord } from "./scripts/Coord";
-import { PlayerActor } from './scripts/Element/Actor/PlayerActor';
-import { Server } from './scripts/Net/Server';
-import { Renderer } from "./scripts/Renderer";
-import { Keyboard } from "./scripts/Util/Keyboard";
-import { Connection } from "./scripts/Net/Connection";
-import { BasicChannel } from "./scripts/Net/BasicChannel";
-import { Client } from "./scripts/Net/Client";
+import { Map } from "./lib/Map";
+import { Coord } from "./lib/Coord";
+import { PlayerActor } from './lib/Element/Actor/PlayerActor';
+import { Server } from './lib/Net/Server';
+import { Renderer } from "./lib/Renderer";
+import { Keyboard } from "./lib/Util/Keyboard";
+import { Connection } from "./lib/Net/Connection";
+import { FakeChannel } from "./lib/Net/FakeChannel";
+import { Client } from "./lib/Net/Client";
+import { PeerChannel } from "./lib/Net/PeerChannel";
 
-const cycle = (player: PlayerActor, { up, left, down, right }) =>
+// HTML elements
+const gameCanvas = <HTMLCanvasElement>document.getElementById("game-canvas");
+const offerInput = <HTMLInputElement>document.getElementById("offer-input");
+const answerInput = <HTMLInputElement>document.getElementById("answer-input");
+const offerButton = <HTMLButtonElement>document.getElementById("offer-button");
+const answerButton = <HTMLButtonElement>document.getElementById("answer-button");
+const finishButton = <HTMLButtonElement>document.getElementById("finish-button");
+
+// Game objects
+const channel = new PeerChannel();
+const map: Map = new Map();
+
+let server: Server;
+
+/**
+ * Create an offer.
+ */
+const ClickOffer = async (): Promise<void> =>
 {
+    offerInput.value = await channel.Offer();
+};
+
+/**
+ * Create an answer from the pasted offer.
+ */
+const ClickAnswer = async (): Promise<void> => 
+{
+    const offer = offerInput.value;
+
+    if(offer && offer.length > 10)
+    {
+        answerInput.value = await channel.Answer(offer);
+    }
+};
+
+/**
+ * Finish negotiation with the pasted answer.
+ */
+const ClickFinish = (): void =>
+{
+    const answer = answerInput.value;
+
+    if(answer && answer.length > 10)
+    {
+        channel.Finish(answer);
+    }
+};
+
+/**
+ * Create client (and server).
+ */
+const CreateClient = async (): Promise<Client> =>
+{
+    if(!channel.IsOfferor())
+    {
+        return new Client(channel, map);
+    }
+
+    // Create server map, load it, create server
+    const serverMap: Map = new Map();
+
+    await serverMap.Load("res/map.json");
+
+    server = new Server(serverMap);
+
+    // Create a fake channel
+    const localA = new FakeChannel();
+    const localB = new FakeChannel();
+
+    localA.SetOther(localB);
+    localB.SetOther(localA);
+
+    // Add connection to the server
+    server.Add(new Connection(channel));
+    server.Add(new Connection(localA));
+
+    // Connect client to the server
+    return new Client(localB, map);
+}
+
+/**
+ * Game cycle
+ * @param player 
+ * @param up
+ * @param left
+ * @param down
+ * @param right
+ */
+const OnUpdate = (player: PlayerActor, { up, left, down, right }) =>
+{
+    if(!channel.IsOpen())
+    {
+        return;
+    }
+
     const direction = new Coord(
         Keyboard.Keys[left] ? -0.05 : Keyboard.Keys[right] ? 0.05 : 0, 
         Keyboard.Keys[up] ? -0.05 : Keyboard.Keys[down] ? 0.05 : 0
@@ -21,44 +115,19 @@ const cycle = (player: PlayerActor, { up, left, down, right }) =>
     }
 };
 
-const main = async () =>
+/**
+ * Start game.
+ */
+const Start = async () =>
 {
     Keyboard.Init();
-    
-    const map: Map = new Map();
 
-    await map.Load("res/map.json");
+    const client = await CreateClient();
+    const renderer = new Renderer(map, gameCanvas);
 
-    const mapA: Map = new Map();
-    const mapB: Map = new Map();
-    
-    const canvasA = <HTMLCanvasElement>document.getElementById("canvasA");
-    const canvasB = <HTMLCanvasElement>document.getElementById("canvasB");
-    
-    const rendererA = new Renderer(mapA, canvasA);
-    const rendererB = new Renderer(mapB, canvasB);
-    
-    const channelA1 = new BasicChannel();
-    const channelA2 = new BasicChannel();
-    const channelB1 = new BasicChannel();
-    const channelB2 = new BasicChannel();
-    
-    channelA1.SetOther(channelA2);
-    channelA2.SetOther(channelA1);
-    channelB1.SetOther(channelB2);
-    channelB2.SetOther(channelB1);
-
-    const clientA = new Client(channelA1, mapA);
-    const clientB = new Client(channelB1, mapB);
-
-    const server = new Server(map);
-    
-    server.Add(new Connection(channelA2));
-    server.Add(new Connection(channelB2));
-    
-    clientA.OnPlayer = async player =>
+    client.OnPlayer = async player =>
     {
-        await rendererA.Load();
+        await renderer.Load();
         
         const keys = 
         {
@@ -68,25 +137,13 @@ const main = async () =>
             right: "ARROWRIGHT"
         };
 
-        rendererA.OnUpdate.Add(() => cycle(player, keys));
-        rendererA.Start();
-    };
-    
-    clientB.OnPlayer = async player =>
-    {
-        await rendererB.Load();
-
-        const keys = 
-        {
-            up: "W", 
-            left: "A", 
-            down: "S", 
-            right: "D"
-        };
-        
-        rendererB.OnUpdate.Add(() => cycle(player, keys));
-        rendererB.Start();
+        renderer.OnUpdate.Add(() => OnUpdate(player, keys));
+        renderer.Start();
     };
 };
 
-main();
+// Wire up listeners
+offerButton.onclick = () => ClickOffer();
+answerButton.onclick = () => ClickAnswer();
+finishButton.onclick = () => ClickFinish();
+channel.OnOpen = () => Start();

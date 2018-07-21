@@ -1,15 +1,25 @@
 import { IChannel } from "./IChannel";
 import { Helper } from "../Util/Helper";
 
-export class BasicChannel implements IChannel
+export class FakeChannel implements IChannel
 {
-    private other: BasicChannel;
+    private other: FakeChannel;
+    private delay: number;
+
+    /**
+     * Construct a new fake channel with the given delay.
+     * @param delay 
+     */
+    public constructor(delay: number = 0)
+    {
+        this.delay = delay;
+    }
 
     /**
      * Set the other peer.
      * @param other 
      */
-    public SetOther(other: BasicChannel)
+    public SetOther(other: FakeChannel)
     {
         this.other = other;
     }
@@ -22,8 +32,7 @@ export class BasicChannel implements IChannel
     {
         if(this.other)
         {
-            // Simulate latency between 20 and 100 ms
-            setTimeout(() => this.other.OnMessage(message), Helper.Random(20, 100));
+            setTimeout(() => this.other.OnMessage(message), this.delay);
         }
     }
 

@@ -63,6 +63,24 @@ export class Helper
     }
 
     /**
+     * Encode a string into base64.
+     * @param input 
+     */
+    public static Base64Encode(input: string): string
+    {
+        return btoa(input);
+    }
+
+    /**
+     * Decode a string from base64.
+     * @param input 
+     */
+    public static Base64Decode(input: string): string
+    {
+        return atob(input);
+    }
+
+    /**
      * Returns a random integer between min (included) and max (included).
      * @param min 
      * @param max 

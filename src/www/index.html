@@ -12,11 +12,25 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
+
+        button, input {
+            box-sizing: border-box;
+            display: block;
+            width: 300px;
+            border: 0;
+            padding: 5px;
+            margin: 1px;
+        }
     </style>
 </head>
 <body>
-    <canvas id="canvasA"></canvas>
-    <canvas id="canvasB"></canvas>
+    <canvas id="game-canvas"></canvas>
+    <input id="offer-input" placeholder="Offer result" />
+    <input id="answer-input" placeholder="Answer result" />
+    <button id="offer-button">Offer</button>
+    <button id="answer-button">Answer</button>
+    <button id="finish-button">Finish</button>
+    <script type="text/javascript" src="dep/adapter-6.3.0.js"></script>
     <script type="text/javascript" src="index.bundle.js"></script>
 </body>
 </html>
