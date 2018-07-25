@@ -195,7 +195,7 @@ export class Helper
 
         if (!navigator.clipboard) 
         {
-            return fallback(text)
+            return fallback(text);
         }
 
         try {
@@ -204,7 +204,7 @@ export class Helper
         }
         catch(e)
         {
-            return false;
+            return fallback(text);
         }
     }
 
