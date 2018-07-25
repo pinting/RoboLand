@@ -67,8 +67,7 @@ const Main = async (): Promise<void> =>
             Payload: answer
         });
 
-        await Helper.ClipboardCopy(url);
-
+        ClipboardCopy(url);
         SetMessage("Answer copied to clipboard!");
     }
 
@@ -93,6 +92,20 @@ const Main = async (): Promise<void> =>
 const SetMessage = (message: string): void =>
 {
     messageDiv.innerText = message;
+}
+
+/**
+ * Copy text to clipboard.
+ * @param text 
+ */
+const ClipboardCopy = async (text: string): Promise<void> =>
+{
+    const success = await Helper.ClipboardCopy(text);
+
+    if(!success)
+    {
+        prompt("", text);
+    }
 }
 
 /**
@@ -142,11 +155,7 @@ const ClickAdd = async (): Promise<void> =>
         Payload: offer
     });
     
-    if(!await Helper.ClipboardCopy(url))
-    {
-        return;
-    }
-
+    ClipboardCopy(url);
     SetMessage("Offer copied to clipboard!");
 
     channel.OnOpen = () => 
