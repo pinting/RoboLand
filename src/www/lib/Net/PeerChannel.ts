@@ -1,9 +1,17 @@
+import * as webrtc from "webrtc-adapter"
 import { IChannel } from "./IChannel";
 import { Helper } from "../Util/Helper";
-import { Event } from "../Util/Event";
 
 export class PeerChannel implements IChannel
 {
+    private readonly config = {
+        "iceServers": [
+            {
+                "urls": ["stun:stun.l.google.com:19302"]
+            }
+        ]
+    };
+
     private peerConnection;
     private dataChannel;
 
@@ -19,7 +27,7 @@ export class PeerChannel implements IChannel
 
         return new Promise<string>((resolve, reject) => 
         {
-            this.peerConnection = new RTCPeerConnection(null);
+            this.peerConnection = new RTCPeerConnection(this.config);
             this.dataChannel = this.peerConnection.createDataChannel("data");
 
             this.peerConnection.onicecandidate = e => 
@@ -28,7 +36,7 @@ export class PeerChannel implements IChannel
                 {
                     const offer = this.peerConnection.localDescription;
 
-                    resolve(Helper.Base64Encode(JSON.stringify(offer)));
+                    resolve(JSON.stringify(offer));
                 }
             };
     
@@ -56,7 +64,7 @@ export class PeerChannel implements IChannel
 
         return new Promise<string>((resolve, reject) =>
         {
-            this.peerConnection = new RTCPeerConnection(null);
+            this.peerConnection = new RTCPeerConnection(this.config);
     
             this.peerConnection.onicecandidate = e => 
             {
@@ -64,7 +72,7 @@ export class PeerChannel implements IChannel
                 {
                     const answer = this.peerConnection.localDescription;
 
-                    resolve(Helper.Base64Encode(JSON.stringify(answer)));
+                    resolve(JSON.stringify(answer));
                 }
             };
     
@@ -77,12 +85,19 @@ export class PeerChannel implements IChannel
                 this.dataChannel.onclose = () => this.OnClose();
             };
     
-            this.peerConnection.setRemoteDescription(
-                new RTCSessionDescription(JSON.parse(Helper.Base64Decode(offer))));
-            
-            this.peerConnection.createAnswer().then(
-                desc => this.peerConnection.setLocalDescription(desc),
-                error => reject(error));
+            try 
+            {
+                this.peerConnection.setRemoteDescription(
+                    new RTCSessionDescription(JSON.parse(offer)));
+
+                this.peerConnection.createAnswer().then(
+                    desc => this.peerConnection.setLocalDescription(desc),
+                    error => reject(error));
+            }
+            catch(e)
+            {
+                reject(e);
+            }
         });
     }
 
@@ -95,7 +110,7 @@ export class PeerChannel implements IChannel
         if(this.IsOfferor())
         {
             this.peerConnection.setRemoteDescription(
-                new RTCSessionDescription(JSON.parse(Helper.Base64Decode(answer))));
+                new RTCSessionDescription(JSON.parse(answer)));
         }
         else
         {

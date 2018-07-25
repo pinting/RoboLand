@@ -1,4 +1,4 @@
-import * as express from "express";
+import * as express from "express"
 import * as path from "path"
 
 export function main(port: number = 8080)

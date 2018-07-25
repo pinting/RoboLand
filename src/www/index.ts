@@ -8,52 +8,165 @@ import { Connection } from "./lib/Net/Connection";
 import { FakeChannel } from "./lib/Net/FakeChannel";
 import { Client } from "./lib/Net/Client";
 import { PeerChannel } from "./lib/Net/PeerChannel";
+import { Helper } from "./lib/Util/Helper";
 
 // HTML elements
 const gameCanvas = <HTMLCanvasElement>document.getElementById("game-canvas");
-const offerInput = <HTMLInputElement>document.getElementById("offer-input");
-const answerInput = <HTMLInputElement>document.getElementById("answer-input");
-const offerButton = <HTMLButtonElement>document.getElementById("offer-button");
-const answerButton = <HTMLButtonElement>document.getElementById("answer-button");
-const finishButton = <HTMLButtonElement>document.getElementById("finish-button");
+const addButton = <HTMLButtonElement>document.getElementById("add-button");
+const messageDiv = <HTMLDivElement>document.getElementById("message-div");
+
+// Wire up listeners
+addButton.onclick = () => ClickAdd();
+
+// Tab ID
+const tabId = Helper.Unique();
 
 // Game objects
-const channel = new PeerChannel();
 const map: Map = new Map();
 
-let server: Server;
+// For client or server
+let clientChannel: PeerChannel = null;
+let server: Server = null;
 
 /**
- * Create an offer.
+ * Type of the hash format.
  */
-const ClickOffer = async (): Promise<void> =>
+enum HashType
 {
-    offerInput.value = await channel.Offer();
-};
+    Offer,
+    Answer
+}
 
 /**
- * Create an answer from the pasted offer.
+ * Structure of the hash string.
  */
-const ClickAnswer = async (): Promise<void> => 
+interface HashFormat
 {
-    const offer = offerInput.value;
+    Tab: string;
+    Type: HashType,
+    Payload: string;
+}
 
-    if(offer && offer.length > 10)
+/**
+ * Main function.
+ */
+const Main = async (): Promise<void> =>
+{
+    const hash = ReadHash();
+
+    // If it is an offer, create an answer and wait for an open channel.
+    if(hash.Type == HashType.Offer)
     {
-        answerInput.value = await channel.Answer(offer);
+        clientChannel = new PeerChannel();
+        clientChannel.OnOpen = () => Start();
+
+        const answer = await clientChannel.Answer(hash.Payload);
+        const url = ConstructUrl({
+            Tab: hash.Tab,
+            Type: HashType.Answer,
+            Payload: answer
+        });
+
+        await Helper.ClipboardCopy(url);
+
+        SetMessage("Answer copied to clipboard!");
+    }
+
+    // If it is an answer, give it to the server tab using the local storage
+    else if(hash.Type == HashType.Answer)
+    {
+        localStorage.setItem(hash.Tab, hash.Payload);
+        SetMessage("You can close this tab!");
+    }
+
+    // If no hash is present, start the game
+    else
+    {
+        Start();
     }
 };
 
 /**
- * Finish negotiation with the pasted answer.
+ * Set a message on the screen.
+ * @param message 
  */
-const ClickFinish = (): void =>
+const SetMessage = (message: string): void =>
 {
-    const answer = answerInput.value;
+    messageDiv.innerText = message;
+}
 
-    if(answer && answer.length > 10)
+/**
+ * Construct a new URL from HashFormat.
+ * @param hashFormat 
+ */
+const ConstructUrl = (hashFormat: HashFormat): string =>
+{
+    return location.origin + location.pathname + "#" + 
+        encodeURI(btoa(JSON.stringify(hashFormat)));
+};
+
+/**
+ * Read the location hash.
+ */
+const ReadHash = (): HashFormat =>
+{
+    try 
     {
-        channel.Finish(answer);
+        return JSON.parse(atob(decodeURI(location.hash.substr(1))));
+    }
+    catch(e)
+    {
+        return {
+            Tab: null,
+            Type: null,
+            Payload: null
+        };
+    }
+};
+
+/**
+ * Create an offer.
+ */
+const ClickAdd = async (): Promise<void> =>
+{
+    if(!server)
+    {
+        return;
+    }
+
+    const channel = new PeerChannel();
+    const offer = await channel.Offer();
+    const url = ConstructUrl({
+        Tab: tabId,
+        Type: HashType.Offer,
+        Payload: offer
+    });
+    
+    if(!await Helper.ClipboardCopy(url))
+    {
+        return;
+    }
+
+    SetMessage("Offer copied to clipboard!");
+
+    channel.OnOpen = () => 
+    {
+        SetMessage("A new player joined!");
+        server.Add(new Connection(channel));
+    };
+
+    while(true)
+    {
+        const answer = localStorage.getItem(tabId);
+
+        if(answer)
+        {
+            channel.Finish(answer);
+            localStorage.removeItem(tabId);
+            break;
+        }
+
+        await Helper.Wait(1000);
     }
 };
 
@@ -62,10 +175,13 @@ const ClickFinish = (): void =>
  */
 const CreateClient = async (): Promise<Client> =>
 {
-    if(!channel.IsOfferor())
+    if(clientChannel && !clientChannel.IsOfferor())
     {
-        return new Client(channel, map);
+        return new Client(clientChannel, map);
     }
+
+    // Show add button
+    addButton.style.display = "block";
 
     // Create server map, load it, create server
     const serverMap: Map = new Map();
@@ -82,7 +198,6 @@ const CreateClient = async (): Promise<Client> =>
     localB.SetOther(localA);
 
     // Add connection to the server
-    server.Add(new Connection(channel));
     server.Add(new Connection(localA));
 
     // Connect client to the server
@@ -99,11 +214,6 @@ const CreateClient = async (): Promise<Client> =>
  */
 const OnUpdate = (player: PlayerActor, { up, left, down, right }) =>
 {
-    if(!channel.IsOpen())
-    {
-        return;
-    }
-
     const direction = new Coord(
         Keyboard.Keys[left] ? -0.05 : Keyboard.Keys[right] ? 0.05 : 0, 
         Keyboard.Keys[up] ? -0.05 : Keyboard.Keys[down] ? 0.05 : 0
@@ -142,8 +252,5 @@ const Start = async () =>
     };
 };
 
-// Wire up listeners
-offerButton.onclick = () => ClickOffer();
-answerButton.onclick = () => ClickAnswer();
-finishButton.onclick = () => ClickFinish();
-channel.OnOpen = () => Start();
+// Start the main function
+Main();
