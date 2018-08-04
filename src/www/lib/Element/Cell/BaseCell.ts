@@ -1,45 +1,23 @@
 import { BaseActor } from "../Actor/BaseActor";
-import { MoveType } from "../MoveType";
-import { Coord } from "../../Coord";
 import { BaseElement } from "../BaseElement";
-import { Map } from "../../Map";
 
 export abstract class BaseCell extends BaseElement
 {
     protected actors: string[] = [];
 
     /**
-     * Construct a BaseCell. Abstract!
-     * @param position
-     */
-    public constructor(position: Coord = null, map: Map = null)
-    {
-        super(position, map);
-    }
-    
-    /**
-     * Get the position of the cell.
-     */
-    public GetPos(): Coord 
-    {
-        return this.position;
-    }
-
-    /**
      * Enter into the cell with an actor.
      * @param actor 
      */
-    public MoveHere(actor: BaseActor): MoveType 
+    public MoveHere(actor: BaseActor): boolean 
     {
-        const tag = actor.GetTag();
-
-        if(!this.actors.includes(tag))
+        if(!this.actors.includes(actor.Tag))
         {
-            this.actors.push(tag);
+            this.actors.push(actor.Tag);
             this.map.OnUpdate.Call(this);
         }
 
-        return MoveType.Successed;
+        return true;
     }
 
     /**
@@ -48,8 +26,7 @@ export abstract class BaseCell extends BaseElement
      */
     public MoveAway(actor: BaseActor): void 
     {
-        const tag = actor.GetTag();
-        const index = this.actors.indexOf(tag);
+        const index = this.actors.indexOf(actor.Tag);
 
         if(index >= 0) 
         {
@@ -59,23 +36,37 @@ export abstract class BaseCell extends BaseElement
     }
 
     /**
-     * Dispose the cell.
+     * @inheritDoc
      */
-    public Dispose(): void
+    public set Disposed(value)
     {
-        if(this.disposed)
+        if(this.disposed || !value)
         {
             return;
         }
 
-        super.Dispose();
+        super.Disposed = true;
 
         if(this instanceof BaseCell)
         {
-            this.map.GetCells().Remove(this);
+            this.map.Cells.Remove(this);
         }
     }
-    
-    public abstract GetSize(): Coord;
-    public abstract GetTexture(): string;
+
+    /**
+     * @inheritDoc
+     */
+    public get Disposed(): boolean
+    {
+        // Needed because JavaScript limitation
+        return super.Disposed;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected OnTick(): void
+    {
+        return;
+    }
 }

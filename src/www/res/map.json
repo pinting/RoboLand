@@ -1,98 +1,71 @@
 {
-    "Size": {
-        "X": 8,
-        "Y": 6
-    },
-    "Actors":
-    [
-
-    ],
-    "Cells": 
-    [
+    "Name":null,
+    "Class":"Map",
+    "Payload":[
         {
-            "X": 0,
-            "Y": 0,
-            "Class": "GroundCell"
+            "Name":"size",
+            "Class":"Coord",
+            "Payload":[
+                {
+                    "Name":"X",
+                    "Class":"number",
+                    "Payload":8
+                },
+                {
+                    "Name":"Y",
+                    "Class":"number",
+                    "Payload":6
+                }
+            ]
         },
         {
-            "X": 0,
-            "Y": 3,
-            "Class": "GroundCell"
-        },
-        {
-            "X": 0,
-            "Y": 4,
-            "Class": "GroundCell"
-        },
-        {
-            "X": 0,
-            "Y": 5,
-            "Class": "GroundCell"
-        },
-        {
-            "X": 1,
-            "Y": 0,
-            "Class": "GroundCell"
-        },
-        {
-            "X": 1,
-            "Y": 1,
-            "Class": "GroundCell"
-        },
-        {
-            "X": 1,
-            "Y": 2,
-            "Class": "GroundCell"
-        },
-        {
-            "X": 1,
-            "Y": 3,
-            "Class": "GroundCell"
-        },
-        {
-            "X": 1,
-            "Y": 4,
-            "Class": "GroundCell"
-        },
-        {
-            "X": 1,
-            "Y": 5,
-            "Class": "GroundCell"
-        },
-        {
-            "X": 2,
-            "Y": 4,
-            "Class": "GroundCell"
-        },
-        {
-            "X": 3,
-            "Y": 4,
-            "Class": "GroundCell"
-        },
-        {
-            "X": 4,
-            "Y": 4,
-            "Class": "GroundCell"
-        },
-        {
-            "X": 4,
-            "Y": 5,
-            "Class": "GroundCell"
-        },
-        {
-            "X": 0,
-            "Y": 1,
-            "Class": "StoneCell"
-        },
-        {
-            "X": 0,
-            "Y": 2,
-            "Class": "StoneCell"
-        },
-        {
-            "X": 2,
-            "Y": 5,
-            "Class": "WaterCell"
+            "Name":"cells",
+            "Class":"Array",
+            "Payload":[
+                {
+                    "Name":"0",
+                    "Class":"GroundCell",
+                    "Payload":[
+                        {
+                            "Name":"position",
+                            "Class":"Coord",
+                            "Payload":[
+                                {
+                                    "Name":"X",
+                                    "Class":"number",
+                                    "Payload":0
+                                },
+                                {
+                                    "Name":"Y",
+                                    "Class":"number",
+                                    "Payload":0
+                                }
+                            ]
+                        },
+                        {
+                            "Name":"size",
+                            "Class":"Coord",
+                            "Payload":[
+                                {
+                                    "Name":"X",
+                                    "Class":"number",
+                                    "Payload":1
+                                },
+                                {
+                                    "Name":"Y",
+                                    "Class":"number",
+                                    "Payload":1
+                                }
+                            ]
+                        },
+                        {
+                            "Name":"texture",
+                            "Class":"string",
+                            "Payload":"res/ground.png"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }

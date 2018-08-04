@@ -42,25 +42,25 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
      * Get element by tag.
      * @param tag 
      */
-    public Tag(tag: string): Element
+    public Get(tag: string): Element
     {
-        return this.elements.find(e => e && e.GetTag() == tag);
+        return this.elements.find(e => e && e.Tag == tag);
     }
 
     /**
      * Get a element(s) by coord.
      * @param coord 
      */ 
-    public Get(coord: Coord): Element[]
+    public Find(coord: Coord): Element[]
     {
-        return this.elements.filter(e => e && e.GetPos().Is(<Coord>coord));
+        return this.elements.filter(e => e && e.Position.Is(<Coord>coord));
     }
 
     /**
      * Get the nearest cell to the given coord.
      * @param coord 
      */
-    public GetNear(coord: Coord): Element
+    public FindNear(coord: Coord): Element
     {
         let result: Element = null;
         let min = Infinity;
@@ -72,8 +72,8 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
                 return;
             }
 
-            const size = element.GetSize();
-            const center = element.GetPos().Add(size.F(n => n / 2));
+            const size = element.Size;
+            const center = element.Position.Add(size.F(n => n / 2));
             const distance = center.GetDistance(coord);
 
             if(distance < min) 
@@ -91,7 +91,7 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
      * @param from
      * @param to 
      */
-    public GetBetween(from: Coord, to: Coord): Element[]
+    public FindBetween(from: Coord, to: Coord): Element[]
     {
         const result = [];
 
@@ -105,8 +105,8 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
                 return;
             }
 
-            const cellFrom = element.GetPos();
-            const cellTo = element.GetPos().Add(element.GetSize());
+            const cellFrom = element.Position;
+            const cellTo = element.Position.Add(element.Size);
 
             if(Coord.Collide(from, to, cellFrom, cellTo))
             {
@@ -123,7 +123,7 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
      */
     public Set(element: Element): void
     {
-        const old = this.Tag(element.GetTag());
+        const old = this.Get(element.Tag);
 
         if(old)
         {
@@ -149,7 +149,7 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
         {
             this.elements.splice(index, 1);
 
-            element.Dispose();
+            element.Disposed = true;
             this.onUpdate.Call(element);
 
             return true;
@@ -161,7 +161,7 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     /**
      * Get the internal array.
      */
-    public List(): Element[]
+    public get List(): Element[]
     {
         return this.elements;
     }

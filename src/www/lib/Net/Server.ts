@@ -1,5 +1,4 @@
 import { Map } from "../Map";
-import { BaseElement } from "../Element/BaseElement";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { Connection } from "./Connection";
 import { Exportable } from "../Exportable";
@@ -23,7 +22,7 @@ export class Server
 
         // Update elements for connections except their own player
         this.map.OnUpdate.Add(element => this.conns
-            .filter(conn => element.GetTag() != conn.GetPlayer().GetTag())
+            .filter(conn => element.Tag != conn.GetPlayer().Tag)
             .forEach(conn => conn.SetElement(element)));
     }
 
@@ -59,7 +58,7 @@ export class Server
         if(index >= 0)
         {
             this.conns.splice(index, 1);
-            this.map.GetActors().Remove(conn.GetPlayer());
+            this.map.Actors.Remove(conn.GetPlayer());
             conn.Kick();
         }
     }
@@ -73,21 +72,27 @@ export class Server
     public async Add(conn: Connection)
     {
         // Create player and add it to the map
-        const player = new PlayerActor(new Coord(0, 0), this.map);
+        Map.Current = this.map;
 
-        this.map.GetActors().Set(player);
+        const player = new PlayerActor({
+            position: new Coord(0, 0), // TODO: Logic for this?
+            size: new Coord(0.8, 0.8),
+            texture: "res/player.png"
+        });
+
+        this.map.Actors.Set(player);
 
         // Set size
-        await conn.SetSize(this.map.GetSize());
+        await conn.SetSize(this.map.Size);
 
         // Set actors
-        for(let actor of this.map.GetActors().List())
+        for(let actor of this.map.Actors.List)
         {
             await conn.SetElement(actor);
         }
 
         // Set cells
-        for(let cell of this.map.GetCells().List())
+        for(let cell of this.map.Cells.List)
         {
             await conn.SetElement(cell);
         }

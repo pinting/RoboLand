@@ -1,27 +1,11 @@
 import { BaseActor } from "./BaseActor";
-import { MoveType } from "../MoveType";
 import { Coord } from "../../Coord";
 
 export class PlayerActor extends BaseActor
 {
     protected health: number = 1.0;
     protected damage: number = 1.0;
-
-    /**
-     * Get the texture of the actor.
-     */
-    public GetTexture(): string
-    {
-        return "res/player.png";
-    }
-
-    /**
-     * Get the size of the actor.
-     */
-    public GetSize(): Coord
-    {
-        return new Coord(0.8, 0.8);
-    }
+    protected speed: number = 0.05;
 
     /**
      * Move actor in a direction.
@@ -29,9 +13,9 @@ export class PlayerActor extends BaseActor
      */
     public Move(direction: Coord): boolean
     {
-        if(direction.GetDistance(new Coord(0, 0)) == 0)
+        if(direction.GetDistance(new Coord(0, 0)) != 1.0)
         {
-            return false; // Does not allow 0 distance movement
+            return false; // Does not allow different size of movement
         }
 
         if(Math.abs(Math.abs(direction.X) - Math.abs(direction.Y)) == 0)
@@ -40,39 +24,20 @@ export class PlayerActor extends BaseActor
         }
         
         // Get sizes
-        const size = this.GetSize();
-        const mapSize = this.map.GetSize();
+        const size = this.Size;
+        const mapSize = this.map.Size;
 
         // Calculate the next position
-        const prevPos = this.GetPos().Round(3);
-        const nextPos = prevPos.Add(direction).Round(3);
+        const next = this.Position.Add(direction.F(c => c * this.speed)).Round(3);
 
         // Check if it goes out of the map
-        if(!nextPos.Inside(new Coord(0, 0), mapSize) || 
-            !nextPos.Add(size).Inside(new Coord(0, 0), mapSize))
+        if(!next.Inside(new Coord(0, 0), mapSize) || 
+            !next.Add(size).Inside(new Coord(0, 0), mapSize))
         {
             return false;
         }
 
-        return this.SetPos(nextPos, prevPos);
-    }
-
-    /**
-     * Handle movement types.
-     * @param type 
-     */
-    protected HandleMove(type: MoveType): boolean
-    {
-        switch(type)
-        {
-            case MoveType.Blocked: // Do nothing
-                return false;
-            case MoveType.Killed: // Kill it
-                this.Kill();
-                return false;
-            case MoveType.Successed: // Move away
-                return true;
-        }
+        this.Position = next;
     }
 
     /**
@@ -81,12 +46,14 @@ export class PlayerActor extends BaseActor
      */
     public Attack(actor: PlayerActor): boolean
     {
-        if(this.position.GetDistance(actor.GetPos()) > 1)
+        if(this.Position.GetDistance(actor.Position) > 1)
         {
             return false;
         }
 
         actor.Damage(this.damage);
+
+        return true;
     }
 
     /**
@@ -99,27 +66,16 @@ export class PlayerActor extends BaseActor
 
         if(this.health <= 0)
         {
-            this.Kill();
+            this.Disposed = true;
         }
 
         this.map.OnUpdate.Call(this);
     }
 
     /**
-     * Kill the actor.
+     * Get if the actor is alive.
      */
-    private Kill(): void
-    {
-        this.health = 0;
-        
-        // Dispose
-        this.Dispose();
-    }
-
-    /**
-     * Check if the actor is alive.
-     */
-    public IsAlive(): boolean
+    public get Alive(): boolean
     {
         return this.health > 0;
     }

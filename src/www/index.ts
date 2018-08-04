@@ -9,6 +9,8 @@ import { FakeChannel } from "./lib/Net/FakeChannel";
 import { Client } from "./lib/Net/Client";
 import { PeerChannel } from "./lib/Net/PeerChannel";
 import { Helper } from "./lib/Util/Helper";
+import { Exportable } from "./lib/Exportable";
+import { GroundCell } from "./lib/Element/Cell/GroundCell";
 
 // HTML elements
 const gameCanvas = <HTMLCanvasElement>document.getElementById("game-canvas");
@@ -27,6 +29,9 @@ const map: Map = new Map();
 // For client or server
 let clientChannel: PeerChannel = null;
 let server: Server = null;
+
+// Debug
+Helper.Extract(window, { map, Exportable, PlayerActor, GroundCell });
 
 /**
  * Type of the hash format.
@@ -189,15 +194,21 @@ const CreateClient = async (): Promise<Client> =>
         return new Client(clientChannel, map);
     }
 
+    // Create server map, load it, create server
+    try 
+    {
+        const rawMap = JSON.parse(await Helper.Get("res/map.json"));
+        const serverMap: Map = Exportable.Import(rawMap);
+
+        server = new Server(serverMap);
+    }
+    catch(e)
+    {
+        return null;
+    }
+
     // Show add button
     addButton.style.display = "block";
-
-    // Create server map, load it, create server
-    const serverMap: Map = new Map();
-
-    await serverMap.Load("res/map.json");
-
-    server = new Server(serverMap);
 
     // Create a fake channel
     const localA = new FakeChannel();
@@ -224,11 +235,11 @@ const CreateClient = async (): Promise<Client> =>
 const OnUpdate = (player: PlayerActor, { up, left, down, right }) =>
 {
     const direction = new Coord(
-        Keyboard.Keys[left] ? -0.05 : Keyboard.Keys[right] ? 0.05 : 0, 
-        Keyboard.Keys[up] ? -0.05 : Keyboard.Keys[down] ? 0.05 : 0
+        Keyboard.Keys[left] ? -1 : Keyboard.Keys[right] ? 1 : 0, 
+        Keyboard.Keys[up] ? -1 : Keyboard.Keys[down] ? 1 : 0
     );
 
-    if(player && direction.GetDistance(new Coord) > 0)
+    if(player && direction.GetDistance(new Coord) == 1)
     {
         player.Move(direction);
     }
@@ -256,7 +267,7 @@ const Start = async () =>
             right: "ARROWRIGHT"
         };
 
-        renderer.OnUpdate.Add(() => OnUpdate(player, keys));
+        renderer.OnDraw.Add(() => OnUpdate(player, keys));
         renderer.Start();
     };
 };

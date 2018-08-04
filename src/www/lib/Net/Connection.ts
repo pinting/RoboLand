@@ -81,7 +81,7 @@ export class Connection extends MessageHandler
 
         this.player = player;
 
-        return this.SendMessage(MessageType.Player, player.GetTag());
+        return this.SendMessage(MessageType.Player, player.Tag);
     }
     
     /**

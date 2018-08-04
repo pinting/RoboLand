@@ -27,7 +27,7 @@ export class Event<T>
      * Call listeners with the given value.
      * @param value 
      */
-    public Call(value: T): void
+    public Call(value?: T): void
     {
         (<any>Object).values(this.listeners).forEach(callback => callback(value));
     }

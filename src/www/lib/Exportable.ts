@@ -12,6 +12,8 @@ export abstract class Exportable
         {
             switch(name)
             {
+                case "Map":
+                    return require("./Map").Map;
                 case "Coord":
                     return require("./Coord").Coord;
                 case "GroundCell":
@@ -20,6 +22,8 @@ export abstract class Exportable
                     return require("./Element/Cell/StoneCell").StoneCell;
                 case "WaterCell":
                     return require("./Element/Cell/WaterCell").WaterCell;
+                case "FireCell":
+                    return require("./Element/Cell/FireCell").FireCell;
                 case "PlayerActor":
                     return require("./Element/Actor/PlayerActor").PlayerActor;
                 default:

@@ -58,18 +58,17 @@ export class Client extends MessageHandler
      */
     private SetElement(exportable: IExportObject)
     {
-        // Set the args of the constructor of BaseElement 
-        exportable.Args = [null, this.map];
+        Map.Current = this.map;
 
         const element = Exportable.Import(exportable);
 
         if(element instanceof BaseCell)
         {
-            this.map.GetCells().Set(element);
+            this.map.Cells.Set(element);
         }
         else if(element instanceof BaseActor)
         {
-            this.map.GetActors().Set(element);
+            this.map.Actors.Set(element);
         }
     }
 
@@ -79,7 +78,7 @@ export class Client extends MessageHandler
      */
     private SetPlayer(tag: string)
     {
-        const player = this.map.GetActors().Tag(tag);
+        const player = this.map.Actors.Get(tag);
 
         this.OnPlayer(Helper.Hook(player, (target, prop, args) => 
         {

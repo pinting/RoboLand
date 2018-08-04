@@ -1,96 +1,97 @@
 import { Coord } from "../../Coord";
 import { BaseElement } from "../BaseElement";
-import { IExportObject } from "../../IExportObject";
-import { MoveType } from "../MoveType";
 import { Map } from "../../Map";
 
 export abstract class BaseActor extends BaseElement
 {
     /**
-     * Construct a new BaseActor. Abstract!
-     * @param position
+     * @inheritDoc
      */
-    public constructor(position: Coord = null, map: Map = null)
+    public set Position(position: Coord)
     {
-        super(position, map);
-        this.SetPos(this.position);
-    }
-    
-    /**
-     * Get the position of the actor.
-     */
-    public GetPos(): Coord
-    {
-        return this.position;
-    }
-
-    /**
-     * Set the position of the actor.
-     * @param position 
-     */
-    protected SetPos(nextPos: Coord = null, prevPos: Coord = null): boolean
-    {
-        const cells = this.map.GetCells();
+        const prevPos = this.Position;
+        const nextPos = position;
 
         // Get the currently covered cells and the next ones
         const prev = prevPos 
-            ? cells.GetBetween(prevPos, prevPos.Add(this.GetSize()))
+            ? this.map.Cells.FindBetween(prevPos, prevPos.Add(this.size))
             : [];
         
         const next = nextPos
-            ? cells.GetBetween(nextPos, nextPos.Add(this.GetSize()))
+            ? this.map.Cells.FindBetween(nextPos, nextPos.Add(this.size))
             : [];
 
         // If prevPos/nextPos was given, but no cells found, return
         if((prevPos && !prev.length) || (nextPos && !next.length))
         {
-            return false;
+            return;
         }
 
         // Remove intersection 
         const prevFiltered = prev.filter(c => !next.includes(c));
         const nextFiltered = next.filter(c => !prev.includes(c));
 
-        // Check if one of the cells blocks the movement.
-        // If yes, revert all movement and return.
-        if(nextFiltered.some(cell => !this.HandleMove(cell.MoveHere(this))))
+        // Check if one of the cells blocks the movement
+        if(nextFiltered.some(cell => !cell.MoveHere(this)))
         {
+            // If yes, revert all movement and return
             nextFiltered.forEach(c => c.MoveAway(this));
-            return false;
+            return;
         }
 
         // If it was successful, move away from the old cells
         prevFiltered.forEach(c => c.MoveAway(this));
 
-        // Update position
-        this.position = nextPos;
+        // Call super
+        super.Position = nextPos;
 
-        // Update map
+        // Notify map
         this.map.OnUpdate.Call(this);
-
-        return true;
     }
 
     /**
-     * Dispose the cell.
+     * @inheritDoc
      */
-    public Dispose(): void
+    public get Position(): Coord
     {
-        if(this.disposed)
+        // We need to override the getter too, if we
+        // want to override the setter
+        return super.Position;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public set Disposed(value: boolean)
+    {
+        if(this.disposed || !value)
         {
             return;
         }
-        
-        super.Dispose();
-        this.SetPos();
+
+        super.Disposed = true;
+        this.Position = null; // Remove actor from cells
 
         if(this instanceof BaseActor)
         {
-            this.map.GetActors().Remove(this);
+            this.map.Actors.Remove(this);
         }
     }
 
-    protected abstract HandleMove(type: MoveType): boolean;
-    public abstract GetSize(): Coord;
-    public abstract GetTexture(): string;
+    /**
+     * @inheritDoc
+     */
+    public get Disposed(): boolean
+    {
+        // Needed because JavaScript limitation
+        return super.Disposed;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected OnTick(): void
+    {
+        return;
+    }
 }

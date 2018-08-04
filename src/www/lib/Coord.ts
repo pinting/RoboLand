@@ -77,6 +77,15 @@ export class Coord extends Exportable
     }
 
     /**
+     * Execute a function on the coordinates.
+     * @param f Function to execute.
+     */
+    public F(f: (n: number) => number): Coord
+    {
+        return new Coord(f(this.X), f(this.Y));
+    }
+
+    /**
      * Check if the coordinate is inside the intersection of two points.
      * @param from 
      * @param to 
@@ -92,23 +101,14 @@ export class Coord extends Exportable
     }
 
     /**
-     * Check if two objects all collide.
-     * @param a A from point
-     * @param as A to point
-     * @param b B from point
-     * @param bs B to point
+     * Check if two objects are collide.
+     * @param a1 A from point
+     * @param a2 A to point
+     * @param b1 B from point
+     * @param b2 B to point
      */
-    static Collide(a: Coord, as: Coord, b: Coord, bs: Coord): boolean
+    static Collide(a1: Coord, a2: Coord, b1: Coord, b2: Coord): boolean
     {
-        return as.X > b.X && a.X < bs.X && as.Y > b.Y && a.Y < bs.Y;
-    }
-
-    /**
-     * Execute a function on the coordinates.
-     * @param f Function to execute.
-     */
-    public F(f: (n: number) => number): Coord
-    {
-        return new Coord(f(this.X), f(this.Y));
+        return a2.X > b1.X && a1.X < b2.X && a2.Y > b1.Y && a1.Y < b2.Y;
     }
 }

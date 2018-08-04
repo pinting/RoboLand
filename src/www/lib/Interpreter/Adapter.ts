@@ -16,7 +16,7 @@ export class Adapter
      */
     constructor(actor: PlayerActor, map: Map = null)
     {
-        this.map = map || Map.GetInstance();
+        this.map = map;
         this.actor = actor;
     }
 
@@ -46,8 +46,8 @@ export class Adapter
      */
     public test(dx: number, dy: number): number
     {
-        const coord = this.actor.GetPos().Add(new Coord(dx, dy));
-        const cell = this.map.GetCells().Get(coord)[0];
+        const coord = this.actor.Position.Add(new Coord(dx, dy));
+        const cell = this.map.Cells.Find(coord)[0];
 
         return cell && cell instanceof GroundCell ? 1 : 0;
     }
@@ -59,9 +59,9 @@ export class Adapter
     {
         let result: PlayerActor = null;
 
-        this.map.GetActors().ForEach(actor => 
+        this.map.Actors.ForEach(actor => 
         {
-            const distance = actor.GetPos().GetDistance(this.actor.GetPos());
+            const distance = actor.Position.GetDistance(this.actor.Position);
 
             if(actor instanceof PlayerActor && distance <= 1.0) 
             {

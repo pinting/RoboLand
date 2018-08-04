@@ -14,6 +14,11 @@ export class Renderer
     private stop;
 
     /**
+     * Called upon redraw.
+     */
+    public OnDraw: Event<void> = new Event();
+
+    /**
      * Construct a new game object.
      */
     public constructor(map: Map, canvas: HTMLCanvasElement)
@@ -30,10 +35,10 @@ export class Renderer
     {
         return new Promise<void>((resolve, reject) => 
         {
-            const elements = this.map.GetElements();
+            const elements = this.map.Elements;
             let i = 0;
     
-            elements.ForEach(element =>
+            elements.ForEach((element: BaseElement) =>
             {
                 if(!element)
                 {
@@ -41,9 +46,9 @@ export class Renderer
                     return;
                 }
     
-                const id = element.GetTexture();
+                const path = element.Texture;
 
-                if(this.textures[id] !== undefined)
+                if(!path || this.textures[path] !== undefined)
                 {
                     i++;
                     return;
@@ -54,7 +59,7 @@ export class Renderer
                 texture.onerror = () => reject();
                 texture.onload = () => 
                 {
-                    this.textures[id] = texture;
+                    this.textures[path] = texture;
     
                     if(++i == elements.GetLength()) 
                     {
@@ -62,9 +67,9 @@ export class Renderer
                     }
                 };
             
-                texture.src = id;
+                texture.src = path;
 
-                this.textures[id] = null;
+                this.textures[path] = null;
             });
         });
     }
@@ -80,9 +85,9 @@ export class Renderer
             return;
         }
         
-        const coord = element.GetPos();
-        const size = element.GetSize();
-        const texture = this.textures[element.GetTexture()];
+        const coord = element.Position;
+        const size = element.Size;
+        const texture = this.textures[element.Texture];
     
         const x = coord.X;
         const y = coord.Y;
@@ -100,24 +105,25 @@ export class Renderer
     /**
      * Update the canvas.
      */
-    private Update()
+    private Render()
     {
-        const size = this.map.GetSize();
+        const size = this.map.Size;
     
         this.canvas.width = this.dpi * size.X;
         this.canvas.height = this.dpi * size.Y;
         this.canvas.style.width = this.dpi * size.X + "px";
         this.canvas.style.height = this.dpi * size.Y + "px";
         
-        this.map.GetCells().ForEach(e => this.Draw(e));
-        this.map.GetActors().ForEach(e => this.Draw(e));
+        this.map.Cells.ForEach(e => this.Draw(e));
+        this.map.Actors.ForEach(e => this.Draw(e));
     
         if(!this.stop)
         {
-            window.requestAnimationFrame(() => this.Update());
+            window.requestAnimationFrame(() => this.Render());
         }
 
-        this.OnUpdate.Call(null);
+        this.map.OnTick.Call();
+        this.OnDraw.Call();
     }
 
     /**
@@ -126,7 +132,7 @@ export class Renderer
     public Start()
     {
         this.stop = false;
-        window.requestAnimationFrame(() => this.Update());
+        window.requestAnimationFrame(() => this.Render());
     }
 
     /**
@@ -136,9 +142,4 @@ export class Renderer
     {
         this.stop = true;
     }
-
-    /**
-     * Called upon redraw.
-     */
-    public OnUpdate: Event<void> = new Event();
 }
