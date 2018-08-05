@@ -1,6 +1,6 @@
 import { BaseActor } from "../Actor/BaseActor";
 import { BaseCell } from "./BaseCell";
-import { PlayerActor } from "../Actor/PlayerActor";
+import { LivingActor } from "../Actor/LivingActor";
 
 export class StoneCell extends BaseCell
 {
@@ -9,11 +9,19 @@ export class StoneCell extends BaseCell
      */
     public MoveHere(actor: BaseActor): boolean 
     {
-        if(actor instanceof PlayerActor)
+        if(actor instanceof LivingActor)
         {
-            actor.Disposed = true;
+            actor.Dispose();
         }
         
         return true;
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    protected OnTick(): void
+    {
+        return;
     }
 }

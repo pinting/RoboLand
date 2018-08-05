@@ -1,16 +1,39 @@
 import { Coord } from "../../Coord";
-import { BaseElement } from "../BaseElement";
-import { Map } from "../../Map";
+import { BaseElement, BaseElementArgs } from "../BaseElement";
+
+export interface BaseActorArgs extends BaseElementArgs
+{
+    direction?: Coord;
+}
 
 export abstract class BaseActor extends BaseElement
 {
+    protected direction: Coord;
+
     /**
      * @inheritDoc
      */
-    public set Position(position: Coord)
+    public constructor(args: BaseActorArgs = {})
+    {
+        super(args);
+
+        this.direction = this.direction;
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    protected SetPos(position: Coord): boolean
     {
         const prevPos = this.Position;
         const nextPos = position;
+
+        // Check if it goes out of the map
+        if(nextPos && (!nextPos.Inside(new Coord(0, 0), this.map.Size) || 
+            !nextPos.Add(this.Size).Inside(new Coord(0, 0), this.map.Size)))
+        {
+            return false;
+        }
 
         // Get the currently covered cells and the next ones
         const prev = prevPos 
@@ -24,7 +47,7 @@ export abstract class BaseActor extends BaseElement
         // If prevPos/nextPos was given, but no cells found, return
         if((prevPos && !prev.length) || (nextPos && !next.length))
         {
-            return;
+            return false;
         }
 
         // Remove intersection 
@@ -36,62 +59,41 @@ export abstract class BaseActor extends BaseElement
         {
             // If yes, revert all movement and return
             nextFiltered.forEach(c => c.MoveAway(this));
-            return;
+            return false;
         }
 
         // If it was successful, move away from the old cells
         prevFiltered.forEach(c => c.MoveAway(this));
 
         // Call super
-        super.Position = nextPos;
-
-        // Notify map
-        this.map.OnUpdate.Call(this);
+        return super.SetPos(nextPos);
     }
 
     /**
      * @inheritDoc
      */
-    public get Position(): Coord
-    {
-        // We need to override the getter too, if we
-        // want to override the setter
-        return super.Position;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public set Disposed(value: boolean)
+    public Dispose(value: boolean = true)
     {
         if(this.disposed || !value)
         {
             return;
         }
 
-        super.Disposed = true;
-        this.Position = null; // Remove actor from cells
+        this.SetPos(null); // Remove actor from cells
 
         if(this instanceof BaseActor)
         {
             this.map.Actors.Remove(this);
         }
+
+        super.Dispose();
     }
 
     /**
-     * @inheritDoc
+     * Get the direction of the actor.
      */
-    public get Disposed(): boolean
+    public get Direction(): Coord
     {
-        // Needed because JavaScript limitation
-        return super.Disposed;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected OnTick(): void
-    {
-        return;
+        return this.direction && this.direction.Clone();
     }
 }

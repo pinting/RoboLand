@@ -38,35 +38,18 @@ export abstract class BaseCell extends BaseElement
     /**
      * @inheritDoc
      */
-    public set Disposed(value)
+    public Dispose(value)
     {
         if(this.disposed || !value)
         {
             return;
         }
 
-        super.Disposed = true;
-
         if(this instanceof BaseCell)
         {
             this.map.Cells.Remove(this);
         }
-    }
 
-    /**
-     * @inheritDoc
-     */
-    public get Disposed(): boolean
-    {
-        // Needed because JavaScript limitation
-        return super.Disposed;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected OnTick(): void
-    {
-        return;
+        super.Dispose();
     }
 }

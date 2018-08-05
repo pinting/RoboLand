@@ -4,6 +4,13 @@ import { Map } from "../Map";
 import { Exportable } from "../Exportable";
 import { IExportObject } from "../IExportObject";
 
+export interface BaseElementArgs
+{
+    position?: Coord; 
+    size?: Coord;
+    texture?: string;
+}
+
 export abstract class BaseElement extends Exportable
 {
     private tickEvent: number;
@@ -16,16 +23,10 @@ export abstract class BaseElement extends Exportable
     protected texture: string;
 
     /**
-     * Constructor of the BaseElement.
-     * @param init.map
-     * @param init.position
-     * @param init.size
-     * @param init.texture
+     * Construct a new element with the given init args.
+     * @param args
      */
-    public constructor(init: {
-        position?: Coord, 
-        size?: Coord, 
-        texture?: string } = {})
+    public constructor(args: BaseElementArgs = {})
     {
         super();
 
@@ -33,11 +34,11 @@ export abstract class BaseElement extends Exportable
         this.tag = Helper.Unique();
 
         // Use direct assignment
-        this.size = init.size;
-        this.texture = init.texture;
+        this.size = args.size;
+        this.texture = args.texture;
 
-        // Use setters
-        this.Position = init.position;
+        // Use setter function
+        this.SetPos(args.position);
 
         // Start to listen to the tick event
         this.tickEvent = this.map.OnTick.Add(() => this.OnTick());
@@ -68,15 +69,6 @@ export abstract class BaseElement extends Exportable
     }
 
     /**
-     * Set the position of the element.
-     * @param position 
-     */
-    public set Position(position: Coord)
-    {
-        this.position = position;
-    }
-
-    /**
      * Get the position of the element.
      */
     public get Position(): Coord
@@ -85,10 +77,30 @@ export abstract class BaseElement extends Exportable
     }
 
     /**
-     * Set the value of disposed. Can only be flipped once.
+     * Get value of disposed.
+     */
+    public get Disposed(): boolean
+    {
+        return this.disposed;
+    }
+
+    /**
+     * Set the position of the element.
+     * @param position 
+     */
+    protected SetPos(position: Coord): boolean
+    {
+        this.position = position;
+        this.map.OnUpdate.Call(this);
+
+        return true;
+    }
+
+    /**
+     * Set the value of disposed. Can only be set once.
      * @param value
      */
-    public set Disposed(value: boolean)
+    public Dispose(value: boolean = true)
     {
         if(this.disposed || !value)
         {
@@ -97,14 +109,6 @@ export abstract class BaseElement extends Exportable
 
         this.disposed = true;
         this.map.OnTick.Remove(this.tickEvent);
-    }
-
-    /**
-     * Get value of disposed.
-     */
-    public get Disposed(): boolean
-    {
-        return this.disposed;
     }
 
     /**
@@ -134,10 +138,10 @@ export abstract class BaseElement extends Exportable
         switch(name)
         {
             case "position":
-                this.Position = value;
+                this.SetPos(value);
                 return undefined;
             case "disposed":
-                this.Disposed = value;
+                this.Dispose(value);
                 return undefined;
             default:
                 return value;

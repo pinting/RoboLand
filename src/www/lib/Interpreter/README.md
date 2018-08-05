@@ -1,1 +1,0 @@
-This interpreter was designed for the old demo. It could still function with the current application logic, but it needs some work.

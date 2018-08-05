@@ -26,6 +26,8 @@ export abstract class Exportable
                     return require("./Element/Cell/FireCell").FireCell;
                 case "PlayerActor":
                     return require("./Element/Actor/PlayerActor").PlayerActor;
+                case "ArrowActor":
+                    return require("./Element/Actor/ArrowActor").ArrowActor;
                 default:
                     return null;
             }

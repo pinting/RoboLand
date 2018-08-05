@@ -1,10 +1,26 @@
 import { BaseActor } from "../Actor/BaseActor";
 import { BaseCell } from "./BaseCell";
-import { PlayerActor } from "../Actor/PlayerActor";
+import { LivingActor } from "../Actor/LivingActor";
+import { BaseElementArgs } from "../BaseElement";
+
+export interface FireCellArgs extends BaseElementArgs
+{
+    damage?: number;
+}
 
 export class FireCell extends BaseCell
 {
-    protected readonly damage: number = 0.1;
+    protected damage: number;
+
+    /**
+     * @inheritDoc
+     */
+    public constructor(args: FireCellArgs)
+    {
+        super(args);
+
+        this.damage = args.damage;
+    }
 
     /**
      * @inheritDoc
@@ -23,7 +39,7 @@ export class FireCell extends BaseCell
         {
             const actor = this.map.Actors.Get(tag);
 
-            if(actor instanceof PlayerActor)
+            if(actor instanceof LivingActor)
             {
                 actor.Damage(this.damage);
             }

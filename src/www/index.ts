@@ -31,7 +31,7 @@ let clientChannel: PeerChannel = null;
 let server: Server = null;
 
 // Debug
-Helper.Extract(window, { map, Exportable, PlayerActor, GroundCell });
+Helper.Extract(window, { map, Keyboard, Exportable, PlayerActor, GroundCell });
 
 /**
  * Type of the hash format.
@@ -231,17 +231,28 @@ const CreateClient = async (): Promise<Client> =>
  * @param left
  * @param down
  * @param right
+ * @param space
  */
-const OnUpdate = (player: PlayerActor, { up, left, down, right }) =>
+const OnUpdate = (player: PlayerActor, { up, left, down, right, space }) =>
 {
+    if(!player)
+    {
+        return;
+    }
+
     const direction = new Coord(
         Keyboard.Keys[left] ? -1 : Keyboard.Keys[right] ? 1 : 0, 
         Keyboard.Keys[up] ? -1 : Keyboard.Keys[down] ? 1 : 0
     );
 
-    if(player && direction.GetDistance(new Coord) == 1)
+    if(direction.GetDistance(new Coord) == 1)
     {
         player.Move(direction);
+    }
+
+    if(Keyboard.Keys[space])
+    {
+        player.Shoot();
     }
 };
 
@@ -264,7 +275,8 @@ const Start = async () =>
             up: "ARROWUP", 
             left: "ARROWLEFT", 
             down: "ARROWDOWN", 
-            right: "ARROWRIGHT"
+            right: "ARROWRIGHT",
+            space: " "
         };
 
         renderer.OnDraw.Add(() => OnUpdate(player, keys));

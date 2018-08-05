@@ -77,7 +77,10 @@ export class Server
         const player = new PlayerActor({
             position: new Coord(0, 0), // TODO: Logic for this?
             size: new Coord(0.8, 0.8),
-            texture: "res/player.png"
+            texture: "res/player.png",
+            speed: 0.05,
+            damage: 0.1,
+            health: 1.0
         });
 
         this.map.Actors.Set(player);

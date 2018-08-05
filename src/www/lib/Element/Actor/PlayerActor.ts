@@ -1,12 +1,9 @@
-import { BaseActor } from "./BaseActor";
 import { Coord } from "../../Coord";
+import { ArrowActor } from "./ArrowActor";
+import { LivingActor } from "./LivingActor";
 
-export class PlayerActor extends BaseActor
+export class PlayerActor extends LivingActor
 {
-    protected health: number = 1.0;
-    protected damage: number = 1.0;
-    protected speed: number = 0.05;
-
     /**
      * Move actor in a direction.
      * @param direction
@@ -15,7 +12,7 @@ export class PlayerActor extends BaseActor
     {
         if(direction.GetDistance(new Coord(0, 0)) != 1.0)
         {
-            return false; // Does not allow different size of movement
+            return false; // Do not allow different size of movement
         }
 
         if(Math.abs(Math.abs(direction.X) - Math.abs(direction.Y)) == 0)
@@ -23,60 +20,41 @@ export class PlayerActor extends BaseActor
             return false; // Only allow left, right, top and bottom movement
         }
         
-        // Get sizes
-        const size = this.Size;
-        const mapSize = this.map.Size;
-
         // Calculate the next position
         const next = this.Position.Add(direction.F(c => c * this.speed)).Round(3);
 
-        // Check if it goes out of the map
-        if(!next.Inside(new Coord(0, 0), mapSize) || 
-            !next.Add(size).Inside(new Coord(0, 0), mapSize))
+        // Do the moving
+        if(this.SetPos(next))
         {
-            return false;
+            this.direction = direction.Clone();
+
+            return true;
         }
 
-        this.Position = next;
+        return false;
     }
 
     /**
-     * Attack an other actor if it is one cell away.
-     * @param actor 
+     * Shoot an arrow to the direction the player is facing.
      */
-    public Attack(actor: PlayerActor): boolean
+    public Shoot(): void
     {
-        if(this.Position.GetDistance(actor.Position) > 1)
-        {
-            return false;
-        }
-
-        actor.Damage(this.damage);
-
-        return true;
+        // TODO: Make a logic for this
+        this.map.Actors.Set(new ArrowActor({
+            position: this.Position.Add(this.size.F(c => c / 2)).Add(this.Direction),
+            size: new Coord(0.1, 0.1),
+            texture: "res/stone.png",
+            direction: this.Direction,
+            damage: this.damage,
+            speed: 0.075
+        }));
     }
-
+    
     /**
-     * Do damage to this actor.
-     * @param damage Amount of the damage.
+     * @inheritDoc
      */
-    public Damage(damage: number): void
+    protected OnTick(): void
     {
-        this.health -= damage;
-
-        if(this.health <= 0)
-        {
-            this.Disposed = true;
-        }
-
-        this.map.OnUpdate.Call(this);
-    }
-
-    /**
-     * Get if the actor is alive.
-     */
-    public get Alive(): boolean
-    {
-        return this.health > 0;
+        return;
     }
 }

@@ -10,4 +10,12 @@ export class StoneCell extends BaseCell
     {
         return false;
     }
+    
+    /**
+     * @inheritDoc
+     */
+    protected OnTick(): void
+    {
+        return;
+    }
 }

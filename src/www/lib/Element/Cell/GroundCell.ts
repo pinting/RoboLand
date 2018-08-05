@@ -10,4 +10,12 @@ export class GroundCell extends BaseCell
     {
         return true;
     }
+    
+    /**
+     * @inheritDoc
+     */
+    protected OnTick(): void
+    {
+        return;
+    }
 }
