@@ -11,11 +11,16 @@ import { IExportObject } from "./IExportObject";
 
 export class Map extends Exportable
 {
-    public static Current: Map;
-
+    public static Current: Map = null;
+    
     private cells: Array<BaseCell> = [];
     private actors: Array<BaseActor> = [];
     private size: Coord = new Coord();
+
+    /**
+     * Parent of the Map.
+     */
+    public Parent: string = Helper.Unique();
 
     /**
      * Called when the map was updated.

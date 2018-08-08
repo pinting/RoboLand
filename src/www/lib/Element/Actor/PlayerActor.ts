@@ -46,7 +46,9 @@ export class PlayerActor extends LivingActor
             texture: "res/stone.png",
             direction: this.Direction,
             damage: this.damage,
-            speed: 0.075
+            speed: 0.075,
+            parent: this.parent,
+            map: this.map
         }));
     }
     

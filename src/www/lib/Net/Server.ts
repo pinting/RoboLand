@@ -4,6 +4,7 @@ import { Connection } from "./Connection";
 import { Exportable } from "../Exportable";
 import { IExportObject } from "../IExportObject";
 import { Coord } from "../Coord";
+import { Helper } from "../Util/Helper";
 
 export class Server
 {
@@ -22,7 +23,7 @@ export class Server
 
         // Update elements for connections except their own player
         this.map.OnUpdate.Add(element => this.conns
-            .filter(conn => element.Tag != conn.GetPlayer().Tag)
+            .filter(conn => element.Parent != conn.GetPlayer().Parent)
             .forEach(conn => conn.SetElement(element)));
     }
 
@@ -40,6 +41,8 @@ export class Server
             this.Kick(conn);
             return;
         }
+
+        Map.Current = this.map;
 
         const player = conn.GetPlayer();
 
@@ -80,7 +83,8 @@ export class Server
             texture: "res/player.png",
             speed: 0.05,
             damage: 0.1,
-            health: 1.0
+            health: 1.0,
+            parent: Helper.Unique()
         });
 
         this.map.Actors.Set(player);

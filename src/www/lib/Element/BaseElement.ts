@@ -9,15 +9,19 @@ export interface BaseElementArgs
     position?: Coord; 
     size?: Coord;
     texture?: string;
+    parent?: string;
+    map?: Map;
 }
 
 export abstract class BaseElement extends Exportable
 {
     private tickEvent: number;
 
-    protected map: Map = Map.Current;
+    protected tag: string = Helper.Unique();
     protected disposed: boolean = false;
-    protected tag: string;
+
+    protected map: Map;
+    protected parent: string; // ID of the parent element
     protected position: Coord;
     protected size: Coord;
     protected texture: string;
@@ -30,10 +34,9 @@ export abstract class BaseElement extends Exportable
     {
         super();
 
-        // Generate unique tag for the element
-        this.tag = Helper.Unique();
-
         // Use direct assignment
+        this.map = args.map || Map.Current;
+        this.parent = args.parent || this.map.Parent;
         this.size = args.size;
         this.texture = args.texture;
 
@@ -50,6 +53,14 @@ export abstract class BaseElement extends Exportable
     public get Tag(): string
     {
         return this.tag;
+    }
+
+    /**
+     * Get the parent of the element.
+     */
+    public get Parent(): string
+    {
+        return this.parent;
     }
 
     /**

@@ -28,10 +28,17 @@ const map: Map = new Map();
 
 // For client or server
 let clientChannel: PeerChannel = null;
+let serverMap: Map = null;
 let server: Server = null;
 
 // Debug
-Helper.Extract(window, { map, Keyboard, Exportable, PlayerActor, GroundCell });
+Helper.Extract(window, {
+    game: () => ({ map, server }),
+    Keyboard, 
+    Exportable,
+    PlayerActor,
+    GroundCell
+});
 
 /**
  * Type of the hash format.
@@ -187,7 +194,7 @@ const ClickAdd = async (): Promise<void> =>
 /**
  * Create client (and server).
  */
-const CreateClient = async (): Promise<Client> =>
+const CreateClient = async (renderer: Renderer): Promise<Client> =>
 {
     if(clientChannel && !clientChannel.IsOfferor())
     {
@@ -198,9 +205,12 @@ const CreateClient = async (): Promise<Client> =>
     try 
     {
         const rawMap = JSON.parse(await Helper.Get("res/map.json"));
-        const serverMap: Map = Exportable.Import(rawMap);
 
+        serverMap = Exportable.Import(rawMap);
         server = new Server(serverMap);
+
+        // Use the tick of the local client on the server
+        renderer.OnDraw.Add(() => serverMap.OnTick.Call());
     }
     catch(e)
     {
@@ -233,7 +243,7 @@ const CreateClient = async (): Promise<Client> =>
  * @param right
  * @param space
  */
-const OnUpdate = (player: PlayerActor, { up, left, down, right, space }) =>
+const OnDraw = (player: PlayerActor, { up, left, down, right, space }) =>
 {
     if(!player)
     {
@@ -263,11 +273,13 @@ const Start = async () =>
 {
     Keyboard.Init();
 
-    const client = await CreateClient();
     const renderer = new Renderer(map, gameCanvas);
+    const client = await CreateClient(renderer);
 
     client.OnPlayer = async player =>
     {
+        map.Parent = player.Tag;
+
         await renderer.Load();
         
         const keys = 
@@ -279,7 +291,7 @@ const Start = async () =>
             space: " "
         };
 
-        renderer.OnDraw.Add(() => OnUpdate(player, keys));
+        renderer.OnDraw.Add(() => OnDraw(player, keys));
         renderer.Start();
     };
 };

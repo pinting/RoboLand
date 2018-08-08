@@ -4,6 +4,7 @@ import { Event } from "./Util/Event";
 
 export class Renderer
 {
+    private readonly notFoundColor: string = "purple";
     private readonly dpi: number = 30;
 
     private readonly map: Map;
@@ -80,7 +81,7 @@ export class Renderer
      */
     private Draw(element: BaseElement)
     {
-        if(!element)
+        if(!element || !element.Position || !element.Size)
         {
             return;
         }
@@ -94,12 +95,23 @@ export class Renderer
         const w = size.X;
         const h = size.Y;
     
-        this.context.drawImage(
-            texture, 
-            x * this.dpi, 
-            y * this.dpi, 
-            w * this.dpi, 
-            h * this.dpi);
+        if(texture) {
+            this.context.drawImage(
+                texture, 
+                x * this.dpi, 
+                y * this.dpi, 
+                w * this.dpi, 
+                h * this.dpi);
+        }
+        else {
+            this.context.fillStyle = this.notFoundColor;
+            this.context.fillRect(
+                x * this.dpi, 
+                y * this.dpi, 
+                w * this.dpi, 
+                h * this.dpi
+            );
+        }
     }
     
     /**
