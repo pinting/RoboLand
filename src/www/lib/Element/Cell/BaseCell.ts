@@ -11,9 +11,9 @@ export abstract class BaseCell extends BaseElement
      */
     public MoveHere(actor: BaseActor): boolean 
     {
-        if(!this.actors.includes(actor.Tag))
+        if(!this.actors.includes(actor.Id))
         {
-            this.actors.push(actor.Tag);
+            this.actors.push(actor.Id);
             this.map.OnUpdate.Call(this);
         }
 
@@ -26,7 +26,7 @@ export abstract class BaseCell extends BaseElement
      */
     public MoveAway(actor: BaseActor): void 
     {
-        const index = this.actors.indexOf(actor.Tag);
+        const index = this.actors.indexOf(actor.Id);
 
         if(index >= 0) 
         {

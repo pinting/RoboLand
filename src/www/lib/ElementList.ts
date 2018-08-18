@@ -1,7 +1,7 @@
 import { Coord } from "./Coord";
 import { BaseElement } from "./Element/BaseElement";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
-import { Helper } from "./Util/Helper";
+import { Tools } from "./Util/Tools";
 import { Event } from "./Util/Event";
 
 export class ElementList<Element extends BaseElement> implements IReadOnlyElementList<Element>
@@ -39,12 +39,12 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     }
 
     /**
-     * Get element by tag.
-     * @param tag 
+     * Get element by id.
+     * @param id 
      */
-    public Get(tag: string): Element
+    public Get(id: string): Element
     {
-        return this.elements.find(e => e && e.Tag == tag);
+        return this.elements.find(e => e && e.Id == id);
     }
 
     /**
@@ -115,16 +115,16 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     }
 
     /**
-     * Add a new element or overwrite an existing one (by tag).
+     * Add a new element or overwrite an existing one (by id).
      * @param element 
      */
     public Set(element: Element): void
     {
-        const old = this.Get(element.Tag);
+        const old = this.Get(element.Id);
 
         if(old)
         {
-            Helper.Extract(old, element);
+            Tools.Extract(old, element);
         }
         else
         {

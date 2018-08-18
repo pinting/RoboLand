@@ -35,9 +35,9 @@ export class FireCell extends BaseCell
      */
     protected OnTick(): void
     {
-        this.actors.forEach(tag =>
+        this.actors.forEach(id =>
         {
-            const actor = this.map.Actors.Get(tag);
+            const actor = this.map.Actors.Get(id);
 
             if(actor instanceof LivingActor)
             {

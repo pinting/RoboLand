@@ -1,15 +1,16 @@
 import { Coord } from "../Coord";
-import { Helper } from "../Util/Helper";
+import { Tools } from "../Util/Tools";
 import { Map } from "../Map";
 import { Exportable } from "../Exportable";
 import { IExportObject } from "../IExportObject";
 
 export interface BaseElementArgs
 {
+    id?: string;
     position?: Coord; 
     size?: Coord;
     texture?: string;
-    parent?: string;
+    origin?: string;
     map?: Map;
 }
 
@@ -17,11 +18,10 @@ export abstract class BaseElement extends Exportable
 {
     private tickEvent: number;
 
-    protected tag: string = Helper.Unique();
     protected disposed: boolean = false;
-
+    protected id: string;
     protected map: Map;
-    protected parent: string; // ID of the parent element
+    protected origin: string; // ID of the origin element
     protected position: Coord;
     protected size: Coord;
     protected texture: string;
@@ -35,8 +35,9 @@ export abstract class BaseElement extends Exportable
         super();
 
         // Use direct assignment
+        this.id = args.id || Tools.Unique();
         this.map = args.map || Map.Current;
-        this.parent = args.parent || this.map.Parent;
+        this.origin = args.origin || this.map.Origin;
         this.size = args.size;
         this.texture = args.texture;
 
@@ -48,19 +49,19 @@ export abstract class BaseElement extends Exportable
     }
 
     /**
-     * Get the tag of the element.
+     * Get the id of the element.
      */
-    public get Tag(): string
+    public get Id(): string
     {
-        return this.tag;
+        return this.id;
     }
 
     /**
-     * Get the parent of the element.
+     * Get the origin of the element.
      */
-    public get Parent(): string
+    public get Origin(): string
     {
-        return this.parent;
+        return this.origin;
     }
 
     /**
@@ -101,8 +102,15 @@ export abstract class BaseElement extends Exportable
      */
     protected SetPos(position: Coord): boolean
     {
+        if(!position || (this.position && this.position.Is(position)))
+        {
+            return false;
+        }
+
         this.position = position;
-        this.map.OnUpdate.Call(this);
+
+        // Delay notify, wait for full init
+        setTimeout(() => this.map.OnUpdate.Call(this), 10);
 
         return true;
     }
@@ -146,7 +154,7 @@ export abstract class BaseElement extends Exportable
         const value = super.ImportProperty(input);
 
         // Handle setters manually
-        switch(name)
+        switch(input.Name)
         {
             case "position":
                 this.SetPos(value);

@@ -1,6 +1,6 @@
 declare var navigator: { clipboard: any } & Navigator;
 
-export class Helper
+export class Tools
 {
     /**
      * Create an async request.
@@ -52,7 +52,7 @@ export class Helper
      */
     public static async Post(url: string, data: string): Promise<string>
     {
-        return await Helper.Ajax(url, data, "POST");
+        return await Tools.Ajax(url, data, "POST");
     }
 
     /**
@@ -61,7 +61,7 @@ export class Helper
      */
     public static async Get(url: string): Promise<string>
     {
-        return await Helper.Ajax(url, null, "GET");
+        return await Tools.Ajax(url, null, "GET");
     }
 
     /**
@@ -88,6 +88,55 @@ export class Helper
                 to[key] = from[key];
             }
         }
+    }
+
+    /**
+     * Return the difference from source to target (properties of source).
+     * @param source 
+     * @param target 
+     */
+    public static Diff(source: Object, target: Object, limit: number = 3)
+    {
+        if(limit === 0 ||
+            typeof source != "object" || 
+            typeof target != "object" || 
+            source === null || 
+            target === null)
+        {
+            return null;
+        }
+
+        return Object.keys(source).reduce((diff, key) => 
+        {
+            switch(typeof source[key])
+            {
+                case "number":
+                case "string":
+                case "boolean":
+                case "undefined":
+                    if (source[key] != target[key])
+                    {
+                        return {
+                            ...diff,
+                            [key]: source[key]
+                        }
+                    }
+                    break;
+                case "object":
+                    const sub = Tools.Diff(source[key], target[key], limit - 1);
+                    
+                    if(sub != null && Object.keys(sub).length)
+                    {
+                        return {
+                            ...diff,
+                            [key]: sub
+                        }
+                    }
+                    break;
+            }
+
+            return diff;
+        }, {});
     }
     
     /**

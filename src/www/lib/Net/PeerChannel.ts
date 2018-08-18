@@ -1,6 +1,6 @@
 import * as webrtc from "webrtc-adapter"
 import { IChannel } from "./IChannel";
-import { Helper } from "../Util/Helper";
+import { Tools } from "../Util/Tools";
 
 export class PeerChannel implements IChannel
 {
@@ -163,15 +163,15 @@ export class PeerChannel implements IChannel
     /**
      * Called when channel is opened.
      */
-    public OnOpen: () => void = Helper.Noop;
+    public OnOpen: () => void = Tools.Noop;
 
     /**
      * Called when channel is closed.
      */
-    public OnClose: () => void = Helper.Noop;
+    public OnClose: () => void = Tools.Noop;
 
     /**
      * Receive a message from the other peer.
      */
-    public OnMessage: (message: string) => void = Helper.Noop;
+    public OnMessage: (message: string) => void = Tools.Noop;
 }

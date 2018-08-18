@@ -126,7 +126,7 @@ export abstract class Exportable
         {
             const imported = this.ImportProperty(element);
 
-            if(imported)
+            if(imported !== undefined)
             {
                 this[element.Name] = imported;
             }
@@ -157,5 +157,38 @@ export abstract class Exportable
         instance && instance.ImportAll(input.Payload);
 
         return instance;
+    }
+
+    /**
+     * Return the difference from source to target (properties of source).
+     * @param a 
+     * @param b 
+     * @param l Depth limit.
+     */
+    public static Diff(a: IExportObject, b: IExportObject, l: number = 3): IExportObject
+    {
+        if(!l || !a || !b || !a.Class || a.Class != b.Class || a.Name != b.Name)
+        {
+            return null;
+        }
+
+        switch(a.Class)
+        {
+            case "number":
+            case "string":
+            case "boolean":
+                return a.Payload != b.Payload ? a : null;
+            default:
+                const diff: IExportObject[] = a.Payload
+                    .map(ae => b.Payload.find(be => 
+                        Exportable.Diff(ae, be, l - 1)))
+                    .filter(ae => ae);
+
+                return !diff.length ? null : {
+                    Name: a.Name,
+                    Class: a.Class,
+                    Payload: diff
+                };
+        }
     }
 }

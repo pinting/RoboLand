@@ -1,6 +1,6 @@
 import { Coord } from "./Coord";
 import { BaseActor } from "./Element/Actor/BaseActor";
-import { Helper } from "./Util/Helper";
+import { Tools } from "./Util/Tools";
 import { BaseCell } from "./Element/Cell/BaseCell";
 import { BaseElement } from "./Element/BaseElement";
 import { ElementList } from "./ElementList";
@@ -18,9 +18,9 @@ export class Map extends Exportable
     private size: Coord = new Coord();
 
     /**
-     * Parent of the Map.
+     * Origin of the Map.
      */
-    public Parent: string = Helper.Unique();
+    public Origin: string = Tools.Unique();
 
     /**
      * Called when the map was updated.

@@ -1,19 +1,19 @@
 import { Map } from "../Map";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
-import { Connection } from "./Connection";
+import { Sender } from "./Sender";
 import { Exportable } from "../Exportable";
 import { IExportObject } from "../IExportObject";
 import { Coord } from "../Coord";
-import { Helper } from "../Util/Helper";
+import { Tools } from "../Util/Tools";
 
 export class Server
 {
     private readonly map: Map;
-    private readonly conns: Connection[] = [];
+    private readonly clients: Sender[] = [];
 
     /**
      * Construct a new server with the given map. The server gonna
-     * update each connections (clients) with the map and sync every
+     * update each clientections (clients) with the map and sync every
      * move of the clients between them.
      * @param map 
      */
@@ -21,96 +21,102 @@ export class Server
     {
         this.map = map;
 
-        // Update elements for connections except their own player
-        this.map.OnUpdate.Add(element => this.conns
-            .filter(conn => element.Parent != conn.GetPlayer().Parent)
-            .forEach(conn => conn.SetElement(element)));
+        // Update elements for clientections except their own player
+        this.map.OnUpdate.Add(element => this.clients
+            .forEach(client => client.SendElement(element)));
     }
 
     /**
-     * Executed when the server receives a new message from a client/connection.
-     * @param conn
+     * Executed when the server receives a new message from a client/clientection.
+     * @param client
      * @param command
      */
-    private OnCommand(conn: Connection, command: IExportObject)
+    private OnCommand(client: Sender, command: IExportObject)
     {
         const args = Exportable.Import(command);
-
-        if(!args.length)
-        {
-            this.Kick(conn);
-            return;
-        }
+        const player = client.Player;
 
         Map.Current = this.map;
 
-        const player = conn.GetPlayer();
+        if(!args.length && player.Id == args[0])
+        {
+            this.Kick(client);
+            return;
+        }
 
         // Execute command on the player
-        player[args[0]].bind(player)(...args.slice(1));
+        player[args[1]].bind(player)(...args.slice(2));
+
+        // Send the command to the other players
+        this.clients
+            .filter(client => player.Origin != client.Player.Origin)
+            .forEach(client => client.SendCommand(args));
     }
 
     /**
      * Kick client out of the server.
-     * @param conn 
+     * @param client 
      */
-    private Kick(conn: Connection)
+    private Kick(client: Sender)
     {
-        const index = this.conns.indexOf(conn);
+        const index = this.clients.indexOf(client);
 
         if(index >= 0)
         {
-            this.conns.splice(index, 1);
-            this.map.Actors.Remove(conn.GetPlayer());
-            conn.Kick();
+            this.clients.splice(index, 1);
+            this.map.Actors.Remove(client.Player);
+            client.SendKick();
         }
     }
 
     /**
-     * Add a new connection/client to the server. This represents
+     * Add a new clientection/client to the server. This represents
      * the client on the server side - it only communicates
      * with a Client object through an IChannel implementation.
-     * @param conn 
+     * @param client 
      */
-    public async Add(conn: Connection)
+    public async Add(client: Sender)
     {
         // Create player and add it to the map
         Map.Current = this.map;
 
+        const playerTag = Tools.Unique();
         const player = new PlayerActor({
-            position: new Coord(0, 0), // TODO: Logic for this?
+            id: playerTag,
+            origin: playerTag,
+            position: new Coord(0, 0),
             size: new Coord(0.8, 0.8),
+            direction: new Coord(0, 0),
             texture: "res/player.png",
             speed: 0.05,
             damage: 0.1,
-            health: 1.0,
-            parent: Helper.Unique()
+            health: 1.0
         });
 
         this.map.Actors.Set(player);
 
         // Set size
-        await conn.SetSize(this.map.Size);
-
-        // Set actors
-        for(let actor of this.map.Actors.List)
-        {
-            await conn.SetElement(actor);
-        }
+        await client.SendSize(this.map.Size);
 
         // Set cells
         for(let cell of this.map.Cells.List)
         {
-            await conn.SetElement(cell);
+            await client.SendElement(cell);
+        }
+
+        // Set actors
+        for(let actor of this.map.Actors.List)
+        {
+            await client.SendElement(actor);
         }
         
         // Subscribe to the OnCommand callback
-        conn.OnCommand = command => this.OnCommand(conn, command);
+        client.OnCommand = command => this.OnCommand(client, command);
         
         // Set player
-        await conn.SetPlayer(player);
+        await client.SendPlayer(player);
 
         // Add client to the internal client list
-        this.conns.push(conn);
+        this.clients.push(client);
     }
 }

@@ -1,4 +1,4 @@
-import { Helper } from "../Util/Helper";
+import { Tools } from "../Util/Tools";
 import { IChannel } from "./IChannel";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { Exportable } from "../Exportable";
@@ -9,7 +9,7 @@ import { IExportObject } from "../IExportObject";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
 
-export class Connection extends MessageHandler
+export class Sender extends MessageHandler
 {
     private player: PlayerActor;
     
@@ -21,6 +21,14 @@ export class Connection extends MessageHandler
     {
         super(channel);
     }
+    
+    /**
+     * Get the previously setted player actor.
+     */
+    public get Player(): PlayerActor
+    {
+        return this.player;
+    }
 
     /**
      * Receive a message through the channel and parse it.
@@ -31,7 +39,7 @@ export class Connection extends MessageHandler
         switch(message.Type)
         {
             case MessageType.Command:
-                this.ParseCommand(message)
+                this.OnCommand(message.Payload);
                 break;
             default:
                 // Invalid: kick?
@@ -40,20 +48,10 @@ export class Connection extends MessageHandler
     }
 
     /**
-     * Parse an incoming COMMAND.
-     * @param index 
-     * @param command 
-     */
-    public ParseCommand(message: IMessage): void
-    {
-        this.OnCommand(message.Payload);
-    }
-
-    /**
      * Init map. Also deletes previously setted elements.
      * @param size 
      */
-    public async SetSize(size: Coord): Promise<void>
+    public async SendSize(size: Coord): Promise<void>
     {
         return this.SendMessage(MessageType.Size, Exportable.Export(size));
     }
@@ -62,7 +60,7 @@ export class Connection extends MessageHandler
      * Set an element (a cell or an actor).
      * @param element 
      */
-    public async SetElement(element: BaseElement): Promise<void>
+    public async SendElement(element: BaseElement): Promise<void>
     {
         return this.SendMessage(MessageType.Element, Exportable.Export(element));
     }
@@ -72,7 +70,7 @@ export class Connection extends MessageHandler
      * already sent via SetElement).
      * @param player 
      */
-    public async SetPlayer(player: PlayerActor): Promise<void>
+    public async SendPlayer(player: PlayerActor): Promise<void>
     {
         if(this.player)
         {
@@ -81,21 +79,22 @@ export class Connection extends MessageHandler
 
         this.player = player;
 
-        return this.SendMessage(MessageType.Player, player.Tag);
+        return this.SendMessage(MessageType.Player, player.Id);
     }
-    
+
     /**
-     * Get the previously setted player actor.
+     * Send a player's command to a other player.
+     * @param command 
      */
-    public GetPlayer(): PlayerActor
+    public async SendCommand(command: any[]): Promise<void>
     {
-        return this.player;
+        return this.SendMessage(MessageType.Command, Exportable.Export(command));
     }
 
     /**
      * Kick the client off.
      */
-    public Kick(): void
+    public SendKick(): void
     {
         this.SendMessage(MessageType.Kick, null);
     }
@@ -104,5 +103,5 @@ export class Connection extends MessageHandler
      * Executed when the Connection receives a COMMAND from the client.
      * @param command
      */
-    public OnCommand: (command: IExportObject) => void = Helper.Noop;
+    public OnCommand: (command: IExportObject) => void = Tools.Noop;
 }

@@ -39,7 +39,6 @@ export class PlayerActor extends LivingActor
      */
     public Shoot(): void
     {
-        // TODO: Make a logic for this
         this.map.Actors.Set(new ArrowActor({
             position: this.Position.Add(this.size.F(c => c / 2)).Add(this.Direction),
             size: new Coord(0.1, 0.1),
@@ -47,7 +46,7 @@ export class PlayerActor extends LivingActor
             direction: this.Direction,
             damage: this.damage,
             speed: 0.075,
-            parent: this.parent,
+            origin: this.origin,
             map: this.map
         }));
     }
