@@ -13,39 +13,7 @@ export abstract class Exportable
     {
         Exportable.registeredClasses[name] = classObj;
     }
-
-    public static FromName2<T extends Exportable>(name: string, ...args: any[]): T
-    {
-        const find = (name): any =>
-        {
-            switch(name)
-            {
-                case "Board":
-                    return require("./Board").Board;
-                case "Coord":
-                    return require("./Coord").Coord;
-                case "GroundCell":
-                    return require("./Element/Cell/GroundCell").GroundCell;
-                case "StoneCell":
-                    return require("./Element/Cell/StoneCell").StoneCell;
-                case "WaterCell":
-                    return require("./Element/Cell/WaterCell").WaterCell;
-                case "FireCell":
-                    return require("./Element/Cell/FireCell").FireCell;
-                case "PlayerActor":
-                    return require("./Element/Actor/PlayerActor").PlayerActor;
-                case "ArrowActor":
-                    return require("./Element/Actor/ArrowActor").ArrowActor;
-                default:
-                    return null;
-            }
-        };
-
-        const classObj = find(name);
-
-        return classObj && new classObj(...args);
-    }
-
+    
     /**
      * Create an instance of a class by name (using the registeredClasses classes).
      * @param className 

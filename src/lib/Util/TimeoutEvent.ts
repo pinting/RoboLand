@@ -3,7 +3,7 @@ import { Event } from "./Event";
 export class TimeoutEvent<T> extends Event<T>
 {
     private timeout: number;
-    private timers: { [id: number]: NodeJS.Timer } = {};
+    private timers: { [id: number]: number } = {};
 
     /**
      * Create a TimeoutEvent where every listener will be removed
