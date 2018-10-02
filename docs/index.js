@@ -7097,14 +7097,14 @@ const gameCanvas = document.getElementById("game-canvas");
 const addButton = document.getElementById("add-button");
 const messageDiv = document.getElementById("message-div");
 // Register classes as a dependency
-ArrowActor_1.ArrowActor.Register();
-PlayerActor_1.PlayerActor.Register();
-FireCell_1.FireCell.Register();
-GroundCell_1.GroundCell.Register();
-StoneCell_1.StoneCell.Register();
-WaterCell_1.WaterCell.Register();
-Board_1.Board.Register();
-Coord_1.Coord.Register();
+Exportable_1.Exportable.Register(ArrowActor_1.ArrowActor);
+Exportable_1.Exportable.Register(PlayerActor_1.PlayerActor);
+Exportable_1.Exportable.Register(FireCell_1.FireCell);
+Exportable_1.Exportable.Register(GroundCell_1.GroundCell);
+Exportable_1.Exportable.Register(StoneCell_1.StoneCell);
+Exportable_1.Exportable.Register(WaterCell_1.WaterCell);
+Exportable_1.Exportable.Register(Board_1.Board);
+Exportable_1.Exportable.Register(Coord_1.Coord);
 // Wire up listeners
 addButton.onclick = () => ClickAdd();
 // Tab ID
@@ -7464,15 +7464,10 @@ class Board extends Exportable_1.Exportable {
         Board.Current = this;
         return super.ImportAll(input);
     }
-    /**
-     * Register the cell as a dependency.
-     */
-    static Register() {
-        Exportable_1.Exportable.Register("Board", Board);
-    }
 }
 Board.Current = null;
 exports.Board = Board;
+Exportable_1.Exportable.Register(Board);
 
 
 /***/ }),
@@ -7571,14 +7566,9 @@ class Coord extends Exportable_1.Exportable {
     static Collide(a1, a2, b1, b2) {
         return a2.X > b1.X && a1.X < b2.X && a2.Y > b1.Y && a1.Y < b2.Y;
     }
-    /**
-     * Register the cell as a dependency.
-     */
-    static Register() {
-        Exportable_1.Exportable.Register("Coord", Coord);
-    }
 }
 exports.Coord = Coord;
+Exportable_1.Exportable.Register(Coord);
 
 
 /***/ }),
@@ -7636,14 +7626,9 @@ class ArrowActor extends TickActor_1.TickActor {
             this.Dispose();
         }
     }
-    /**
-     * Register the class as a dependency.
-     */
-    static Register() {
-        Exportable_1.Exportable.Register("ArrowActor", ArrowActor);
-    }
 }
 exports.ArrowActor = ArrowActor;
+Exportable_1.Exportable.Register(ArrowActor);
 
 
 /***/ }),
@@ -7836,14 +7821,9 @@ class PlayerActor extends LivingActor_1.LivingActor {
         });
         this.board.Actors.Set(actor);
     }
-    /**
-     * Register the class as a dependency.
-     */
-    static Register() {
-        Exportable_1.Exportable.Register("PlayerActor", PlayerActor);
-    }
 }
 exports.PlayerActor = PlayerActor;
+Exportable_1.Exportable.Register(PlayerActor);
 
 
 /***/ }),
@@ -8139,14 +8119,9 @@ class FireCell extends BaseCell_1.BaseCell {
             }
         });
     }
-    /**
-     * Register the class as a dependency.
-     */
-    static Register() {
-        Exportable_1.Exportable.Register("FireCell", FireCell);
-    }
 }
 exports.FireCell = FireCell;
+Exportable_1.Exportable.Register(FireCell);
 
 
 /***/ }),
@@ -8176,14 +8151,9 @@ class GroundCell extends BaseCell_1.BaseCell {
     OnTick() {
         return;
     }
-    /**
-     * Register the class as a dependency.
-     */
-    static Register() {
-        Exportable_1.Exportable.Register("GroundCell", GroundCell);
-    }
 }
 exports.GroundCell = GroundCell;
+Exportable_1.Exportable.Register(GroundCell);
 
 
 /***/ }),
@@ -8213,14 +8183,9 @@ class StoneCell extends BaseCell_1.BaseCell {
     OnTick() {
         return;
     }
-    /**
-     * Register the cell as a dependency.
-     */
-    static Register() {
-        Exportable_1.Exportable.Register("StoneCell", StoneCell);
-    }
 }
 exports.StoneCell = StoneCell;
+Exportable_1.Exportable.Register(StoneCell);
 
 
 /***/ }),
@@ -8254,14 +8219,9 @@ class WaterCell extends BaseCell_1.BaseCell {
     OnTick() {
         return;
     }
-    /**
-     * Register the cell as a dependency.
-     */
-    static Register() {
-        Exportable_1.Exportable.Register("WaterCell", WaterCell);
-    }
 }
 exports.WaterCell = WaterCell;
+Exportable_1.Exportable.Register(WaterCell);
 
 
 /***/ }),
@@ -8423,15 +8383,15 @@ class Exportable {
      * @param name
      * @param classObj
      */
-    static Register(name, classObj) {
-        Exportable.registeredClasses[name] = classObj;
+    static Register(classObj, name = null) {
+        Exportable.dependencies[name || classObj.name] = classObj;
     }
     /**
-     * Create an instance of a class by name (using the registeredClasses classes).
+     * Create an instance of a class by name (using the dependencies classes).
      * @param className
      */
     static FromName(name, ...args) {
-        const classObj = Exportable.registeredClasses[name] || null;
+        const classObj = Exportable.dependencies[name] || null;
         return classObj && new classObj(...args);
     }
     /**
@@ -8550,7 +8510,7 @@ class Exportable {
         }
     }
 }
-Exportable.registeredClasses = {};
+Exportable.dependencies = {};
 exports.Exportable = Exportable;
 
 
@@ -8707,7 +8667,8 @@ class PeerChannel {
      */
     ParseMessage(event) {
         if (event && event.data) {
-            this.OnMessage(pako.inflate(event.data));
+            const uncompressed = pako.inflate(event.data, { to: "string" });
+            this.OnMessage(uncompressed);
         }
     }
     /**
@@ -8716,7 +8677,8 @@ class PeerChannel {
      */
     SendMessage(message) {
         if (this.IsOpen()) {
-            this.dataChannel.send(pako.deflate(message));
+            const compressed = pako.deflate(message, { to: "string" });
+            this.dataChannel.send(compressed);
         }
     }
     /**

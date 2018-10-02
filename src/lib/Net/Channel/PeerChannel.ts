@@ -127,7 +127,9 @@ export class PeerChannel implements IChannel
     {
         if(event && event.data)
         {
-            this.OnMessage(pako.inflate(event.data));
+            const uncompressed = pako.inflate(event.data, { to: "string" });
+
+            this.OnMessage(uncompressed);
         }
     }
 
@@ -139,7 +141,9 @@ export class PeerChannel implements IChannel
     {
         if(this.IsOpen())
         {
-            this.dataChannel.send(pako.deflate(message));
+            const compressed: string = pako.deflate(message, { to: "string" });
+
+            this.dataChannel.send(compressed);
         }
     }
 
