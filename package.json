@@ -21,6 +21,7 @@
   "homepage": "https://github.com/pinting/RoboLand#readme",
   "dependencies": {
     "express": "4.15.x",
+    "pako": "1.0.x",
     "webrtc-adapter": "6.3.x"
   },
   "devDependencies": {
@@ -34,7 +35,7 @@
     "gulp-watch": "5.0.x",
     "run-sequence": "1.2.x",
     "tsify": "3.0.x",
-    "typescript": "2.9.x",
+    "typescript": "^2.9.2",
     "vinyl-buffer": "1.0.x",
     "vinyl-source-stream": "1.1.x"
   }

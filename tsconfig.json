@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "lib": ["es2016", "es2017", "dom"],
+        "outDir": "out",
+        "target": "es6",
+        "module": "commonjs",
+        "inlineSources": true,
+        "inlineSourceMap": true,
+        "removeComments": true
+    },
+    "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
+}

@@ -1,8 +1,10 @@
 import { Coord } from "../Coord";
 import { Tools } from "../Util/Tools";
-import { Map } from "../Map";
+import { Board } from "../Board";
 import { Exportable } from "../Exportable";
 import { IExportObject } from "../IExportObject";
+import { Logger } from "../Util/Logger";
+import { LogType } from "../Util/LogType";
 
 export interface BaseElementArgs
 {
@@ -11,16 +13,14 @@ export interface BaseElementArgs
     size?: Coord;
     texture?: string;
     origin?: string;
-    map?: Map;
+    board?: Board;
 }
 
 export abstract class BaseElement extends Exportable
 {
-    private tickEvent: number;
-
     protected disposed: boolean = false;
     protected id: string;
-    protected map: Map;
+    protected board: Board;
     protected origin: string; // ID of the origin element
     protected position: Coord;
     protected size: Coord;
@@ -30,22 +30,33 @@ export abstract class BaseElement extends Exportable
      * Construct a new element with the given init args.
      * @param args
      */
-    public constructor(args: BaseElementArgs = {})
+    public Init(args: BaseElementArgs = {})
     {
-        super();
+        this.InitPre(args);
+        this.InitPost(args);
+    }
 
-        // Use direct assignment
+    /**
+     * For direct assignments.
+     * This will be called first!
+     * @param args 
+     */
+    protected InitPre(args: BaseElementArgs = {})
+    {
         this.id = args.id || Tools.Unique();
-        this.map = args.map || Map.Current;
-        this.origin = args.origin || this.map.Origin;
+        this.board = args.board || Board.Current;
+        this.origin = args.origin || this.board.Origin;
         this.size = args.size;
         this.texture = args.texture;
+    }
 
-        // Use setter function
-        this.SetPos(args.position);
-
-        // Start to listen to the tick event
-        this.tickEvent = this.map.OnTick.Add(() => this.OnTick());
+    /**
+     * For function setters.
+     * @param args 
+     */
+    protected InitPost(args: BaseElementArgs = {})
+    {
+        args.position && this.SetPos(args.position);
     }
 
     /**
@@ -102,15 +113,14 @@ export abstract class BaseElement extends Exportable
      */
     protected SetPos(position: Coord): boolean
     {
-        if(!position || (this.position && this.position.Is(position)))
+        if((position && this.position && this.position.Is(position)) &&
+            (position === this.position))
         {
             return false;
         }
 
         this.position = position;
-
-        // Delay notify, wait for full init
-        setTimeout(() => this.map.OnUpdate.Call(this), 10);
+        this.board.OnUpdate.Call(this);
 
         return true;
     }
@@ -127,7 +137,8 @@ export abstract class BaseElement extends Exportable
         }
 
         this.disposed = true;
-        this.map.OnTick.Remove(this.tickEvent);
+
+        Logger.Log(this, LogType.Verbose, "Element was disposed!", this);
     }
 
     /**
@@ -138,7 +149,7 @@ export abstract class BaseElement extends Exportable
         // Filter what to export
         switch(name)
         {
-            case "map":
+            case "board":
             case "tickEvent":
                 return undefined;
             default:
@@ -166,9 +177,14 @@ export abstract class BaseElement extends Exportable
                 return value;
         }
     }
-    
+
     /**
-     * Called upon tick.
+     * @inheritDoc
      */
-    protected abstract OnTick(): void;
+    public ImportAll(input: IExportObject[]): void
+    {
+        this.InitPre();
+        super.ImportAll(input);
+        this.InitPost();
+    }
 }

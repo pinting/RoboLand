@@ -3,6 +3,8 @@ import { BaseElement } from "./Element/BaseElement";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
 import { Tools } from "./Util/Tools";
 import { Event } from "./Util/Event";
+import { LogType } from "./Util/LogType";
+import { Logger } from "./Util/Logger";
 
 export class ElementList<Element extends BaseElement> implements IReadOnlyElementList<Element>
 {
@@ -120,15 +122,23 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
      */
     public Set(element: Element): void
     {
+        if(element.Disposed)
+        {
+            this.Remove(element);
+            return;
+        }
+
         const old = this.Get(element.Id);
 
         if(old)
         {
             Tools.Extract(old, element);
+            Logger.Log(this, LogType.Verbose, "Element was moded!", element);
         }
         else
         {
             this.elements.push(element);
+            Logger.Log(this, LogType.Verbose, "Element was added!", element);
         }
 
         this.updateEvent.Call(element);
@@ -142,17 +152,22 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     {
         const index = this.elements.indexOf(element);
 
-        if(index >= 0)
+        if(index < 0)
         {
-            this.elements.splice(index, 1);
-
-            element.Dispose();
-            this.updateEvent.Call(element);
-
-            return true;
+            return false;
         }
 
-        return false;
+        this.elements.splice(index, 1);
+
+        if(!element.Disposed) 
+        {
+            element.Dispose();
+        }
+
+        Logger.Log(this, LogType.Verbose, "Element was removed!", element);
+        this.updateEvent.Call(element);
+
+        return true;
     }
 
     /**

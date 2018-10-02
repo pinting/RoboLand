@@ -11,17 +11,8 @@ const source = require("vinyl-source-stream");
 const buffer = require("vinyl-buffer");
 const watch = require("gulp-watch");
 
-let tsconfig = 
-{
-    "lib": ["es2016", "es2017", "dom"],
-    "outDir": "out",
-    "target": "es6",
-    "module": "commonjs",
-    "inlineSources": true,
-    "inlineSourceMap": true,
-    "removeComments": true
-};
-
+let tsconfig = require("./tsconfig.json");
+let compilerOptions = (tsconfig || {}).compilerOptions || {};
 let clientOut = "out/www/";
 
 /**
@@ -42,7 +33,7 @@ gulp.task("compile", function()
     return gulp
         .src("src/**/*.ts")
         .pipe(maps.init())
-        .pipe(tsc(tsconfig))
+        .pipe(tsc(compilerOptions))
         .js
         .pipe(maps.mapSources(function(sourcePath, file) {
             return sourcePath; // It is fine for now
@@ -58,7 +49,7 @@ gulp.task("bundle", function()
 {
     return browserify({ "debug": true })
         .add(path.resolve(__dirname, "src/www/index.ts"))
-        .plugin(tsify, tsconfig) // Tsfiy is needed for sourcemaps to work
+        .plugin(tsify, compilerOptions) // Tsfiy is needed for sourcemaps to work
         .bundle()
         .pipe(source("index.bundle.js"))
         .pipe(buffer())

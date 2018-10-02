@@ -1,8 +1,9 @@
 import { BaseActor } from "../Actor/BaseActor";
 import { BaseCell } from "./BaseCell";
 import { LivingActor } from "../Actor/LivingActor";
+import { Exportable } from "../../Exportable";
 
-export class StoneCell extends BaseCell
+export class WaterCell extends BaseCell
 {
     /**
      * @inheritDoc
@@ -23,5 +24,13 @@ export class StoneCell extends BaseCell
     protected OnTick(): void
     {
         return;
+    }
+
+    /**
+     * Register the cell as a dependency.
+     */
+    public static Register()
+    {
+        Exportable.Register("WaterCell", WaterCell);
     }
 }

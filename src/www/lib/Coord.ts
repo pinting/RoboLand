@@ -107,8 +107,16 @@ export class Coord extends Exportable
      * @param b1 B from point
      * @param b2 B to point
      */
-    static Collide(a1: Coord, a2: Coord, b1: Coord, b2: Coord): boolean
+    public static Collide(a1: Coord, a2: Coord, b1: Coord, b2: Coord): boolean
     {
         return a2.X > b1.X && a1.X < b2.X && a2.Y > b1.Y && a1.Y < b2.Y;
+    }
+
+    /**
+     * Register the cell as a dependency.
+     */
+    public static Register()
+    {
+        Exportable.Register("Coord", Coord);
     }
 }

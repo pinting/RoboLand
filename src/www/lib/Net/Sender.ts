@@ -1,5 +1,5 @@
 import { Tools } from "../Util/Tools";
-import { IChannel } from "./IChannel";
+import { IChannel } from "./Channel/IChannel";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { Exportable } from "../Exportable";
 import { MessageType } from "./MessageType";
@@ -48,7 +48,7 @@ export class Sender extends MessageHandler
     }
 
     /**
-     * Init map. Also deletes previously setted elements.
+     * Init board. Also deletes previously setted elements.
      * @param size 
      */
     public async SendSize(size: Coord): Promise<void>

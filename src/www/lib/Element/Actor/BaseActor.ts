@@ -1,5 +1,6 @@
 import { Coord } from "../../Coord";
 import { BaseElement, BaseElementArgs } from "../BaseElement";
+import { Exportable } from "../../Exportable";
 
 export interface BaseActorArgs extends BaseElementArgs
 {
@@ -13,9 +14,17 @@ export abstract class BaseActor extends BaseElement
     /**
      * @inheritDoc
      */
-    public constructor(args: BaseActorArgs = {})
+    public Init(args: BaseActorArgs = {})
     {
-        super(args);
+        super.Init(args);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected InitPre(args: BaseActorArgs = {})
+    {
+        super.InitPre(args);
 
         this.direction = this.direction;
     }
@@ -28,20 +37,20 @@ export abstract class BaseActor extends BaseElement
         const prevPos = this.Position;
         const nextPos = position;
 
-        // Check if it goes out of the map
-        if(nextPos && (!nextPos.Inside(new Coord(0, 0), this.map.Size) || 
-            !nextPos.Add(this.Size).Inside(new Coord(0, 0), this.map.Size)))
+        // Check if it goes out of the board
+        if(nextPos && (!nextPos.Inside(new Coord(0, 0), this.board.Size) || 
+            !nextPos.Add(this.Size).Inside(new Coord(0, 0), this.board.Size)))
         {
             return false;
         }
 
         // Get the currently covered cells and the next ones
         const prev = prevPos 
-            ? this.map.Cells.FindBetween(prevPos, prevPos.Add(this.size))
+            ? this.board.Cells.FindBetween(prevPos, prevPos.Add(this.size))
             : [];
         
         const next = nextPos
-            ? this.map.Cells.FindBetween(nextPos, nextPos.Add(this.size))
+            ? this.board.Cells.FindBetween(nextPos, nextPos.Add(this.size))
             : [];
 
         // If prevPos/nextPos was given, but no cells found, return
@@ -79,13 +88,7 @@ export abstract class BaseActor extends BaseElement
             return;
         }
 
-        this.SetPos(null); // Remove actor from cells
-
-        if(this instanceof BaseActor)
-        {
-            this.map.Actors.Remove(this);
-        }
-
+        this.board.Actors.Remove(this);
         super.Dispose();
     }
 

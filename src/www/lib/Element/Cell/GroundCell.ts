@@ -1,5 +1,6 @@
 import { BaseActor } from "../Actor/BaseActor";
 import { BaseCell } from "./BaseCell";
+import { Exportable } from "../../Exportable";
 
 export class GroundCell extends BaseCell
 {
@@ -17,5 +18,13 @@ export class GroundCell extends BaseCell
     protected OnTick(): void
     {
         return;
+    }
+
+    /**
+     * Register the class as a dependency.
+     */
+    public static Register()
+    {
+        Exportable.Register("GroundCell", GroundCell);
     }
 }

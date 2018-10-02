@@ -1,4 +1,4 @@
-import { Map } from "../Map";
+import { Board } from "../Board";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { Sender } from "./Sender";
 import { Exportable } from "../Exportable";
@@ -8,21 +8,21 @@ import { Tools } from "../Util/Tools";
 
 export class Server
 {
-    private readonly map: Map;
+    private readonly board: Board;
     private readonly clients: Sender[] = [];
 
     /**
-     * Construct a new server with the given map. The server gonna
-     * update each clientections (clients) with the map and sync every
+     * Construct a new server with the given board. The server gonna
+     * update each clientections (clients) with the board and sync every
      * move of the clients between them.
-     * @param map 
+     * @param board 
      */
-    public constructor(map: Map)
+    public constructor(board: Board)
     {
-        this.map = map;
+        this.board = board;
 
         // Update elements for clientections except their own player
-        this.map.OnUpdate.Add(element => this.clients
+        this.board.OnUpdate.Add(element => this.clients
             .forEach(client => client.SendElement(element)));
     }
 
@@ -36,7 +36,7 @@ export class Server
         const args = Exportable.Import(command);
         const player = client.Player;
 
-        Map.Current = this.map;
+        Board.Current = this.board;
 
         if(!args.length && player.Id == args[0])
         {
@@ -64,7 +64,7 @@ export class Server
         if(index >= 0)
         {
             this.clients.splice(index, 1);
-            this.map.Actors.Remove(client.Player);
+            this.board.Actors.Remove(client.Player);
             client.SendKick();
         }
     }
@@ -77,11 +77,13 @@ export class Server
      */
     public async Add(client: Sender)
     {
-        // Create player and add it to the map
-        Map.Current = this.map;
+        // Create player and add it to the board
+        Board.Current = this.board;
 
         const playerTag = Tools.Unique();
-        const player = new PlayerActor({
+        const player = new PlayerActor;
+
+        player.Init({
             id: playerTag,
             origin: playerTag,
             position: new Coord(0, 0),
@@ -93,19 +95,19 @@ export class Server
             health: 1.0
         });
 
-        this.map.Actors.Set(player);
+        this.board.Actors.Set(player);
 
         // Set size
-        await client.SendSize(this.map.Size);
+        await client.SendSize(this.board.Size);
 
         // Set cells
-        for(let cell of this.map.Cells.List)
+        for(let cell of this.board.Cells.List)
         {
             await client.SendElement(cell);
         }
 
         // Set actors
-        for(let actor of this.map.Actors.List)
+        for(let actor of this.board.Actors.List)
         {
             await client.SendElement(actor);
         }

@@ -1,4 +1,4 @@
-import { IChannel } from "./IChannel";
+import { IChannel } from "./Channel/IChannel";
 import { MessageType } from "./MessageType";
 import { IMessage } from "./IMessage";
 import { TimeoutEvent } from "../Util/TimeoutEvent";

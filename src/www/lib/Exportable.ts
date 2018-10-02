@@ -2,18 +2,26 @@ import { IExportObject } from "./IExportObject";
 
 export abstract class Exportable
 {
+    private static registeredClasses: { [name: string]: any } = {};
+
     /**
-     * Create an instance of a class by name.
-     * @param className 
+     * Register a class with a name.
+     * @param name 
+     * @param classObj 
      */
-    public static FromName<T extends Exportable>(name: string, ...args: any[]): T
+    public static Register(name: string, classObj: any)
+    {
+        Exportable.registeredClasses[name] = classObj;
+    }
+
+    public static FromName2<T extends Exportable>(name: string, ...args: any[]): T
     {
         const find = (name): any =>
         {
             switch(name)
             {
-                case "Map":
-                    return require("./Map").Map;
+                case "Board":
+                    return require("./Board").Board;
                 case "Coord":
                     return require("./Coord").Coord;
                 case "GroundCell":
@@ -34,6 +42,17 @@ export abstract class Exportable
         };
 
         const classObj = find(name);
+
+        return classObj && new classObj(...args);
+    }
+
+    /**
+     * Create an instance of a class by name (using the registeredClasses classes).
+     * @param className 
+     */
+    public static FromName<T extends Exportable>(name: string, ...args: any[]): T
+    {
+        const classObj = Exportable.registeredClasses[name] || null;
 
         return classObj && new classObj(...args);
     }

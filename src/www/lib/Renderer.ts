@@ -1,4 +1,4 @@
-import { Map } from "./Map";
+import { Board } from "./Board";
 import { BaseElement } from "./Element/BaseElement";
 import { Event } from "./Util/Event";
 
@@ -7,7 +7,7 @@ export class Renderer
     private readonly notFoundColor: string = "purple";
     private readonly dpi: number = 30;
 
-    private readonly map: Map;
+    private readonly board: Board;
     private readonly canvas: HTMLCanvasElement;
     private readonly context: CanvasRenderingContext2D;
     
@@ -22,21 +22,21 @@ export class Renderer
     /**
      * Construct a new game object.
      */
-    public constructor(map: Map, canvas: HTMLCanvasElement)
+    public constructor(board: Board, canvas: HTMLCanvasElement)
     {
-        this.map = map;
+        this.board = board;
         this.canvas = canvas;
         this.context = <CanvasRenderingContext2D>canvas.getContext("2d");
     }
 
     /**
-     * Load textures for a loaded map.
+     * Load textures for a loaded board.
      */
     public async Load(): Promise<void>
     {
         return new Promise<void>((resolve, reject) => 
         {
-            const elements = this.map.Elements;
+            const elements = this.board.Elements;
             let i = 0;
     
             elements.ForEach((element: BaseElement) =>
@@ -119,22 +119,22 @@ export class Renderer
      */
     private Render()
     {
-        const size = this.map.Size;
+        const size = this.board.Size;
     
         this.canvas.width = this.dpi * size.X;
         this.canvas.height = this.dpi * size.Y;
         this.canvas.style.width = this.dpi * size.X + "px";
         this.canvas.style.height = this.dpi * size.Y + "px";
         
-        this.map.Cells.ForEach(e => this.Draw(e));
-        this.map.Actors.ForEach(e => this.Draw(e));
+        this.board.Cells.ForEach(e => this.Draw(e));
+        this.board.Actors.ForEach(e => this.Draw(e));
     
         if(!this.stop)
         {
             window.requestAnimationFrame(() => this.Render());
         }
 
-        this.map.OnTick.Call();
+        this.board.OnTick.Call();
         this.OnDraw.Call();
     }
 

@@ -1,6 +1,7 @@
 import * as webrtc from "webrtc-adapter"
 import { IChannel } from "./IChannel";
-import { Tools } from "../Util/Tools";
+import { Tools } from "../../Util/Tools";
+import * as pako from "pako";
 
 export class PeerChannel implements IChannel
 {
@@ -22,7 +23,7 @@ export class PeerChannel implements IChannel
     {
         if(this.peerConnection)
         {
-            return Promise.reject();
+            return Promise.reject(null);
         }
 
         return new Promise<string>((resolve, reject) => 
@@ -59,7 +60,7 @@ export class PeerChannel implements IChannel
     {
         if(this.peerConnection)
         {
-            return Promise.reject();
+            return Promise.reject(null);
         }
 
         return new Promise<string>((resolve, reject) =>
@@ -126,7 +127,7 @@ export class PeerChannel implements IChannel
     {
         if(event && event.data)
         {
-            this.OnMessage(event.data);
+            this.OnMessage(pako.inflate(event.data));
         }
     }
 
@@ -138,7 +139,7 @@ export class PeerChannel implements IChannel
     {
         if(this.IsOpen())
         {
-            this.dataChannel.send(message);
+            this.dataChannel.send(pako.deflate(message));
         }
     }
 

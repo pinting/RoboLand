@@ -3,6 +3,7 @@ import { Coord } from "../../Coord";
 import { PlayerActor } from "./PlayerActor";
 import { LivingActor } from "./LivingActor";
 import { TickActor } from "./TickActor";
+import { Exportable } from "../../Exportable";
 
 export interface ArrowActorArgs extends BaseActorArgs
 {
@@ -20,13 +21,21 @@ export class ArrowActor extends TickActor
     /**
      * @inheritDoc
      */
-    public constructor(init: ArrowActorArgs = {})
+    public Init(args: ArrowActorArgs = {})
     {
-        super(init);
+        super.Init(args);
+    }
 
-        this.direction = init.direction;
-        this.damage = init.damage;
-        this.speed = init.speed;
+    /**
+     * @inheritDoc
+     */
+    protected InitPre(args: ArrowActorArgs = {})
+    {
+        super.InitPre(args);
+
+        this.direction = args.direction;
+        this.damage = args.damage;
+        this.speed = args.speed;
     }
 
     /**
@@ -44,7 +53,7 @@ export class ArrowActor extends TickActor
             return;
         }
 
-        const result = this.map.Actors.FindBetween(
+        const result = this.board.Actors.FindBetween(
             this.Position, this.Position.Add(this.Size));
 
         let hit = false;
@@ -64,5 +73,13 @@ export class ArrowActor extends TickActor
         {
             this.Dispose();
         }
+    }
+
+    /**
+     * Register the class as a dependency.
+     */
+    public static Register()
+    {
+        Exportable.Register("ArrowActor", ArrowActor);
     }
 }

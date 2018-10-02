@@ -14,7 +14,7 @@ export abstract class BaseCell extends BaseElement
         if(!this.actors.includes(actor.Id))
         {
             this.actors.push(actor.Id);
-            this.map.OnUpdate.Call(this);
+            this.board.OnUpdate.Call(this);
         }
 
         return true;
@@ -31,7 +31,7 @@ export abstract class BaseCell extends BaseElement
         if(index >= 0) 
         {
             this.actors.splice(index, 1);
-            this.map.OnUpdate.Call(this);
+            this.board.OnUpdate.Call(this);
         }
     }
 
@@ -45,11 +45,7 @@ export abstract class BaseCell extends BaseElement
             return;
         }
 
-        if(this instanceof BaseCell)
-        {
-            this.map.Cells.Remove(this);
-        }
-
+        this.board.Cells.Remove(this);
         super.Dispose();
     }
 }

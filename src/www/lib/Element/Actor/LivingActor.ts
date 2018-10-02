@@ -12,10 +12,21 @@ export abstract class LivingActor extends BaseActor
     protected health: number;
     protected damage: number;
     protected speed: number;
-
-    public constructor(args: LivingActorArgs = {})
+    
+    /**
+     * @inheritDoc
+     */
+    public Init(args: LivingActorArgs = {})
     {
-        super(args);
+        super.Init(args);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected InitPre(args: LivingActorArgs = {})
+    {
+        super.InitPre(args);
 
         this.health = args.health;
         this.damage = args.damage;
@@ -35,7 +46,7 @@ export abstract class LivingActor extends BaseActor
             this.Dispose();
         }
 
-        this.map.OnUpdate.Call(this);
+        this.board.OnUpdate.Call(this);
     }
 
     /**

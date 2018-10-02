@@ -2,6 +2,7 @@ import { BaseActor } from "../Actor/BaseActor";
 import { BaseCell } from "./BaseCell";
 import { LivingActor } from "../Actor/LivingActor";
 import { BaseElementArgs } from "../BaseElement";
+import { Exportable } from "../../Exportable";
 
 export interface FireCellArgs extends BaseElementArgs
 {
@@ -15,9 +16,17 @@ export class FireCell extends BaseCell
     /**
      * @inheritDoc
      */
-    public constructor(args: FireCellArgs)
+    public Init(args: FireCellArgs = {})
     {
-        super(args);
+        super.Init(args);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected InitPre(args: FireCellArgs = {})
+    {
+        super.InitPre(args);
 
         this.damage = args.damage;
     }
@@ -37,12 +46,20 @@ export class FireCell extends BaseCell
     {
         this.actors.forEach(id =>
         {
-            const actor = this.map.Actors.Get(id);
+            const actor = this.board.Actors.Get(id);
 
             if(actor instanceof LivingActor)
             {
                 actor.Damage(this.damage);
             }
         });
+    }
+
+    /**
+     * Register the class as a dependency.
+     */
+    public static Register()
+    {
+        Exportable.Register("FireCell", FireCell);
     }
 }

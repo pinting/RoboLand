@@ -9,21 +9,21 @@ import { Exportable } from "./Exportable";
 import { Event } from "./Util/Event";
 import { IExportObject } from "./IExportObject";
 
-export class Map extends Exportable
+export class Board extends Exportable
 {
-    public static Current: Map = null;
+    public static Current: Board = null;
     
     private cells: Array<BaseCell> = [];
     private actors: Array<BaseActor> = [];
     private size: Coord = new Coord();
 
     /**
-     * Origin of the Map.
+     * Origin of the Board.
      */
     public Origin: string = Tools.Unique();
 
     /**
-     * Called when the map was updated.
+     * Called when the board was updated.
      */
     public OnUpdate: Event<BaseElement> = new Event<BaseElement>();
 
@@ -33,7 +33,7 @@ export class Map extends Exportable
     public OnTick: Event<void> = new Event<void>();
 
     /**
-     * Init a map with null cells.
+     * Init a board with null cells.
      * @param size
      */
     public Init(size: Coord): void
@@ -44,7 +44,7 @@ export class Map extends Exportable
     }
 
     /**
-     * Get the size of the map.
+     * Get the size of the board.
      */
     public get Size(): Coord
     {
@@ -52,7 +52,7 @@ export class Map extends Exportable
     }
 
     /**
-     * Get all elements of the map.
+     * Get all elements of the board.
      */
     public get Elements(): IReadOnlyElementList<BaseElement>
     {
@@ -62,7 +62,7 @@ export class Map extends Exportable
     }
 
     /**
-     * Get the cells of the map.
+     * Get the cells of the board.
      */
     public get Cells(): ElementList<BaseCell>
     {
@@ -70,7 +70,7 @@ export class Map extends Exportable
     }
 
     /**
-     * Get the actors of the map.
+     * Get the actors of the board.
      */
     public get Actors(): ElementList<BaseActor>
     {
@@ -82,8 +82,16 @@ export class Map extends Exportable
      */
     public ImportAll(input: IExportObject[])
     {
-        Map.Current = this;
+        Board.Current = this;
 
         return super.ImportAll(input);
+    }
+
+    /**
+     * Register the cell as a dependency.
+     */
+    public static Register()
+    {
+        Exportable.Register("Board", Board);
     }
 }

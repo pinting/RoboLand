@@ -1,6 +1,6 @@
-import { IChannel } from "./IChannel";
+import { IChannel } from "./Channel/IChannel";
 import { MessageType } from "./MessageType";
-import { Map } from "../Map";
+import { Board } from "../Board";
 import { Exportable } from "../Exportable";
 import { BaseCell } from "../Element/Cell/BaseCell";
 import { BaseActor } from "../Element/Actor/BaseActor";
@@ -10,25 +10,32 @@ import { Coord } from "../Coord";
 import { IExportObject } from "../IExportObject";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
+import { Filo } from "../Util/Filo";
+import { TickActor } from "../Element/Actor/TickActor";
+import { Logger } from "../Util/Logger";
+import { LogType } from "../Util/LogType";
 
 export class Receiver extends MessageHandler
 {
-    private readonly testCount = 100;
-    private readonly testDelay = 1;
-    private readonly testMaxDist = 0.1;
+    private readonly lastSize: number = 1000;
 
-    private map: Map;
+    private board: Board;
     private player: PlayerActor;
+    private last: Filo<IExportObject> = new Filo(this.lastSize);
 
     /**
      * Construct a new client which communicates with a connection.
      * @param channel 
      */
-    constructor(channel: IChannel, map: Map)
+    constructor(channel: IChannel, board: Board)
     {
         super(channel);
         
-        this.map = map;
+        this.board = board;
+
+        // Add updated element to network cache
+        this.board.OnUpdate.Add(element => 
+            this.last.Add(Exportable.Export(element)));
     }
 
     /**
@@ -37,7 +44,7 @@ export class Receiver extends MessageHandler
      */
     protected OnMessage(message: IMessage): void
     {
-        Map.Current = this.map;
+        Board.Current = this.board;
 
         switch(message.Type)
         {
@@ -61,67 +68,50 @@ export class Receiver extends MessageHandler
                 break;
         }
     }
-
+  
     /**
      * Receive an element.
      * @param element 
      */
     private async ReceiveElement(exportable: IExportObject)
-    {
-        Map.Current = this.map;
+    {   
+        Board.Current = this.board;
 
         const element = Exportable.Import(exportable);
+        const oldElement = this.board.Elements.Get(element.Id);
+        const oldExportable = Exportable.Export(oldElement);
 
+        Logger.Log(this, LogType.Verbose, "Element was received!", element, exportable);
+
+        // Add to network cache
+        this.last.Add(exportable);
+
+        // Optimizations
+        if(oldElement)
+        {
+            if(element instanceof TickActor)
+            {
+                Logger.Log(this, LogType.Verbose, "Optimized!", element);
+                return;
+            }
+            else if(element instanceof BaseActor)
+            {
+                if(this.last.List.some(e => Exportable.Diff(e, oldExportable) == null))
+                {
+                    Logger.Log(this, LogType.Verbose, "Optimized", element);
+                    return;
+                }
+            }
+        }
+
+        // Add element to the board
         if(element instanceof BaseCell)
         {
-            this.map.Cells.Set(element);
+            this.board.Cells.Set(element);
         }
         else if(element instanceof BaseActor)
         {
-            // In case of actors we make some optimization
-            const oldElement = this.map.Actors.Get(element.Id);
-
-            if(oldElement)
-            {
-                const oldExportable = Exportable.Export(oldElement);
-                const diff = Exportable.Diff(exportable, oldExportable);
-                const names = [];
-
-                // Get the names of the changed elements
-                if(diff && diff.Payload && diff.Payload.length)
-                {
-                    diff.Payload.forEach(e => names.push(e.Name.toString()));
-                }
-
-                // Only allow position or direction change
-                if((names.length == 2 && 
-                        names.includes("position") && 
-                        names.includes("direction")) || 
-                    (names.length == 1 && 
-                        names.includes("position")))
-                {
-                    let found = false;
-
-                    for(let count = 0; count < this.testCount; count++)
-                    {
-                        const d = oldElement.Position.GetDistance(element.Position);
-            
-                        if(d < this.testMaxDist)
-                        {
-                            found = true;
-                        }
-            
-                        await Tools.Wait(this.testDelay);
-                    }
-
-                    if(found)
-                    {
-                        return;
-                    }
-                }
-            }
-
-            this.map.Actors.Set(element);
+            this.board.Actors.Set(element);
         }
     }
 
@@ -131,7 +121,7 @@ export class Receiver extends MessageHandler
      */
     private ReceivePlayer(id: string)
     {
-        const player = this.player = <PlayerActor>this.map.Actors.Get(id);
+        const player = this.player = <PlayerActor>this.board.Actors.Get(id);
 
         this.OnPlayer(Tools.Hook(player, (target, prop, args) => 
         {
@@ -142,12 +132,12 @@ export class Receiver extends MessageHandler
     }
 
     /**
-     * Receive the size of the map.
+     * Receive the size of the board.
      * @param size 
      */
     private ReceiveSize(exportable: IExportObject)
     {
-        this.map.Init(Exportable.Import(exportable));
+        this.board.Init(Exportable.Import(exportable));
     }
 
     /**
@@ -168,12 +158,15 @@ export class Receiver extends MessageHandler
             return;
         }
 
-        const player = <PlayerActor>this.map.Actors.Get(args[0]);
+        const player = <PlayerActor>this.board.Actors.Get(args[0]);
         
-        Map.Current = this.map;
+        Board.Current = this.board;
 
         // Execute command on the player
         player[args[1]].bind(player)(...args.slice(2));
+
+        // Add to network cache
+        this.last.Add(Exportable.Export(player));
     }
 
     /**
@@ -181,7 +174,7 @@ export class Receiver extends MessageHandler
      */
     private ReceiveKick()
     {
-        this.map.Init(new Coord(0, 0));
+        this.board.Init(new Coord(0, 0));
     }
 
     /**

@@ -1,6 +1,7 @@
 import { Coord } from "../../Coord";
 import { ArrowActor } from "./ArrowActor";
 import { LivingActor } from "./LivingActor";
+import { Exportable } from "../../Exportable";
 
 export class PlayerActor extends LivingActor
 {
@@ -36,10 +37,14 @@ export class PlayerActor extends LivingActor
 
     /**
      * Shoot an arrow to the direction the player is facing.
+     * @param id The id of the new arrow.
      */
-    public Shoot(): void
+    public Shoot(id: string): void
     {
-        this.map.Actors.Set(new ArrowActor({
+        const actor = new ArrowActor;
+
+        actor.Init({
+            id: id,
             position: this.Position.Add(this.size.F(c => c / 2)).Add(this.Direction),
             size: new Coord(0.1, 0.1),
             texture: "res/stone.png",
@@ -47,15 +52,17 @@ export class PlayerActor extends LivingActor
             damage: this.damage,
             speed: 0.075,
             origin: this.origin,
-            map: this.map
-        }));
+            board: this.board
+        });
+
+        this.board.Actors.Set(actor);
     }
-    
+
     /**
-     * @inheritDoc
+     * Register the class as a dependency.
      */
-    protected OnTick(): void
+    public static Register()
     {
-        return;
+        Exportable.Register("PlayerActor", PlayerActor);
     }
 }
