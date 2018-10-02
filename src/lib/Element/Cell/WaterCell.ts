@@ -25,12 +25,6 @@ export class WaterCell extends BaseCell
     {
         return;
     }
-
-    /**
-     * Register the cell as a dependency.
-     */
-    public static Register()
-    {
-        Exportable.Register("WaterCell", WaterCell);
-    }
 }
+
+Exportable.Register(WaterCell);

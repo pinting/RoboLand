@@ -57,12 +57,6 @@ export class PlayerActor extends LivingActor
 
         this.board.Actors.Set(actor);
     }
-
-    /**
-     * Register the class as a dependency.
-     */
-    public static Register()
-    {
-        Exportable.Register("PlayerActor", PlayerActor);
-    }
 }
+
+Exportable.Register(PlayerActor);

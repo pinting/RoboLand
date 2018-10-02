@@ -19,12 +19,6 @@ export class StoneCell extends BaseCell
     {
         return;
     }
-
-    /**
-     * Register the cell as a dependency.
-     */
-    public static Register()
-    {
-        Exportable.Register("StoneCell", StoneCell);
-    }
 }
+
+Exportable.Register(StoneCell);

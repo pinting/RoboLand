@@ -19,12 +19,6 @@ export class GroundCell extends BaseCell
     {
         return;
     }
-
-    /**
-     * Register the class as a dependency.
-     */
-    public static Register()
-    {
-        Exportable.Register("GroundCell", GroundCell);
-    }
 }
+
+Exportable.Register(GroundCell);

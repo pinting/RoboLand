@@ -27,14 +27,14 @@ const addButton = <HTMLButtonElement>document.getElementById("add-button");
 const messageDiv = <HTMLDivElement>document.getElementById("message-div");
 
 // Register classes as a dependency
-ArrowActor.Register();
-PlayerActor.Register();
-FireCell.Register();
-GroundCell.Register();
-StoneCell.Register();
-WaterCell.Register();
-Board.Register();
-Coord.Register();
+Exportable.Register(ArrowActor);
+Exportable.Register(PlayerActor);
+Exportable.Register(FireCell);
+Exportable.Register(GroundCell);
+Exportable.Register(StoneCell);
+Exportable.Register(WaterCell);
+Exportable.Register(Board);
+Exportable.Register(Coord);
 
 // Wire up listeners
 addButton.onclick = () => ClickAdd();

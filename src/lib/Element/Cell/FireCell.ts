@@ -54,12 +54,6 @@ export class FireCell extends BaseCell
             }
         });
     }
-
-    /**
-     * Register the class as a dependency.
-     */
-    public static Register()
-    {
-        Exportable.Register("FireCell", FireCell);
-    }
 }
+
+Exportable.Register(FireCell);

@@ -74,12 +74,6 @@ export class ArrowActor extends TickActor
             this.Dispose();
         }
     }
-
-    /**
-     * Register the class as a dependency.
-     */
-    public static Register()
-    {
-        Exportable.Register("ArrowActor", ArrowActor);
-    }
 }
+
+Exportable.Register(ArrowActor);

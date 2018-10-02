@@ -2,25 +2,25 @@ import { IExportObject } from "./IExportObject";
 
 export abstract class Exportable
 {
-    private static registeredClasses: { [name: string]: any } = {};
+    private static dependencies: { [name: string]: any } = {};
 
     /**
      * Register a class with a name.
      * @param name 
      * @param classObj 
      */
-    public static Register(name: string, classObj: any)
+    public static Register(classObj: any, name: string = null)
     {
-        Exportable.registeredClasses[name] = classObj;
+        Exportable.dependencies[name || classObj.name] = classObj;
     }
     
     /**
-     * Create an instance of a class by name (using the registeredClasses classes).
+     * Create an instance of a class by name (using the dependencies classes).
      * @param className 
      */
     public static FromName<T extends Exportable>(name: string, ...args: any[]): T
     {
-        const classObj = Exportable.registeredClasses[name] || null;
+        const classObj = Exportable.dependencies[name] || null;
 
         return classObj && new classObj(...args);
     }

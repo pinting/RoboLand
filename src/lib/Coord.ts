@@ -111,12 +111,6 @@ export class Coord extends Exportable
     {
         return a2.X > b1.X && a1.X < b2.X && a2.Y > b1.Y && a1.Y < b2.Y;
     }
-
-    /**
-     * Register the cell as a dependency.
-     */
-    public static Register()
-    {
-        Exportable.Register("Coord", Coord);
-    }
 }
+
+Exportable.Register(Coord);

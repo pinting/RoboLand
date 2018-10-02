@@ -86,12 +86,6 @@ export class Board extends Exportable
 
         return super.ImportAll(input);
     }
-
-    /**
-     * Register the cell as a dependency.
-     */
-    public static Register()
-    {
-        Exportable.Register("Board", Board);
-    }
 }
+
+Exportable.Register(Board);
