@@ -7086,7 +7086,6 @@ const PeerChannel_1 = __webpack_require__(/*! ./lib/Net/Channel/PeerChannel */ "
 const Tools_1 = __webpack_require__(/*! ./lib/Util/Tools */ "./src/lib/Util/Tools.ts");
 const Exportable_1 = __webpack_require__(/*! ./lib/Exportable */ "./src/lib/Exportable.ts");
 const Logger_1 = __webpack_require__(/*! ./lib/Util/Logger */ "./src/lib/Util/Logger.ts");
-const LogType_1 = __webpack_require__(/*! ./lib/Util/LogType */ "./src/lib/Util/LogType.ts");
 const SimplexNoise_1 = __webpack_require__(/*! ./lib/Util/SimplexNoise */ "./src/lib/Util/SimplexNoise.ts");
 const Http_1 = __webpack_require__(/*! ./lib/Util/Http */ "./src/lib/Util/Http.ts");
 const ArrowActor_1 = __webpack_require__(/*! ./lib/Element/Actor/ArrowActor */ "./src/lib/Element/Actor/ArrowActor.ts");
@@ -7275,7 +7274,6 @@ const Debugger = (delay = 10) => __awaiter(this, void 0, void 0, function* () {
         "<canvas id='canvasA'></canvas>A" +
             "<canvas id='canvasB'></canvas>B" +
             "<canvas id='canvasS'></canvas>S";
-    Logger_1.Logger.Type = LogType_1.LogType.Silent;
     Keyboard_1.Keyboard.Init();
     const boardA = new Board_1.Board();
     const boardB = new Board_1.Board();
@@ -7840,7 +7838,6 @@ Exportable_1.Exportable.Register(PlayerActor);
 Object.defineProperty(exports, "__esModule", { value: true });
 const BaseActor_1 = __webpack_require__(/*! ./BaseActor */ "./src/lib/Element/Actor/BaseActor.ts");
 const Logger_1 = __webpack_require__(/*! ../../Util/Logger */ "./src/lib/Util/Logger.ts");
-const LogType_1 = __webpack_require__(/*! ../../Util/LogType */ "./src/lib/Util/LogType.ts");
 class TickActor extends BaseActor_1.BaseActor {
     /**
      * @inheritDoc
@@ -7855,7 +7852,7 @@ class TickActor extends BaseActor_1.BaseActor {
         super.InitPost(args);
         // Start to listen to the tick event
         this.tickEvent = this.board.OnTick.Add(() => this.OnTick());
-        Logger_1.Logger.Log(this, LogType_1.LogType.Verbose, "Tick event was set", this);
+        Logger_1.Logger.Info(this, "Tick event was set", this);
     }
     /**
      * @inheritDoc
@@ -7884,7 +7881,6 @@ const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.t
 const Board_1 = __webpack_require__(/*! ../Board */ "./src/lib/Board.ts");
 const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
-const LogType_1 = __webpack_require__(/*! ../Util/LogType */ "./src/lib/Util/LogType.ts");
 class BaseElement extends Exportable_1.Exportable {
     constructor() {
         super(...arguments);
@@ -7975,7 +7971,7 @@ class BaseElement extends Exportable_1.Exportable {
             return;
         }
         this.disposed = true;
-        Logger_1.Logger.Log(this, LogType_1.LogType.Verbose, "Element was disposed!", this);
+        Logger_1.Logger.Info(this, "Element was disposed!", this);
     }
     /**
      * @inheritDoc
@@ -8238,7 +8234,6 @@ Exportable_1.Exportable.Register(WaterCell);
 Object.defineProperty(exports, "__esModule", { value: true });
 const Coord_1 = __webpack_require__(/*! ./Coord */ "./src/lib/Coord.ts");
 const Tools_1 = __webpack_require__(/*! ./Util/Tools */ "./src/lib/Util/Tools.ts");
-const LogType_1 = __webpack_require__(/*! ./Util/LogType */ "./src/lib/Util/LogType.ts");
 const Logger_1 = __webpack_require__(/*! ./Util/Logger */ "./src/lib/Util/Logger.ts");
 class ElementList {
     /**
@@ -8330,11 +8325,11 @@ class ElementList {
         const old = this.Get(element.Id);
         if (old) {
             Tools_1.Tools.Extract(old, element);
-            Logger_1.Logger.Log(this, LogType_1.LogType.Verbose, "Element was moded!", element);
+            Logger_1.Logger.Info(this, "Element was moded!", element);
         }
         else {
             this.elements.push(element);
-            Logger_1.Logger.Log(this, LogType_1.LogType.Verbose, "Element was added!", element);
+            Logger_1.Logger.Info(this, "Element was added!", element);
         }
         this.updateEvent.Call(element);
     }
@@ -8351,7 +8346,7 @@ class ElementList {
         if (!element.Disposed) {
             element.Dispose();
         }
-        Logger_1.Logger.Log(this, LogType_1.LogType.Verbose, "Element was removed!", element);
+        Logger_1.Logger.Info(this, "Element was removed!", element);
         this.updateEvent.Call(element);
         return true;
     }
@@ -8485,29 +8480,63 @@ class Exportable {
     }
     /**
      * Return the difference from source to target (properties of source).
-     * @param a
-     * @param b
-     * @param l Depth limit.
+     * @param source
+     * @param target
+     * @param depth Depth limit.
      */
-    static Diff(a, b, l = 3) {
-        if (!l || !a || !b || !a.Class || a.Class != b.Class || a.Name != b.Name) {
+    static Diff(source, target, depth = 3) {
+        if (!depth ||
+            !source ||
+            !target ||
+            !source.Class ||
+            source.Class != target.Class ||
+            source.Name != target.Name) {
             return null;
         }
-        switch (a.Class) {
+        switch (source.Class) {
             case "number":
             case "string":
             case "boolean":
-                return a.Payload != b.Payload ? a : null;
+                return source.Payload != target.Payload
+                    ? source
+                    : null;
             default:
-                const diff = a.Payload
-                    .map(ae => b.Payload.find(be => Exportable.Diff(ae, be, l - 1)))
+                const diff = source.Payload
+                    .map(ae => target.Payload.find(be => Exportable.Diff(ae, be, depth - 1)))
                     .filter(ae => ae);
                 return !diff.length ? null : {
-                    Name: a.Name,
-                    Class: a.Class,
+                    Name: source.Name,
+                    Class: source.Class,
                     Payload: diff
                 };
         }
+    }
+    /**
+     * Shallow merge two exported objects.
+     * @param target Other gonna be merged here!
+     * @param other
+     */
+    static Merge(target, other) {
+        if (!target || !target.Payload || !target.Payload.length) {
+            return;
+        }
+        const otherProps = this.ToDict(other);
+        target.Payload.forEach((prop, i) => {
+            if (otherProps.hasOwnProperty(prop.Name)) {
+                target.Payload[i] = otherProps[prop.Name];
+            }
+        });
+    }
+    /**
+     * Convert an IExportObject to dictionary.
+     * Class property gonna be lost!
+     * @param obj
+     */
+    static ToDict(obj) {
+        const props = {};
+        obj && obj.Payload && obj.Payload.length &&
+            obj.Payload.forEach(p => props[p.Name] = p);
+        return props;
     }
 }
 Exportable.dependencies = {};
@@ -8722,7 +8751,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const MessageType_1 = __webpack_require__(/*! ./MessageType */ "./src/lib/Net/MessageType.ts");
 const Event_1 = __webpack_require__(/*! ../Util/Event */ "./src/lib/Util/Event.ts");
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
-const LogType_1 = __webpack_require__(/*! ../Util/LogType */ "./src/lib/Util/LogType.ts");
 class MessageHandler {
     /**
      * Construct a new connection which communicates with a client.
@@ -8747,7 +8775,7 @@ class MessageHandler {
             return;
         }
         switch (message.Type) {
-            case MessageType_1.MessageType.Element:
+            case MessageType_1.MessageType.Diff:
                 // Receive only states newer than the current one
                 if (message.Index > this.inIndex || this.inIndex === undefined) {
                     this.inIndex = message.Index;
@@ -8755,6 +8783,7 @@ class MessageHandler {
                 }
                 this.SendReceived(message);
                 break;
+            case MessageType_1.MessageType.Element:
             case MessageType_1.MessageType.Command:
             case MessageType_1.MessageType.Player:
             case MessageType_1.MessageType.Kick:
@@ -8766,7 +8795,7 @@ class MessageHandler {
                 this.ParseReceived(message);
                 break;
         }
-        Logger_1.Logger.Log(this, LogType_1.LogType.Verbose, "Message received", message);
+        Logger_1.Logger.Info(this, "Message received", message);
     }
     /**
      * Parse incoming ACK.
@@ -8815,7 +8844,7 @@ class MessageHandler {
                 }
                 // Send message
                 this.channel.SendMessage(JSON.stringify(message));
-                Logger_1.Logger.Log(this, LogType_1.LogType.Verbose, "Message sent", message);
+                Logger_1.Logger.Info(this, "Message sent", message);
             });
         });
     }
@@ -8840,12 +8869,13 @@ var MessageType;
     // OUT
     MessageType[MessageType["Size"] = 0] = "Size";
     MessageType[MessageType["Element"] = 1] = "Element";
-    MessageType[MessageType["Player"] = 2] = "Player";
-    MessageType[MessageType["Kick"] = 3] = "Kick";
+    MessageType[MessageType["Diff"] = 2] = "Diff";
+    MessageType[MessageType["Player"] = 3] = "Player";
+    MessageType[MessageType["Kick"] = 4] = "Kick";
     // IN
-    MessageType[MessageType["Command"] = 4] = "Command";
+    MessageType[MessageType["Command"] = 5] = "Command";
     // IN & OUT
-    MessageType[MessageType["Received"] = 5] = "Received";
+    MessageType[MessageType["Received"] = 6] = "Received";
 })(MessageType = exports.MessageType || (exports.MessageType = {}));
 
 
@@ -8877,10 +8907,8 @@ const BaseActor_1 = __webpack_require__(/*! ../Element/Actor/BaseActor */ "./src
 const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 const Coord_1 = __webpack_require__(/*! ../Coord */ "./src/lib/Coord.ts");
 const MessageHandler_1 = __webpack_require__(/*! ./MessageHandler */ "./src/lib/Net/MessageHandler.ts");
-const Filo_1 = __webpack_require__(/*! ../Util/Filo */ "./src/lib/Util/Filo.ts");
-const TickActor_1 = __webpack_require__(/*! ../Element/Actor/TickActor */ "./src/lib/Element/Actor/TickActor.ts");
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
-const LogType_1 = __webpack_require__(/*! ../Util/LogType */ "./src/lib/Util/LogType.ts");
+const Server_1 = __webpack_require__(/*! ./Server */ "./src/lib/Net/Server.ts");
 class Receiver extends MessageHandler_1.MessageHandler {
     /**
      * Construct a new client which communicates with a connection.
@@ -8888,15 +8916,15 @@ class Receiver extends MessageHandler_1.MessageHandler {
      */
     constructor(channel, board) {
         super(channel);
-        this.lastSize = 1000;
-        this.last = new Filo_1.Filo(this.lastSize);
+        this.maxDistance = 2;
+        this.last = {};
         /**
          * Executed when the player is set.
          */
         this.OnPlayer = Tools_1.Tools.Noop;
         this.board = board;
         // Add updated element to network cache
-        this.board.OnUpdate.Add(element => this.last.Add(Exportable_1.Exportable.Export(element)));
+        this.board.OnUpdate.Add(element => this.last[element.Id] = Exportable_1.Exportable.Export(element));
     }
     /**
      * Receive a message through the channel.
@@ -8907,6 +8935,9 @@ class Receiver extends MessageHandler_1.MessageHandler {
         switch (message.Type) {
             case MessageType_1.MessageType.Element:
                 this.ReceiveElement(message.Payload);
+                break;
+            case MessageType_1.MessageType.Diff:
+                this.ReceiveDiff(message.Payload);
                 break;
             case MessageType_1.MessageType.Player:
                 this.ReceivePlayer(message.Payload);
@@ -8927,30 +8958,13 @@ class Receiver extends MessageHandler_1.MessageHandler {
     }
     /**
      * Receive an element.
-     * @param element
+     * @param exportable
      */
     ReceiveElement(exportable) {
         return __awaiter(this, void 0, void 0, function* () {
             Board_1.Board.Current = this.board;
             const element = Exportable_1.Exportable.Import(exportable);
-            const oldElement = this.board.Elements.Get(element.Id);
-            const oldExportable = Exportable_1.Exportable.Export(oldElement);
-            Logger_1.Logger.Log(this, LogType_1.LogType.Verbose, "Element was received!", element, exportable);
-            // Add to network cache
-            this.last.Add(exportable);
-            // Optimizations
-            if (oldElement) {
-                if (element instanceof TickActor_1.TickActor) {
-                    Logger_1.Logger.Log(this, LogType_1.LogType.Verbose, "Optimized!", element);
-                    return;
-                }
-                else if (element instanceof BaseActor_1.BaseActor) {
-                    if (this.last.List.some(e => Exportable_1.Exportable.Diff(e, oldExportable) == null)) {
-                        Logger_1.Logger.Log(this, LogType_1.LogType.Verbose, "Optimized", element);
-                        return;
-                    }
-                }
-            }
+            Logger_1.Logger.Info(this, "Element was received!", element, exportable);
             // Add element to the board
             if (element instanceof BaseCell_1.BaseCell) {
                 this.board.Cells.Set(element);
@@ -8958,6 +8972,43 @@ class Receiver extends MessageHandler_1.MessageHandler {
             else if (element instanceof BaseActor_1.BaseActor) {
                 this.board.Actors.Set(element);
             }
+            // Add to network cache
+            this.last[element.Id] = exportable;
+        });
+    }
+    /**
+     * Receive an diff of an element.
+     * @param diff
+     */
+    ReceiveDiff(diff) {
+        return __awaiter(this, void 0, void 0, function* () {
+            Board_1.Board.Current = this.board;
+            Logger_1.Logger.Info(this, "Diff was received!", diff);
+            // Hack out ID from IExportObject
+            const id = diff && diff.Payload && diff.Payload.length &&
+                diff.Payload.find(prop => prop.Name == "id").Payload;
+            if (!id) {
+                Logger_1.Logger.Warn(this, "No ID for diff!");
+                return;
+            }
+            // Check if we already have it
+            const oldElement = this.board.Elements.Get(id);
+            // Return if we do not have an older version
+            if (!oldElement) {
+                return;
+            }
+            // If we have an older version, merge it
+            const merged = Exportable_1.Exportable.Export(oldElement);
+            Exportable_1.Exportable.Merge(diff, merged);
+            const newElement = Exportable_1.Exportable.Import(merged);
+            // Optimizations
+            if (this.last.hasOwnProperty(newElement.Id) &&
+                Server_1.Server.OnlyPosDiff(diff) &&
+                newElement.Position.GetDistance(oldElement.Position) <= this.maxDistance) {
+                Logger_1.Logger.Info(this, "Optimized", newElement);
+                return;
+            }
+            return this.ReceiveElement(merged);
         });
     }
     /**
@@ -8995,13 +9046,14 @@ class Receiver extends MessageHandler_1.MessageHandler {
         // Execute command on the player
         player[args[1]].bind(player)(...args.slice(2));
         // Add to network cache
-        this.last.Add(Exportable_1.Exportable.Export(player));
+        this.last[player.Id] = Exportable_1.Exportable.Export(player);
     }
     /**
      * Kick this client of the server.
      */
     ReceiveKick() {
         this.board.Init(new Coord_1.Coord(0, 0));
+        Logger_1.Logger.Warn("Kicked!");
     }
 }
 exports.Receiver = Receiver;
@@ -9031,6 +9083,8 @@ const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.t
 const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
 const MessageType_1 = __webpack_require__(/*! ./MessageType */ "./src/lib/Net/MessageType.ts");
 const MessageHandler_1 = __webpack_require__(/*! ./MessageHandler */ "./src/lib/Net/MessageHandler.ts");
+const Server_1 = __webpack_require__(/*! ./Server */ "./src/lib/Net/Server.ts");
+const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
 class Sender extends MessageHandler_1.MessageHandler {
     /**
      * Construct a new connection which communicates with a client.
@@ -9038,6 +9092,9 @@ class Sender extends MessageHandler_1.MessageHandler {
      */
     constructor(channel) {
         super(channel);
+        this.sleepTime = 1000;
+        this.last = {};
+        this.lastTime = {};
         /**
          * Executed when the Connection receives a COMMAND from the client.
          * @param command
@@ -9079,7 +9136,29 @@ class Sender extends MessageHandler_1.MessageHandler {
      */
     SendElement(element) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.SendMessage(MessageType_1.MessageType.Element, Exportable_1.Exportable.Export(element));
+            const exportable = Exportable_1.Exportable.Export(element);
+            const now = +new Date;
+            let diff = null;
+            if (this.last.hasOwnProperty(element.Id)) {
+                diff = Exportable_1.Exportable.Diff(exportable, this.last[element.Id]);
+            }
+            if (this.lastTime.hasOwnProperty(element.Id) &&
+                this.lastTime[element.Id] + this.sleepTime >= now &&
+                Server_1.Server.OnlyPosDiff(diff)) {
+                Logger_1.Logger.Info(this, "Optimized", element);
+                return;
+            }
+            this.last[element.Id] = exportable;
+            this.lastTime[element.Id] = now;
+            if (diff && diff.Payload && diff.Payload.length) {
+                // Hack ID into it
+                diff.Payload.push({
+                    Name: "id",
+                    Class: "string",
+                    Payload: element.Id
+                });
+            }
+            return this.SendMessage(diff ? MessageType_1.MessageType.Diff : MessageType_1.MessageType.Element, diff || exportable);
         });
     }
     /**
@@ -9143,14 +9222,13 @@ const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.t
 class Server {
     /**
      * Construct a new server with the given board. The server gonna
-     * update each clientections (clients) with the board and sync every
+     * update each client with the board and sync every
      * move of the clients between them.
      * @param board
      */
     constructor(board) {
         this.clients = [];
         this.board = board;
-        // Update elements for clientections except their own player
         this.board.OnUpdate.Add(element => this.clients
             .forEach(client => client.SendElement(element)));
     }
@@ -9227,6 +9305,35 @@ class Server {
             // Add client to the internal client list
             this.clients.push(client);
         });
+    }
+    /**
+     * Compare two export objects using a diff.
+     * @param diff
+     * @returns Return true if only position or direction is different.
+     */
+    static OnlyPosDiff(diff) {
+        const props = Exportable_1.Exportable.ToDict(diff);
+        // No diff
+        if (Object.keys(props).length == 0) {
+            return true;
+        }
+        // Only position diff
+        if (Object.keys(props).length === 1 &&
+            props.hasOwnProperty("position")) {
+            return true;
+        }
+        // Only direction diff
+        if (Object.keys(props).length === 1 &&
+            props.hasOwnProperty("direction")) {
+            return true;
+        }
+        // Only position and direction diff
+        if (Object.keys(props).length === 2 &&
+            props.hasOwnProperty("position") &&
+            props.hasOwnProperty("direction")) {
+            return true;
+        }
+        return false;
     }
 }
 exports.Server = Server;
@@ -9403,47 +9510,6 @@ exports.Event = Event;
 
 /***/ }),
 
-/***/ "./src/lib/Util/Filo.ts":
-/*!******************************!*\
-  !*** ./src/lib/Util/Filo.ts ***!
-  \******************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-class Filo {
-    /**
-     * Construct a first in last out storage.
-     * @param size
-     */
-    constructor(size) {
-        this.size = size;
-        this.array = new Array();
-    }
-    /**
-     * Add an element (maybe removes the last one).
-     * @param element
-     */
-    Add(element) {
-        this.array.push(element);
-        if (this.array.length >= this.size) {
-            this.array.shift();
-        }
-    }
-    /**
-     * Get the internal array.
-     */
-    get List() {
-        return this.array;
-    }
-}
-exports.Filo = Filo;
-
-
-/***/ }),
-
 /***/ "./src/lib/Util/Http.ts":
 /*!******************************!*\
   !*** ./src/lib/Util/Http.ts ***!
@@ -9561,27 +9627,6 @@ exports.Keyboard = Keyboard;
 
 /***/ }),
 
-/***/ "./src/lib/Util/LogType.ts":
-/*!*********************************!*\
-  !*** ./src/lib/Util/LogType.ts ***!
-  \*********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var LogType;
-(function (LogType) {
-    LogType[LogType["Silent"] = 0] = "Silent";
-    LogType[LogType["Warn"] = 1] = "Warn";
-    LogType[LogType["Info"] = 2] = "Info";
-    LogType[LogType["Verbose"] = 3] = "Verbose";
-})(LogType = exports.LogType || (exports.LogType = {}));
-
-
-/***/ }),
-
 /***/ "./src/lib/Util/Logger.ts":
 /*!********************************!*\
   !*** ./src/lib/Util/Logger.ts ***!
@@ -9592,20 +9637,43 @@ var LogType;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const LogType_1 = __webpack_require__(/*! ./LogType */ "./src/lib/Util/LogType.ts");
+var LogType;
+(function (LogType) {
+    LogType[LogType["Warn"] = 1] = "Warn";
+    LogType[LogType["Info"] = 2] = "Info";
+})(LogType = exports.LogType || (exports.LogType = {}));
 class Logger {
     /**
      * Log a message.
      * @param self
+     * @param type
      * @param args
      */
     static Log(self, type, ...args) {
-        if (this.Type >= type) {
-            console.log(`(${type}) [${self.constructor.name}] `, ...args);
+        const name = self.constructor.name;
+        if (this.Type >= type && (!this.Filter || this.Filter === name)) {
+            console.log(`(${type}) [${name}] `, ...args);
         }
     }
+    /**
+     * Log an info message.
+     * @param self
+     * @param args
+     */
+    static Info(self, ...args) {
+        this.Log(self, LogType.Info, ...args);
+    }
+    /**
+     * Log an warn message.
+     * @param self
+     * @param args
+     */
+    static Warn(self, ...args) {
+        this.Log(self, LogType.Warn, ...args);
+    }
 }
-Logger.Type = LogType_1.LogType.Silent;
+Logger.Type = LogType.Warn;
+Logger.Filter = null;
 exports.Logger = Logger;
 
 

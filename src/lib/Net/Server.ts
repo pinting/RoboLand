@@ -13,15 +13,14 @@ export class Server
 
     /**
      * Construct a new server with the given board. The server gonna
-     * update each clientections (clients) with the board and sync every
+     * update each client with the board and sync every
      * move of the clients between them.
      * @param board 
      */
     public constructor(board: Board)
     {
         this.board = board;
-
-        // Update elements for clientections except their own player
+        
         this.board.OnUpdate.Add(element => this.clients
             .forEach(client => client.SendElement(element)));
     }
@@ -120,5 +119,45 @@ export class Server
 
         // Add client to the internal client list
         this.clients.push(client);
+    }
+
+    /**
+     * Compare two export objects using a diff.
+     * @param diff
+     * @returns Return true if only position or direction is different.
+     */
+    public static OnlyPosDiff(diff: IExportObject): boolean
+    {
+        const props = Exportable.ToDict(diff);
+
+        // No diff
+        if(Object.keys(props).length == 0)
+        {
+            return true;
+        }
+
+        // Only position diff
+        if(Object.keys(props).length === 1 &&
+            props.hasOwnProperty("position"))
+        {
+            return true;
+        }
+
+        // Only direction diff
+        if(Object.keys(props).length === 1 &&
+            props.hasOwnProperty("direction"))
+        {
+            return true;
+        }
+
+        // Only position and direction diff
+        if(Object.keys(props).length === 2 &&
+            props.hasOwnProperty("position") &&
+            props.hasOwnProperty("direction"))
+        {
+            return true;
+        }
+
+        return false;
     }
 }

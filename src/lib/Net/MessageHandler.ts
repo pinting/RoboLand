@@ -1,10 +1,8 @@
 import { IChannel } from "./Channel/IChannel";
 import { MessageType } from "./MessageType";
 import { IMessage } from "./IMessage";
-import { TimeoutEvent } from "../Util/TimeoutEvent";
 import { Event } from "../Util/Event";
 import { Logger } from "../Util/Logger";
-import { LogType } from "../Util/LogType";
 
 export abstract class MessageHandler
 {
@@ -43,7 +41,7 @@ export abstract class MessageHandler
 
         switch(message.Type)
         {
-            case MessageType.Element:
+            case MessageType.Diff:
                 // Receive only states newer than the current one
                 if(message.Index > this.inIndex || this.inIndex === undefined)
                 {
@@ -53,6 +51,7 @@ export abstract class MessageHandler
 
                 this.SendReceived(message);
                 break;
+            case MessageType.Element:
             case MessageType.Command:
             case MessageType.Player:
             case MessageType.Kick:
@@ -65,7 +64,7 @@ export abstract class MessageHandler
                 break;
         }
 
-        Logger.Log(this, LogType.Verbose, "Message received", message);
+        Logger.Info(this, "Message received", message);
     }
 
     /**
@@ -127,7 +126,7 @@ export abstract class MessageHandler
            // Send message
            this.channel.SendMessage(JSON.stringify(message));
 
-           Logger.Log(this, LogType.Verbose, "Message sent", message);
+           Logger.Info(this, "Message sent", message);
        });
    }
 

@@ -14,7 +14,6 @@ import { Tools } from "./lib/Util/Tools";
 import { Exportable } from "./lib/Exportable";
 import { IExportObject } from "./lib/IExportObject";
 import { Logger } from "./lib/Util/Logger";
-import { LogType } from "./lib/Util/LogType";
 import { SimplexNoise } from "./lib/Util/SimplexNoise";
 import { Http } from "./lib/Util/Http";
 import { ArrowActor } from "./lib/Element/Actor/ArrowActor";
@@ -281,7 +280,6 @@ const Debugger = async (delay = 10) =>
         "<canvas id='canvasB'></canvas>B" +
         "<canvas id='canvasS'></canvas>S";
 
-    Logger.Type = LogType.Silent;
     Keyboard.Init();
 
     const boardA: Board = new Board();

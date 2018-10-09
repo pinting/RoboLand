@@ -10,18 +10,17 @@ import { Coord } from "../Coord";
 import { IExportObject } from "../IExportObject";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
-import { Filo } from "../Util/Filo";
-import { TickActor } from "../Element/Actor/TickActor";
 import { Logger } from "../Util/Logger";
-import { LogType } from "../Util/LogType";
+import { Server } from "./Server";
+import { BaseElement } from "../Element/BaseElement";
 
 export class Receiver extends MessageHandler
 {
-    private readonly lastSize: number = 1000;
+    private readonly maxDistance: number = 2;
 
     private board: Board;
     private player: PlayerActor;
-    private last: Filo<IExportObject> = new Filo(this.lastSize);
+    private last: { [id: string]: IExportObject } = {};
 
     /**
      * Construct a new client which communicates with a connection.
@@ -35,7 +34,7 @@ export class Receiver extends MessageHandler
 
         // Add updated element to network cache
         this.board.OnUpdate.Add(element => 
-            this.last.Add(Exportable.Export(element)));
+            this.last[element.Id] = Exportable.Export(element));
     }
 
     /**
@@ -50,6 +49,9 @@ export class Receiver extends MessageHandler
         {
             case MessageType.Element:
                 this.ReceiveElement(message.Payload);
+                break;
+            case MessageType.Diff:
+                this.ReceiveDiff(message.Payload);
                 break;
             case MessageType.Player:
                 this.ReceivePlayer(message.Payload);
@@ -71,38 +73,15 @@ export class Receiver extends MessageHandler
   
     /**
      * Receive an element.
-     * @param element 
+     * @param exportable
      */
-    private async ReceiveElement(exportable: IExportObject)
+    private async ReceiveElement(exportable: IExportObject): Promise<void>
     {   
         Board.Current = this.board;
 
-        const element = Exportable.Import(exportable);
-        const oldElement = this.board.Elements.Get(element.Id);
-        const oldExportable = Exportable.Export(oldElement);
+        const element: BaseElement = Exportable.Import(exportable);
 
-        Logger.Log(this, LogType.Verbose, "Element was received!", element, exportable);
-
-        // Add to network cache
-        this.last.Add(exportable);
-
-        // Optimizations
-        if(oldElement)
-        {
-            if(element instanceof TickActor)
-            {
-                Logger.Log(this, LogType.Verbose, "Optimized!", element);
-                return;
-            }
-            else if(element instanceof BaseActor)
-            {
-                if(this.last.List.some(e => Exportable.Diff(e, oldExportable) == null))
-                {
-                    Logger.Log(this, LogType.Verbose, "Optimized", element);
-                    return;
-                }
-            }
-        }
+        Logger.Info(this, "Element was received!", element, exportable);
 
         // Add element to the board
         if(element instanceof BaseCell)
@@ -113,13 +92,64 @@ export class Receiver extends MessageHandler
         {
             this.board.Actors.Set(element);
         }
+
+        // Add to network cache
+        this.last[element.Id] = exportable;
+    }
+
+    /**
+     * Receive an diff of an element.
+     * @param diff
+     */
+    private async ReceiveDiff(diff: IExportObject): Promise<void>
+    {   
+        Board.Current = this.board;
+
+        Logger.Info(this, "Diff was received!", diff);
+
+        // Hack out ID from IExportObject
+        const id = diff && diff.Payload && diff.Payload.length && 
+            diff.Payload.find(prop => prop.Name == "id").Payload;
+
+        if(!id)
+        {
+            Logger.Warn(this, "No ID for diff!")
+            return;
+        }
+
+        // Check if we already have it
+        const oldElement = this.board.Elements.Get(id);
+
+        // Return if we do not have an older version
+        if(!oldElement)
+        {
+            return;
+        }
+
+        // If we have an older version, merge it
+        const merged = Exportable.Export(oldElement);
+
+        Exportable.Merge(diff, merged);
+
+        const newElement: BaseElement = Exportable.Import(merged);
+
+        // Optimizations
+        if(this.last.hasOwnProperty(newElement.Id) && 
+            Server.OnlyPosDiff(diff) && 
+            newElement.Position.GetDistance(oldElement.Position) <= this.maxDistance)
+        {
+            Logger.Info(this, "Optimized", newElement);
+            return;
+        }
+
+        return this.ReceiveElement(merged);
     }
 
     /**
      * Receive the player by id.
      * @param id 
      */
-    private ReceivePlayer(id: string)
+    private ReceivePlayer(id: string): void
     {
         const player = this.player = <PlayerActor>this.board.Actors.Get(id);
 
@@ -135,7 +165,7 @@ export class Receiver extends MessageHandler
      * Receive the size of the board.
      * @param size 
      */
-    private ReceiveSize(exportable: IExportObject)
+    private ReceiveSize(exportable: IExportObject): void
     {
         this.board.Init(Exportable.Import(exportable));
     }
@@ -144,7 +174,7 @@ export class Receiver extends MessageHandler
      * Receive a command from another player.
      * @param command 
      */
-    private ReceiveCommand(command: IExportObject)
+    private ReceiveCommand(command: IExportObject): void
     {
         if(!this.player)
         {
@@ -166,15 +196,16 @@ export class Receiver extends MessageHandler
         player[args[1]].bind(player)(...args.slice(2));
 
         // Add to network cache
-        this.last.Add(Exportable.Export(player));
+        this.last[player.Id] = Exportable.Export(player);
     }
 
     /**
      * Kick this client of the server.
      */
-    private ReceiveKick()
+    private ReceiveKick(): void
     {
         this.board.Init(new Coord(0, 0));
+        Logger.Warn("Kicked!");
     }
 
     /**

@@ -1,6 +1,5 @@
 import { BaseActor, BaseActorArgs } from "./BaseActor";
 import { Logger } from "../../Util/Logger";
-import { LogType } from "../../Util/LogType";
 
 export abstract class TickActor extends BaseActor
 {
@@ -24,7 +23,7 @@ export abstract class TickActor extends BaseActor
         // Start to listen to the tick event
         this.tickEvent = this.board.OnTick.Add(() => this.OnTick());
 
-        Logger.Log(this, LogType.Verbose, "Tick event was set", this);
+        Logger.Info(this, "Tick event was set", this);
     }
 
     /**

@@ -1,7 +1,5 @@
 import { IChannel } from "./IChannel";
 import { Tools } from "../../Util/Tools";
-import { Logger } from "../../Util/Logger";
-import { LogType } from "../../Util/LogType";
 
 export class FakeChannel implements IChannel
 {

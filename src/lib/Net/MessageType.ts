@@ -3,6 +3,7 @@ export enum MessageType
     // OUT
     Size,
     Element,
+    Diff,
     Player,
     Kick,
 

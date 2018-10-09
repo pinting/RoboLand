@@ -8,10 +8,16 @@ import { BaseElement } from "../Element/BaseElement";
 import { IExportObject } from "../IExportObject";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
+import { Server } from "./Server";
+import { Logger } from "../Util/Logger";
 
 export class Sender extends MessageHandler
 {
+    private readonly sleepTime: number = 1000;
+
     private player: PlayerActor;
+    private last: { [id: string]: IExportObject } = {};
+    private lastTime: { [id: string]: number } = {};
     
     /**
      * Construct a new connection which communicates with a client.
@@ -62,7 +68,38 @@ export class Sender extends MessageHandler
      */
     public async SendElement(element: BaseElement): Promise<void>
     {
-        return this.SendMessage(MessageType.Element, Exportable.Export(element));
+        const exportable = Exportable.Export(element);
+        const now = +new Date;
+        
+        let diff: IExportObject = null;
+
+        if(this.last.hasOwnProperty(element.Id))
+        {
+            diff = Exportable.Diff(exportable, this.last[element.Id]);
+        }
+
+        if(this.lastTime.hasOwnProperty(element.Id) && 
+            this.lastTime[element.Id] + this.sleepTime >= now &&
+            Server.OnlyPosDiff(diff))
+        {
+            Logger.Info(this, "Optimized", element);
+            return;
+        }
+
+        this.last[element.Id] = exportable;
+        this.lastTime[element.Id] = now;
+
+        if(diff && diff.Payload && diff.Payload.length)
+        {
+            // Hack ID into it
+            diff.Payload.push(<IExportObject>{
+                Name: "id",
+                Class: "string",
+                Payload: element.Id
+            });
+        }
+
+        return this.SendMessage(diff ? MessageType.Diff : MessageType.Element, diff || exportable);
     }
 
     /**

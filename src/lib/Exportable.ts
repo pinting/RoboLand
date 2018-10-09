@@ -148,34 +148,79 @@ export abstract class Exportable
 
     /**
      * Return the difference from source to target (properties of source).
-     * @param a 
-     * @param b 
-     * @param l Depth limit.
+     * @param source 
+     * @param target 
+     * @param depth Depth limit.
      */
-    public static Diff(a: IExportObject, b: IExportObject, l: number = 3): IExportObject
+    public static Diff(source: IExportObject, target: IExportObject, depth: number = 3): IExportObject
     {
-        if(!l || !a || !b || !a.Class || a.Class != b.Class || a.Name != b.Name)
+        if(!depth || 
+            !source || 
+            !target || 
+            !source.Class || 
+            source.Class != target.Class || 
+            source.Name != target.Name)
         {
             return null;
         }
 
-        switch(a.Class)
+        switch(source.Class)
         {
             case "number":
             case "string":
             case "boolean":
-                return a.Payload != b.Payload ? a : null;
+                return source.Payload != target.Payload 
+                    ? source 
+                    : null;
             default:
-                const diff: IExportObject[] = a.Payload
-                    .map(ae => b.Payload.find(be => 
-                        Exportable.Diff(ae, be, l - 1)))
+                const diff: IExportObject[] = source.Payload
+                    .map(ae => target.Payload.find(be => 
+                        Exportable.Diff(ae, be, depth - 1)))
                     .filter(ae => ae);
 
                 return !diff.length ? null : {
-                    Name: a.Name,
-                    Class: a.Class,
+                    Name: source.Name,
+                    Class: source.Class,
                     Payload: diff
                 };
         }
+    }
+
+    /**
+     * Shallow merge two exported objects.
+     * @param target Other gonna be merged here!
+     * @param other 
+     */
+    public static Merge(target: IExportObject, other: IExportObject): void
+    {
+        if(!target || !target.Payload || !target.Payload.length)
+        {
+            return;
+        }
+
+        const otherProps = this.ToDict(other)
+        
+        target.Payload.forEach((prop, i) => 
+        {
+            if(otherProps.hasOwnProperty(prop.Name))
+            {
+                target.Payload[i] = otherProps[prop.Name];
+            }
+        });
+    }
+
+    /**
+     * Convert an IExportObject to dictionary.
+     * Class property gonna be lost!
+     * @param obj 
+     */
+    public static ToDict(obj: IExportObject): { [id: string]: IExportObject }
+    {
+        const props = {};
+
+        obj && obj.Payload && obj.Payload.length && 
+            obj.Payload.forEach(p => props[p.Name] = p);
+
+        return props;
     }
 }

@@ -4,7 +4,6 @@ import { Board } from "../Board";
 import { Exportable } from "../Exportable";
 import { IExportObject } from "../IExportObject";
 import { Logger } from "../Util/Logger";
-import { LogType } from "../Util/LogType";
 
 export interface BaseElementArgs
 {
@@ -138,7 +137,7 @@ export abstract class BaseElement extends Exportable
 
         this.disposed = true;
 
-        Logger.Log(this, LogType.Verbose, "Element was disposed!", this);
+        Logger.Info(this, "Element was disposed!", this);
     }
 
     /**
