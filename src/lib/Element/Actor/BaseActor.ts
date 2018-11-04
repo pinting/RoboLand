@@ -1,13 +1,13 @@
 import { Coord } from "../../Coord";
 import { BaseElement, BaseElementArgs } from "../BaseElement";
-import { Exportable } from "../../Exportable";
+import { TickElement } from "../TickElement";
 
 export interface BaseActorArgs extends BaseElementArgs
 {
     direction?: Coord;
 }
 
-export abstract class BaseActor extends BaseElement
+export abstract class BaseActor extends TickElement
 {
     protected direction: Coord;
 

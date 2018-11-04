@@ -10,7 +10,7 @@ export abstract class MessageHandler
     private outIndex: number = 0;
     private inIndex: number;
 
-    private channel: IChannel;
+    protected channel: IChannel;
 
     /**
      * Construct a new connection which communicates with a client.
@@ -64,7 +64,7 @@ export abstract class MessageHandler
                 break;
         }
 
-        Logger.Info(this, "Message received", message);
+        Logger.Info(this, "Message was received", message);
     }
 
     /**
@@ -126,7 +126,7 @@ export abstract class MessageHandler
            // Send message
            this.channel.SendMessage(JSON.stringify(message));
 
-           Logger.Info(this, "Message sent", message);
+           Logger.Info(this, "Message was sent", message);
        });
    }
 

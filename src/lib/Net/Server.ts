@@ -43,20 +43,26 @@ export class Server
             return;
         }
 
-        // Execute command on the player
-        player[args[1]].bind(player)(...args.slice(2));
+        try {
+            // Execute command on the player
+            player[args[1]].bind(player)(...args.slice(2));
 
-        // Send the command to the other players
-        this.clients
-            .filter(client => player.Origin != client.Player.Origin)
-            .forEach(client => client.SendCommand(args));
+            // Send the command to the other players
+            this.clients
+                .filter(client => player.Origin != client.Player.Origin)
+                .forEach(client => client.SendCommand(args));
+        }
+        catch {
+            // Kick if we receive an exception
+            client.SendKick();
+        }
     }
 
     /**
      * Kick client out of the server.
      * @param client 
      */
-    private Kick(client: Sender)
+    public Kick(client: Sender)
     {
         const index = this.clients.indexOf(client);
 
@@ -119,45 +125,5 @@ export class Server
 
         // Add client to the internal client list
         this.clients.push(client);
-    }
-
-    /**
-     * Compare two export objects using a diff.
-     * @param diff
-     * @returns Return true if only position or direction is different.
-     */
-    public static OnlyPosDiff(diff: IExportObject): boolean
-    {
-        const props = Exportable.ToDict(diff);
-
-        // No diff
-        if(Object.keys(props).length == 0)
-        {
-            return true;
-        }
-
-        // Only position diff
-        if(Object.keys(props).length === 1 &&
-            props.hasOwnProperty("position"))
-        {
-            return true;
-        }
-
-        // Only direction diff
-        if(Object.keys(props).length === 1 &&
-            props.hasOwnProperty("direction"))
-        {
-            return true;
-        }
-
-        // Only position and direction diff
-        if(Object.keys(props).length === 2 &&
-            props.hasOwnProperty("position") &&
-            props.hasOwnProperty("direction"))
-        {
-            return true;
-        }
-
-        return false;
     }
 }

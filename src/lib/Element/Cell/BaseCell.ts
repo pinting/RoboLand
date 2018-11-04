@@ -1,7 +1,7 @@
 import { BaseActor } from "../Actor/BaseActor";
-import { BaseElement } from "../BaseElement";
+import { TickElement } from "../TickElement";
 
-export abstract class BaseCell extends BaseElement
+export abstract class BaseCell extends TickElement
 {
     protected actors: string[] = [];
 

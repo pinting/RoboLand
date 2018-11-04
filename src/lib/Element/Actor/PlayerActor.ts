@@ -5,6 +5,9 @@ import { Exportable } from "../../Exportable";
 
 export class PlayerActor extends LivingActor
 {
+    protected readonly shotDelay: number = 800;
+    protected lastShot = +new Date(0);
+
     /**
      * Move actor in a direction.
      * @param direction
@@ -13,12 +16,14 @@ export class PlayerActor extends LivingActor
     {
         if(direction.GetDistance(new Coord(0, 0)) != 1.0)
         {
-            return false; // Do not allow different size of movement
+            // Do not allow different size of movement
+            throw new Error("Wrong distance");
         }
 
         if(Math.abs(Math.abs(direction.X) - Math.abs(direction.Y)) == 0)
         {
-            return false; // Only allow left, right, top and bottom movement
+            // Only allow left, right, top and bottom movement
+            throw new Error("Wrong direction");
         }
         
         // Calculate the next position
@@ -41,7 +46,14 @@ export class PlayerActor extends LivingActor
      */
     public Shoot(id: string): void
     {
-        const actor = new ArrowActor;
+        const now = +new Date;
+
+        if(this.lastShot + this.shotDelay > now) 
+        {
+            throw new Error("Shot was too quick");
+        }
+
+        const actor = new ArrowActor();
 
         actor.Init({
             id: id,
@@ -56,6 +68,15 @@ export class PlayerActor extends LivingActor
         });
 
         this.board.Actors.Set(actor);
+        this.lastShot = now;
+    }
+    
+    /**
+     * @inheritDoc
+     */
+    protected OnTick(): void
+    {
+        return;
     }
 }
 

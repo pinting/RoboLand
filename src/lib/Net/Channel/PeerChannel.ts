@@ -2,6 +2,7 @@ import * as webrtc from "webrtc-adapter"
 import { IChannel } from "./IChannel";
 import { Tools } from "../../Util/Tools";
 import * as pako from "pako";
+import { Logger } from "../../Util/Logger";
 
 export class PeerChannel implements IChannel
 {
@@ -36,6 +37,8 @@ export class PeerChannel implements IChannel
                 if(e.candidate == null)
                 {
                     const offer = this.peerConnection.localDescription;
+
+                    Logger.Info(this, "Offer was created", offer);
 
                     resolve(JSON.stringify(offer));
                 }
@@ -73,6 +76,8 @@ export class PeerChannel implements IChannel
                 {
                     const answer = this.peerConnection.localDescription;
 
+                    Logger.Info(this, "Answer was created", answer);
+
                     resolve(JSON.stringify(answer));
                 }
             };
@@ -88,12 +93,16 @@ export class PeerChannel implements IChannel
     
             try 
             {
+                const parsedOffer = JSON.parse(offer);
+
                 this.peerConnection.setRemoteDescription(
-                    new RTCSessionDescription(JSON.parse(offer)));
+                    new RTCSessionDescription(parsedOffer));
 
                 this.peerConnection.createAnswer().then(
                     desc => this.peerConnection.setLocalDescription(desc),
                     error => reject(error));
+                
+                Logger.Info(this, "Offer was received", parsedOffer);
             }
             catch(e)
             {
@@ -110,6 +119,8 @@ export class PeerChannel implements IChannel
     {
         if(this.IsOfferor())
         {
+            Logger.Info(this, "Answer was received", answer);
+
             this.peerConnection.setRemoteDescription(
                 new RTCSessionDescription(JSON.parse(answer)));
         }
@@ -144,6 +155,18 @@ export class PeerChannel implements IChannel
             const compressed: string = pako.deflate(message, { to: "string" });
 
             this.dataChannel.send(compressed);
+        }
+    }
+
+    /**
+     * Close the channel.
+     */
+    public Close()
+    {
+        if(this.IsOpen())
+        {
+            Logger.Info(this, "Closing channel");
+            this.peerConnection.close();
         }
     }
 

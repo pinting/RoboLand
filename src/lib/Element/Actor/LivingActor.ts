@@ -1,4 +1,5 @@
 import { BaseActor, BaseActorArgs } from "./BaseActor";
+import { Logger } from "../../Util/Logger";
 
 export interface LivingActorArgs extends BaseActorArgs
 {
@@ -40,6 +41,8 @@ export abstract class LivingActor extends BaseActor
     public Damage(damage: number): void
     {
         this.health -= damage;
+
+        Logger.Info(this, "Actor was damaged", damage, this);
 
         if(this.health <= 0)
         {

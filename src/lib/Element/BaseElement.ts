@@ -186,4 +186,44 @@ export abstract class BaseElement extends Exportable
         super.ImportAll(input);
         this.InitPost();
     }
+
+    /**
+     * Compare two export objects using a diff.
+     * @param diff
+     * @returns Return true if only position or direction is different.
+     */
+    public static IsOnlyPosDiff(diff: IExportObject): boolean
+    {
+        const props = Exportable.ToDict(diff);
+
+        // No diff
+        if(Object.keys(props).length == 0)
+        {
+            return true;
+        }
+
+        // Only position diff
+        if(Object.keys(props).length === 1 &&
+            props.hasOwnProperty("position"))
+        {
+            return true;
+        }
+
+        // Only direction diff
+        if(Object.keys(props).length === 1 &&
+            props.hasOwnProperty("direction"))
+        {
+            return true;
+        }
+
+        // Only position and direction diff
+        if(Object.keys(props).length === 2 &&
+            props.hasOwnProperty("position") &&
+            props.hasOwnProperty("direction"))
+        {
+            return true;
+        }
+
+        return false;
+    }
 }

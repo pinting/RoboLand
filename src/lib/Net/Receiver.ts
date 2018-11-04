@@ -135,10 +135,10 @@ export class Receiver extends MessageHandler
 
         // Optimizations
         if(this.last.hasOwnProperty(newElement.Id) && 
-            Server.OnlyPosDiff(diff) && 
+            BaseElement.IsOnlyPosDiff(diff) && 
             newElement.Position.GetDistance(oldElement.Position) <= this.maxDistance)
         {
-            Logger.Info(this, "Optimized", newElement);
+            Logger.Info(this, "Element was optimized out", newElement);
             return;
         }
 
@@ -204,8 +204,8 @@ export class Receiver extends MessageHandler
      */
     private ReceiveKick(): void
     {
-        this.board.Init(new Coord(0, 0));
-        Logger.Warn("Kicked!");
+        Logger.Warn("Kicked from the server!");
+        this.channel.Close();
     }
 
     /**

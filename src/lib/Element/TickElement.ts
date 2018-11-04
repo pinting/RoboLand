@@ -1,14 +1,14 @@
-import { BaseActor, BaseActorArgs } from "./BaseActor";
-import { Logger } from "../../Util/Logger";
+import { Logger } from "../Util/Logger";
+import { BaseElement, BaseElementArgs } from "./BaseElement";
 
-export abstract class TickActor extends BaseActor
+export abstract class TickElement extends BaseElement
 {
     private tickEvent: number;
     
     /**
      * @inheritDoc
      */
-    public Init(args: BaseActorArgs = {})
+    public Init(args: BaseElementArgs = {})
     {
         super.Init(args);
     }
@@ -16,7 +16,7 @@ export abstract class TickActor extends BaseActor
     /**
      * @inheritDoc
      */
-    protected InitPost(args: BaseActorArgs = {})
+    protected InitPost(args: BaseElementArgs = {})
     {
         super.InitPost(args);
 

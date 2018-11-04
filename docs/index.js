@@ -7181,7 +7181,7 @@ const ClickAdd = () => __awaiter(this, void 0, void 0, function* () {
     SetMessage("Offer copied to clipboard!");
     channel.OnOpen = () => {
         SetMessage("A new player joined!");
-        server.Add(new Sender_1.Sender(channel));
+        server.Add(new Sender_1.Sender(channel, server));
     };
     while (true) {
         const answer = localStorage.getItem(tabId);
@@ -7219,7 +7219,7 @@ const CreateReceiver = (renderer) => __awaiter(this, void 0, void 0, function* (
     localA.SetOther(localB);
     localB.SetOther(localA);
     // Add connection to the server
-    server.Add(new Sender_1.Sender(localA));
+    server.Add(new Sender_1.Sender(localA, server));
     // Connect client to the server
     return new Receiver_1.Receiver(localB, board);
 });
@@ -7298,8 +7298,8 @@ const Debugger = (delay = 10) => __awaiter(this, void 0, void 0, function* () {
     const raw = JSON.parse(yield Http_1.Http.Get("res/board.json"));
     const boardServer = Exportable_1.Exportable.Import(raw);
     const server = new Server_1.Server(boardServer);
-    server.Add(new Sender_1.Sender(channelA2));
-    server.Add(new Sender_1.Sender(channelB2));
+    server.Add(new Sender_1.Sender(channelA2, server));
+    server.Add(new Sender_1.Sender(channelB2, server));
     receiverA.OnPlayer = (player) => __awaiter(this, void 0, void 0, function* () {
         boardA.Origin = player.Id;
         yield rendererA.Load();
@@ -7581,10 +7581,10 @@ Exportable_1.Exportable.Register(Coord);
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const BaseActor_1 = __webpack_require__(/*! ./BaseActor */ "./src/lib/Element/Actor/BaseActor.ts");
 const LivingActor_1 = __webpack_require__(/*! ./LivingActor */ "./src/lib/Element/Actor/LivingActor.ts");
-const TickActor_1 = __webpack_require__(/*! ./TickActor */ "./src/lib/Element/Actor/TickActor.ts");
 const Exportable_1 = __webpack_require__(/*! ../../Exportable */ "./src/lib/Exportable.ts");
-class ArrowActor extends TickActor_1.TickActor {
+class ArrowActor extends BaseActor_1.BaseActor {
     /**
      * @inheritDoc
      */
@@ -7642,8 +7642,8 @@ Exportable_1.Exportable.Register(ArrowActor);
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Coord_1 = __webpack_require__(/*! ../../Coord */ "./src/lib/Coord.ts");
-const BaseElement_1 = __webpack_require__(/*! ../BaseElement */ "./src/lib/Element/BaseElement.ts");
-class BaseActor extends BaseElement_1.BaseElement {
+const TickElement_1 = __webpack_require__(/*! ../TickElement */ "./src/lib/Element/TickElement.ts");
+class BaseActor extends TickElement_1.TickElement {
     /**
      * @inheritDoc
      */
@@ -7726,6 +7726,7 @@ exports.BaseActor = BaseActor;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const BaseActor_1 = __webpack_require__(/*! ./BaseActor */ "./src/lib/Element/Actor/BaseActor.ts");
+const Logger_1 = __webpack_require__(/*! ../../Util/Logger */ "./src/lib/Util/Logger.ts");
 class LivingActor extends BaseActor_1.BaseActor {
     /**
      * @inheritDoc
@@ -7748,6 +7749,7 @@ class LivingActor extends BaseActor_1.BaseActor {
      */
     Damage(damage) {
         this.health -= damage;
+        Logger_1.Logger.Info(this, "Actor was damaged", damage, this);
         if (this.health <= 0) {
             this.Dispose();
         }
@@ -7786,10 +7788,12 @@ class PlayerActor extends LivingActor_1.LivingActor {
      */
     Move(direction) {
         if (direction.GetDistance(new Coord_1.Coord(0, 0)) != 1.0) {
-            return false; // Do not allow different size of movement
+            // Do not allow different size of movement
+            throw new Error("Wrong distance");
         }
         if (Math.abs(Math.abs(direction.X) - Math.abs(direction.Y)) == 0) {
-            return false; // Only allow left, right, top and bottom movement
+            // Only allow left, right, top and bottom movement
+            throw new Error("Wrong direction");
         }
         // Calculate the next position
         const next = this.Position.Add(direction.F(c => c * this.speed)).Round(3);
@@ -7819,50 +7823,15 @@ class PlayerActor extends LivingActor_1.LivingActor {
         });
         this.board.Actors.Set(actor);
     }
+    /**
+     * @inheritDoc
+     */
+    OnTick() {
+        return;
+    }
 }
 exports.PlayerActor = PlayerActor;
 Exportable_1.Exportable.Register(PlayerActor);
-
-
-/***/ }),
-
-/***/ "./src/lib/Element/Actor/TickActor.ts":
-/*!********************************************!*\
-  !*** ./src/lib/Element/Actor/TickActor.ts ***!
-  \********************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const BaseActor_1 = __webpack_require__(/*! ./BaseActor */ "./src/lib/Element/Actor/BaseActor.ts");
-const Logger_1 = __webpack_require__(/*! ../../Util/Logger */ "./src/lib/Util/Logger.ts");
-class TickActor extends BaseActor_1.BaseActor {
-    /**
-     * @inheritDoc
-     */
-    Init(args = {}) {
-        super.Init(args);
-    }
-    /**
-     * @inheritDoc
-     */
-    InitPost(args = {}) {
-        super.InitPost(args);
-        // Start to listen to the tick event
-        this.tickEvent = this.board.OnTick.Add(() => this.OnTick());
-        Logger_1.Logger.Info(this, "Tick event was set", this);
-    }
-    /**
-     * @inheritDoc
-     */
-    Dispose(value = true) {
-        this.board.OnTick.Remove(this.tickEvent);
-        super.Dispose(value);
-    }
-}
-exports.TickActor = TickActor;
 
 
 /***/ }),
@@ -8011,6 +7980,35 @@ class BaseElement extends Exportable_1.Exportable {
         super.ImportAll(input);
         this.InitPost();
     }
+    /**
+     * Compare two export objects using a diff.
+     * @param diff
+     * @returns Return true if only position or direction is different.
+     */
+    static IsOnlyPosDiff(diff) {
+        const props = Exportable_1.Exportable.ToDict(diff);
+        // No diff
+        if (Object.keys(props).length == 0) {
+            return true;
+        }
+        // Only position diff
+        if (Object.keys(props).length === 1 &&
+            props.hasOwnProperty("position")) {
+            return true;
+        }
+        // Only direction diff
+        if (Object.keys(props).length === 1 &&
+            props.hasOwnProperty("direction")) {
+            return true;
+        }
+        // Only position and direction diff
+        if (Object.keys(props).length === 2 &&
+            props.hasOwnProperty("position") &&
+            props.hasOwnProperty("direction")) {
+            return true;
+        }
+        return false;
+    }
 }
 exports.BaseElement = BaseElement;
 
@@ -8027,8 +8025,8 @@ exports.BaseElement = BaseElement;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const BaseElement_1 = __webpack_require__(/*! ../BaseElement */ "./src/lib/Element/BaseElement.ts");
-class BaseCell extends BaseElement_1.BaseElement {
+const TickElement_1 = __webpack_require__(/*! ../TickElement */ "./src/lib/Element/TickElement.ts");
+class BaseCell extends TickElement_1.TickElement {
     constructor() {
         super(...arguments);
         this.actors = [];
@@ -8218,6 +8216,47 @@ class WaterCell extends BaseCell_1.BaseCell {
 }
 exports.WaterCell = WaterCell;
 Exportable_1.Exportable.Register(WaterCell);
+
+
+/***/ }),
+
+/***/ "./src/lib/Element/TickElement.ts":
+/*!****************************************!*\
+  !*** ./src/lib/Element/TickElement.ts ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
+const BaseElement_1 = __webpack_require__(/*! ./BaseElement */ "./src/lib/Element/BaseElement.ts");
+class TickElement extends BaseElement_1.BaseElement {
+    /**
+     * @inheritDoc
+     */
+    Init(args = {}) {
+        super.Init(args);
+    }
+    /**
+     * @inheritDoc
+     */
+    InitPost(args = {}) {
+        super.InitPost(args);
+        // Start to listen to the tick event
+        this.tickEvent = this.board.OnTick.Add(() => this.OnTick());
+        Logger_1.Logger.Info(this, "Tick event was set", this);
+    }
+    /**
+     * @inheritDoc
+     */
+    Dispose(value = true) {
+        this.board.OnTick.Remove(this.tickEvent);
+        super.Dispose(value);
+    }
+}
+exports.TickElement = TickElement;
 
 
 /***/ }),
@@ -8556,6 +8595,7 @@ exports.Exportable = Exportable;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Tools_1 = __webpack_require__(/*! ../../Util/Tools */ "./src/lib/Util/Tools.ts");
+const Logger_1 = __webpack_require__(/*! ../../Util/Logger */ "./src/lib/Util/Logger.ts");
 class FakeChannel {
     /**
      * Construct a new fake channel with the given delay.
@@ -8585,6 +8625,12 @@ class FakeChannel {
             setTimeout(() => this.other.OnMessage(message), this.delay);
         }
     }
+    /**
+     * Close the channel.
+     */
+    Close() {
+        Logger_1.Logger.Info("Channel was closed!");
+    }
 }
 exports.FakeChannel = FakeChannel;
 
@@ -8603,6 +8649,7 @@ exports.FakeChannel = FakeChannel;
 Object.defineProperty(exports, "__esModule", { value: true });
 const Tools_1 = __webpack_require__(/*! ../../Util/Tools */ "./src/lib/Util/Tools.ts");
 const pako = __webpack_require__(/*! pako */ "./node_modules/pako/index.js");
+const Logger_1 = __webpack_require__(/*! ../../Util/Logger */ "./src/lib/Util/Logger.ts");
 class PeerChannel {
     constructor() {
         this.config = {
@@ -8638,6 +8685,7 @@ class PeerChannel {
             this.peerConnection.onicecandidate = e => {
                 if (e.candidate == null) {
                     const offer = this.peerConnection.localDescription;
+                    Logger_1.Logger.Info(this, "Offer was created", offer);
                     resolve(JSON.stringify(offer));
                 }
             };
@@ -8660,6 +8708,7 @@ class PeerChannel {
             this.peerConnection.onicecandidate = e => {
                 if (e.candidate == null) {
                     const answer = this.peerConnection.localDescription;
+                    Logger_1.Logger.Info(this, "Answer was created", answer);
                     resolve(JSON.stringify(answer));
                 }
             };
@@ -8670,8 +8719,10 @@ class PeerChannel {
                 this.dataChannel.onclose = () => this.OnClose();
             };
             try {
-                this.peerConnection.setRemoteDescription(new RTCSessionDescription(JSON.parse(offer)));
+                const parsedOffer = JSON.parse(offer);
+                this.peerConnection.setRemoteDescription(new RTCSessionDescription(parsedOffer));
                 this.peerConnection.createAnswer().then(desc => this.peerConnection.setLocalDescription(desc), error => reject(error));
+                Logger_1.Logger.Info(this, "Offer was received", parsedOffer);
             }
             catch (e) {
                 reject(e);
@@ -8684,6 +8735,7 @@ class PeerChannel {
      */
     Finish(answer) {
         if (this.IsOfferor()) {
+            Logger_1.Logger.Info(this, "Answer was received", answer);
             this.peerConnection.setRemoteDescription(new RTCSessionDescription(JSON.parse(answer)));
         }
         else {
@@ -8708,6 +8760,15 @@ class PeerChannel {
         if (this.IsOpen()) {
             const compressed = pako.deflate(message, { to: "string" });
             this.dataChannel.send(compressed);
+        }
+    }
+    /**
+     * Close the channel.
+     */
+    Close() {
+        if (this.IsOpen()) {
+            Logger_1.Logger.Info(this, "Closing channel");
+            this.peerConnection.close();
         }
     }
     /**
@@ -8795,7 +8856,7 @@ class MessageHandler {
                 this.ParseReceived(message);
                 break;
         }
-        Logger_1.Logger.Info(this, "Message received", message);
+        Logger_1.Logger.Info(this, "Message was received", message);
     }
     /**
      * Parse incoming ACK.
@@ -8844,7 +8905,7 @@ class MessageHandler {
                 }
                 // Send message
                 this.channel.SendMessage(JSON.stringify(message));
-                Logger_1.Logger.Info(this, "Message sent", message);
+                Logger_1.Logger.Info(this, "Message was sent", message);
             });
         });
     }
@@ -8905,10 +8966,9 @@ const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exporta
 const BaseCell_1 = __webpack_require__(/*! ../Element/Cell/BaseCell */ "./src/lib/Element/Cell/BaseCell.ts");
 const BaseActor_1 = __webpack_require__(/*! ../Element/Actor/BaseActor */ "./src/lib/Element/Actor/BaseActor.ts");
 const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
-const Coord_1 = __webpack_require__(/*! ../Coord */ "./src/lib/Coord.ts");
 const MessageHandler_1 = __webpack_require__(/*! ./MessageHandler */ "./src/lib/Net/MessageHandler.ts");
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
-const Server_1 = __webpack_require__(/*! ./Server */ "./src/lib/Net/Server.ts");
+const BaseElement_1 = __webpack_require__(/*! ../Element/BaseElement */ "./src/lib/Element/BaseElement.ts");
 class Receiver extends MessageHandler_1.MessageHandler {
     /**
      * Construct a new client which communicates with a connection.
@@ -9003,9 +9063,9 @@ class Receiver extends MessageHandler_1.MessageHandler {
             const newElement = Exportable_1.Exportable.Import(merged);
             // Optimizations
             if (this.last.hasOwnProperty(newElement.Id) &&
-                Server_1.Server.OnlyPosDiff(diff) &&
+                BaseElement_1.BaseElement.IsOnlyPosDiff(diff) &&
                 newElement.Position.GetDistance(oldElement.Position) <= this.maxDistance) {
-                Logger_1.Logger.Info(this, "Optimized", newElement);
+                Logger_1.Logger.Info(this, "Element was optimized out", newElement);
                 return;
             }
             return this.ReceiveElement(merged);
@@ -9052,8 +9112,8 @@ class Receiver extends MessageHandler_1.MessageHandler {
      * Kick this client of the server.
      */
     ReceiveKick() {
-        this.board.Init(new Coord_1.Coord(0, 0));
-        Logger_1.Logger.Warn("Kicked!");
+        Logger_1.Logger.Warn("Kicked from the server!");
+        this.channel.Close();
     }
 }
 exports.Receiver = Receiver;
@@ -9082,15 +9142,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
 const MessageType_1 = __webpack_require__(/*! ./MessageType */ "./src/lib/Net/MessageType.ts");
+const BaseElement_1 = __webpack_require__(/*! ../Element/BaseElement */ "./src/lib/Element/BaseElement.ts");
 const MessageHandler_1 = __webpack_require__(/*! ./MessageHandler */ "./src/lib/Net/MessageHandler.ts");
-const Server_1 = __webpack_require__(/*! ./Server */ "./src/lib/Net/Server.ts");
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
 class Sender extends MessageHandler_1.MessageHandler {
     /**
      * Construct a new connection which communicates with a client.
      * @param channel Direct channel to the client.
      */
-    constructor(channel) {
+    constructor(channel, server) {
         super(channel);
         this.sleepTime = 1000;
         this.last = {};
@@ -9100,6 +9160,7 @@ class Sender extends MessageHandler_1.MessageHandler {
          * @param command
          */
         this.OnCommand = Tools_1.Tools.Noop;
+        this.server = server;
     }
     /**
      * Get the previously setted player actor.
@@ -9117,7 +9178,8 @@ class Sender extends MessageHandler_1.MessageHandler {
                 this.OnCommand(message.Payload);
                 break;
             default:
-                // Invalid: kick?
+                // Kick after any sort of manipulation
+                this.SendKick();
                 break;
         }
     }
@@ -9144,8 +9206,8 @@ class Sender extends MessageHandler_1.MessageHandler {
             }
             if (this.lastTime.hasOwnProperty(element.Id) &&
                 this.lastTime[element.Id] + this.sleepTime >= now &&
-                Server_1.Server.OnlyPosDiff(diff)) {
-                Logger_1.Logger.Info(this, "Optimized", element);
+                BaseElement_1.BaseElement.IsOnlyPosDiff(diff)) {
+                Logger_1.Logger.Info(this, "Element was optimized out", element);
                 return;
             }
             this.last[element.Id] = exportable;
@@ -9188,7 +9250,16 @@ class Sender extends MessageHandler_1.MessageHandler {
      * Kick the client off.
      */
     SendKick() {
-        this.SendMessage(MessageType_1.MessageType.Kick, null);
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.channel) {
+                return;
+            }
+            Logger_1.Logger.Info(this, "Player was kicked", this.player);
+            yield this.SendMessage(MessageType_1.MessageType.Kick, null);
+            this.channel.Close();
+            this.channel = null;
+            this.server.Kick(this);
+        });
     }
 }
 exports.Sender = Sender;
@@ -9245,12 +9316,18 @@ class Server {
             this.Kick(client);
             return;
         }
-        // Execute command on the player
-        player[args[1]].bind(player)(...args.slice(2));
-        // Send the command to the other players
-        this.clients
-            .filter(client => player.Origin != client.Player.Origin)
-            .forEach(client => client.SendCommand(args));
+        try {
+            // Execute command on the player
+            player[args[1]].bind(player)(...args.slice(2));
+            // Send the command to the other players
+            this.clients
+                .filter(client => player.Origin != client.Player.Origin)
+                .forEach(client => client.SendCommand(args));
+        }
+        catch (_a) {
+            // Kick if we receive an exception
+            client.SendKick();
+        }
     }
     /**
      * Kick client out of the server.
@@ -9305,35 +9382,6 @@ class Server {
             // Add client to the internal client list
             this.clients.push(client);
         });
-    }
-    /**
-     * Compare two export objects using a diff.
-     * @param diff
-     * @returns Return true if only position or direction is different.
-     */
-    static OnlyPosDiff(diff) {
-        const props = Exportable_1.Exportable.ToDict(diff);
-        // No diff
-        if (Object.keys(props).length == 0) {
-            return true;
-        }
-        // Only position diff
-        if (Object.keys(props).length === 1 &&
-            props.hasOwnProperty("position")) {
-            return true;
-        }
-        // Only direction diff
-        if (Object.keys(props).length === 1 &&
-            props.hasOwnProperty("direction")) {
-            return true;
-        }
-        // Only position and direction diff
-        if (Object.keys(props).length === 2 &&
-            props.hasOwnProperty("position") &&
-            props.hasOwnProperty("direction")) {
-            return true;
-        }
-        return false;
     }
 }
 exports.Server = Server;

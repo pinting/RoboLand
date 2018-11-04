@@ -15,6 +15,7 @@ export class Sender extends MessageHandler
 {
     private readonly sleepTime: number = 1000;
 
+    private server: Server;
     private player: PlayerActor;
     private last: { [id: string]: IExportObject } = {};
     private lastTime: { [id: string]: number } = {};
@@ -23,9 +24,11 @@ export class Sender extends MessageHandler
      * Construct a new connection which communicates with a client.
      * @param channel Direct channel to the client.
      */
-    constructor(channel: IChannel)
+    constructor(channel: IChannel, server: Server)
     {
         super(channel);
+
+        this.server = server;
     }
     
     /**
@@ -48,7 +51,8 @@ export class Sender extends MessageHandler
                 this.OnCommand(message.Payload);
                 break;
             default:
-                // Invalid: kick?
+                // Kick after any sort of manipulation
+                this.SendKick();
                 break;
         }
     }
@@ -80,9 +84,9 @@ export class Sender extends MessageHandler
 
         if(this.lastTime.hasOwnProperty(element.Id) && 
             this.lastTime[element.Id] + this.sleepTime >= now &&
-            Server.OnlyPosDiff(diff))
+            BaseElement.IsOnlyPosDiff(diff))
         {
-            Logger.Info(this, "Optimized", element);
+            Logger.Info(this, "Element was optimized out", element);
             return;
         }
 
@@ -131,9 +135,21 @@ export class Sender extends MessageHandler
     /**
      * Kick the client off.
      */
-    public SendKick(): void
+    public async SendKick(): Promise<void>
     {
-        this.SendMessage(MessageType.Kick, null);
+        if(!this.channel)
+        {
+            return;
+        }
+
+        Logger.Info(this, "Player was kicked", this.player);
+
+        await this.SendMessage(MessageType.Kick, null);
+
+        this.channel.Close();
+        this.channel = null;
+
+        this.server.Kick(this);
     }
 
     /**

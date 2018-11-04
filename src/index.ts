@@ -146,7 +146,7 @@ const ClickAdd = async (): Promise<void> =>
     channel.OnOpen = () => 
     {
         SetMessage("A new player joined!");
-        server.Add(new Sender(channel));
+        server.Add(new Sender(channel, server));
     };
 
     while(true)
@@ -201,7 +201,7 @@ const CreateReceiver = async (renderer: Renderer): Promise<Receiver> =>
     localB.SetOther(localA);
 
     // Add connection to the server
-    server.Add(new Sender(localA));
+    server.Add(new Sender(localA, server));
 
     // Connect client to the server
     return new Receiver(localB, board);
@@ -306,15 +306,15 @@ const Debugger = async (delay = 10) =>
     channelB1.SetOther(channelB2);
     channelB2.SetOther(channelB1);
 
-    const receiverA = new Receiver(channelA1, boardA);
+    const receiverA = new Receiver(channelA1, boardA)
     const receiverB = new Receiver(channelB1, boardB);
     
     const raw: IExportObject = JSON.parse(await Http.Get("res/board.json"));
     const boardServer: Board = Exportable.Import(raw);
     const server = new Server(boardServer);
     
-    server.Add(new Sender(channelA2));
-    server.Add(new Sender(channelB2));
+    server.Add(new Sender(channelA2, server));
+    server.Add(new Sender(channelB2, server));
     
     receiverA.OnPlayer = async player =>
     {

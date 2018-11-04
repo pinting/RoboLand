@@ -1,5 +1,6 @@
 import { IChannel } from "./IChannel";
 import { Tools } from "../../Util/Tools";
+import { Logger } from "../../Util/Logger";
 
 export class FakeChannel implements IChannel
 {
@@ -34,6 +35,14 @@ export class FakeChannel implements IChannel
         {
             setTimeout(() => this.other.OnMessage(message), this.delay);
         }
+    }
+
+    /**
+     * Close the channel.
+     */
+    public Close()
+    {
+        Logger.Info("Channel was closed!");
     }
 
     /**

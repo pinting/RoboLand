@@ -1,8 +1,6 @@
 import { BaseActor, BaseActorArgs } from "./BaseActor";
 import { Coord } from "../../Coord";
-import { PlayerActor } from "./PlayerActor";
 import { LivingActor } from "./LivingActor";
-import { TickActor } from "./TickActor";
 import { Exportable } from "../../Exportable";
 
 export interface ArrowActorArgs extends BaseActorArgs
@@ -12,7 +10,7 @@ export interface ArrowActorArgs extends BaseActorArgs
     speed?: number;
 }
 
-export class ArrowActor extends TickActor
+export class ArrowActor extends BaseActor
 {
     protected direction: Coord;
     protected damage: number;
