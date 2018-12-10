@@ -1,6 +1,6 @@
 import { Board } from "./Board";
 import { BaseElement } from "./Element/BaseElement";
-import { Event } from "./Util/Event";
+import { Event } from "./Tools/Event";
 
 export class Renderer
 {

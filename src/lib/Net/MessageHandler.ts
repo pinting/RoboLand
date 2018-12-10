@@ -1,8 +1,8 @@
 import { IChannel } from "./Channel/IChannel";
 import { MessageType } from "./MessageType";
 import { IMessage } from "./IMessage";
-import { Event } from "../Util/Event";
-import { Logger } from "../Util/Logger";
+import { Event } from "../Tools/Event";
+import { Logger } from "../Tools/Logger";
 
 export abstract class MessageHandler
 {
@@ -23,7 +23,7 @@ export abstract class MessageHandler
     }
 
     /**
-     * Receive a message through the channel.
+     * Receive a Message through the channel.
      * @param input 
      */
     private ParseMessage(input: string): void
@@ -86,15 +86,15 @@ export abstract class MessageHandler
     }
 
     /**
-    * Send a message through the channel.
-    * @param type Type of the message.
+    * Send a Message through the channel.
+    * @param type Type of the Message.
     * @param payload
     */
    protected async SendMessage(type: MessageType, payload: any): Promise<void>
    {
        return new Promise<void>((resolve, reject) => 
        {
-           // Create the message
+           // Create the Message
            const message: IMessage = {
                Type: type,
                Index: this.outIndex++,
@@ -102,7 +102,7 @@ export abstract class MessageHandler
            };
 
            // Create a new RECEIVED listener if this was not
-           // a acknowledge message
+           // a acknowledge Message
            if (message.Type != MessageType.Received) 
            {
                 const listener = this.receivedEvent.Add(index => 
@@ -123,7 +123,7 @@ export abstract class MessageHandler
                resolve();
            }
 
-           // Send message
+           // Send Message
            this.channel.SendMessage(JSON.stringify(message));
 
            Logger.Info(this, "Message was sent", message);

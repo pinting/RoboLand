@@ -1,4 +1,4 @@
-import { Tools } from "../Util/Tools";
+import { Utils } from "../Tools/Utils";
 import { IChannel } from "./Channel/IChannel";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { Exportable } from "../Exportable";
@@ -9,7 +9,7 @@ import { IExportObject } from "../IExportObject";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
 import { Server } from "./Server";
-import { Logger } from "../Util/Logger";
+import { Logger } from "../Tools/Logger";
 
 export class Sender extends MessageHandler
 {
@@ -40,7 +40,7 @@ export class Sender extends MessageHandler
     }
 
     /**
-     * Receive a message through the channel and parse it.
+     * Receive a Message through the channel and parse it.
      * @param message 
      */
     protected OnMessage(message: IMessage): void
@@ -156,5 +156,5 @@ export class Sender extends MessageHandler
      * Executed when the Connection receives a COMMAND from the client.
      * @param command
      */
-    public OnCommand: (command: IExportObject) => void = Tools.Noop;
+    public OnCommand: (command: IExportObject) => void = Utils.Noop;
 }

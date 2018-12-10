@@ -5,12 +5,12 @@ import { Exportable } from "../Exportable";
 import { BaseCell } from "../Element/Cell/BaseCell";
 import { BaseActor } from "../Element/Actor/BaseActor";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
-import { Tools } from "../Util/Tools";
+import { Utils } from "../Tools/Utils";
 import { Coord } from "../Coord";
 import { IExportObject } from "../IExportObject";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
-import { Logger } from "../Util/Logger";
+import { Logger } from "../Tools/Logger";
 import { Server } from "./Server";
 import { BaseElement } from "../Element/BaseElement";
 
@@ -38,7 +38,7 @@ export class Receiver extends MessageHandler
     }
 
     /**
-     * Receive a message through the channel.
+     * Receive a Message through the channel.
      * @param message 
      */
     protected OnMessage(message: IMessage): void
@@ -153,7 +153,7 @@ export class Receiver extends MessageHandler
     {
         const player = this.player = <PlayerActor>this.board.Actors.Get(id);
 
-        this.OnPlayer(Tools.Hook(player, (target, prop, args) => 
+        this.OnPlayer(Utils.Hook(player, (target, prop, args) => 
         {
             const exportable = Exportable.Export([player.Id, prop].concat(args));
 
@@ -211,5 +211,5 @@ export class Receiver extends MessageHandler
     /**
      * Executed when the player is set.
      */
-    public OnPlayer: (player: PlayerActor) => void = Tools.Noop;
+    public OnPlayer: (player: PlayerActor) => void = Utils.Noop;
 }

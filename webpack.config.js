@@ -3,12 +3,12 @@ const path = require("path");
 
 module.exports = {
     entry: "./src/index.ts",
-    mode: "development",
-    devtool: "source-map",
     output: {
         path: path.resolve(__dirname, "docs"),
-        filename: "index.js"
+        filename: "./index.js"
     },
+    mode: "development",
+    devtool: "source-map",
     resolve: {
         extensions: [".js", ".ts", ".tsx"],
         modules: [
@@ -19,21 +19,21 @@ module.exports = {
         rules: [
             {
                 test: /\.(ts|tsx)$/,
-                loader: "ts-loader" 
+                loader: "ts-loader"
+            },
+            {
+                test: /\.css$/,
+                loader: ["style-loader", "css-loader"]
             }
         ]
     },
     plugins: [
         new copyWebpackPlugin([
             {
-                from: path.resolve(__dirname, "src/res"),
-                to: "res",
-                toType: "dir"
-            },
-            {
-                from: path.resolve(__dirname, "src/index.html"),
-                to: "index.html",
-                toType: "file"
+                ignore: ["*.js", "*.ts", "*.tsx"],
+                context: path.resolve(__dirname, "src"),
+                from: "**/*",
+                to: "./"
             }
         ])
     ],

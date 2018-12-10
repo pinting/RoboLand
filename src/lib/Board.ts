@@ -1,12 +1,12 @@
 import { Coord } from "./Coord";
 import { BaseActor } from "./Element/Actor/BaseActor";
-import { Tools } from "./Util/Tools";
+import { Utils } from "./Tools/Utils";
 import { BaseCell } from "./Element/Cell/BaseCell";
 import { BaseElement } from "./Element/BaseElement";
 import { ElementList } from "./ElementList";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
 import { Exportable } from "./Exportable";
-import { Event } from "./Util/Event";
+import { Event } from "./Tools/Event";
 import { IExportObject } from "./IExportObject";
 
 export class Board extends Exportable
@@ -20,7 +20,7 @@ export class Board extends Exportable
     /**
      * Origin of the Board.
      */
-    public Origin: string = Tools.Unique();
+    public Origin: string = Utils.Unique();
 
     /**
      * Called when the board was updated.

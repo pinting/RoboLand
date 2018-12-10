@@ -1,6 +1,6 @@
 import { IChannel } from "./IChannel";
-import { Tools } from "../../Util/Tools";
-import { Logger } from "../../Util/Logger";
+import { Utils } from "../../Tools/Utils";
+import { Logger } from "../../Tools/Logger";
 
 export class FakeChannel implements IChannel
 {
@@ -26,7 +26,7 @@ export class FakeChannel implements IChannel
     }
     
     /**
-     * Send a message to the other peer.
+     * Send a Message to the other peer.
      * @param message 
      */
     public SendMessage(message: string): void 
@@ -46,7 +46,7 @@ export class FakeChannel implements IChannel
     }
 
     /**
-     * Receive a message from the other peer.
+     * Receive a Message from the other peer.
      */
-    public OnMessage: (message: string) => void = Tools.Noop;
+    public OnMessage: (message: string) => void = Utils.Noop;
 }

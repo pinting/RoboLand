@@ -1,6 +1,4 @@
-declare var navigator: { clipboard: any } & Navigator;
-
-export class Tools
+export class Utils
 {
     /**
      * Returns a random integer between min (included) and max (included).
@@ -61,7 +59,7 @@ export class Tools
                     }
                     break;
                 case "object":
-                    const sub = Tools.Diff(source[key], target[key], limit - 1);
+                    const sub = Utils.Diff(source[key], target[key], limit - 1);
                     
                     if(sub != null && Object.keys(sub).length)
                     {
@@ -148,51 +146,6 @@ export class Tools
                     }
                 }
             });
-    }
-
-    /**
-     * Copy to clipboard.
-     * @param text 
-     */
-    public static async Clipboard(text: string): Promise<boolean> 
-    {
-        const fallback = async (text) => 
-        {
-            return new Promise<boolean>(resolve => 
-            {
-                var field = document.createElement("textarea");
-    
-                field.value = text;
-                document.body.appendChild(field);
-    
-                field.focus();
-                field.select();
-    
-                try
-                {
-                    resolve(document.execCommand("copy"));
-                }
-                catch (e) {
-                    resolve(false);
-                }
-    
-                document.body.removeChild(field);
-            });
-        }
-
-        if (!navigator.clipboard) 
-        {
-            return fallback(text);
-        }
-
-        try {
-            await navigator.clipboard.writeText(text);
-            return true;
-        }
-        catch(e)
-        {
-            return fallback(text);
-        }
     }
 
     /**

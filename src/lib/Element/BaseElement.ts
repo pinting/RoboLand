@@ -1,9 +1,9 @@
 import { Coord } from "../Coord";
-import { Tools } from "../Util/Tools";
+import { Utils } from "../Tools/Utils";
 import { Board } from "../Board";
 import { Exportable } from "../Exportable";
 import { IExportObject } from "../IExportObject";
-import { Logger } from "../Util/Logger";
+import { Logger } from "../Tools/Logger";
 
 export interface BaseElementArgs
 {
@@ -42,7 +42,7 @@ export abstract class BaseElement extends Exportable
      */
     protected InitPre(args: BaseElementArgs = {})
     {
-        this.id = args.id || Tools.Unique();
+        this.id = args.id || Utils.Unique();
         this.board = args.board || Board.Current;
         this.origin = args.origin || this.board.Origin;
         this.size = args.size;

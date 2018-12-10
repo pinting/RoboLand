@@ -25,7 +25,7 @@ export class TimeoutEvent<T> extends Event<T>
     {
         const id = super.Add(callback);
 
-        this.timers[id] = setTimeout(() =>
+        this.timers[id] = <any>setTimeout(() =>
         {
             callback(null);
             this.Remove(id);

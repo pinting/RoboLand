@@ -4,7 +4,7 @@ import { Sender } from "./Sender";
 import { Exportable } from "../Exportable";
 import { IExportObject } from "../IExportObject";
 import { Coord } from "../Coord";
-import { Tools } from "../Util/Tools";
+import { Utils } from "../Tools/Utils";
 
 export class Server
 {
@@ -85,7 +85,7 @@ export class Server
         // Create player and add it to the board
         Board.Current = this.board;
 
-        const playerTag = Tools.Unique();
+        const playerTag = Utils.Unique();
         const player = new PlayerActor;
 
         player.Init({

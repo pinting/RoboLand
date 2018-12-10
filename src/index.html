@@ -4,62 +4,9 @@
     <title>RoboLand</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <style>
-        body {
-            background: black;
-            overflow: none;
-            color: white;
-        }
-
-        button, input {
-            box-sizing: border-box;
-            display: block;
-            border: 0;
-            padding: 5px;
-            margin: 1px;
-        }
-
-        .center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .corner {
-            position: fixed;
-            bottom: 0;
-            right: 0;
-        }
-
-        .corner button {
-            margin: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 100px;
-        }
-
-        #add-button {
-            display: none;
-        }
-
-        #message-div {
-            position: fixed;
-            bottom: 25px;
-            left: 0;
-            width: 100%;
-            text-align: center;
-        }
-    </style>
+    <script type="text/javascript" src="index.js"></script>
 </head>
 <body>
-    <div class="center">
-        <canvas id="game-canvas"></canvas>
-    </div>
-    <div class="corner">
-        <button id="add-button">Add</button>
-    </div>
-    <div id="message-div"></div>
-    <script type="text/javascript" src="index.js"></script>
+    <div id="root"></div>
 </body>
 </html>

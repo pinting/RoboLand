@@ -1,4 +1,4 @@
-import { Logger } from "../Util/Logger";
+import { Logger } from "../Tools/Logger";
 import { BaseElement, BaseElementArgs } from "./BaseElement";
 
 export abstract class TickElement extends BaseElement

@@ -1,0 +1,13 @@
+body {
+    background: black;
+    overflow: none;
+    color: white;
+}
+
+button, input {
+    box-sizing: border-box;
+    display: block;
+    border: 0;
+    padding: 5px;
+    margin: 1px;
+}

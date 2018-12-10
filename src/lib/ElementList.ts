@@ -1,9 +1,9 @@
 import { Coord } from "./Coord";
 import { BaseElement } from "./Element/BaseElement";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
-import { Tools } from "./Util/Tools";
-import { Event } from "./Util/Event";
-import { Logger } from "./Util/Logger";
+import { Utils } from "./Tools/Utils";
+import { Event } from "./Tools/Event";
+import { Logger } from "./Tools/Logger";
 
 export class ElementList<Element extends BaseElement> implements IReadOnlyElementList<Element>
 {
@@ -131,7 +131,7 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
 
         if(old)
         {
-            Tools.Extract(old, element);
+            Utils.Extract(old, element);
             Logger.Info(this, "Element was moded!", element);
         }
         else

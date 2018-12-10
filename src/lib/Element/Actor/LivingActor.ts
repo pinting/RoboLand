@@ -1,5 +1,5 @@
 import { BaseActor, BaseActorArgs } from "./BaseActor";
-import { Logger } from "../../Util/Logger";
+import { Logger } from "../../Tools/Logger";
 
 export interface LivingActorArgs extends BaseActorArgs
 {

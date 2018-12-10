@@ -1,0 +1,27 @@
+.game-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.game-corner {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+}
+
+.game-corner button {
+    margin: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 100px;
+}
+
+.game-message {
+    position: fixed;
+    bottom: 25px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+}
