@@ -16,7 +16,7 @@ import { BaseElement } from "../Element/BaseElement";
 
 export class Receiver extends MessageHandler
 {
-    private readonly maxDistance: number = 2;
+    private readonly maxDistance: number = 0.2;
 
     private board: Board;
     private player: PlayerActor;
@@ -129,7 +129,7 @@ export class Receiver extends MessageHandler
         // If we have an older version, merge it
         const merged = Exportable.Export(oldElement);
 
-        Exportable.Merge(diff, merged);
+        Exportable.ShallowMerge(diff, merged);
 
         const newElement: BaseElement = Exportable.Import(merged);
 
@@ -162,7 +162,7 @@ export class Receiver extends MessageHandler
     }
 
     /**
-     * Receive the size of the board.
+     * Receive the $size of the board.
      * @param size 
      */
     private ReceiveSize(exportable: IExportObject): void

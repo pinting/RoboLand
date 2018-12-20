@@ -28,22 +28,24 @@ export abstract class Exportable
     /**
      * Export a property.
      * @param name
+     * @param protect Export only the public properties starting with "$". 
      */
-    protected ExportProperty(name: string): IExportObject
+    protected ExportProperty(name: string, protect: boolean = false): IExportObject
     {
-        return Exportable.Export(this[name], name);
+        return Exportable.Export(this[name], protect, name);
     }
 
     /**
      * Export all properties.
+     * @param protect Export only the public properties starting with "$". 
      */
-    public ExportAll(): IExportObject[]
+    public ExportAll(protect: boolean = false): IExportObject[]
     {
         const result: IExportObject[] = [];
 
         for (let property in this)
         {
-            const exported = this.ExportProperty(property);
+            const exported = this.ExportProperty(property, protect);
 
             if(exported)
             {
@@ -56,18 +58,25 @@ export abstract class Exportable
 
     /**
      * Export a whole object - including itself.
-     * @param object 
-     * @param name 
+     * @param object The object to export.
+     * @param protect Export only the public properties starting with "$". 
+     * @param name Name to export with.
      */
-    public static Export(object: any, name: string = null): IExportObject
+    public static Export(object: any, protect: boolean = false, name: string = null): IExportObject
     {
+        // Only allow public props in protected mode
+        if(protect && name && isNaN(Number(name)) && name[0] !== "$")
+        {
+            return null;
+        }
+
         // Export each element of an array
         if(object instanceof Array)
         {
             return {
                 Name: name,
                 Class: object.constructor.name,
-                Payload: object.map((e, i) => Exportable.Export(e, i.toString()))
+                Payload: object.map((e, i) => Exportable.Export(e, protect, i.toString()))
             };
         }
 
@@ -77,7 +86,7 @@ export abstract class Exportable
             return {
                 Name: name,
                 Class: object.constructor.name,
-                Payload: object.ExportAll()
+                Payload: object.ExportAll(protect)
             };
         }
 
@@ -187,11 +196,12 @@ export abstract class Exportable
     }
 
     /**
-     * Shallow merge two exported objects.
+     * Shallow merge two selected objects. Only the top layer 
+     * gonna be merged - so this is not a deep merge.
      * @param target Other gonna be merged here!
      * @param other 
      */
-    public static Merge(target: IExportObject, other: IExportObject): void
+    public static ShallowMerge(target: IExportObject, other: IExportObject): void
     {
         if(!target || !target.Payload || !target.Payload.length)
         {

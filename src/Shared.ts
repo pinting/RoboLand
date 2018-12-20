@@ -22,10 +22,21 @@ Exportable.Register(WaterCell);
 Exportable.Register(Board);
 Exportable.Register(Coord);
 
-export class Shared<P = {}, S = {}> extends React.Component<P, S>
+export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
 {
     protected readonly shotDelay: number = 1000;
     protected nextShoot = +new Date(0);
+
+    /**
+     * The consturtor of the Shared element - which is abstract, so
+     * cannot be constructed on its own.
+     * @param props
+     */
+    constructor(props) 
+    {
+        super(props);
+        Keyboard.Init();
+    }
 
     /**
      * Game cycle

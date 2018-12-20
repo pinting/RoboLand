@@ -102,7 +102,7 @@ export class Server
 
         this.board.Actors.Set(player);
 
-        // Set size
+        // Set $size
         await client.SendSize(this.board.Size);
 
         // Set cells

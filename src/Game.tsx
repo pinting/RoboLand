@@ -13,6 +13,7 @@ import { Http } from "./lib/Tools/Http";
 import { Utils } from "./lib/Tools/Utils";
 import { Helper } from "./Helper";
 import { Shared } from "./Shared";
+import { Constants } from "./Constants";
 
 /**
  * Type of the connect format.
@@ -34,14 +35,14 @@ interface ConnectFormat
 }
 
 /**
- * Props of the Game element.
+ * Props of the Game view.
  */
 interface GameProps {
     // Empty
 }
 
 /**
- * State of the Game element.
+ * State of the Game view.
  */
 interface GameState {
     message: string;
@@ -50,6 +51,8 @@ interface GameState {
 
 export class Game extends Shared<GameProps, GameState>
 {
+    public static Name = "game";
+
     private canvas: HTMLCanvasElement;
 
     private tabId: string = Utils.Unique();
@@ -59,7 +62,7 @@ export class Game extends Shared<GameProps, GameState>
     private server: Server;
 
     /**
-     * Construct a new Game element.
+     * Construct a new Game view.
      */
     constructor(props) 
     {
@@ -81,8 +84,8 @@ export class Game extends Shared<GameProps, GameState>
             location.pathname + 
             "#" + 
             Helper.CreateHash({
-                "view": "game",
-                "connect": btoa(JSON.stringify(format))
+                [Constants.Params.View]: Game.Name,
+                [Constants.Params.Connect]: btoa(JSON.stringify(format))
             });
     };
 
@@ -93,7 +96,7 @@ export class Game extends Shared<GameProps, GameState>
     {
         try 
         {
-            const connect = Helper.GetParam("connect");
+            const connect = Helper.GetParam(Constants.Params.Connect);
 
             return JSON.parse(atob(connect));
         }
@@ -163,12 +166,12 @@ export class Game extends Shared<GameProps, GameState>
         try 
         {
             const rawboard = JSON.parse(await Http.Get("res/board.json"));
-            const serverboard = Exportable.Import(rawboard);
+            const serverBoard = Exportable.Import(rawboard);
 
-            this.server = new Server(serverboard);
+            this.server = new Server(serverBoard);
 
             // Use the tick of the local client on the server
-            renderer.OnDraw.Add(() => serverboard.OnTick.Call());
+            renderer.OnDraw.Add(() => serverBoard.OnTick.Call());
         }
         catch(e)
         {
@@ -197,8 +200,6 @@ export class Game extends Shared<GameProps, GameState>
      */
     private async Start()
     {
-        Keyboard.Init();
-
         const renderer = new Renderer(this.board, this.canvas);
         const receiver = await this.CreateReceiver(renderer);
 
@@ -269,7 +270,7 @@ export class Game extends Shared<GameProps, GameState>
     }
 
     /**
-     * Render the Game element.
+     * Render the Game view.
      */
     public render(): JSX.Element
     {

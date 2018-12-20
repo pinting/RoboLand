@@ -21,9 +21,9 @@ export abstract class BaseElement extends Exportable
     protected id: string;
     protected board: Board;
     protected origin: string; // ID of the origin element
-    protected position: Coord;
-    protected size: Coord;
-    protected texture: string;
+    protected $position: Coord;
+    protected $size: Coord;
+    protected $texture: string;
 
     /**
      * Construct a new element with the given init args.
@@ -45,8 +45,8 @@ export abstract class BaseElement extends Exportable
         this.id = args.id || Utils.Unique();
         this.board = args.board || Board.Current;
         this.origin = args.origin || this.board.Origin;
-        this.size = args.size;
-        this.texture = args.texture;
+        this.$size = args.size;
+        this.$texture = args.texture;
     }
 
     /**
@@ -75,27 +75,27 @@ export abstract class BaseElement extends Exportable
     }
 
     /**
-     * Get the size of the element.
+     * Get the $size of the element.
      */
     public get Size(): Coord
     {
-        return this.size.Clone();
+        return this.$size.Clone();
     }
 
     /**
-     * Get the texture of the element.
+     * Get the $texture of the element.
      */
     public get Texture(): string
     {
-        return this.texture;
+        return this.$texture;
     }
 
     /**
-     * Get the position of the element.
+     * Get the $position of the element.
      */
     public get Position(): Coord
     {
-        return this.position && this.position.Clone();
+        return this.$position && this.$position.Clone();
     }
 
     /**
@@ -107,18 +107,18 @@ export abstract class BaseElement extends Exportable
     }
 
     /**
-     * Set the position of the element.
+     * Set the $position of the element.
      * @param position 
      */
-    protected SetPos(position: Coord): boolean
+    public SetPos(position: Coord): boolean
     {
-        if((position && this.position && this.position.Is(position)) &&
-            (position === this.position))
+        if((position && this.$position && this.$position.Is(position)) &&
+            (position === this.$position))
         {
             return false;
         }
 
-        this.position = position;
+        this.$position = position;
         this.board.OnUpdate.Call(this);
 
         return true;
@@ -143,7 +143,7 @@ export abstract class BaseElement extends Exportable
     /**
      * @inheritDoc
      */
-    public ExportProperty(name: string): IExportObject
+    public ExportProperty(name: string, protect: boolean = false): IExportObject
     {
         // Filter what to export
         switch(name)
@@ -152,7 +152,7 @@ export abstract class BaseElement extends Exportable
             case "tickEvent":
                 return undefined;
             default:
-                return super.ExportProperty(name);
+                return super.ExportProperty(name, protect);
         }
     }
 
@@ -190,7 +190,7 @@ export abstract class BaseElement extends Exportable
     /**
      * Compare two export objects using a diff.
      * @param diff
-     * @returns Return true if only position or direction is different.
+     * @returns Return true if only $position or direction is different.
      */
     public static IsOnlyPosDiff(diff: IExportObject): boolean
     {
@@ -202,7 +202,7 @@ export abstract class BaseElement extends Exportable
             return true;
         }
 
-        // Only position diff
+        // Only $position diff
         if(Object.keys(props).length === 1 &&
             props.hasOwnProperty("position"))
         {
@@ -216,7 +216,7 @@ export abstract class BaseElement extends Exportable
             return true;
         }
 
-        // Only position and direction diff
+        // Only $position and direction diff
         if(Object.keys(props).length === 2 &&
             props.hasOwnProperty("position") &&
             props.hasOwnProperty("direction"))

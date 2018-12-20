@@ -17,10 +17,11 @@ import { Logger } from "./lib/Tools/Logger";
 import { SimplexNoise } from "./lib/Tools/SimplexNoise";
 import { Shared } from "./Shared";
 import { Utils } from "./lib/Tools/Utils";
+import { Constants } from "./Constants";
 
 export class Debug extends Shared
 {
-    private readonly delay: number = 10;
+    public static Name = "debug";
 
     private canvasA: HTMLCanvasElement;
     private canvasB: HTMLCanvasElement;
@@ -33,6 +34,8 @@ export class Debug extends Shared
     {
         Keyboard.Init();
 
+        const delay = Constants.DebugDelay;
+
         const boardA: Board = new Board();
         const boardB: Board = new Board();
     
@@ -43,10 +46,10 @@ export class Debug extends Shared
         const rendererA = new Renderer(boardA, this.canvasA);
         const rendererB = new Renderer(boardB, this.canvasB);
         
-        const channelA1 = new FakeChannel(this.delay);
-        const channelA2 = new FakeChannel(this.delay);
-        const channelB1 = new FakeChannel(this.delay);
-        const channelB2 = new FakeChannel(this.delay);
+        const channelA1 = new FakeChannel(delay);
+        const channelA2 = new FakeChannel(delay);
+        const channelB1 = new FakeChannel(delay);
+        const channelB2 = new FakeChannel(delay);
         
         channelA1.SetOther(channelA2);
         channelA2.SetOther(channelA1);
@@ -136,7 +139,7 @@ export class Debug extends Shared
     }
 
     /**
-     * Render the Debug element.
+     * Render the Debug view.
      */
     public render(): JSX.Element
     {

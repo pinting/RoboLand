@@ -130,9 +130,9 @@ export class SimplexNoise
         let i: number = Math.floor(xin + s);
         let j: number = Math.floor(yin + s);
         let t: number = (i + j) * SimplexNoise.G2;
-        let X0: number = i - t; // Unskew the cell origin back to (X, Y) space
+        let X0: number = i - t; // Unskew the cell origin back to ($X, $Y) space
         let Y0: number = j - t;
-        let x0: number = xin - X0; // The X, Y distances from the cell origin
+        let x0: number = xin - X0; // The $X, $Y distances from the cell origin
         let y0: number = yin - Y0;
 
         // For the 2D case, the simplex shape is an equilateral triangle.
@@ -155,13 +155,13 @@ export class SimplexNoise
             j1 = 1;
         }
 
-        // A step of (1, 0) in (i, j) means a step of (1 - c, -c) in (X, Y), and
-        // a step of (0, 1) in (i, j) means a step of (-c, 1 - c) in (X, Y), where
+        // A step of (1, 0) in (i, j) means a step of (1 - c, -c) in ($X, $Y), and
+        // a step of (0, 1) in (i, j) means a step of (-c, 1 - c) in ($X, $Y), where
         // c = (3 - sqrt(3)) / 6
 
-        let x1: number = x0 - i1 + SimplexNoise.G2; // Offsets for middle corner in (X, Y) unskewed coords
+        let x1: number = x0 - i1 + SimplexNoise.G2; // Offsets for middle corner in ($X, $Y) unskewed coords
         let y1: number = y0 - j1 + SimplexNoise.G2;
-        let x2: number = x0 - 1.0 + 2.0 * SimplexNoise.G2; // Offsets for last corner in (X, Y) unskewed coords
+        let x2: number = x0 - 1.0 + 2.0 * SimplexNoise.G2; // Offsets for last corner in ($X, $Y) unskewed coords
         let y2: number = y0 - 1.0 + 2.0 * SimplexNoise.G2;
 
         // Work out the hashed gradient indices of the three simplex corners
@@ -181,7 +181,7 @@ export class SimplexNoise
         else 
         {
             t0 *= t0;
-            n0 = t0 * t0 * SimplexNoise.Dot(SimplexNoise.grad3[gi0], x0, y0);  // (X, Y) of grad3 used for 2D gradient
+            n0 = t0 * t0 * SimplexNoise.Dot(SimplexNoise.grad3[gi0], x0, y0);  // ($X, $Y) of grad3 used for 2D gradient
         }
 
         let t1: number = 0.5 - x1 * x1 - y1 * y1;
@@ -235,10 +235,10 @@ export class SimplexNoise
         let j: number = Math.floor(yin + s);
         let k: number = Math.floor(zin + s);
         let t: number = (i + j + k) * SimplexNoise.G3;
-        let X0: number = i - t; // Unskew the cell origin back to (X, Y, Z) space
+        let X0: number = i - t; // Unskew the cell origin back to ($X, $Y, Z) space
         let Y0: number = j - t;
         let Z0: number = k - t;
-        let x0: number = xin - X0; // The X, Y, Z distances from the cell origin
+        let x0: number = xin - X0; // The $X, $Y, Z distances from the cell origin
         let y0: number = yin - Y0;
         let z0: number = zin - Z0;
 
@@ -258,38 +258,38 @@ export class SimplexNoise
         if (x0 >= y0) {
             if (y0 >= z0) 
             {
-                // X Y Z order
+                // $X $Y Z order
                 i1 = 1; j1 = 0; k1 = 0; i2 = 1; j2 = 1; k2 = 0; 
             }
             else if (x0 >= z0) 
             {
-                // X Z Y order 
+                // $X Z $Y order 
                 i1 = 1; j1 = 0; k1 = 0; i2 = 1; j2 = 0; k2 = 1; 
             }
             else 
             {
-                // Z X Y order
+                // Z $X $Y order
                 i1 = 0; j1 = 0; k1 = 1; i2 = 1; j2 = 0; k2 = 1; 
             }
         }
         else {
             // x0 < y0
-            if (y0 < z0) { i1 = 0; j1 = 0; k1 = 1; i2 = 0; j2 = 1; k2 = 1; } // Z Y X order
-            else if (x0 < z0) { i1 = 0; j1 = 1; k1 = 0; i2 = 0; j2 = 1; k2 = 1; } // Y Z X order
-            else { i1 = 0; j1 = 1; k1 = 0; i2 = 1; j2 = 1; k2 = 0; } // Y X Z order
+            if (y0 < z0) { i1 = 0; j1 = 0; k1 = 1; i2 = 0; j2 = 1; k2 = 1; } // Z $Y $X order
+            else if (x0 < z0) { i1 = 0; j1 = 1; k1 = 0; i2 = 0; j2 = 1; k2 = 1; } // $Y Z $X order
+            else { i1 = 0; j1 = 1; k1 = 0; i2 = 1; j2 = 1; k2 = 0; } // $Y $X Z order
         }
 
-        // A step of (1, 0, 0) in (i, j, k) means a step of (1 - c , -c, -c) in (X, Y, Z),
-        // a step of (0, 1, 0) in (i, j, k) means a step of (-c, 1-c, -c) in (X, Y, Z), and
-        // a step of (0, 0, 1) in (i, j, k) means a step of (-c, -c, 1-c) in (X, Y, Z), where
+        // A step of (1, 0, 0) in (i, j, k) means a step of (1 - c , -c, -c) in ($X, $Y, Z),
+        // a step of (0, 1, 0) in (i, j, k) means a step of (-c, 1-c, -c) in ($X, $Y, Z), and
+        // a step of (0, 0, 1) in (i, j, k) means a step of (-c, -c, 1-c) in ($X, $Y, Z), where
         // c = 1 / 6.
-        let x1 = x0 - i1 + SimplexNoise.G3; // Offsets for second corner in (X, Y, Z) coords
+        let x1 = x0 - i1 + SimplexNoise.G3; // Offsets for second corner in ($X, $Y, Z) coords
         let y1 = y0 - j1 + SimplexNoise.G3;
         let z1 = z0 - k1 + SimplexNoise.G3;
-        let x2 = x0 - i2 + 2.0 * SimplexNoise.G3; // Offsets for third corner in (X, Y, Z) coords
+        let x2 = x0 - i2 + 2.0 * SimplexNoise.G3; // Offsets for third corner in ($X, $Y, Z) coords
         let y2 = y0 - j2 + 2.0 * SimplexNoise.G3;
         let z2 = z0 - k2 + 2.0 * SimplexNoise.G3;
-        let x3 = x0 - 1.0 + 3.0 * SimplexNoise.G3; // Offsets for last corner in (X, Y, Z) coords
+        let x3 = x0 - 1.0 + 3.0 * SimplexNoise.G3; // Offsets for last corner in ($X, $Y, Z) coords
         let y3 = y0 - 1.0 + 3.0 * SimplexNoise.G3;
         let z3 = z0 - 1.0 + 3.0 * SimplexNoise.G3;
 

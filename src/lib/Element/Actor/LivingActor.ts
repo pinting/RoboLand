@@ -10,9 +10,9 @@ export interface LivingActorArgs extends BaseActorArgs
 
 export abstract class LivingActor extends BaseActor
 {
-    protected health: number;
-    protected damage: number;
-    protected speed: number;
+    protected $health: number;
+    protected $damage: number;
+    protected $speed: number;
     
     /**
      * @inheritDoc
@@ -29,22 +29,22 @@ export abstract class LivingActor extends BaseActor
     {
         super.InitPre(args);
 
-        this.health = args.health;
-        this.damage = args.damage;
-        this.speed = args.speed;
+        this.$health = args.health;
+        this.$damage = args.damage;
+        this.$speed = args.speed;
     }
 
     /**
-     * Do damage to this actor.
-     * @param damage Amount of the damage.
+     * Do $damage to this actor.
+     * @param damage Amount of the $damage.
      */
     public Damage(damage: number): void
     {
-        this.health -= damage;
+        this.$health -= damage;
 
         Logger.Info(this, "Actor was damaged", damage, this);
 
-        if(this.health <= 0)
+        if(this.$health <= 0)
         {
             this.Dispose();
         }
@@ -57,6 +57,6 @@ export abstract class LivingActor extends BaseActor
      */
     public get Alive(): boolean
     {
-        return this.health > 0;
+        return this.$health > 0;
     }
 }

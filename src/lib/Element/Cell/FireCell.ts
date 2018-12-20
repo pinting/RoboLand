@@ -11,7 +11,7 @@ export interface FireCellArgs extends BaseElementArgs
 
 export class FireCell extends BaseCell
 {
-    protected damage: number;
+    protected $damage: number;
 
     /**
      * @inheritDoc
@@ -28,7 +28,7 @@ export class FireCell extends BaseCell
     {
         super.InitPre(args);
 
-        this.damage = args.damage;
+        this.$damage = args.damage;
     }
 
     /**
@@ -50,7 +50,7 @@ export class FireCell extends BaseCell
 
             if(actor instanceof LivingActor)
             {
-                actor.Damage(this.damage);
+                actor.Damage(this.$damage);
             }
         });
     }

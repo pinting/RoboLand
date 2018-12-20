@@ -1,6 +1,7 @@
 import { Board } from "./Board";
 import { BaseElement } from "./Element/BaseElement";
 import { Event } from "./Tools/Event";
+import { Coord } from "./Coord";
 
 export class Renderer
 {
@@ -72,7 +73,20 @@ export class Renderer
 
                 this.textures[path] = null;
             });
+
+            if(!elements.GetLength())
+            {
+                resolve();
+            }
         });
+    }
+
+    /**
+     * Find a Coord under a pixel point.
+     */
+    public Find(x: number, y: number): Coord
+    {
+        return new Coord(x / this.dpi, y / this.dpi);
     }
     
     /**
@@ -90,10 +104,10 @@ export class Renderer
         const size = element.Size;
         const texture = this.textures[element.Texture];
     
-        const x = coord.X;
-        const y = coord.Y;
-        const w = size.X;
-        const h = size.Y;
+        const x = coord.$X;
+        const y = coord.$Y;
+        const w = size.$X;
+        const h = size.$Y;
     
         if(texture) {
             this.context.drawImage(
@@ -121,10 +135,16 @@ export class Renderer
     {
         const size = this.board.Size;
     
-        this.canvas.width = this.dpi * size.X;
-        this.canvas.height = this.dpi * size.Y;
-        this.canvas.style.width = this.dpi * size.X + "px";
-        this.canvas.style.height = this.dpi * size.Y + "px";
+        const w = this.dpi * size.$X;
+        const h = this.dpi * size.$Y;
+
+        this.canvas.width = w;
+        this.canvas.height = h;
+        this.canvas.style.width = w + "px";
+        this.canvas.style.height = h + "px";
+
+        this.context.fillStyle = "black";
+        this.context.fillRect(0, 0, w, h);
         
         this.board.Cells.ForEach(e => this.Draw(e));
         this.board.Actors.ForEach(e => this.Draw(e));

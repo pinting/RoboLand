@@ -2,6 +2,8 @@ import * as React from "react";
 import { Game } from "./Game";
 import { Helper } from "./Helper";
 import { Debug } from "./Debug";
+import { Editor } from "./Editor";
+import { Constants } from "./Constants";
 
 export class App extends React.Component
 {
@@ -18,13 +20,15 @@ export class App extends React.Component
      */
     render(): JSX.Element
     {
-        switch(Helper.GetParam("view"))
+        switch(Helper.GetParam(Constants.Params.View))
         {
-            case "debug":
+            case Editor.Name:
+                return <Editor />;
+            case Debug.Name:
                 return <Debug />;
-            case "game":
+            case Game.Name:
             default:
-                return <Game />
+                return <Game />;
         }
     }
 }

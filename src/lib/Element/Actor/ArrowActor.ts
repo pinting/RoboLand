@@ -12,9 +12,9 @@ export interface ArrowActorArgs extends BaseActorArgs
 
 export class ArrowActor extends BaseActor
 {
-    protected direction: Coord;
-    protected damage: number;
-    protected speed: number;
+    protected $direction: Coord;
+    protected $damage: number;
+    protected $speed: number;
 
     /**
      * @inheritDoc
@@ -31,9 +31,9 @@ export class ArrowActor extends BaseActor
     {
         super.InitPre(args);
 
-        this.direction = args.direction;
-        this.damage = args.damage;
-        this.speed = args.speed;
+        this.$direction = args.direction;
+        this.$damage = args.damage;
+        this.$speed = args.speed;
     }
 
     /**
@@ -42,7 +42,7 @@ export class ArrowActor extends BaseActor
     protected OnTick(): void
     {
         const success = this.SetPos(this.Position.Add(
-            this.direction.F(c => c * this.speed)));
+            this.$direction.F(c => c * this.$speed)));
 
         // If the arrow hit a wall, dispose it
         if(!success)
@@ -61,7 +61,7 @@ export class ArrowActor extends BaseActor
         {
             if(actor instanceof LivingActor)
             {
-                actor.Damage(this.damage);
+                actor.Damage(this.$damage);
                 hit = true;
             }
         }
