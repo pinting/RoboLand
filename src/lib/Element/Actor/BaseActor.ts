@@ -37,7 +37,7 @@ export abstract class BaseActor extends TickElement
         const prevPos = this.Position;
         const nextPos = position;
 
-        // Check if it goes out of the board
+        // Check if it goes out of the _board
         if(nextPos && (!nextPos.Inside(new Coord(0, 0), this.board.Size) || 
             !nextPos.Add(this.Size).Inside(new Coord(0, 0), this.board.Size)))
         {
@@ -83,7 +83,7 @@ export abstract class BaseActor extends TickElement
      */
     public Dispose(value: boolean = true)
     {
-        if(this.disposed || !value)
+        if(this._disposed || !value)
         {
             return;
         }

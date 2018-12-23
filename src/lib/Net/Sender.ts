@@ -11,10 +11,10 @@ import { MessageHandler } from "./MessageHandler";
 import { Server } from "./Server";
 import { Logger } from "../Tools/Logger";
 
+const SLEEP_TIME = 1000;
+
 export class Sender extends MessageHandler
 {
-    private readonly sleepTime: number = 1000;
-
     private server: Server;
     private player: PlayerActor;
     private last: { [id: string]: IExportObject } = {};
@@ -83,7 +83,7 @@ export class Sender extends MessageHandler
         }
 
         if(this.lastTime.hasOwnProperty(element.Id) && 
-            this.lastTime[element.Id] + this.sleepTime >= now &&
+            this.lastTime[element.Id] + SLEEP_TIME >= now &&
             BaseElement.IsOnlyPosDiff(diff))
         {
             Logger.Info(this, "Element was optimized out", element);

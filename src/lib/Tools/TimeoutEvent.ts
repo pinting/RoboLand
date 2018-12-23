@@ -18,7 +18,7 @@ export class TimeoutEvent<T> extends Event<T>
     }
 
     /**
-     * Add a listener and return its id.
+     * Add a listener and return its _id.
      * @param callback 
      */
     public Add(callback: (value: T) => void): number
@@ -35,7 +35,7 @@ export class TimeoutEvent<T> extends Event<T>
     }
 
     /**
-     * Remove a listener by id.
+     * Remove a listener by _id.
      * @param id 
      */
     public Remove(id: number): void

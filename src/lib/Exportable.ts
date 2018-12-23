@@ -1,5 +1,11 @@
 import { IExportObject } from "./IExportObject";
 
+// Only export if "safe" parameter is false
+const UNSAFE = "_";
+
+// Always export, no matter what
+const SAFE = "$";
+
 export abstract class Exportable
 {
     private static dependencies: { [name: string]: any } = {};
@@ -57,15 +63,24 @@ export abstract class Exportable
     }
 
     /**
-     * Export a whole object - including itself.
+     * Export a whole object - including itself. Variables need to have the
+     * following naming rules.
+     * > UNSAFE - Only export if "safe" parameter is false
+     * > SAFE - Always export, no matter what
      * @param object The object to export.
-     * @param protect Export only the public properties starting with "$". 
+     * @param safe Export only EXTERNAL properties
      * @param name Name to export with.
      */
-    public static Export(object: any, protect: boolean = false, name: string = null): IExportObject
+    public static Export(object: any, safe: boolean = false, name: string = null): IExportObject
     {
-        // Only allow public props in protected mode
-        if(protect && name && isNaN(Number(name)) && name[0] !== "$")
+        // Only allow variables with UNSAFE or SAFE prefixes
+        if(name && isNaN(Number(name)) && name[0] !== UNSAFE && name[0] !== SAFE)
+        {
+            return null;
+        }
+
+        // If safe is true, do not allow UNSAFE variables
+        if(safe && name && isNaN(Number(name)) && name[0] === UNSAFE)
         {
             return null;
         }
@@ -76,7 +91,7 @@ export abstract class Exportable
             return {
                 Name: name,
                 Class: object.constructor.name,
-                Payload: object.map((e, i) => Exportable.Export(e, protect, i.toString()))
+                Payload: object.map((e, i) => Exportable.Export(e, safe, i.toString()))
             };
         }
 
@@ -86,7 +101,7 @@ export abstract class Exportable
             return {
                 Name: name,
                 Class: object.constructor.name,
-                Payload: object.ExportAll(protect)
+                Payload: object.ExportAll(safe)
             };
         }
 
@@ -201,14 +216,14 @@ export abstract class Exportable
      * @param target Other gonna be merged here!
      * @param other 
      */
-    public static ShallowMerge(target: IExportObject, other: IExportObject): void
+    public static Merge(target: IExportObject, other: IExportObject): void
     {
         if(!target || !target.Payload || !target.Payload.length)
         {
             return;
         }
 
-        const otherProps = this.ToDict(other)
+        const otherProps = this.Dict(other)
         
         target.Payload.forEach((prop, i) => 
         {
@@ -220,11 +235,11 @@ export abstract class Exportable
     }
 
     /**
-     * Convert an IExportObject to dictionary.
-     * Class property gonna be lost!
+     * Shallow onvert an IExportObject to dictionary.
+     * Top class property gonna be lost!
      * @param obj 
      */
-    public static ToDict(obj: IExportObject): { [id: string]: IExportObject }
+    public static Dict(obj: IExportObject): { [id: string]: IExportObject }
     {
         const props = {};
 

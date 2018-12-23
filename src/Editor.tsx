@@ -37,7 +37,7 @@ export class Editor extends Shared<EditorProps, EditorState>
 {
     public static Name = "editor";
     
-    private readonly dragWait: number = 500;
+    private readonly dragWait: number = 100;
 
     private canvas: HTMLCanvasElement;
     private renderer: Renderer;
@@ -100,7 +100,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     }
 
     /**
-     * Create a new board.
+     * Create a new _board.
      */
     private async NewBoard()
     {
@@ -121,7 +121,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     }
 
     /**
-     * Add a new element onto the board.
+     * Add a new element onto the _board.
      */
     private async AddElement()
     {
@@ -223,7 +223,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     }
 
     /**
-     * Import the board from state.
+     * Import the _board from state.
      */
     private async ImportBoard()
     {
@@ -250,7 +250,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     }
 
     /**
-     * Create a new board.
+     * Create a new _board.
      */
     private async ExportBoard()
     {

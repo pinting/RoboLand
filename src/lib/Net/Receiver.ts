@@ -14,10 +14,10 @@ import { Logger } from "../Tools/Logger";
 import { Server } from "./Server";
 import { BaseElement } from "../Element/BaseElement";
 
+const MAX_DIST = 0.2;
+
 export class Receiver extends MessageHandler
 {
-    private readonly maxDistance: number = 0.2;
-
     private board: Board;
     private player: PlayerActor;
     private last: { [id: string]: IExportObject } = {};
@@ -83,7 +83,7 @@ export class Receiver extends MessageHandler
 
         Logger.Info(this, "Element was received!", element, exportable);
 
-        // Add element to the board
+        // Add element to the _board
         if(element instanceof BaseCell)
         {
             this.board.Cells.Set(element);
@@ -129,14 +129,14 @@ export class Receiver extends MessageHandler
         // If we have an older version, merge it
         const merged = Exportable.Export(oldElement);
 
-        Exportable.ShallowMerge(diff, merged);
+        Exportable.Merge(diff, merged);
 
         const newElement: BaseElement = Exportable.Import(merged);
 
         // Optimizations
         if(this.last.hasOwnProperty(newElement.Id) && 
             BaseElement.IsOnlyPosDiff(diff) && 
-            newElement.Position.GetDistance(oldElement.Position) <= this.maxDistance)
+            newElement.Position.GetDistance(oldElement.Position) <= MAX_DIST)
         {
             Logger.Info(this, "Element was optimized out", newElement);
             return;
@@ -146,7 +146,7 @@ export class Receiver extends MessageHandler
     }
 
     /**
-     * Receive the player by id.
+     * Receive the player by _id.
      * @param id 
      */
     private ReceivePlayer(id: string): void
@@ -162,7 +162,7 @@ export class Receiver extends MessageHandler
     }
 
     /**
-     * Receive the $size of the board.
+     * Receive the $size of the _board.
      * @param size 
      */
     private ReceiveSize(exportable: IExportObject): void

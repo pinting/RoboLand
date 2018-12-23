@@ -3,10 +3,11 @@ import { ArrowActor } from "./ArrowActor";
 import { LivingActor } from "./LivingActor";
 import { Exportable } from "../../Exportable";
 
+const SHOT_DELAY = 800;
+
 export class PlayerActor extends LivingActor
 {
-    protected readonly shotDelay: number = 800;
-    protected lastShot = +new Date(0);
+    protected _lastShot = +new Date(0);
 
     /**
      * Move actor in a $direction.
@@ -42,13 +43,13 @@ export class PlayerActor extends LivingActor
 
     /**
      * Shoot an arrow to the $direction the player is facing.
-     * @param id The id of the new arrow.
+     * @param id The _id of the new arrow.
      */
     public Shoot(id: string): void
     {
         const now = +new Date;
 
-        if(this.lastShot + this.shotDelay > now) 
+        if(this._lastShot + SHOT_DELAY > now) 
         {
             throw new Error("Shot was too quick");
         }
@@ -63,12 +64,12 @@ export class PlayerActor extends LivingActor
             direction: this.Direction,
             damage: this.$damage,
             speed: 0.075,
-            origin: this.origin,
+            origin: this._origin,
             board: this.board
         });
 
         this.board.Actors.Set(actor);
-        this.lastShot = now;
+        this._lastShot = now;
     }
     
     /**

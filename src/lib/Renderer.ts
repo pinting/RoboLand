@@ -3,11 +3,11 @@ import { BaseElement } from "./Element/BaseElement";
 import { Event } from "./Tools/Event";
 import { Coord } from "./Coord";
 
+const NOT_FOUND_COLOR = "purple";
+const DPI = 30;
+
 export class Renderer
 {
-    private readonly notFoundColor: string = "purple";
-    private readonly dpi: number = 30;
-
     private readonly board: Board;
     private readonly canvas: HTMLCanvasElement;
     private readonly context: CanvasRenderingContext2D;
@@ -31,7 +31,7 @@ export class Renderer
     }
 
     /**
-     * Load textures for a loaded board.
+     * Load textures for a loaded _board.
      */
     public async Load(): Promise<void>
     {
@@ -86,7 +86,7 @@ export class Renderer
      */
     public Find(x: number, y: number): Coord
     {
-        return new Coord(x / this.dpi, y / this.dpi);
+        return new Coord(x / DPI, y / DPI);
     }
     
     /**
@@ -112,18 +112,18 @@ export class Renderer
         if(texture) {
             this.context.drawImage(
                 texture, 
-                x * this.dpi, 
-                y * this.dpi, 
-                w * this.dpi, 
-                h * this.dpi);
+                x * DPI, 
+                y * DPI, 
+                w * DPI, 
+                h * DPI);
         }
         else {
-            this.context.fillStyle = this.notFoundColor;
+            this.context.fillStyle = NOT_FOUND_COLOR;
             this.context.fillRect(
-                x * this.dpi, 
-                y * this.dpi, 
-                w * this.dpi, 
-                h * this.dpi
+                x * DPI, 
+                y * DPI, 
+                w * DPI, 
+                h * DPI
             );
         }
     }
@@ -135,8 +135,8 @@ export class Renderer
     {
         const size = this.board.Size;
     
-        const w = this.dpi * size.$X;
-        const h = this.dpi * size.$Y;
+        const w = DPI * size.$X;
+        const h = DPI * size.$Y;
 
         this.canvas.width = w;
         this.canvas.height = h;

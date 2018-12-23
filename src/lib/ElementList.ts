@@ -40,7 +40,7 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     }
 
     /**
-     * Get element by id.
+     * Get element by _id.
      * @param id 
      */
     public Get(id: string): Element
@@ -116,7 +116,7 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     }
 
     /**
-     * Add a new element or overwrite an existing one (by id).
+     * Add a new element or overwrite an existing one (by _id).
      * @param element 
      */
     public Set(element: Element): void

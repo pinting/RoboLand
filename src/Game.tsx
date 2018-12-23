@@ -162,7 +162,7 @@ export class Game extends Shared<GameProps, GameState>
             return new Receiver(this.channel, this.board);
         }
 
-        // Create server board, load it, create server
+        // Create server _board, load it, create server
         try 
         {
             const rawboard = JSON.parse(await Http.Get("res/board.json"));

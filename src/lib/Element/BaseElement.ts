@@ -17,10 +17,12 @@ export interface BaseElementArgs
 
 export abstract class BaseElement extends Exportable
 {
-    protected disposed: boolean = false;
-    protected id: string;
     protected board: Board;
-    protected origin: string; // ID of the origin element
+
+    protected _disposed: boolean = false;
+    protected _id: string;
+    protected _origin: string; // ID of the origin element
+
     protected $position: Coord;
     protected $size: Coord;
     protected $texture: string;
@@ -42,9 +44,9 @@ export abstract class BaseElement extends Exportable
      */
     protected InitPre(args: BaseElementArgs = {})
     {
-        this.id = args.id || Utils.Unique();
+        this._id = args.id || Utils.Unique();
         this.board = args.board || Board.Current;
-        this.origin = args.origin || this.board.Origin;
+        this._origin = args.origin || this.board.Origin;
         this.$size = args.size;
         this.$texture = args.texture;
     }
@@ -63,7 +65,7 @@ export abstract class BaseElement extends Exportable
      */
     public get Id(): string
     {
-        return this.id;
+        return this._id;
     }
 
     /**
@@ -71,7 +73,7 @@ export abstract class BaseElement extends Exportable
      */
     public get Origin(): string
     {
-        return this.origin;
+        return this._origin;
     }
 
     /**
@@ -103,7 +105,7 @@ export abstract class BaseElement extends Exportable
      */
     public get Disposed(): boolean
     {
-        return this.disposed;
+        return this._disposed;
     }
 
     /**
@@ -130,30 +132,14 @@ export abstract class BaseElement extends Exportable
      */
     public Dispose(value: boolean = true)
     {
-        if(this.disposed || !value)
+        if(this._disposed || !value)
         {
             return;
         }
 
-        this.disposed = true;
+        this._disposed = true;
 
         Logger.Info(this, "Element was disposed!", this);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public ExportProperty(name: string, protect: boolean = false): IExportObject
-    {
-        // Filter what to export
-        switch(name)
-        {
-            case "board":
-            case "tickEvent":
-                return undefined;
-            default:
-                return super.ExportProperty(name, protect);
-        }
     }
 
     /**
@@ -166,10 +152,10 @@ export abstract class BaseElement extends Exportable
         // Handle setters manually
         switch(input.Name)
         {
-            case "position":
+            case "_position":
                 this.SetPos(value);
                 return undefined;
-            case "disposed":
+            case "_disposed":
                 this.Dispose(value);
                 return undefined;
             default:
@@ -194,7 +180,7 @@ export abstract class BaseElement extends Exportable
      */
     public static IsOnlyPosDiff(diff: IExportObject): boolean
     {
-        const props = Exportable.ToDict(diff);
+        const props = Exportable.Dict(diff);
 
         // No diff
         if(Object.keys(props).length == 0)
