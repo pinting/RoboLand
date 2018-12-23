@@ -6,11 +6,10 @@
             "dom"
         ],
         "outDir": "dist",
-        "target": "es6",
+        "target": "es5",
         "module": "commonjs",
         "sourceMap": true,
-        "jsx": "react",
-        "experimentalDecorators": true
+        "jsx": "react"
     },
     "include": [
         "src/**/*"
