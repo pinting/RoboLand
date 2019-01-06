@@ -1,6 +1,7 @@
 import { Coord } from "../../Coord";
 import { BaseElement, BaseElementArgs } from "../BaseElement";
 import { TickElement } from "../TickElement";
+import { Exportable, ExportType } from "../../Exportable";
 
 export interface BaseActorArgs extends BaseElementArgs
 {
@@ -9,7 +10,8 @@ export interface BaseActorArgs extends BaseElementArgs
 
 export abstract class BaseActor extends TickElement
 {
-    protected $direction: Coord;
+    @Exportable.Register(ExportType.User)
+    protected direction: Coord;
 
     /**
      * @inheritDoc
@@ -26,7 +28,7 @@ export abstract class BaseActor extends TickElement
     {
         super.InitPre(args);
 
-        this.$direction = this.$direction;
+        this.direction = this.direction;
     }
     
     /**
@@ -46,11 +48,11 @@ export abstract class BaseActor extends TickElement
 
         // Get the currently covered cells and the next ones
         const prev = prevPos 
-            ? this.board.Cells.FindBetween(prevPos, prevPos.Add(this.$size))
+            ? this.board.Cells.FindBetween(prevPos, prevPos.Add(this.size))
             : [];
         
         const next = nextPos
-            ? this.board.Cells.FindBetween(nextPos, nextPos.Add(this.$size))
+            ? this.board.Cells.FindBetween(nextPos, nextPos.Add(this.size))
             : [];
 
         // If prevPos/nextPos was given, but no cells found, return
@@ -83,7 +85,7 @@ export abstract class BaseActor extends TickElement
      */
     public Dispose(value: boolean = true)
     {
-        if(this._disposed || !value)
+        if(this.disposed || !value)
         {
             return;
         }
@@ -93,10 +95,10 @@ export abstract class BaseActor extends TickElement
     }
 
     /**
-     * Get the $direction of the actor.
+     * Get the direction of the actor.
      */
     public get Direction(): Coord
     {
-        return this.$direction && this.$direction.Clone();
+        return this.direction && this.direction.Clone();
     }
 }

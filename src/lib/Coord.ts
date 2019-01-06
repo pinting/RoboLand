@@ -1,9 +1,12 @@
-import { Exportable } from "./Exportable";
+import { Exportable, ExportType } from "./Exportable";
 
 export class Coord extends Exportable
 {
-    public $X: number;
-    public $Y: number;
+    @Exportable.Register(ExportType.User)
+    public X: number;
+
+    @Exportable.Register(ExportType.User)
+    public Y: number;
 
     /**
      * Construct a new coord.
@@ -12,8 +15,8 @@ export class Coord extends Exportable
     {
         super();
 
-        this.$X = x;
-        this.$Y = y;
+        this.X = x;
+        this.Y = y;
     }
 
     /**
@@ -22,7 +25,7 @@ export class Coord extends Exportable
      */
     public GetDistance(other: Coord): number
     {
-        return Math.sqrt(Math.pow(this.$X - other.$X, 2) + Math.pow(this.$Y - other.$Y, 2));
+        return Math.sqrt(Math.pow(this.X - other.X, 2) + Math.pow(this.Y - other.Y, 2));
     }
 
     /**
@@ -31,7 +34,7 @@ export class Coord extends Exportable
      */
     public Is(other: Coord): boolean
     {
-        return this.$X == other.$X && this.$Y == other.$Y;
+        return this.X == other.X && this.Y == other.Y;
     }
 
     /**
@@ -40,7 +43,7 @@ export class Coord extends Exportable
      */
     public Add(other: Coord): Coord
     {
-        return new Coord(this.$X + other.$X, this.$Y + other.$Y);
+        return new Coord(this.X + other.X, this.Y + other.Y);
     }
 
     /**
@@ -48,7 +51,7 @@ export class Coord extends Exportable
      */
     public Clone(): Coord
     {
-        return new Coord(this.$X, this.$Y);
+        return new Coord(this.X, this.Y);
     }
 
     /**
@@ -82,7 +85,7 @@ export class Coord extends Exportable
      */
     public F(f: (n: number) => number): Coord
     {
-        return new Coord(f(this.$X), f(this.$Y));
+        return new Coord(f(this.X), f(this.Y));
     }
 
     /**
@@ -92,7 +95,7 @@ export class Coord extends Exportable
      */
     public Inside(from: Coord, to: Coord): boolean
     {
-        if(from.$X <= this.$X && from.$Y <= this.$Y && to.$X >= this.$X && to.$Y >= this.$Y)
+        if(from.X <= this.X && from.Y <= this.Y && to.X >= this.X && to.Y >= this.Y)
         {
             return true;
         }
@@ -109,8 +112,8 @@ export class Coord extends Exportable
      */
     public static Collide(a1: Coord, a2: Coord, b1: Coord, b2: Coord): boolean
     {
-        return a2.$X > b1.$X && a1.$X < b2.$X && a2.$Y > b1.$Y && a1.$Y < b2.$Y;
+        return a2.X > b1.X && a1.X < b2.X && a2.Y > b1.Y && a1.Y < b2.Y;
     }
 }
 
-Exportable.Register(Coord);
+Exportable.Dependency(Coord);

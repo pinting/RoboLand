@@ -3,7 +3,7 @@
     "Class":"Board",
     "Payload":[
         {
-            "Name":"$cells",
+            "Name":"cells",
             "Class":"Array",
             "Payload":[
                 {
@@ -11,37 +11,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":0
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":0
                                 }
@@ -54,37 +54,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":0
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
@@ -97,37 +97,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":0
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":2
                                 }
@@ -140,37 +140,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":0
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":3
                                 }
@@ -183,37 +183,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":0
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":4
                                 }
@@ -226,37 +226,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":0
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":5
                                 }
@@ -269,37 +269,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":0
                                 }
@@ -312,37 +312,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
@@ -355,37 +355,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":2
                                 }
@@ -398,37 +398,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":3
                                 }
@@ -441,37 +441,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":4
                                 }
@@ -484,37 +484,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":5
                                 }
@@ -527,37 +527,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":2
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":0
                                 }
@@ -570,37 +570,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":2
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
@@ -613,37 +613,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":2
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":2
                                 }
@@ -656,37 +656,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":2
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":3
                                 }
@@ -699,37 +699,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":2
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":4
                                 }
@@ -742,37 +742,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":2
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":5
                                 }
@@ -785,37 +785,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":3
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":0
                                 }
@@ -828,37 +828,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":3
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
@@ -871,37 +871,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":3
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":2
                                 }
@@ -914,37 +914,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":3
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":3
                                 }
@@ -957,37 +957,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":3
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":4
                                 }
@@ -1000,37 +1000,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":3
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":5
                                 }
@@ -1043,37 +1043,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":4
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":0
                                 }
@@ -1086,37 +1086,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":4
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
@@ -1129,37 +1129,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":4
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":2
                                 }
@@ -1172,37 +1172,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":4
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":3
                                 }
@@ -1215,37 +1215,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":4
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":4
                                 }
@@ -1258,37 +1258,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":4
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":5
                                 }
@@ -1301,37 +1301,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":5
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":0
                                 }
@@ -1344,37 +1344,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":5
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
@@ -1387,37 +1387,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":5
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":2
                                 }
@@ -1430,37 +1430,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":5
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":3
                                 }
@@ -1473,37 +1473,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":5
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":4
                                 }
@@ -1516,37 +1516,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":5
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":5
                                 }
@@ -1559,37 +1559,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":6
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":0
                                 }
@@ -1602,37 +1602,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":6
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
@@ -1645,37 +1645,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":6
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":2
                                 }
@@ -1688,37 +1688,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":6
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":3
                                 }
@@ -1731,37 +1731,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":6
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":4
                                 }
@@ -1774,37 +1774,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":6
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":5
                                 }
@@ -1817,37 +1817,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":7
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":0
                                 }
@@ -1860,37 +1860,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":7
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
@@ -1903,37 +1903,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":7
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":2
                                 }
@@ -1946,37 +1946,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":7
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":3
                                 }
@@ -1989,37 +1989,37 @@
                     "Class":"GroundCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/ground.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":7
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":4
                                 }
@@ -2032,37 +2032,37 @@
                     "Class":"StoneCell",
                     "Payload":[
                         {
-                            "Name":"$size",
+                            "Name":"size",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":1
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":1
                                 }
                             ]
                         },
                         {
-                            "Name":"$texture",
+                            "Name":"texture",
                             "Class":"string",
                             "Payload":"res/stone.png"
                         },
                         {
-                            "Name":"$position",
+                            "Name":"position",
                             "Class":"Coord",
                             "Payload":[
                                 {
-                                    "Name":"$X",
+                                    "Name":"X",
                                     "Class":"number",
                                     "Payload":7
                                 },
                                 {
-                                    "Name":"$Y",
+                                    "Name":"Y",
                                     "Class":"number",
                                     "Payload":5
                                 }
@@ -2073,23 +2073,23 @@
             ]
         },
         {
-            "Name":"$actors",
+            "Name":"actors",
             "Class":"Array",
             "Payload":[
 
             ]
         },
         {
-            "Name":"$size",
+            "Name":"size",
             "Class":"Coord",
             "Payload":[
                 {
-                    "Name":"$X",
+                    "Name":"X",
                     "Class":"number",
                     "Payload":8
                 },
                 {
-                    "Name":"$Y",
+                    "Name":"Y",
                     "Class":"number",
                     "Payload":6
                 }

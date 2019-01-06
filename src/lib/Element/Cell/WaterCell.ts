@@ -27,4 +27,4 @@ export class WaterCell extends BaseCell
     }
 }
 
-Exportable.Register(WaterCell);
+Exportable.Dependency(WaterCell);

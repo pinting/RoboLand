@@ -1,7 +1,7 @@
 import { BaseActor, BaseActorArgs } from "./BaseActor";
 import { Coord } from "../../Coord";
 import { LivingActor } from "./LivingActor";
-import { Exportable } from "../../Exportable";
+import { Exportable, ExportType } from "../../Exportable";
 
 export interface ArrowActorArgs extends BaseActorArgs
 {
@@ -12,9 +12,14 @@ export interface ArrowActorArgs extends BaseActorArgs
 
 export class ArrowActor extends BaseActor
 {
-    protected $direction: Coord;
-    protected $damage: number;
-    protected $speed: number;
+    @Exportable.Register(ExportType.User)
+    protected direction: Coord;
+
+    @Exportable.Register(ExportType.User)
+    protected damage: number;
+
+    @Exportable.Register(ExportType.User)
+    protected speed: number;
 
     /**
      * @inheritDoc
@@ -31,9 +36,9 @@ export class ArrowActor extends BaseActor
     {
         super.InitPre(args);
 
-        this.$direction = args.direction;
-        this.$damage = args.damage;
-        this.$speed = args.speed;
+        this.direction = args.direction;
+        this.damage = args.damage;
+        this.speed = args.speed;
     }
 
     /**
@@ -42,7 +47,7 @@ export class ArrowActor extends BaseActor
     protected OnTick(): void
     {
         const success = this.SetPos(this.Position.Add(
-            this.$direction.F(c => c * this.$speed)));
+            this.direction.F(c => c * this.speed)));
 
         // If the arrow hit a wall, dispose it
         if(!success)
@@ -61,7 +66,7 @@ export class ArrowActor extends BaseActor
         {
             if(actor instanceof LivingActor)
             {
-                actor.Damage(this.$damage);
+                actor.Damage(this.damage);
                 hit = true;
             }
         }
@@ -74,4 +79,4 @@ export class ArrowActor extends BaseActor
     }
 }
 
-Exportable.Register(ArrowActor);
+Exportable.Dependency(ArrowActor);

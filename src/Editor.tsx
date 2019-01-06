@@ -4,7 +4,7 @@ import { Shared } from "./Shared";
 import { Board } from "./lib/Board";
 import { Renderer } from "./lib/Renderer";
 import { Coord } from "./lib/Coord";
-import { Exportable } from "./lib/Exportable";
+import { Exportable, ExportType } from "./lib/Exportable";
 import { BaseElement } from "./lib/Element/BaseElement";
 import { Utils } from "./lib/Tools/Utils";
 import { BaseActor } from "./lib/Element/Actor/BaseActor";
@@ -18,14 +18,14 @@ import { PlayerActor } from "./lib/Element/Actor/PlayerActor";
 import { ArrowActor } from "./lib/Element/Actor/ArrowActor";
 
 /**
- * Props of the Editor view.
+ * Props of the User view.
  */
 interface EditorProps {
     // Empty
 }
 
 /**
- * State of the Editor view.
+ * State of the User view.
  */
 interface EditorState {
     board: string;
@@ -55,7 +55,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     private selectedElement: BaseElement;
 
     /**
-     * Construct a new Editor view.
+     * Construct a new User view.
      * @param props
      */
     constructor(props)
@@ -86,7 +86,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     }
 
     /**
-     * Register an element in the editor and also register it
+     * Dependency an element in the editor and also register it
      * in the Exportable dependency list.
      * @param classObj
      * @param name
@@ -96,7 +96,7 @@ export class Editor extends Shared<EditorProps, EditorState>
         const item = classObj.name || name;
 
         this.state.loaded.push(item);
-        Exportable.Register(classObj, name);
+        Exportable.Dependency(classObj, name);
     }
 
     /**
@@ -259,7 +259,7 @@ export class Editor extends Shared<EditorProps, EditorState>
             return;
         }
 
-        const exportable = Exportable.Export(this.board, true);
+        const exportable = Exportable.Export(this.board, null, ExportType.User);
         const raw = JSON.stringify(exportable, null, 4);
 
         this.setState({ board: raw });
@@ -283,7 +283,7 @@ export class Editor extends Shared<EditorProps, EditorState>
 
         if(this.selectedElement)
         {
-            const exportable = Exportable.Export(this.selectedElement, true);
+            const exportable = Exportable.Export(this.selectedElement, null, ExportType.User);
             const raw = JSON.stringify(exportable, null, 4);
 
             this.setState({ selected: raw })
@@ -338,7 +338,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     }
 
     /**
-     * Render the Editor element.
+     * Render the User element.
      */
     public render(): JSX.Element
     {
@@ -357,22 +357,22 @@ export class Editor extends Shared<EditorProps, EditorState>
                     <input 
                         type="number" 
                         placeholder="Width" 
-                        onChange={e => this.newBoardSize.$X = parseFloat(e.target.value)} />
+                        onChange={e => this.newBoardSize.X = parseFloat(e.target.value)} />
                     <input 
                         type="number" 
                         placeholder="Height" 
-                        onChange={e => this.newBoardSize.$Y = parseFloat(e.target.value)} />
+                        onChange={e => this.newBoardSize.Y = parseFloat(e.target.value)} />
                     <button onClick={this.NewBoard.bind(this)}>New</button>
                 </div>
                 <div className="editor-box">
                     <input 
                         type="number" 
                         placeholder="X" 
-                        onChange={e => this.newElementCoord.$X = parseFloat(e.target.value)} />
+                        onChange={e => this.newElementCoord.X = parseFloat(e.target.value)} />
                     <input 
                         type="number" 
                         placeholder="Y" 
-                        onChange={e => this.newElementCoord.$Y = parseFloat(e.target.value)} />
+                        onChange={e => this.newElementCoord.Y = parseFloat(e.target.value)} />
                     <select onChange={v => this.newElementName = v.target.value}>
                         <option>-</option>
                         {this.state.loaded.map(n => <option key={n}>{n}</option>)}

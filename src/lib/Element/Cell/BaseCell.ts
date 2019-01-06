@@ -40,7 +40,7 @@ export abstract class BaseCell extends TickElement
      */
     public Dispose(value)
     {
-        if(this._disposed || !value)
+        if(this.disposed || !value)
         {
             return;
         }

@@ -12,15 +12,15 @@ import { GroundCell } from "./lib/Element/Cell/GroundCell";
 import { FireCell } from "./lib/Element/Cell/FireCell";
 import { ArrowActor } from "./lib/Element/Actor/ArrowActor";
 
-// Register classes as a dependency
-Exportable.Register(ArrowActor);
-Exportable.Register(PlayerActor);
-Exportable.Register(FireCell);
-Exportable.Register(GroundCell);
-Exportable.Register(StoneCell);
-Exportable.Register(WaterCell);
-Exportable.Register(Board);
-Exportable.Register(Coord);
+// Dependency classes as a dependency
+Exportable.Dependency(ArrowActor);
+Exportable.Dependency(PlayerActor);
+Exportable.Dependency(FireCell);
+Exportable.Dependency(GroundCell);
+Exportable.Dependency(StoneCell);
+Exportable.Dependency(WaterCell);
+Exportable.Dependency(Board);
+Exportable.Dependency(Coord);
 
 export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
 {

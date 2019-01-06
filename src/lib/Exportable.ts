@@ -1,57 +1,87 @@
 import { IExportObject } from "./IExportObject";
 
-// Only export if "safe" parameter is false
-const UNSAFE = "_";
+const ExportMeta = Symbol("ExportMeta");
+const Dependencies: { [name: string]: any } = {};
 
-// Always export, no matter what
-const SAFE = "$";
+export enum ExportType
+{
+    // Everything (e.g. for networking)
+    All = 0,
+
+    // More restircted (e.g. for a board editor)
+    User = 1
+}
+
+export interface ExportDesc
+{
+    Access: number;
+    Name: string;
+}
 
 export abstract class Exportable
 {
-    private static dependencies: { [name: string]: any } = {};
+    private [ExportMeta]: ExportDesc[];
 
     /**
-     * Register a class with a name.
-     * @param name 
+     * Register a class with a name as a dependency.
      * @param classObj 
+     * @param name
      */
-    public static Register(classObj: any, name: string = null)
+    public static Dependency(classObj: any, name: string = null)
     {
-        Exportable.dependencies[name || classObj.name] = classObj;
+        Dependencies[name || classObj.name] = classObj;
+    }
+
+    /**
+     * Decorator to register a name as exportable.
+     * @param access Set the access level.
+     */
+    public static Register(access: number = 0) 
+    {
+        return (target: Exportable, name: string) =>
+        {
+            // We should not use hasOwnProperty
+            // because only one ExportMeta should
+            // exists on a prototype chain
+            if(!target[ExportMeta])
+            {
+                target[ExportMeta] = [];
+            }
+
+            target[ExportMeta].push({
+                Access: access,
+                Name: name
+            });
+        }
     }
     
     /**
-     * Create an instance of a class by name (using the dependencies classes).
+     * Create an instance of a class by property (using the dependencies classes).
      * @param className 
      */
     public static FromName<T extends Exportable>(name: string, ...args: any[]): T
     {
-        const classObj = Exportable.dependencies[name] || null;
+        const classObj = Dependencies[name] || null;
 
         return classObj && new classObj(...args);
     }
 
     /**
-     * Export a property.
-     * @param name
-     * @param protect Export only the public properties starting with "$". 
+     * Export all (registered) properties of THIS class - but not itself.
+     * @param protect
      */
-    protected ExportProperty(name: string, protect: boolean = false): IExportObject
-    {
-        return Exportable.Export(this[name], protect, name);
-    }
-
-    /**
-     * Export all properties.
-     * @param protect Export only the public properties starting with "$". 
-     */
-    public ExportAll(protect: boolean = false): IExportObject[]
+    public Export(access: number = 0): IExportObject[]
     {
         const result: IExportObject[] = [];
 
-        for (let property in this)
-        {
-            const exported = this.ExportProperty(property, protect);
+        for (let desc of this[ExportMeta])
+        {   
+            if(desc.Access < access) 
+            {
+                continue;
+            }
+
+            const exported = Exportable.Export(this[desc.Name], desc.Name, access);
 
             if(exported)
             {
@@ -63,35 +93,20 @@ export abstract class Exportable
     }
 
     /**
-     * Export a whole object - including itself. Variables need to have the
-     * following naming rules.
-     * > UNSAFE - Only export if "safe" parameter is false
-     * > SAFE - Always export, no matter what
+     * Export a whole object - including itself.
      * @param object The object to export.
-     * @param safe Export only EXTERNAL properties
+     * @param access
      * @param name Name to export with.
      */
-    public static Export(object: any, safe: boolean = false, name: string = null): IExportObject
+    public static Export(object: any, name: string = null, access: number = 0): IExportObject
     {
-        // Only allow variables with UNSAFE or SAFE prefixes
-        if(name && isNaN(Number(name)) && name[0] !== UNSAFE && name[0] !== SAFE)
-        {
-            return null;
-        }
-
-        // If safe is true, do not allow UNSAFE variables
-        if(safe && name && isNaN(Number(name)) && name[0] === UNSAFE)
-        {
-            return null;
-        }
-
         // Export each element of an array
         if(object instanceof Array)
         {
             return {
                 Name: name,
                 Class: object.constructor.name,
-                Payload: object.map((e, i) => Exportable.Export(e, safe, i.toString()))
+                Payload: object.map((e, i) => Exportable.Export(e, i.toString(), access))
             };
         }
 
@@ -101,7 +116,7 @@ export abstract class Exportable
             return {
                 Name: name,
                 Class: object.constructor.name,
-                Payload: object.ExportAll(safe)
+                Payload: object.Export(access)
             };
         }
 
@@ -119,23 +134,15 @@ export abstract class Exportable
     }
 
     /**
-     * Import a property.
-     * @param input 
-     */
-    protected ImportProperty(input: IExportObject): any
-    {
-        return Exportable.Import(input);
-    }
-
-    /**
      * Import all properties.
      * @param input 
      */
-    public ImportAll(input: IExportObject[]): void
+    public Import(input: IExportObject[]): void
     {
         input instanceof Array && input.forEach(element =>
         {
-            const imported = this.ImportProperty(element);
+            const desc = this[ExportMeta].find(i => i.Name == element.Name);
+            const imported = Exportable.Import(element);
 
             if(imported !== undefined)
             {
@@ -165,7 +172,7 @@ export abstract class Exportable
         // Import Exportable types
         const instance = Exportable.FromName(input.Class, ...(input.Args || []));
 
-        instance && instance.ImportAll(input.Payload);
+        instance && instance.Import(input.Payload);
 
         return instance;
     }
@@ -235,7 +242,7 @@ export abstract class Exportable
     }
 
     /**
-     * Shallow onvert an IExportObject to dictionary.
+     * Shallow convert an IExportObject to dictionary.
      * Top class property gonna be lost!
      * @param obj 
      */

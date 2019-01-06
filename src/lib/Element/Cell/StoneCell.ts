@@ -21,4 +21,4 @@ export class StoneCell extends BaseCell
     }
 }
 
-Exportable.Register(StoneCell);
+Exportable.Dependency(StoneCell);

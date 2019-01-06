@@ -21,4 +21,4 @@ export class GroundCell extends BaseCell
     }
 }
 
-Exportable.Register(GroundCell);
+Exportable.Dependency(GroundCell);

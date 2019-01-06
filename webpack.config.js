@@ -9,6 +9,9 @@ module.exports = {
     },
     mode: "development",
     devtool: "source-map",
+    devServer: {
+        disableHostCheck: true
+    },
     resolve: {
         extensions: [".js", ".ts", ".tsx"],
         modules: [

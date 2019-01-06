@@ -2,7 +2,7 @@ import { BaseActor } from "../Actor/BaseActor";
 import { BaseCell } from "./BaseCell";
 import { LivingActor } from "../Actor/LivingActor";
 import { BaseElementArgs } from "../BaseElement";
-import { Exportable } from "../../Exportable";
+import { Exportable, ExportType } from "../../Exportable";
 
 export interface FireCellArgs extends BaseElementArgs
 {
@@ -11,7 +11,8 @@ export interface FireCellArgs extends BaseElementArgs
 
 export class FireCell extends BaseCell
 {
-    protected $damage: number;
+    @Exportable.Register(ExportType.User)
+    protected damage: number;
 
     /**
      * @inheritDoc
@@ -28,7 +29,7 @@ export class FireCell extends BaseCell
     {
         super.InitPre(args);
 
-        this.$damage = args.damage;
+        this.damage = args.damage;
     }
 
     /**
@@ -50,10 +51,10 @@ export class FireCell extends BaseCell
 
             if(actor instanceof LivingActor)
             {
-                actor.Damage(this.$damage);
+                actor.Damage(this.damage);
             }
         });
     }
 }
 
-Exportable.Register(FireCell);
+Exportable.Dependency(FireCell);

@@ -1,7 +1,7 @@
 import { Coord } from "../Coord";
 import { Utils } from "../Tools/Utils";
 import { Board } from "../Board";
-import { Exportable } from "../Exportable";
+import { Exportable, ExportType } from "../Exportable";
 import { IExportObject } from "../IExportObject";
 import { Logger } from "../Tools/Logger";
 
@@ -19,13 +19,23 @@ export abstract class BaseElement extends Exportable
 {
     protected board: Board;
 
-    protected _disposed: boolean = false;
-    protected _id: string;
-    protected _origin: string; // ID of the origin element
+    @Exportable.Register(ExportType.All)
+    protected disposed: boolean = false;
+    
+    @Exportable.Register(ExportType.All)
+    protected id: string;
 
-    protected $position: Coord;
-    protected $size: Coord;
-    protected $texture: string;
+    @Exportable.Register(ExportType.All)
+    protected origin: string; // ID of the origin element
+
+    @Exportable.Register(ExportType.User)
+    protected size: Coord;
+
+    @Exportable.Register(ExportType.User)
+    protected position: Coord;
+
+    @Exportable.Register(ExportType.User)
+    protected texture: string;
 
     /**
      * Construct a new element with the given init args.
@@ -44,11 +54,11 @@ export abstract class BaseElement extends Exportable
      */
     protected InitPre(args: BaseElementArgs = {})
     {
-        this._id = args.id || Utils.Unique();
+        this.id = args.id || Utils.Unique();
         this.board = args.board || Board.Current;
-        this._origin = args.origin || this.board.Origin;
-        this.$size = args.size;
-        this.$texture = args.texture;
+        this.origin = args.origin || this.board.Origin;
+        this.size = args.size;
+        this.texture = args.texture;
     }
 
     /**
@@ -65,7 +75,7 @@ export abstract class BaseElement extends Exportable
      */
     public get Id(): string
     {
-        return this._id;
+        return this.id;
     }
 
     /**
@@ -73,31 +83,31 @@ export abstract class BaseElement extends Exportable
      */
     public get Origin(): string
     {
-        return this._origin;
+        return this.origin;
     }
 
     /**
-     * Get the $size of the element.
+     * Get the size of the element.
      */
     public get Size(): Coord
     {
-        return this.$size.Clone();
+        return this.size.Clone();
     }
 
     /**
-     * Get the $texture of the element.
+     * Get the texture of the element.
      */
     public get Texture(): string
     {
-        return this.$texture;
+        return this.texture;
     }
 
     /**
-     * Get the $position of the element.
+     * Get the position of the element.
      */
     public get Position(): Coord
     {
-        return this.$position && this.$position.Clone();
+        return this.position && this.position.Clone();
     }
 
     /**
@@ -105,22 +115,22 @@ export abstract class BaseElement extends Exportable
      */
     public get Disposed(): boolean
     {
-        return this._disposed;
+        return this.disposed;
     }
 
     /**
-     * Set the $position of the element.
+     * Set the position of the element.
      * @param position 
      */
     public SetPos(position: Coord): boolean
     {
-        if((position && this.$position && this.$position.Is(position)) &&
-            (position === this.$position))
+        if((position && this.position && this.position.Is(position)) &&
+            (position === this.position))
         {
             return false;
         }
 
-        this.$position = position;
+        this.position = position;
         this.board.OnUpdate.Call(this);
 
         return true;
@@ -132,12 +142,12 @@ export abstract class BaseElement extends Exportable
      */
     public Dispose(value: boolean = true)
     {
-        if(this._disposed || !value)
+        if(this.disposed || !value)
         {
             return;
         }
 
-        this._disposed = true;
+        this.disposed = true;
 
         Logger.Info(this, "Element was disposed!", this);
     }
@@ -145,38 +155,20 @@ export abstract class BaseElement extends Exportable
     /**
      * @inheritDoc
      */
-    public ImportProperty(input: IExportObject): any
-    {
-        const value = super.ImportProperty(input);
-
-        // Handle setters manually
-        switch(input.Name)
-        {
-            case "_position":
-                this.SetPos(value);
-                return undefined;
-            case "_disposed":
-                this.Dispose(value);
-                return undefined;
-            default:
-                return value;
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public ImportAll(input: IExportObject[]): void
+    public Import(input: IExportObject[]): void
     {
         this.InitPre();
-        super.ImportAll(input);
+        super.Import(input);
         this.InitPost();
+
+        this.position && this.SetPos(this.position);
+        this.disposed && this.Dispose(this.disposed);
     }
 
     /**
      * Compare two export objects using a diff.
      * @param diff
-     * @returns Return true if only $position or direction is different.
+     * @returns Return true if only position or direction is different.
      */
     public static IsOnlyPosDiff(diff: IExportObject): boolean
     {
@@ -188,7 +180,7 @@ export abstract class BaseElement extends Exportable
             return true;
         }
 
-        // Only $position diff
+        // Only position diff
         if(Object.keys(props).length === 1 &&
             props.hasOwnProperty("position"))
         {
@@ -202,7 +194,7 @@ export abstract class BaseElement extends Exportable
             return true;
         }
 
-        // Only $position and direction diff
+        // Only position and direction diff
         if(Object.keys(props).length === 2 &&
             props.hasOwnProperty("position") &&
             props.hasOwnProperty("direction"))

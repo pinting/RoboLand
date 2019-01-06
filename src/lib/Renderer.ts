@@ -104,10 +104,10 @@ export class Renderer
         const size = element.Size;
         const texture = this.textures[element.Texture];
     
-        const x = coord.$X;
-        const y = coord.$Y;
-        const w = size.$X;
-        const h = size.$Y;
+        const x = coord.X;
+        const y = coord.Y;
+        const w = size.X;
+        const h = size.Y;
     
         if(texture) {
             this.context.drawImage(
@@ -135,8 +135,8 @@ export class Renderer
     {
         const size = this.board.Size;
     
-        const w = DPI * size.$X;
-        const h = DPI * size.$Y;
+        const w = DPI * size.X;
+        const h = DPI * size.Y;
 
         this.canvas.width = w;
         this.canvas.height = h;
