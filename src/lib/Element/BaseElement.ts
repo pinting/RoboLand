@@ -19,7 +19,7 @@ export abstract class BaseElement extends Exportable
 {
     protected board: Board;
 
-    @Exportable.Register(ExportType.All)
+    @Exportable.Register(ExportType.All, (s, v) => s.Dispose(v))
     protected disposed: boolean = false;
     
     @Exportable.Register(ExportType.All)
@@ -31,7 +31,7 @@ export abstract class BaseElement extends Exportable
     @Exportable.Register(ExportType.User)
     protected size: Coord;
 
-    @Exportable.Register(ExportType.User)
+    @Exportable.Register(ExportType.User, (s, v) => s.SetPos(v))
     protected position: Coord;
 
     @Exportable.Register(ExportType.User)
@@ -160,9 +160,6 @@ export abstract class BaseElement extends Exportable
         this.InitPre();
         super.Import(input);
         this.InitPost();
-
-        this.position && this.SetPos(this.position);
-        this.disposed && this.Dispose(this.disposed);
     }
 
     /**

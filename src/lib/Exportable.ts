@@ -16,6 +16,7 @@ export interface ExportDesc
 {
     Access: number;
     Name: string;
+    Callback?: (s: any, v: any) => void;
 }
 
 export abstract class Exportable
@@ -35,8 +36,9 @@ export abstract class Exportable
     /**
      * Decorator to register a name as exportable.
      * @param access Set the access level.
+     * @param cb Used to set the property insted of the default way.
      */
-    public static Register(access: number = 0) 
+    public static Register(access: number = 0, cb: (s: any, v: any) => void = null) 
     {
         return (target: Exportable, name: string) =>
         {
@@ -50,7 +52,8 @@ export abstract class Exportable
 
             target[ExportMeta].push({
                 Access: access,
-                Name: name
+                Name: name,
+                Callback: cb
             });
         }
     }
@@ -139,16 +142,34 @@ export abstract class Exportable
      */
     public Import(input: IExportObject[]): void
     {
-        input instanceof Array && input.forEach(element =>
+        for (let element of input)
         {
             const desc = this[ExportMeta].find(i => i.Name == element.Name);
+
+            // Only allow importing registered props
+            if(!desc)
+            {
+                continue;
+            }
+
             const imported = Exportable.Import(element);
 
-            if(imported !== undefined)
+            // If undefined skip importing it
+            if(imported === undefined)
+            {
+                continue;
+            }
+
+            // Use the setter if defined or use the built in one
+            if(desc.Callback)
+            {
+                desc.Callback(this, imported);
+            }
+            else
             {
                 this[element.Name] = imported;
             }
-        });
+        }
     }
 
     /**
