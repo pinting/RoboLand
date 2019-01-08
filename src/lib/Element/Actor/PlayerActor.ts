@@ -28,7 +28,7 @@ export class PlayerActor extends LivingActor
             throw new Error("Wrong direction");
         }
         
-        // Calculate the next $position
+        // Calculate the next position
         const next = this.Position.Add(direction.F(c => c * this.speed)).Round(3);
 
         // Do the moving
@@ -44,7 +44,7 @@ export class PlayerActor extends LivingActor
 
     /**
      * Shoot an arrow to the direction the player is facing.
-     * @param id The _id of the new arrow.
+     * @param id The id of the new arrow.
      */
     public Shoot(id: string): void
     {

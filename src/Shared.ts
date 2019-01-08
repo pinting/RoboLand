@@ -22,9 +22,10 @@ Exportable.Dependency(WaterCell);
 Exportable.Dependency(Board);
 Exportable.Dependency(Coord);
 
+const SHOT_DELAY = 1000;
+
 export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
 {
-    protected readonly shotDelay: number = 1000;
     protected nextShoot = +new Date(0);
 
     /**
@@ -67,7 +68,7 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
         if(Keyboard.Keys[space] && this.nextShoot <= +new Date)
         {
             player.Shoot(Utils.Unique());
-            this.nextShoot = +new Date + this.shotDelay;
+            this.nextShoot = +new Date + SHOT_DELAY;
         }
     }
 }

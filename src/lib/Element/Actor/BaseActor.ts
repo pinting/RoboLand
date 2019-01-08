@@ -39,7 +39,7 @@ export abstract class BaseActor extends TickElement
         const prevPos = this.Position;
         const nextPos = position;
 
-        // Check if it goes out of the _board
+        // Check if it goes out of the board
         if(nextPos && (!nextPos.Inside(new Coord(0, 0), this.board.Size) || 
             !nextPos.Add(this.Size).Inside(new Coord(0, 0), this.board.Size)))
         {

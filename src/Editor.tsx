@@ -33,11 +33,11 @@ interface EditorState {
     loaded: string[];
 }
 
+const DRAG_WAIT = 300;
+
 export class Editor extends Shared<EditorProps, EditorState>
 {
     public static Name = "editor";
-    
-    private readonly dragWait: number = 100;
 
     private canvas: HTMLCanvasElement;
     private renderer: Renderer;
@@ -100,7 +100,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     }
 
     /**
-     * Create a new _board.
+     * Create a new board.
      */
     private async NewBoard()
     {
@@ -121,7 +121,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     }
 
     /**
-     * Add a new element onto the _board.
+     * Add a new element onto the board.
      */
     private async AddElement()
     {
@@ -223,7 +223,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     }
 
     /**
-     * Import the _board from state.
+     * Import the board from state.
      */
     private async ImportBoard()
     {
@@ -250,7 +250,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     }
 
     /**
-     * Create a new _board.
+     * Create a new board.
      */
     private async ExportBoard()
     {
@@ -319,7 +319,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     {
         this.mouseDown = true;
 
-        await Utils.Wait(this.dragWait);
+        await Utils.Wait(DRAG_WAIT);
 
         if(this.mouseDown)
         {

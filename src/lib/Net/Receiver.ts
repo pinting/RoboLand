@@ -83,7 +83,7 @@ export class Receiver extends MessageHandler
 
         Logger.Info(this, "Element was received!", element, exportable);
 
-        // Add element to the _board
+        // Add element to the board
         if(element instanceof BaseCell)
         {
             this.board.Cells.Set(element);
@@ -146,7 +146,7 @@ export class Receiver extends MessageHandler
     }
 
     /**
-     * Receive the player by _id.
+     * Receive the player by id.
      * @param id 
      */
     private ReceivePlayer(id: string): void
@@ -162,7 +162,7 @@ export class Receiver extends MessageHandler
     }
 
     /**
-     * Receive the $size of the _board.
+     * Receive the size of the board.
      * @param size 
      */
     private ReceiveSize(exportable: IExportObject): void

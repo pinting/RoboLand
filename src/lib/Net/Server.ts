@@ -12,8 +12,8 @@ export class Server
     private readonly clients: Sender[] = [];
 
     /**
-     * Construct a new server with the given _board. The server gonna
-     * update each client with the _board and sync every
+     * Construct a new server with the given board. The server gonna
+     * update each client with the board and sync every
      * move of the clients between them.
      * @param board 
      */
@@ -82,7 +82,7 @@ export class Server
      */
     public async Add(client: Sender)
     {
-        // Create player and add it to the _board
+        // Create player and add it to the board
         Board.Current = this.board;
 
         const playerTag = Utils.Unique();
@@ -102,7 +102,7 @@ export class Server
 
         this.board.Actors.Set(player);
 
-        // Set $size
+        // Set size
         await client.SendSize(this.board.Size);
 
         // Set cells

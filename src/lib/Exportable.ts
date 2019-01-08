@@ -71,7 +71,7 @@ export abstract class Exportable
 
     /**
      * Export all (registered) properties of THIS class - but not itself.
-     * @param protect
+     * @param access
      */
     public Export(access: number = 0): IExportObject[]
     {
@@ -137,7 +137,7 @@ export abstract class Exportable
     }
 
     /**
-     * Import all properties.
+     * Import all (registered) properties.
      * @param input 
      */
     public Import(input: IExportObject[]): void

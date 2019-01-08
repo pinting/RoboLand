@@ -3,7 +3,6 @@ import "./Game.css";
 import { Board } from "./lib/Board";
 import { Server } from './lib/Net/Server';
 import { Renderer } from "./lib/Renderer";
-import { Keyboard } from "./lib/Tools/Keyboard";
 import { Sender } from "./lib/Net/Sender";
 import { FakeChannel } from "./lib/Net/Channel/FakeChannel";
 import { Receiver } from "./lib/Net/Receiver";

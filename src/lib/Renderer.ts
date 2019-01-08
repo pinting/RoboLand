@@ -31,7 +31,7 @@ export class Renderer
     }
 
     /**
-     * Load textures for a loaded _board.
+     * Load textures for a loaded board.
      */
     public async Load(): Promise<void>
     {
