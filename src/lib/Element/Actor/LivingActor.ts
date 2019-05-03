@@ -1,5 +1,5 @@
 import { BaseActor } from "./BaseActor";
-import { Logger } from "../../Tools/Logger";
+import { Logger } from "../../Util/Logger";
 import { Exportable, ExportType } from "../../Exportable";
 import { BaseElementArgs } from "../BaseElement";
 import { Vector } from "../../Physics/Vector";

@@ -1,12 +1,12 @@
 import { Vector } from "./Physics/Vector";
 import { BaseActor } from "./Element/Actor/BaseActor";
-import { Utils } from "./Tools/Utils";
+import { Tools } from "./Util/Tools";
 import { BaseCell } from "./Element/Cell/BaseCell";
 import { BaseElement } from "./Element/BaseElement";
 import { ElementList } from "./ElementList";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
 import { Exportable, ExportType } from "./Exportable";
-import { Event } from "./Tools/Event";
+import { Event } from "./Util/Event";
 import { IExportObject } from "./IExportObject";
 
 export class Board extends Exportable
@@ -25,7 +25,7 @@ export class Board extends Exportable
     /**
      * Origin of the Board.
      */
-    public Origin: string = Utils.Unique();
+    public Origin: string = Tools.Unique();
 
     /**
      * Called when the board was updated.

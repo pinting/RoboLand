@@ -2,8 +2,8 @@ import * as React from "react";
 import "./Shared.css";
 import { PlayerActor } from "./lib/Element/Actor/PlayerActor";
 import { Vector } from "./lib/Physics/Vector";
-import { Keyboard } from "./lib/Tools/Keyboard";
-import { Utils } from "./lib/Tools/Utils";
+import { Keyboard } from "./lib/Util/Keyboard";
+import { Tools } from "./lib/Util/Tools";
 import { Exportable } from "./lib/Exportable";
 import { Board } from "./lib/Board";
 import { WaterCell } from "./lib/Element/Cell/WaterCell";
@@ -78,7 +78,7 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
 
         if(Keyboard.Keys[space] && this.nextShoot <= +new Date)
         {
-            player.Shoot(Utils.Unique());
+            player.Shoot(Tools.Unique());
             this.nextShoot = +new Date + SHOT_DELAY;
         }
     }

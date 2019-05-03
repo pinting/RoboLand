@@ -1,6 +1,6 @@
 import { Vector } from "./Vector";
 import { BaseShape } from "./BaseShape";
-import { Logger } from "../Tools/Logger";
+import { Logger } from "../Util/Logger";
 import { ExportType, Exportable } from "../Exportable";
 
 export class Triangle extends BaseShape

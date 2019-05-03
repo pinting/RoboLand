@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Keyboard } from "./lib/Tools/Keyboard";
+import { Keyboard } from "./lib/Util/Keyboard";
 import { Board } from "./lib/Board";
 import { Renderer } from "./lib/Renderer";
 import { FakeChannel } from "./lib/Net/Channel/FakeChannel";
@@ -8,15 +8,15 @@ import { IExportObject } from "./lib/IExportObject";
 import { Server } from "./lib/Net/Server";
 import { Exportable } from "./lib/Exportable";
 import { Sender } from "./lib/Net/Sender";
-import { Http } from "./lib/Tools/Http";
+import { Http } from "./lib/Util/Http";
 import { Vector } from "./lib/Physics/Vector";
 import { GroundCell } from "./lib/Element/Cell/GroundCell";
 import { PlayerActor } from "./lib/Element/Actor/PlayerActor";
 import { StoneCell } from "./lib/Element/Cell/StoneCell";
-import { Logger } from "./lib/Tools/Logger";
-import { SimplexNoise } from "./lib/Tools/SimplexNoise";
+import { Logger } from "./lib/Util/Logger";
+import { SimplexNoise } from "./lib/Util/SimplexNoise";
 import { Shared } from "./Shared";
-import { Utils } from "./lib/Tools/Utils";
+import { Tools } from "./lib/Util/Tools";
 import { Constants } from "./Constants";
 import { Triangle } from "./lib/Physics/Triangle";
 import { Mesh } from "./lib/Physics/Mesh";
@@ -114,14 +114,14 @@ export class Debug extends Shared
         rendererS.Start();
     
         // For debug
-        Utils.Extract(window, {
+        Tools.Extract(window, {
             // Instances
             boardA,
             boardB,
             boardServer,
             // Classes
             Board,
-            Utils,
+            Tools,
             Exportable,
             Vector,
             GroundCell,

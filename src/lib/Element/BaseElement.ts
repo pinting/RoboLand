@@ -1,9 +1,9 @@
 import { Vector } from "../Physics/Vector";
-import { Utils } from "../Tools/Utils";
+import { Tools } from "../Util/Tools";
 import { Board } from "../Board";
 import { Exportable, ExportType } from "../Exportable";
 import { IExportObject } from "../IExportObject";
-import { Logger } from "../Tools/Logger";
+import { Logger } from "../Util/Logger";
 import { Mesh } from "../Physics/Mesh";
 import { Triangle } from "../Physics/Triangle";
 
@@ -66,7 +66,7 @@ export abstract class BaseElement extends Exportable
      */
     protected InitPre(args: BaseElementArgs = {})
     {
-        this.id = args.id || Utils.Unique();
+        this.id = args.id || Tools.Unique();
         this.board = args.board || Board.Current;
         this.origin = args.origin || this.board.Origin;
         this.size = args.size;

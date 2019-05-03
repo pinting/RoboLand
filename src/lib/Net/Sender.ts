@@ -1,4 +1,4 @@
-import { Utils } from "../Tools/Utils";
+import { Tools } from "../Util/Tools";
 import { IChannel } from "./Channel/IChannel";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { Exportable } from "../Exportable";
@@ -9,7 +9,7 @@ import { IExportObject } from "../IExportObject";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
 import { Server } from "./Server";
-import { Logger } from "../Tools/Logger";
+import { Logger } from "../Util/Logger";
 
 const SLEEP_TIME = 1000;
 
@@ -156,5 +156,5 @@ export class Sender extends MessageHandler
      * Executed when the Connection receives a COMMAND from the client.
      * @param command
      */
-    public OnCommand: (command: IExportObject) => void = Utils.Noop;
+    public OnCommand: (command: IExportObject) => void = Tools.Noop;
 }

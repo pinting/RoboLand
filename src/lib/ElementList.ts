@@ -1,9 +1,9 @@
 import { Vector } from "./Physics/Vector";
 import { BaseElement } from "./Element/BaseElement";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
-import { Utils } from "./Tools/Utils";
-import { Event } from "./Tools/Event";
-import { Logger } from "./Tools/Logger";
+import { Tools } from "./Util/Tools";
+import { Event } from "./Util/Event";
+import { Logger } from "./Util/Logger";
 import { Mesh } from "./Physics/Mesh";
 
 export class ElementList<Element extends BaseElement> implements IReadOnlyElementList<Element>
@@ -130,7 +130,7 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
 
         if(old)
         {
-            Utils.Extract(old, element);
+            Tools.Extract(old, element);
             Logger.Info(this, "Element was moded!", element);
         }
         else

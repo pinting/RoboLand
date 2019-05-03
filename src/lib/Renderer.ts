@@ -1,6 +1,6 @@
 import { Board } from "./Board";
 import { BaseElement } from "./Element/BaseElement";
-import { Event } from "./Tools/Event";
+import { Event } from "./Util/Event";
 import { Vector } from "./Physics/Vector";
 
 const NOT_FOUND_COLOR = "purple";

@@ -6,7 +6,7 @@ import { Renderer } from "./lib/Renderer";
 import { Vector } from "./lib/Physics/Vector";
 import { Exportable, ExportType } from "./lib/Exportable";
 import { BaseElement } from "./lib/Element/BaseElement";
-import { Utils } from "./lib/Tools/Utils";
+import { Tools } from "./lib/Util/Tools";
 import { BaseActor } from "./lib/Element/Actor/BaseActor";
 import { BaseCell } from "./lib/Element/Cell/BaseCell";
 import { IExportObject } from "./lib/IExportObject";
@@ -319,7 +319,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     {
         this.mouseDown = true;
 
-        await Utils.Wait(DRAG_WAIT);
+        await Tools.Wait(DRAG_WAIT);
 
         if(this.mouseDown)
         {

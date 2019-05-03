@@ -8,8 +8,8 @@ import { FakeChannel } from "./lib/Net/Channel/FakeChannel";
 import { Receiver } from "./lib/Net/Receiver";
 import { PeerChannel } from "./lib/Net/Channel/PeerChannel";
 import { Exportable } from "./lib/Exportable";
-import { Http } from "./lib/Tools/Http";
-import { Utils } from "./lib/Tools/Utils";
+import { Http } from "./lib/Util/Http";
+import { Tools } from "./lib/Util/Tools";
 import { Helper } from "./Helper";
 import { Shared } from "./Shared";
 import { Constants } from "./Constants";
@@ -54,7 +54,7 @@ export class Game extends Shared<GameProps, GameState>
 
     private canvas: HTMLCanvasElement;
 
-    private tabId: string = Utils.Unique();
+    private tabId: string = Tools.Unique();
     private board: Board = new Board();
 
     private channel: PeerChannel;
@@ -147,7 +147,7 @@ export class Game extends Shared<GameProps, GameState>
                 break;
             }
 
-            await Utils.Wait(1000);
+            await Tools.Wait(1000);
         }
     }
 

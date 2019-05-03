@@ -5,11 +5,11 @@ import { Exportable } from "../Exportable";
 import { BaseCell } from "../Element/Cell/BaseCell";
 import { BaseActor } from "../Element/Actor/BaseActor";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
-import { Utils } from "../Tools/Utils";
+import { Tools } from "../Util/Tools";
 import { IExportObject } from "../IExportObject";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
-import { Logger } from "../Tools/Logger";
+import { Logger } from "../Util/Logger";
 import { BaseElement } from "../Element/BaseElement";
 
 const MAX_DIST = 0.2;
@@ -151,7 +151,7 @@ export class Receiver extends MessageHandler
     {
         const player = this.player = <PlayerActor>this.board.GetActors().Get(id);
 
-        this.OnPlayer(Utils.Hook(player, (target, prop, args) => 
+        this.OnPlayer(Tools.Hook(player, (target, prop, args) => 
         {
             const exportable = Exportable.Export([player.GetId(), prop].concat(args));
 
@@ -209,5 +209,5 @@ export class Receiver extends MessageHandler
     /**
      * Executed when the player is set.
      */
-    public OnPlayer: (player: PlayerActor) => void = Utils.Noop;
+    public OnPlayer: (player: PlayerActor) => void = Tools.Noop;
 }

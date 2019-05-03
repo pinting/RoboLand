@@ -1,8 +1,8 @@
 import { IChannel } from "./Channel/IChannel";
 import { MessageType } from "./MessageType";
 import { IMessage } from "./IMessage";
-import { Event } from "../Tools/Event";
-import { Logger } from "../Tools/Logger";
+import { Event } from "../Util/Event";
+import { Logger } from "../Util/Logger";
 
 export abstract class MessageHandler
 {
