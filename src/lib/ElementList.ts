@@ -102,10 +102,8 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
             {
                 return;
             }
-
-            const vm = element.GetVirtualMesh();
-
-            if(vm.Collide(mesh))
+            
+            if(element.GetVirtualMesh().Collide(mesh))
             {
                 result.push(element);
             }
