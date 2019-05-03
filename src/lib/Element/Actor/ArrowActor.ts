@@ -1,20 +1,17 @@
-import { BaseActor, BaseActorArgs } from "./BaseActor";
-import { Coord } from "../../Coord";
+import { BaseActor } from "./BaseActor";
+import { Vector } from "../../Physics/Vector";
 import { LivingActor } from "./LivingActor";
 import { Exportable, ExportType } from "../../Exportable";
+import { BaseElementArgs } from "../BaseElement";
 
-export interface ArrowActorArgs extends BaseActorArgs
+export interface ArrowActorArgs extends BaseElementArgs
 {
-    direction?: Coord;
     damage?: number;
     speed?: number;
 }
 
 export class ArrowActor extends BaseActor
 {
-    @Exportable.Register(ExportType.User)
-    protected direction: Coord;
-
     @Exportable.Register(ExportType.User)
     protected damage: number;
 
@@ -36,7 +33,7 @@ export class ArrowActor extends BaseActor
     {
         super.InitPre(args);
 
-        this.direction = args.direction;
+        this.angle = args.angle;
         this.damage = args.damage;
         this.speed = args.speed;
     }
@@ -46,8 +43,8 @@ export class ArrowActor extends BaseActor
      */
     protected OnTick(): void
     {
-        const success = this.SetPos(this.Position.Add(
-            this.direction.F(c => c * this.speed)));
+        const facing = Vector.AngleToVector(this.GetAngle());
+        const success = this.SetPosition(this.GetPosition().Add(facing.F(v => v * this.speed)));
 
         // If the arrow hit a wall, dispose it
         if(!success)
@@ -56,8 +53,7 @@ export class ArrowActor extends BaseActor
             return;
         }
 
-        const result = this.board.Actors.FindBetween(
-            this.Position, this.Position.Add(this.Size));
+        const result = this.board.GetActors().FindAround(this.virtualMesh);
 
         let hit = false;
 

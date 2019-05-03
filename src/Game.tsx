@@ -161,21 +161,14 @@ export class Game extends Shared<GameProps, GameState>
             return new Receiver(this.channel, this.board);
         }
 
-        // Create server _board, load it, create server
-        try 
-        {
-            const rawboard = JSON.parse(await Http.Get("res/board.json"));
-            const serverBoard = Exportable.Import(rawboard);
+        // Create server board, load it, create server
+        const rawboard = JSON.parse(await Http.Get("res/board.json"));
+        const serverBoard = Exportable.Import(rawboard);
 
-            this.server = new Server(serverBoard);
+        this.server = new Server(serverBoard);
 
-            // Use the tick of the local client on the server
-            renderer.OnDraw.Add(() => serverBoard.OnTick.Call());
-        }
-        catch(e)
-        {
-            return null;
-        }
+        // Use the tick of the local client on the server
+        renderer.OnDraw.Add(() => serverBoard.OnTick.Call());
 
         // Enable add button
         this.setState({ showAdd: true });
@@ -204,7 +197,7 @@ export class Game extends Shared<GameProps, GameState>
 
         receiver.OnPlayer = async player =>
         {
-            this.board.Origin = player.Id;
+            this.board.Origin = player.GetId();
 
             await renderer.Load();
             

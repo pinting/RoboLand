@@ -1,8 +1,10 @@
-import { BaseActor, BaseActorArgs } from "./BaseActor";
+import { BaseActor } from "./BaseActor";
 import { Logger } from "../../Tools/Logger";
 import { Exportable, ExportType } from "../../Exportable";
+import { BaseElementArgs } from "../BaseElement";
+import { Vector } from "../../Physics/Vector";
 
-export interface LivingActorArgs extends BaseActorArgs
+export interface LivingActorArgs extends BaseElementArgs
 {
     health?: number;
     damage?: number;
@@ -41,6 +43,25 @@ export abstract class LivingActor extends BaseActor
     }
 
     /**
+     * Move actor in a direction.
+     * @param mod Modify the angle temporary.
+     */
+    public Move(mod: number = 0): boolean
+    {
+        // Calculate the next position
+        const direction = Vector.AngleToVector(this.GetAngle() + mod);
+        const next = this.GetPosition().Add(direction.F(v => v * this.speed)).Round(3);
+
+        // Do the moving
+        if(this.SetPosition(next))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Do damage to this actor.
      * @param damage Amount of the damage.
      */
@@ -61,7 +82,7 @@ export abstract class LivingActor extends BaseActor
     /**
      * Get if the actor is alive.
      */
-    public get Alive(): boolean
+    public IsAlive(): boolean
     {
         return this.health > 0;
     }

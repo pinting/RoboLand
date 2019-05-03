@@ -1,9 +1,10 @@
-import { Coord } from "./Coord";
+import { Vector } from "./Physics/Vector";
 import { BaseElement } from "./Element/BaseElement";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
 import { Utils } from "./Tools/Utils";
 import { Event } from "./Tools/Event";
 import { Logger } from "./Tools/Logger";
+import { Mesh } from "./Physics/Mesh";
 
 export class ElementList<Element extends BaseElement> implements IReadOnlyElementList<Element>
 {
@@ -45,23 +46,23 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
      */
     public Get(id: string): Element
     {
-        return this.elements.find(e => e && e.Id == id);
+        return this.elements.find(e => e && e.GetId() == id);
     }
 
     /**
-     * Get a element(s) by coord.
-     * @param coord 
+     * Get a element(s) by vector.
+     * @param vector 
      */ 
-    public Find(coord: Coord): Element[]
+    public Find(vector: Vector): Element[]
     {
-        return this.elements.filter(e => e && e.Position.Is(<Coord>coord));
+        return this.elements.filter(e => e && e.GetPosition().Is(<Vector>vector));
     }
 
     /**
-     * Get the nearest element to the given coord.
-     * @param coord 
+     * Get the nearest element to the given vector.
+     * @param vector 
      */
-    public FindNear(coord: Coord): Element
+    public FindNear(vector: Vector): Element
     {
         let result: Element = null;
         let min = Infinity;
@@ -73,9 +74,9 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
                 return;
             }
 
-            const size = element.Size;
-            const center = element.Position.Add(size.F(n => n / 2));
-            const distance = center.GetDistance(coord);
+            const size = element.GetSize();
+            const center = element.GetPosition().Add(size.F(n => n / 2));
+            const distance = center.Len(vector);
 
             if(distance < min) 
             {
@@ -88,11 +89,10 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     }
 
     /**
-     * Get elements between two coordinates.
-     * @param from
-     * @param to 
+     * Get elements under a mesh.
+     * @param mesh
      */
-    public FindBetween(from: Coord, to: Coord): Element[]
+    public FindAround(mesh: Mesh): Element[]
     {
         const result = [];
 
@@ -103,10 +103,9 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
                 return;
             }
 
-            const elementFrom = element.Position;
-            const elementTo = element.Position.Add(element.Size);
+            const vm = element.GetVirtualMesh();
 
-            if(Coord.Collide(from, to, elementFrom, elementTo))
+            if(vm.Collide(mesh))
             {
                 result.push(element);
             }
@@ -121,13 +120,13 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
      */
     public Set(element: Element): void
     {
-        if(element.Disposed)
+        if(element.IsDisposed())
         {
             this.Remove(element);
             return;
         }
 
-        const old = this.Get(element.Id);
+        const old = this.Get(element.GetId());
 
         if(old)
         {
@@ -158,7 +157,7 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
 
         this.elements.splice(index, 1);
 
-        if(!element.Disposed) 
+        if(!element.IsDisposed()) 
         {
             element.Dispose();
         }
@@ -172,7 +171,7 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     /**
      * Get the internal array.
      */
-    public get List(): Element[]
+    public GetList(): Element[]
     {
         return this.elements;
     }

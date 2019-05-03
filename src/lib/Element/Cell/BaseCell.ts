@@ -1,5 +1,6 @@
 import { BaseActor } from "../Actor/BaseActor";
 import { TickElement } from "../TickElement";
+import { Mesh } from "../../Physics/Mesh";
 
 export abstract class BaseCell extends TickElement
 {
@@ -9,11 +10,11 @@ export abstract class BaseCell extends TickElement
      * Enter into the cell with an actor.
      * @param actor 
      */
-    public MoveHere(actor: BaseActor): boolean 
+    public MoveHere(actor: BaseActor, mesh: Mesh): boolean 
     {
-        if(!this.actors.includes(actor.Id))
+        if(!this.actors.includes(actor.GetId()))
         {
-            this.actors.push(actor.Id);
+            this.actors.push(actor.GetId());
             this.board.OnUpdate.Call(this);
         }
 
@@ -26,7 +27,7 @@ export abstract class BaseCell extends TickElement
      */
     public MoveAway(actor: BaseActor): void 
     {
-        const index = this.actors.indexOf(actor.Id);
+        const index = this.actors.indexOf(actor.GetId());
 
         if(index >= 0) 
         {
@@ -45,7 +46,7 @@ export abstract class BaseCell extends TickElement
             return;
         }
 
-        this.board.Cells.Remove(this);
+        this.board.GetCells().Remove(this);
         super.Dispose();
     }
 }

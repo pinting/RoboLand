@@ -3,7 +3,7 @@ import { IChannel } from "./Channel/IChannel";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { Exportable } from "../Exportable";
 import { MessageType } from "./MessageType";
-import { Coord } from "../Coord";
+import { Vector } from "../Physics/Vector";
 import { BaseElement } from "../Element/BaseElement";
 import { IExportObject } from "../IExportObject";
 import { IMessage } from "./IMessage";
@@ -34,7 +34,7 @@ export class Sender extends MessageHandler
     /**
      * Get the previously setted player actor.
      */
-    public get Player(): PlayerActor
+    public GetPlayer(): PlayerActor
     {
         return this.player;
     }
@@ -61,7 +61,7 @@ export class Sender extends MessageHandler
      * Init board. Also deletes previously setted elements.
      * @param size 
      */
-    public async SendSize(size: Coord): Promise<void>
+    public async SendSize(size: Vector): Promise<void>
     {
         return this.SendMessage(MessageType.Size, Exportable.Export(size));
     }
@@ -77,21 +77,21 @@ export class Sender extends MessageHandler
         
         let diff: IExportObject = null;
 
-        if(this.last.hasOwnProperty(element.Id))
+        if(this.last.hasOwnProperty(element.GetId()))
         {
-            diff = Exportable.Diff(exportable, this.last[element.Id]);
+            diff = Exportable.Diff(exportable, this.last[element.GetId()]);
         }
 
-        if(this.lastTime.hasOwnProperty(element.Id) && 
-            this.lastTime[element.Id] + SLEEP_TIME >= now &&
+        if(this.lastTime.hasOwnProperty(element.GetId()) && 
+            this.lastTime[element.GetId()] + SLEEP_TIME >= now &&
             BaseElement.IsOnlyPosDiff(diff))
         {
             Logger.Info(this, "Element was optimized out", element);
             return;
         }
 
-        this.last[element.Id] = exportable;
-        this.lastTime[element.Id] = now;
+        this.last[element.GetId()] = exportable;
+        this.lastTime[element.GetId()] = now;
 
         if(diff && diff.Payload && diff.Payload.length)
         {
@@ -99,7 +99,7 @@ export class Sender extends MessageHandler
             diff.Payload.push(<IExportObject>{
                 Name: "id",
                 Class: "string",
-                Payload: element.Id
+                Payload: element.GetId()
             });
         }
 
@@ -120,7 +120,7 @@ export class Sender extends MessageHandler
 
         this.player = player;
 
-        return this.SendMessage(MessageType.Player, player.Id);
+        return this.SendMessage(MessageType.Player, player.GetId());
     }
 
     /**

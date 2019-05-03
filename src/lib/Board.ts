@@ -1,4 +1,4 @@
-import { Coord } from "./Coord";
+import { Vector } from "./Physics/Vector";
 import { BaseActor } from "./Element/Actor/BaseActor";
 import { Utils } from "./Tools/Utils";
 import { BaseCell } from "./Element/Cell/BaseCell";
@@ -20,7 +20,7 @@ export class Board extends Exportable
     private actors: Array<BaseActor> = [];
 
     @Exportable.Register(ExportType.User)
-    private size: Coord = new Coord();
+    private size: Vector = new Vector();
 
     /**
      * Origin of the Board.
@@ -41,7 +41,7 @@ export class Board extends Exportable
      * Init a board with null cells.
      * @param size
      */
-    public Init(size: Coord): void
+    public Init(size: Vector): void
     {
         this.size = size.Clone();
         this.cells = [];
@@ -51,7 +51,7 @@ export class Board extends Exportable
     /**
      * Get the size of the board.
      */
-    public get Size(): Coord
+    public GetSize(): Vector
     {
         return this.size.Clone();
     }
@@ -59,7 +59,7 @@ export class Board extends Exportable
     /**
      * Get all elements of the board.
      */
-    public get Elements(): IReadOnlyElementList<BaseElement>
+    public GetElements(): IReadOnlyElementList<BaseElement>
     {
         const all = (<BaseElement[]>this.cells).concat(<BaseElement[]>this.actors);
         
@@ -69,7 +69,7 @@ export class Board extends Exportable
     /**
      * Get the cells of the board.
      */
-    public get Cells(): ElementList<BaseCell>
+    public GetCells(): ElementList<BaseCell>
     {
         return new ElementList(this.cells, <Event<BaseCell>>this.OnUpdate);
     }
@@ -77,7 +77,7 @@ export class Board extends Exportable
     /**
      * Get the actors of the board.
      */
-    public get Actors(): ElementList<BaseActor>
+    public GetActors(): ElementList<BaseActor>
     {
         return new ElementList(this.actors, <Event<BaseActor>>this.OnUpdate);
     }

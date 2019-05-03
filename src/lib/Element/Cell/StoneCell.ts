@@ -1,15 +1,16 @@
 import { BaseActor } from "../Actor/BaseActor";
 import { BaseCell } from "./BaseCell";
 import { Exportable } from "../../Exportable";
+import { Mesh } from "../../Physics/Mesh";
 
 export class StoneCell extends BaseCell
 {
     /**
      * @inheritDoc
      */
-    public MoveHere(actor: BaseActor): boolean 
+    public MoveHere(actor: BaseActor, mesh: Mesh): boolean 
     {
-        return false;
+        return this.virtualMesh.Collide(mesh) == null;
     }
     
     /**

@@ -1,23 +1,28 @@
-import { Coord } from "../Coord";
+import { Vector } from "../Physics/Vector";
 import { Utils } from "../Tools/Utils";
 import { Board } from "../Board";
 import { Exportable, ExportType } from "../Exportable";
 import { IExportObject } from "../IExportObject";
 import { Logger } from "../Tools/Logger";
+import { Mesh } from "../Physics/Mesh";
+import { Triangle } from "../Physics/Triangle";
 
 export interface BaseElementArgs
 {
     id?: string;
-    position?: Coord; 
-    size?: Coord;
+    position?: Vector; 
+    size?: Vector;
     texture?: string;
     origin?: string;
     board?: Board;
+    angle?: number;
+    mesh?: Mesh;
 }
 
 export abstract class BaseElement extends Exportable
 {
     protected board: Board;
+    protected virtualMesh: Mesh;
 
     @Exportable.Register(ExportType.All, (s, v) => s.Dispose(v))
     protected disposed: boolean = false;
@@ -29,13 +34,20 @@ export abstract class BaseElement extends Exportable
     protected origin: string; // ID of the origin element
 
     @Exportable.Register(ExportType.User)
-    protected size: Coord;
+    protected size: Vector;
 
-    @Exportable.Register(ExportType.User, (s, v) => s.SetPos(v))
-    protected position: Coord;
+    @Exportable.Register(ExportType.User, (s, v) => v && s.SetMesh(v))
+    protected mesh: Mesh;
+
+    @Exportable.Register(ExportType.User, (s, v) => s.SetPosition(v))
+    protected position: Vector;
 
     @Exportable.Register(ExportType.User)
     protected texture: string;
+
+    @Exportable.Register(ExportType.User)
+    protected angle: number;
+
 
     /**
      * Construct a new element with the given init args.
@@ -59,6 +71,17 @@ export abstract class BaseElement extends Exportable
         this.origin = args.origin || this.board.Origin;
         this.size = args.size;
         this.texture = args.texture;
+        this.angle = args.angle || 0;
+        this.mesh = args.mesh || new Mesh([
+            new Triangle([
+                new Vector(0, 0),
+                new Vector(1, 0),
+                new Vector(0, 1)]),
+            new Triangle([
+                new Vector(1, 1),
+                new Vector(1, 0),
+                new Vector(0, 1)])
+        ]);
     }
 
     /**
@@ -67,13 +90,13 @@ export abstract class BaseElement extends Exportable
      */
     protected InitPost(args: BaseElementArgs = {})
     {
-        args.position && this.SetPos(args.position);
+        args.position && this.SetPosition(args.position);
     }
 
     /**
      * Get the id of the element.
      */
-    public get Id(): string
+    public GetId(): string
     {
         return this.id;
     }
@@ -81,7 +104,7 @@ export abstract class BaseElement extends Exportable
     /**
      * Get the origin of the element.
      */
-    public get Origin(): string
+    public GetOrigin(): string
     {
         return this.origin;
     }
@@ -89,7 +112,7 @@ export abstract class BaseElement extends Exportable
     /**
      * Get the size of the element.
      */
-    public get Size(): Coord
+    public GetSize(): Vector
     {
         return this.size.Clone();
     }
@@ -97,7 +120,7 @@ export abstract class BaseElement extends Exportable
     /**
      * Get the texture of the element.
      */
-    public get Texture(): string
+    public GetTexture(): string
     {
         return this.texture;
     }
@@ -105,15 +128,39 @@ export abstract class BaseElement extends Exportable
     /**
      * Get the position of the element.
      */
-    public get Position(): Coord
+    public GetPosition(): Vector
     {
         return this.position && this.position.Clone();
     }
 
     /**
+     * Get the angle of the element.
+     */
+    public GetAngle(): number
+    {
+        return this.angle;
+    }
+
+    /**
+     * Get the mesh of the element.
+     */
+    public GetMesh(): Mesh
+    {
+        return this.mesh;
+    }
+
+    /**
+     * Get the virtual mesh of the element.
+     */
+    public GetVirtualMesh(): Mesh
+    {
+        return this.virtualMesh;
+    }
+
+    /**
      * Get value of disposed.
      */
-    public get Disposed(): boolean
+    public IsDisposed(): boolean
     {
         return this.disposed;
     }
@@ -122,7 +169,7 @@ export abstract class BaseElement extends Exportable
      * Set the position of the element.
      * @param position 
      */
-    public SetPos(position: Coord): boolean
+    public SetPosition(position: Vector): boolean
     {
         if((position && this.position && this.position.Is(position)) &&
             (position === this.position))
@@ -131,9 +178,37 @@ export abstract class BaseElement extends Exportable
         }
 
         this.position = position;
+        
+        this.SetMesh(this.mesh);
         this.board.OnUpdate.Call(this);
 
         return true;
+    }
+
+    /**
+     * Set the angle of the element.
+     * @param angle Angle in deg
+     */
+    public SetAngle(angle: number): boolean
+    {
+        this.angle = angle;
+        
+        this.SetMesh(this.mesh);
+
+        return true;
+    }
+
+    /**
+     * Set the mesh and generate the virtual hash.
+     * Virtual = Mesh -> Rotate(Angle) ->  Add(Position)
+     * @param mesh 
+     */
+    public SetMesh(mesh: Mesh): void
+    {
+        this.mesh = mesh;
+        this.virtualMesh = mesh.F(v => v
+            .Rotate(this.angle, this.size.F(s => s / 2))
+            .Add(this.position));
     }
 
     /**
@@ -165,7 +240,7 @@ export abstract class BaseElement extends Exportable
     /**
      * Compare two export objects using a diff.
      * @param diff
-     * @returns Return true if only position or direction is different.
+     * @returns Return true if only position or angle is different.
      */
     public static IsOnlyPosDiff(diff: IExportObject): boolean
     {
@@ -184,17 +259,17 @@ export abstract class BaseElement extends Exportable
             return true;
         }
 
-        // Only direction diff
+        // Only angle diff
         if(Object.keys(props).length === 1 &&
-            props.hasOwnProperty("direction"))
+            props.hasOwnProperty("angle"))
         {
             return true;
         }
 
-        // Only position and direction diff
+        // Only position and angle diff
         if(Object.keys(props).length === 2 &&
             props.hasOwnProperty("position") &&
-            props.hasOwnProperty("direction"))
+            props.hasOwnProperty("angle"))
         {
             return true;
         }

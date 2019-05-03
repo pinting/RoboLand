@@ -1,22 +1,13 @@
-import { Coord } from "../../Coord";
-import { BaseElement, BaseElementArgs } from "../BaseElement";
+import { Vector } from "../../Physics/Vector";
+import { BaseElementArgs } from "../BaseElement";
 import { TickElement } from "../TickElement";
-import { Exportable, ExportType } from "../../Exportable";
-
-export interface BaseActorArgs extends BaseElementArgs
-{
-    direction?: Coord;
-}
 
 export abstract class BaseActor extends TickElement
 {
-    @Exportable.Register(ExportType.User)
-    protected direction: Coord;
-
     /**
      * @inheritDoc
      */
-    public Init(args: BaseActorArgs = {})
+    public Init(args: BaseElementArgs = {})
     {
         super.Init(args);
     }
@@ -24,35 +15,51 @@ export abstract class BaseActor extends TickElement
     /**
      * @inheritDoc
      */
-    protected InitPre(args: BaseActorArgs = {})
+    protected InitPre(args: BaseElementArgs = {})
     {
         super.InitPre(args);
 
-        this.direction = this.direction;
+        this.angle = this.angle;
     }
     
     /**
      * @inheritDoc
      */
-    public SetPos(position: Coord): boolean
+    public SetPosition(position: Vector): boolean
     {
-        const prevPos = this.Position;
+        return this.WillCollide(position, this.angle) && super.SetPosition(position);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public SetAngle(angle: number): boolean
+    {
+        return this.WillCollide(this.position, angle) && super.SetAngle(angle);
+    }
+
+    /**
+     * Check if the given position and angle will cause collision.
+     * @param position 
+     * @param angle 
+     */
+    private WillCollide(position: Vector, angle: number): boolean
+    {
+        const prevPos = this.GetPosition();
         const nextPos = position;
 
-        // Check if it goes out of the board
-        if(nextPos && (!nextPos.Inside(new Coord(0, 0), this.board.Size) || 
-            !nextPos.Add(this.Size).Inside(new Coord(0, 0), this.board.Size)))
-        {
-            return false;
-        }
+        const prevMesh = this.virtualMesh
+        const nextMesh = this.mesh.F(v => v
+            .Rotate(angle, this.size.F(s => s / 2))
+            .Add(nextPos));
 
         // Get the currently covered cells and the next ones
         const prev = prevPos 
-            ? this.board.Cells.FindBetween(prevPos, prevPos.Add(this.size))
+            ? this.board.GetCells().FindAround(prevMesh)
             : [];
         
-        const next = nextPos
-            ? this.board.Cells.FindBetween(nextPos, nextPos.Add(this.size))
+            const next = nextPos
+            ? this.board.GetCells().FindAround(nextMesh)
             : [];
 
         // If prevPos/nextPos was given, but no cells found, return
@@ -62,22 +69,21 @@ export abstract class BaseActor extends TickElement
         }
 
         // Remove intersection 
-        const prevFiltered = prev.filter(c => !next.includes(c));
-        const nextFiltered = next.filter(c => !prev.includes(c));
+        const prevFiltered = prev.filter(v => !next.includes(v));
+        const nextFiltered = next.filter(v => !prev.includes(v));
 
         // Check if one of the cells blocks the movement
-        if(nextFiltered.some(cell => !cell.MoveHere(this)))
+        if(nextFiltered.some(cell => !cell.MoveHere(this, nextMesh)))
         {
             // If yes, revert all movement and return
-            nextFiltered.forEach(c => c.MoveAway(this));
+            nextFiltered.forEach(v => v.MoveAway(this));
             return false;
         }
 
         // If it was successful, move away from the old cells
-        prevFiltered.forEach(c => c.MoveAway(this));
+        prevFiltered.forEach(v => v.MoveAway(this));
 
-        // Call super
-        return super.SetPos(nextPos);
+        return true;
     }
 
     /**
@@ -90,15 +96,7 @@ export abstract class BaseActor extends TickElement
             return;
         }
 
-        this.board.Actors.Remove(this);
+        this.board.GetActors().Remove(this);
         super.Dispose();
-    }
-
-    /**
-     * Get the direction of the actor.
-     */
-    public get Direction(): Coord
-    {
-        return this.direction && this.direction.Clone();
     }
 }

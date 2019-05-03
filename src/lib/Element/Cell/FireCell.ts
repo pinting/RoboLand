@@ -3,6 +3,7 @@ import { BaseCell } from "./BaseCell";
 import { LivingActor } from "../Actor/LivingActor";
 import { BaseElementArgs } from "../BaseElement";
 import { Exportable, ExportType } from "../../Exportable";
+import { Mesh } from "../../Physics/Mesh";
 
 export interface FireCellArgs extends BaseElementArgs
 {
@@ -35,8 +36,8 @@ export class FireCell extends BaseCell
     /**
      * @inheritDoc
      */
-    public MoveHere(actor: BaseActor): boolean 
-    {   
+    public MoveHere(actor: BaseActor, mesh: Mesh): boolean 
+    {
         return true;
     }
 
@@ -47,7 +48,7 @@ export class FireCell extends BaseCell
     {
         this.actors.forEach(id =>
         {
-            const actor = this.board.Actors.Get(id);
+            const actor = this.board.GetActors().Get(id);
 
             if(actor instanceof LivingActor)
             {

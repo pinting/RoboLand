@@ -30,7 +30,7 @@ export class Filo<T>
     /**
      * Get the internal array.
      */
-    public get List(): Array<T>
+    public GetList(): Array<T>
     {
         return this.array;
     }

@@ -1,7 +1,7 @@
 import * as React from "react";
 import "./Shared.css";
 import { PlayerActor } from "./lib/Element/Actor/PlayerActor";
-import { Coord } from "./lib/Coord";
+import { Vector } from "./lib/Physics/Vector";
 import { Keyboard } from "./lib/Tools/Keyboard";
 import { Utils } from "./lib/Tools/Utils";
 import { Exportable } from "./lib/Exportable";
@@ -20,9 +20,10 @@ Exportable.Dependency(GroundCell);
 Exportable.Dependency(StoneCell);
 Exportable.Dependency(WaterCell);
 Exportable.Dependency(Board);
-Exportable.Dependency(Coord);
+Exportable.Dependency(Vector);
 
 const SHOT_DELAY = 1000;
+const TURN_SPEED = Vector.DegToRad(2);
 
 export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
 {
@@ -55,14 +56,24 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
             return;
         }
 
-        const direction = new Coord(
-            Keyboard.Keys[left] ? -1 : Keyboard.Keys[right] ? 1 : 0, 
-            Keyboard.Keys[up] ? -1 : Keyboard.Keys[down] ? 1 : 0
-        );
-
-        if(direction.GetDistance(new Coord) == 1)
+        if(Keyboard.Keys[left])
         {
-            player.Move(direction);
+            player.SetAngle(player.GetAngle() - TURN_SPEED);
+        }
+
+        if(Keyboard.Keys[right])
+        {
+            player.SetAngle(player.GetAngle() + TURN_SPEED);
+        }
+
+        if(Keyboard.Keys[up])
+        {
+            player.Move();
+        }
+
+        if(Keyboard.Keys[down])
+        {
+            player.Move(Vector.DegToRad(180));
         }
 
         if(Keyboard.Keys[space] && this.nextShoot <= +new Date)

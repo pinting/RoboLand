@@ -3,7 +3,7 @@ import "./Editor.css";
 import { Shared } from "./Shared";
 import { Board } from "./lib/Board";
 import { Renderer } from "./lib/Renderer";
-import { Coord } from "./lib/Coord";
+import { Vector } from "./lib/Physics/Vector";
 import { Exportable, ExportType } from "./lib/Exportable";
 import { BaseElement } from "./lib/Element/BaseElement";
 import { Utils } from "./lib/Tools/Utils";
@@ -46,12 +46,12 @@ export class Editor extends Shared<EditorProps, EditorState>
     private mouseDown: boolean = false;
 
     private board: Board;
-    private newBoardSize: Coord = new Coord;
+    private newBoardSize: Vector = new Vector;
 
-    private newElementCoord: Coord = new Coord;
+    private newElementVector: Vector = new Vector;
     private newElementName: string;
     
-    private selectedCoord: Coord;
+    private selectedVector: Vector;
     private selectedElement: BaseElement;
 
     /**
@@ -125,7 +125,7 @@ export class Editor extends Shared<EditorProps, EditorState>
      */
     private async AddElement()
     {
-        if(!this.board || !this.newElementCoord || !this.newElementName)
+        if(!this.board || !this.newElementVector || !this.newElementName)
         {
             return;
         }
@@ -139,18 +139,18 @@ export class Editor extends Shared<EditorProps, EditorState>
         }
 
         element.Init({
-            size: new Coord(1, 1),
-            position: this.newElementCoord.Clone(),
+            size: new Vector(1, 1),
+            position: this.newElementVector.Clone(),
             texture: ""
         });
 
         if(element instanceof BaseActor)
         {
-            this.board.Actors.Set(element);
+            this.board.GetActors().Set(element);
         }
         else if(element instanceof BaseCell)
         {
-            this.board.Cells.Set(element);
+            this.board.GetCells().Set(element);
         }
 
         await this.renderer.Load();
@@ -191,11 +191,11 @@ export class Editor extends Shared<EditorProps, EditorState>
 
         if(element instanceof BaseCell)
         {
-            this.board.Cells.Set(element);
+            this.board.GetCells().Set(element);
         }
         else if(element instanceof BaseActor)
         {
-            this.board.Actors.Set(element);
+            this.board.GetActors().Set(element);
         }
 
         this.selectedElement = element;
@@ -212,11 +212,11 @@ export class Editor extends Shared<EditorProps, EditorState>
 
         if(element instanceof BaseCell)
         {
-            this.board.Cells.Remove(element);
+            this.board.GetCells().Remove(element);
         }
         else if(element instanceof BaseActor)
         {
-            this.board.Actors.Remove(element);
+            this.board.GetActors().Remove(element);
         }
 
         this.selectedElement = null;
@@ -278,8 +278,8 @@ export class Editor extends Shared<EditorProps, EditorState>
 
         const p = Editor.CanvasP(this.canvas, event);
 
-        this.selectedCoord = this.renderer.Find(p[0], p[1]);
-        this.selectedElement = this.board.Elements.FindNear(this.selectedCoord);
+        this.selectedVector = this.renderer.Find(p[0], p[1]);
+        this.selectedElement = this.board.GetElements().FindNear(this.selectedVector);
 
         if(this.selectedElement)
         {
@@ -303,11 +303,11 @@ export class Editor extends Shared<EditorProps, EditorState>
         }
 
         const p = Editor.CanvasP(this.canvas, event);
-        const coord = this.renderer.Find(p[0], p[1]);
+        const Vector = this.renderer.Find(p[0], p[1]);
 
         if(this.selectedElement)
         {
-            this.selectedElement.SetPos(coord);
+            this.selectedElement.SetPosition(Vector);
         }
     }
 
@@ -368,11 +368,11 @@ export class Editor extends Shared<EditorProps, EditorState>
                     <input 
                         type="number" 
                         placeholder="X" 
-                        onChange={e => this.newElementCoord.X = parseFloat(e.target.value)} />
+                        onChange={e => this.newElementVector.X = parseFloat(e.target.value)} />
                     <input 
                         type="number" 
                         placeholder="Y" 
-                        onChange={e => this.newElementCoord.Y = parseFloat(e.target.value)} />
+                        onChange={e => this.newElementVector.Y = parseFloat(e.target.value)} />
                     <select onChange={v => this.newElementName = v.target.value}>
                         <option>-</option>
                         {this.state.loaded.map(n => <option key={n}>{n}</option>)}

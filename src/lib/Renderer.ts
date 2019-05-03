@@ -1,7 +1,7 @@
 import { Board } from "./Board";
 import { BaseElement } from "./Element/BaseElement";
 import { Event } from "./Tools/Event";
-import { Coord } from "./Coord";
+import { Vector } from "./Physics/Vector";
 
 const NOT_FOUND_COLOR = "purple";
 const DPI = 30;
@@ -13,7 +13,7 @@ export class Renderer
     private readonly context: CanvasRenderingContext2D;
     
     private textures: { [id: string]: HTMLImageElement } = {};
-    private stop;
+    private stop: boolean = false;
 
     /**
      * Called upon redraw.
@@ -37,7 +37,7 @@ export class Renderer
     {
         return new Promise<void>((resolve, reject) => 
         {
-            const elements = this.board.Elements;
+            const elements = this.board.GetElements();
             let i = 0;
     
             elements.ForEach((element: BaseElement) =>
@@ -48,7 +48,7 @@ export class Renderer
                     return;
                 }
     
-                const path = element.Texture;
+                const path = element.GetTexture();
 
                 if(!path || this.textures[path] !== undefined)
                 {
@@ -82,50 +82,51 @@ export class Renderer
     }
 
     /**
-     * Find a Coord under a pixel point.
+     * Find a Vector under a pixel point.
      */
-    public Find(x: number, y: number): Coord
+    public Find(x: number, y: number): Vector
     {
-        return new Coord(x / DPI, y / DPI);
+        return new Vector(x / DPI, y / DPI);
     }
-    
+
     /**
      * Draw the given element onto the canvas.
      * @param element
      */
-    private Draw(element: BaseElement)
+    private DrawElement(element: BaseElement)
     {
-        if(!element || !element.Position || !element.Size)
+        if(!element || !element.GetPosition() || !element.GetSize())
         {
             return;
         }
         
-        const coord = element.Position;
-        const size = element.Size;
-        const texture = this.textures[element.Texture];
+        const vector = element.GetPosition();
+        const size = element.GetSize();
+        const texture = this.textures[element.GetTexture()];
     
-        const x = coord.X;
-        const y = coord.Y;
-        const w = size.X;
-        const h = size.Y;
+        const x = vector.X * DPI;
+        const y = vector.Y * DPI;
+        const w = size.X * DPI;
+        const h = size.Y * DPI;
+        
+        const rot = (angle: number) =>
+        {
+            this.context.translate(x + w / 2, y + h / 2);
+            this.context.rotate(angle);
+            this.context.translate(-(x + w / 2), -(y + h / 2));
+        }
+
+        rot(element.GetAngle());
     
         if(texture) {
-            this.context.drawImage(
-                texture, 
-                x * DPI, 
-                y * DPI, 
-                w * DPI, 
-                h * DPI);
+            this.context.drawImage(texture, x, y, w, h);
         }
         else {
             this.context.fillStyle = NOT_FOUND_COLOR;
-            this.context.fillRect(
-                x * DPI, 
-                y * DPI, 
-                w * DPI, 
-                h * DPI
-            );
+            this.context.fillRect(x, y, w, h);
         }
+
+        rot(-element.GetAngle());
     }
     
     /**
@@ -133,7 +134,7 @@ export class Renderer
      */
     private Render()
     {
-        const size = this.board.Size;
+        const size = this.board.GetSize();
     
         const w = DPI * size.X;
         const h = DPI * size.Y;
@@ -146,8 +147,8 @@ export class Renderer
         this.context.fillStyle = "black";
         this.context.fillRect(0, 0, w, h);
         
-        this.board.Cells.ForEach(e => this.Draw(e));
-        this.board.Actors.ForEach(e => this.Draw(e));
+        this.board.GetCells().ForEach(e => this.DrawElement(e));
+        this.board.GetActors().ForEach(e => this.DrawElement(e));
     
         if(!this.stop)
         {

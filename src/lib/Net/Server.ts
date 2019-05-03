@@ -3,7 +3,7 @@ import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { Sender } from "./Sender";
 import { Exportable } from "../Exportable";
 import { IExportObject } from "../IExportObject";
-import { Coord } from "../Coord";
+import { Vector } from "../Physics/Vector";
 import { Utils } from "../Tools/Utils";
 
 export class Server
@@ -33,11 +33,11 @@ export class Server
     private OnCommand(client: Sender, command: IExportObject)
     {
         const args = Exportable.Import(command);
-        const player = client.Player;
+        const player = client.GetPlayer();
 
         Board.Current = this.board;
 
-        if(!args.length && player.Id == args[0])
+        if(!args.length && player.GetId() == args[0])
         {
             this.Kick(client);
             return;
@@ -49,7 +49,7 @@ export class Server
 
             // Send the command to the other players
             this.clients
-                .filter(client => player.Origin != client.Player.Origin)
+                .filter(client => player.GetOrigin() != client.GetPlayer().GetOrigin())
                 .forEach(client => client.SendCommand(args));
         }
         catch {
@@ -69,7 +69,7 @@ export class Server
         if(index >= 0)
         {
             this.clients.splice(index, 1);
-            this.board.Actors.Remove(client.Player);
+            this.board.GetActors().Remove(client.GetPlayer());
             client.SendKick();
         }
     }
@@ -91,28 +91,28 @@ export class Server
         player.Init({
             id: playerTag,
             origin: playerTag,
-            position: new Coord(0, 0),
-            size: new Coord(0.8, 0.8),
-            direction: new Coord(0, 0),
+            position: new Vector(1, 1),
+            size: new Vector(1, 1),
+            angle: 0,
             texture: "res/player.png",
             speed: 0.05,
             damage: 0.1,
             health: 1.0
         });
 
-        this.board.Actors.Set(player);
+        this.board.GetActors().Set(player);
 
         // Set size
-        await client.SendSize(this.board.Size);
+        await client.SendSize(this.board.GetSize());
 
         // Set cells
-        for(let cell of this.board.Cells.List)
+        for(let cell of this.board.GetCells().GetList())
         {
             await client.SendElement(cell);
         }
 
         // Set actors
-        for(let actor of this.board.Actors.List)
+        for(let actor of this.board.GetActors().GetList())
         {
             await client.SendElement(actor);
         }

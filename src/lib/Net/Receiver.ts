@@ -6,12 +6,10 @@ import { BaseCell } from "../Element/Cell/BaseCell";
 import { BaseActor } from "../Element/Actor/BaseActor";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { Utils } from "../Tools/Utils";
-import { Coord } from "../Coord";
 import { IExportObject } from "../IExportObject";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
 import { Logger } from "../Tools/Logger";
-import { Server } from "./Server";
 import { BaseElement } from "../Element/BaseElement";
 
 const MAX_DIST = 0.2;
@@ -34,7 +32,7 @@ export class Receiver extends MessageHandler
 
         // Add updated element to network cache
         this.board.OnUpdate.Add(element => 
-            this.last[element.Id] = Exportable.Export(element));
+            this.last[element.GetId()] = Exportable.Export(element));
     }
 
     /**
@@ -86,15 +84,15 @@ export class Receiver extends MessageHandler
         // Add element to the board
         if(element instanceof BaseCell)
         {
-            this.board.Cells.Set(element);
+            this.board.GetCells().Set(element);
         }
         else if(element instanceof BaseActor)
         {
-            this.board.Actors.Set(element);
+            this.board.GetActors().Set(element);
         }
 
         // Add to network cache
-        this.last[element.Id] = exportable;
+        this.last[element.GetId()] = exportable;
     }
 
     /**
@@ -118,7 +116,7 @@ export class Receiver extends MessageHandler
         }
 
         // Check if we already have it
-        const oldElement = this.board.Elements.Get(id);
+        const oldElement = this.board.GetElements().Get(id);
 
         // Return if we do not have an older version
         if(!oldElement)
@@ -134,9 +132,9 @@ export class Receiver extends MessageHandler
         const newElement: BaseElement = Exportable.Import(merged);
 
         // Optimizations
-        if(this.last.hasOwnProperty(newElement.Id) && 
+        if(this.last.hasOwnProperty(newElement.GetId()) && 
             BaseElement.IsOnlyPosDiff(diff) && 
-            newElement.Position.GetDistance(oldElement.Position) <= MAX_DIST)
+            newElement.GetPosition().Len(oldElement.GetPosition()) <= MAX_DIST)
         {
             Logger.Info(this, "Element was optimized out", newElement);
             return;
@@ -151,11 +149,11 @@ export class Receiver extends MessageHandler
      */
     private ReceivePlayer(id: string): void
     {
-        const player = this.player = <PlayerActor>this.board.Actors.Get(id);
+        const player = this.player = <PlayerActor>this.board.GetActors().Get(id);
 
         this.OnPlayer(Utils.Hook(player, (target, prop, args) => 
         {
-            const exportable = Exportable.Export([player.Id, prop].concat(args));
+            const exportable = Exportable.Export([player.GetId(), prop].concat(args));
 
             this.SendMessage(MessageType.Command, exportable);
         }));
@@ -188,7 +186,7 @@ export class Receiver extends MessageHandler
             return;
         }
 
-        const player = <PlayerActor>this.board.Actors.Get(args[0]);
+        const player = <PlayerActor>this.board.GetActors().Get(args[0]);
         
         Board.Current = this.board;
 
@@ -196,7 +194,7 @@ export class Receiver extends MessageHandler
         player[args[1]].bind(player)(...args.slice(2));
 
         // Add to network cache
-        this.last[player.Id] = Exportable.Export(player);
+        this.last[player.GetId()] = Exportable.Export(player);
     }
 
     /**

@@ -9,7 +9,7 @@ import { Server } from "./lib/Net/Server";
 import { Exportable } from "./lib/Exportable";
 import { Sender } from "./lib/Net/Sender";
 import { Http } from "./lib/Tools/Http";
-import { Coord } from "./lib/Coord";
+import { Vector } from "./lib/Physics/Vector";
 import { GroundCell } from "./lib/Element/Cell/GroundCell";
 import { PlayerActor } from "./lib/Element/Actor/PlayerActor";
 import { StoneCell } from "./lib/Element/Cell/StoneCell";
@@ -18,6 +18,8 @@ import { SimplexNoise } from "./lib/Tools/SimplexNoise";
 import { Shared } from "./Shared";
 import { Utils } from "./lib/Tools/Utils";
 import { Constants } from "./Constants";
+import { Triangle } from "./lib/Physics/Triangle";
+import { Mesh } from "./lib/Physics/Mesh";
 
 export class Debug extends Shared
 {
@@ -68,7 +70,7 @@ export class Debug extends Shared
         
         receiverA.OnPlayer = async player =>
         {
-            boardA.Origin = player.Id;
+            boardA.Origin = player.GetId();
     
             await rendererA.Load();
             
@@ -87,7 +89,7 @@ export class Debug extends Shared
         
         receiverB.OnPlayer = async player =>
         {
-            boardB.Origin = player.Id;
+            boardB.Origin = player.GetId();
     
             await rendererB.Load();
     
@@ -121,12 +123,14 @@ export class Debug extends Shared
             Board,
             Utils,
             Exportable,
-            Coord,
+            Vector,
             GroundCell,
             PlayerActor,
             StoneCell,
             Logger,
-            SimplexNoise
+            SimplexNoise,
+            Triangle,
+            Mesh
         });
     }
 
