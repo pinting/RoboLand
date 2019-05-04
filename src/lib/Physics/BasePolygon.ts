@@ -44,7 +44,7 @@ export abstract class BasePolygon<Shape extends BaseShape> extends Exportable
         {
             for(let otherShape of other.shapes)
             {
-                const mtv = shape.Collide( otherShape);
+                const mtv = shape.Collide(otherShape);
 
                 if(mtv)
                 {
@@ -54,5 +54,12 @@ export abstract class BasePolygon<Shape extends BaseShape> extends Exportable
         }
 
         return null;
+    }
+
+    /**
+     * Get the shapes of the object.
+     */
+    public GetShapes() {
+        return this.shapes;
     }
 }

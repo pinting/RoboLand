@@ -76,7 +76,7 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
 
             const size = element.GetSize();
             const center = element.GetPosition().Add(size.F(n => n / 2));
-            const distance = center.Len(vector);
+            const distance = center.Dist(vector);
 
             if(distance < min) 
             {

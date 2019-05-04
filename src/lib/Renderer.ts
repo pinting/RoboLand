@@ -3,7 +3,7 @@ import { BaseElement } from "./Element/BaseElement";
 import { Event } from "./Util/Event";
 import { Vector } from "./Physics/Vector";
 
-const NOT_FOUND_COLOR = "purple";
+const DEBUG_COLOR = "purple";
 const DPI = 30;
 
 export class Renderer
@@ -11,6 +11,7 @@ export class Renderer
     private readonly board: Board;
     private readonly canvas: HTMLCanvasElement;
     private readonly context: CanvasRenderingContext2D;
+    private readonly debug: boolean;
     
     private textures: { [id: string]: HTMLImageElement } = {};
     private stop: boolean = false;
@@ -23,11 +24,12 @@ export class Renderer
     /**
      * Construct a new game object.
      */
-    public constructor(board: Board, canvas: HTMLCanvasElement)
+    public constructor(board: Board, canvas: HTMLCanvasElement, debug: boolean = false)
     {
         this.board = board;
         this.canvas = canvas;
         this.context = <CanvasRenderingContext2D>canvas.getContext("2d");
+        this.debug = debug;
     }
 
     /**
@@ -122,11 +124,52 @@ export class Renderer
             this.context.drawImage(texture, x, y, w, h);
         }
         else {
-            this.context.fillStyle = NOT_FOUND_COLOR;
+            this.context.fillStyle = DEBUG_COLOR;
             this.context.fillRect(x, y, w, h);
         }
 
         rot(-element.GetAngle());
+        
+        // Draw grid if debug mode is enabled
+        if(this.debug) 
+        {
+            this.DrawGrid(element, DEBUG_COLOR);
+        }
+    }
+
+    /**
+     * Draw (debug) grid for an element.
+     * @param element 
+     * @param color 
+     */
+    private DrawGrid(element: BaseElement, color: string)
+    {
+        const mesh = element.GetVirtualMesh();
+        const shapes = mesh.GetShapes();
+        let first = null;
+
+        this.context.beginPath();
+
+        for(let shape of shapes)
+        {
+            for(let point of shape.GetVertices())
+            {
+                if(first)
+                {
+                    this.context.lineTo(point.X * DPI, point.Y * DPI);
+                }
+                else
+                {
+                    this.context.moveTo(point.X * DPI, point.Y * DPI);
+                    first = point;
+                }
+            }
+        }
+
+        first && this.context.lineTo(first.X * DPI, first.Y * DPI);
+
+        this.context.strokeStyle = color;
+        this.context.stroke();
     }
     
     /**

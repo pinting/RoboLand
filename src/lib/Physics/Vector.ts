@@ -48,9 +48,27 @@ export class Vector extends Exportable
      * Get the distance from another vector.
      * @param other 
      */
-    public Len(other: Vector): number
+    public Dist(other: Vector): number
     {
         return Math.sqrt(this.Dot(other));
+    }
+
+    /**
+     * Get the squared length of this vector.
+     * @return The length^2 of this vector.
+     */
+    public Len2(): number
+    {
+        return this.Dot(this);
+    }
+
+    /**
+     * Get the length of this vector.
+     * @return The length of this vector.
+     */
+    public Len(): number
+    {
+        return Math.sqrt(this.Len2());
     }
 
     /**
@@ -100,18 +118,15 @@ export class Vector extends Exportable
 
     /**
      * Rotate the vector by angle.
-     * @param angle In rad
-     * @param center Rotate around this point.
+     * @param rad In rad
+     * @param c Rotate around this point.
      */
-    public Rotate(angle: number, center: Vector = new Vector): Vector
+    public Rotate(rad: number, c: Vector = new Vector(0, 0)): Vector
     {
-        const ox = this.X - center.X;
-        const oy = this.Y - center.Y;
-
-        const nx = ox * Math.cos(angle) - ox * Math.sin(angle);
-        const ny = oy * Math.sin(angle) + oy * Math.cos(angle);
-
-        return new Vector(nx + center.X, ny + center.Y);
+        return new Vector(
+            c.X + (this.X - c.X) * Math.cos(rad) - (this.Y - c.Y) * Math.sin(rad),
+            c.Y + (this.X - c.X) * Math.sin(rad) + (this.Y - c.Y) * Math.cos(rad)
+        );
     }
 
     /**
@@ -123,6 +138,22 @@ export class Vector extends Exportable
         const amt = this.Dot(other) / this.Dot(this);
 
         return new Vector(amt * other.X, amt * other.Y);
+    }
+
+    /**
+     * Normalize this vector. (make it have length of `1`)
+     * @return This for chaining.
+     */
+    public Normalize(): Vector
+    {
+        var d = this.Dist(this);
+
+        if (d > 0) {
+            this.X = this.X / d;
+            this.Y = this.Y / d;
+        }
+
+        return this;
     }
 
     /**
@@ -147,9 +178,9 @@ export class Vector extends Exportable
      * Create a Vector pointing into the angle specified in radian.
      * @param rad In rad
      */
-    public static AngleToVector(angle: number): Vector
+    public static AngleToVector(rad: number): Vector
     {
-        return new Vector(Math.cos(angle), Math.sin(angle))
+        return new Vector(Math.cos(rad), Math.sin(rad))
     }
 }
 

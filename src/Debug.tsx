@@ -45,8 +45,8 @@ export class Debug extends Shared
         boardA["_Name"] = "boardA";
         boardB["_Name"] = "boardB";
         
-        const rendererA = new Renderer(boardA, this.canvasA);
-        const rendererB = new Renderer(boardB, this.canvasB);
+        const rendererA = new Renderer(boardA, this.canvasA, false);
+        const rendererB = new Renderer(boardB, this.canvasB, false);
         
         const channelA1 = new FakeChannel(delay);
         const channelA2 = new FakeChannel(delay);
@@ -107,7 +107,7 @@ export class Debug extends Shared
         };
     
         // Render the server
-        const rendererS = new Renderer(boardServer, this.canvasS);
+        const rendererS = new Renderer(boardServer, this.canvasS, true);
     
         await rendererS.Load();
     

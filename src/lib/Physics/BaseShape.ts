@@ -32,7 +32,7 @@ export abstract class BaseShape extends Exportable
         {
             const p1 = this.Project(axis);
             const p2 = other.Project(axis);
-            const o = p1.Overlap(p2);
+            const o = Math.abs(p1.Overlap(p2));
 
             if (o == 0)
             {
@@ -61,8 +61,7 @@ export abstract class BaseShape extends Exportable
 
         for (let vertice of this.vertices) 
         {
-            // NOTE: the axis must be normalized to get accurate projections
-            const p = axis.Dot(vertice);
+            const p = vertice.Dot(axis);
 
             if (p < min)
             {
@@ -98,9 +97,16 @@ export abstract class BaseShape extends Exportable
             const edge = p1.Sub(p2);
             const normal = edge.Perp();
 
-            this.axes[i] = normal;
+            this.axes[i] = normal.Normalize();
         }
 
         return this.axes;
+    }
+
+    /**
+     * Get the vertices of the object.
+     */
+    public GetVertices() {
+        return this.vertices;
     }
 }

@@ -134,7 +134,7 @@ export class Receiver extends MessageHandler
         // Optimizations
         if(this.last.hasOwnProperty(newElement.GetId()) && 
             BaseElement.IsOnlyPosDiff(diff) && 
-            newElement.GetPosition().Len(oldElement.GetPosition()) <= MAX_DIST)
+            newElement.GetPosition().Dist(oldElement.GetPosition()) <= MAX_DIST)
         {
             Logger.Info(this, "Element was optimized out", newElement);
             return;
