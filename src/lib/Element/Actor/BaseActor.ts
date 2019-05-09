@@ -1,4 +1,4 @@
-import { Vector } from "../../Physics/Vector";
+import { Vector } from "../../Geometry/Vector";
 import { BaseElementArgs } from "../BaseElement";
 import { TickElement } from "../TickElement";
 

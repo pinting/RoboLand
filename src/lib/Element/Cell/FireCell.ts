@@ -3,7 +3,7 @@ import { BaseCell } from "./BaseCell";
 import { LivingActor } from "../Actor/LivingActor";
 import { BaseElementArgs } from "../BaseElement";
 import { Exportable, ExportType } from "../../Exportable";
-import { Mesh } from "../../Physics/Mesh";
+import { Mesh } from "../../Geometry/Mesh";
 
 export interface FireCellArgs extends BaseElementArgs
 {

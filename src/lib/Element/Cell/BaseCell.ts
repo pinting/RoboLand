@@ -1,6 +1,6 @@
 import { BaseActor } from "../Actor/BaseActor";
 import { TickElement } from "../TickElement";
-import { Mesh } from "../../Physics/Mesh";
+import { Mesh } from "../../Geometry/Mesh";
 
 export abstract class BaseCell extends TickElement
 {

@@ -30825,7 +30825,7 @@ const Server_1 = __webpack_require__(/*! ./lib/Net/Server */ "./src/lib/Net/Serv
 const Exportable_1 = __webpack_require__(/*! ./lib/Exportable */ "./src/lib/Exportable.ts");
 const Sender_1 = __webpack_require__(/*! ./lib/Net/Sender */ "./src/lib/Net/Sender.ts");
 const Http_1 = __webpack_require__(/*! ./lib/Util/Http */ "./src/lib/Util/Http.ts");
-const Vector_1 = __webpack_require__(/*! ./lib/Physics/Vector */ "./src/lib/Physics/Vector.ts");
+const Vector_1 = __webpack_require__(/*! ./lib/Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 const GroundCell_1 = __webpack_require__(/*! ./lib/Element/Cell/GroundCell */ "./src/lib/Element/Cell/GroundCell.ts");
 const PlayerActor_1 = __webpack_require__(/*! ./lib/Element/Actor/PlayerActor */ "./src/lib/Element/Actor/PlayerActor.ts");
 const StoneCell_1 = __webpack_require__(/*! ./lib/Element/Cell/StoneCell */ "./src/lib/Element/Cell/StoneCell.ts");
@@ -30834,8 +30834,8 @@ const SimplexNoise_1 = __webpack_require__(/*! ./lib/Util/SimplexNoise */ "./src
 const Shared_1 = __webpack_require__(/*! ./Shared */ "./src/Shared.ts");
 const Tools_1 = __webpack_require__(/*! ./lib/Util/Tools */ "./src/lib/Util/Tools.ts");
 const Constants_1 = __webpack_require__(/*! ./Constants */ "./src/Constants.ts");
-const Triangle_1 = __webpack_require__(/*! ./lib/Physics/Triangle */ "./src/lib/Physics/Triangle.ts");
-const Mesh_1 = __webpack_require__(/*! ./lib/Physics/Mesh */ "./src/lib/Physics/Mesh.ts");
+const Triangle_1 = __webpack_require__(/*! ./lib/Geometry/Triangle */ "./src/lib/Geometry/Triangle.ts");
+const Mesh_1 = __webpack_require__(/*! ./lib/Geometry/Mesh */ "./src/lib/Geometry/Mesh.ts");
 class Debug extends Shared_1.Shared {
     /**
      * Create 2 clients and 1 server and render everthing onto the 3 canvases.
@@ -30995,7 +30995,7 @@ __webpack_require__(/*! ./Editor.css */ "./src/Editor.css");
 const Shared_1 = __webpack_require__(/*! ./Shared */ "./src/Shared.ts");
 const Board_1 = __webpack_require__(/*! ./lib/Board */ "./src/lib/Board.ts");
 const Renderer_1 = __webpack_require__(/*! ./lib/Renderer */ "./src/lib/Renderer.ts");
-const Vector_1 = __webpack_require__(/*! ./lib/Physics/Vector */ "./src/lib/Physics/Vector.ts");
+const Vector_1 = __webpack_require__(/*! ./lib/Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 const Exportable_1 = __webpack_require__(/*! ./lib/Exportable */ "./src/lib/Exportable.ts");
 const BaseElement_1 = __webpack_require__(/*! ./lib/Element/BaseElement */ "./src/lib/Element/BaseElement.ts");
 const Tools_1 = __webpack_require__(/*! ./lib/Util/Tools */ "./src/lib/Util/Tools.ts");
@@ -31648,7 +31648,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 __webpack_require__(/*! ./Shared.css */ "./src/Shared.css");
 const PlayerActor_1 = __webpack_require__(/*! ./lib/Element/Actor/PlayerActor */ "./src/lib/Element/Actor/PlayerActor.ts");
-const Vector_1 = __webpack_require__(/*! ./lib/Physics/Vector */ "./src/lib/Physics/Vector.ts");
+const Vector_1 = __webpack_require__(/*! ./lib/Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 const Keyboard_1 = __webpack_require__(/*! ./lib/Util/Keyboard */ "./src/lib/Util/Keyboard.ts");
 const Tools_1 = __webpack_require__(/*! ./lib/Util/Tools */ "./src/lib/Util/Tools.ts");
 const Exportable_1 = __webpack_require__(/*! ./lib/Exportable */ "./src/lib/Exportable.ts");
@@ -31755,7 +31755,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Vector_1 = __webpack_require__(/*! ./Physics/Vector */ "./src/lib/Physics/Vector.ts");
+const Vector_1 = __webpack_require__(/*! ./Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 const Tools_1 = __webpack_require__(/*! ./Util/Tools */ "./src/lib/Util/Tools.ts");
 const ElementList_1 = __webpack_require__(/*! ./ElementList */ "./src/lib/ElementList.ts");
 const Exportable_1 = __webpack_require__(/*! ./Exportable */ "./src/lib/Exportable.ts");
@@ -31860,7 +31860,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const BaseActor_1 = __webpack_require__(/*! ./BaseActor */ "./src/lib/Element/Actor/BaseActor.ts");
-const Vector_1 = __webpack_require__(/*! ../../Physics/Vector */ "./src/lib/Physics/Vector.ts");
+const Vector_1 = __webpack_require__(/*! ../../Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 const LivingActor_1 = __webpack_require__(/*! ./LivingActor */ "./src/lib/Element/Actor/LivingActor.ts");
 const Exportable_1 = __webpack_require__(/*! ../../Exportable */ "./src/lib/Exportable.ts");
 class ArrowActor extends BaseActor_1.BaseActor {
@@ -32030,7 +32030,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const BaseActor_1 = __webpack_require__(/*! ./BaseActor */ "./src/lib/Element/Actor/BaseActor.ts");
 const Logger_1 = __webpack_require__(/*! ../../Util/Logger */ "./src/lib/Util/Logger.ts");
 const Exportable_1 = __webpack_require__(/*! ../../Exportable */ "./src/lib/Exportable.ts");
-const Vector_1 = __webpack_require__(/*! ../../Physics/Vector */ "./src/lib/Physics/Vector.ts");
+const Vector_1 = __webpack_require__(/*! ../../Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 class LivingActor extends BaseActor_1.BaseActor {
     /**
      * @inheritDoc
@@ -32116,7 +32116,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Vector_1 = __webpack_require__(/*! ../../Physics/Vector */ "./src/lib/Physics/Vector.ts");
+const Vector_1 = __webpack_require__(/*! ../../Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 const ArrowActor_1 = __webpack_require__(/*! ./ArrowActor */ "./src/lib/Element/Actor/ArrowActor.ts");
 const LivingActor_1 = __webpack_require__(/*! ./LivingActor */ "./src/lib/Element/Actor/LivingActor.ts");
 const Exportable_1 = __webpack_require__(/*! ../../Exportable */ "./src/lib/Exportable.ts");
@@ -32190,13 +32190,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Vector_1 = __webpack_require__(/*! ../Physics/Vector */ "./src/lib/Physics/Vector.ts");
+const Vector_1 = __webpack_require__(/*! ../Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 const Board_1 = __webpack_require__(/*! ../Board */ "./src/lib/Board.ts");
 const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
-const Mesh_1 = __webpack_require__(/*! ../Physics/Mesh */ "./src/lib/Physics/Mesh.ts");
-const Triangle_1 = __webpack_require__(/*! ../Physics/Triangle */ "./src/lib/Physics/Triangle.ts");
+const Mesh_1 = __webpack_require__(/*! ../Geometry/Mesh */ "./src/lib/Geometry/Mesh.ts");
+const Triangle_1 = __webpack_require__(/*! ../Geometry/Triangle */ "./src/lib/Geometry/Triangle.ts");
 class BaseElement extends Exportable_1.Exportable {
     constructor() {
         super(...arguments);
@@ -33731,7 +33731,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Board_1 = __webpack_require__(/*! ../Board */ "./src/lib/Board.ts");
 const PlayerActor_1 = __webpack_require__(/*! ../Element/Actor/PlayerActor */ "./src/lib/Element/Actor/PlayerActor.ts");
 const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
-const Vector_1 = __webpack_require__(/*! ../Physics/Vector */ "./src/lib/Physics/Vector.ts");
+const Vector_1 = __webpack_require__(/*! ../Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 class Server {
     /**
@@ -33832,9 +33832,9 @@ exports.Server = Server;
 
 /***/ }),
 
-/***/ "./src/lib/Physics/BasePolygon.ts":
+/***/ "./src/lib/Geometry/BasePolygon.ts":
 /*!****************************************!*\
-  !*** ./src/lib/Physics/BasePolygon.ts ***!
+  !*** ./src/lib/Geometry/BasePolygon.ts ***!
   \****************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -33894,9 +33894,9 @@ exports.BasePolygon = BasePolygon;
 
 /***/ }),
 
-/***/ "./src/lib/Physics/BaseShape.ts":
+/***/ "./src/lib/Geometry/BaseShape.ts":
 /*!**************************************!*\
-  !*** ./src/lib/Physics/BaseShape.ts ***!
+  !*** ./src/lib/Geometry/BaseShape.ts ***!
   \**************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -33913,7 +33913,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Projection_1 = __webpack_require__(/*! ./Projection */ "./src/lib/Physics/Projection.ts");
+const Projection_1 = __webpack_require__(/*! ./Projection */ "./src/lib/Geometry/Projection.ts");
 const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
 class BaseShape extends Exportable_1.Exportable {
     /**
@@ -33988,9 +33988,9 @@ exports.BaseShape = BaseShape;
 
 /***/ }),
 
-/***/ "./src/lib/Physics/Mesh.ts":
+/***/ "./src/lib/Geometry/Mesh.ts":
 /*!*********************************!*\
-  !*** ./src/lib/Physics/Mesh.ts ***!
+  !*** ./src/lib/Geometry/Mesh.ts ***!
   \*********************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -33998,7 +33998,7 @@ exports.BaseShape = BaseShape;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const BasePolygon_1 = __webpack_require__(/*! ./BasePolygon */ "./src/lib/Physics/BasePolygon.ts");
+const BasePolygon_1 = __webpack_require__(/*! ./BasePolygon */ "./src/lib/Geometry/BasePolygon.ts");
 class Mesh extends BasePolygon_1.BasePolygon {
     /**
      * Do stuff to the underlying vectors.
@@ -34013,9 +34013,9 @@ exports.Mesh = Mesh;
 
 /***/ }),
 
-/***/ "./src/lib/Physics/Projection.ts":
+/***/ "./src/lib/Geometry/Projection.ts":
 /*!***************************************!*\
-  !*** ./src/lib/Physics/Projection.ts ***!
+  !*** ./src/lib/Geometry/Projection.ts ***!
   \***************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -34061,9 +34061,9 @@ exports.Projection = Projection;
 
 /***/ }),
 
-/***/ "./src/lib/Physics/Triangle.ts":
+/***/ "./src/lib/Geometry/Triangle.ts":
 /*!*************************************!*\
-  !*** ./src/lib/Physics/Triangle.ts ***!
+  !*** ./src/lib/Geometry/Triangle.ts ***!
   \*************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -34080,7 +34080,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const BaseShape_1 = __webpack_require__(/*! ./BaseShape */ "./src/lib/Physics/BaseShape.ts");
+const BaseShape_1 = __webpack_require__(/*! ./BaseShape */ "./src/lib/Geometry/BaseShape.ts");
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
 const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
 class Triangle extends BaseShape_1.BaseShape {
@@ -34108,9 +34108,9 @@ exports.Triangle = Triangle;
 
 /***/ }),
 
-/***/ "./src/lib/Physics/Vector.ts":
+/***/ "./src/lib/Geometry/Vector.ts":
 /*!***********************************!*\
-  !*** ./src/lib/Physics/Vector.ts ***!
+  !*** ./src/lib/Geometry/Vector.ts ***!
   \***********************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -34273,7 +34273,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Event_1 = __webpack_require__(/*! ./Util/Event */ "./src/lib/Util/Event.ts");
-const Vector_1 = __webpack_require__(/*! ./Physics/Vector */ "./src/lib/Physics/Vector.ts");
+const Vector_1 = __webpack_require__(/*! ./Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 const NOT_FOUND_COLOR = "purple";
 const DPI = 30;
 class Renderer {

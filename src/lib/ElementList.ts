@@ -1,10 +1,10 @@
-import { Vector } from "./Physics/Vector";
+import { Vector } from "./Geometry/Vector";
 import { BaseElement } from "./Element/BaseElement";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
 import { Tools } from "./Util/Tools";
 import { Event } from "./Util/Event";
 import { Logger } from "./Util/Logger";
-import { Mesh } from "./Physics/Mesh";
+import { Mesh } from "./Geometry/Mesh";
 
 export class ElementList<Element extends BaseElement> implements IReadOnlyElementList<Element>
 {

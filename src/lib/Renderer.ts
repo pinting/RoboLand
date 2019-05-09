@@ -1,7 +1,7 @@
 import { Board } from "./Board";
 import { BaseElement } from "./Element/BaseElement";
 import { Event } from "./Util/Event";
-import { Vector } from "./Physics/Vector";
+import { Vector } from "./Geometry/Vector";
 
 const DEBUG_COLOR = "purple";
 const DPI = 30;

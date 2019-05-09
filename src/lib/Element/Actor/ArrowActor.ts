@@ -1,5 +1,5 @@
 import { BaseActor } from "./BaseActor";
-import { Vector } from "../../Physics/Vector";
+import { Vector } from "../../Geometry/Vector";
 import { LivingActor } from "./LivingActor";
 import { Exportable, ExportType } from "../../Exportable";
 import { BaseElementArgs } from "../BaseElement";

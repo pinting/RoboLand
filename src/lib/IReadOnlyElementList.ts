@@ -1,4 +1,4 @@
-import { Vector } from "./Physics/Vector";
+import { Vector } from "./Geometry/Vector";
 
 export interface IReadOnlyElementList<Element>
 {

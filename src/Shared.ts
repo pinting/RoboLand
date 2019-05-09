@@ -1,7 +1,7 @@
 import * as React from "react";
 import "./Shared.css";
 import { PlayerActor } from "./lib/Element/Actor/PlayerActor";
-import { Vector } from "./lib/Physics/Vector";
+import { Vector } from "./lib/Geometry/Vector";
 import { Keyboard } from "./lib/Util/Keyboard";
 import { Tools } from "./lib/Util/Tools";
 import { Exportable } from "./lib/Exportable";

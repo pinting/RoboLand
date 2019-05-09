@@ -1,4 +1,4 @@
-import { Vector } from "./Physics/Vector";
+import { Vector } from "./Geometry/Vector";
 import { BaseActor } from "./Element/Actor/BaseActor";
 import { Tools } from "./Util/Tools";
 import { BaseCell } from "./Element/Cell/BaseCell";

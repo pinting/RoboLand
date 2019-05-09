@@ -3,7 +3,7 @@ import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { Sender } from "./Sender";
 import { Exportable } from "../Exportable";
 import { IExportObject } from "../IExportObject";
-import { Vector } from "../Physics/Vector";
+import { Vector } from "../Geometry/Vector";
 import { Tools } from "../Util/Tools";
 import { GroundCell } from "../Element/Cell/GroundCell";
 import { BaseCell } from "../Element/Cell/BaseCell";

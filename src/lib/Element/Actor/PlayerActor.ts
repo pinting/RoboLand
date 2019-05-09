@@ -1,4 +1,4 @@
-import { Vector } from "../../Physics/Vector";
+import { Vector } from "../../Geometry/Vector";
 import { ArrowActor } from "./ArrowActor";
 import { LivingActor } from "./LivingActor";
 import { Exportable, ExportType } from "../../Exportable";
@@ -23,9 +23,11 @@ export class PlayerActor extends LivingActor
             throw new Error("Shot was too quick");
         }
 
-        const actor = new ArrowActor;
+        const r = this.GetRadius();
         const direction = Vector.AngleToVector(this.GetAngle());
-        const position = this.GetCenter().Add(direction.Scale(this.size.F(v => v / 2)));
+        const position = this.GetCenter().Add(direction.Scale(new Vector(r, r)));
+
+        const actor = new ArrowActor;
 
         actor.Init({
             id: id,

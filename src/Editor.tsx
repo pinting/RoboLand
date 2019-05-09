@@ -3,7 +3,7 @@ import "./Editor.css";
 import { Shared } from "./Shared";
 import { Board } from "./lib/Board";
 import { Renderer } from "./lib/Renderer";
-import { Vector } from "./lib/Physics/Vector";
+import { Vector } from "./lib/Geometry/Vector";
 import { Exportable, ExportType } from "./lib/Exportable";
 import { BaseElement } from "./lib/Element/BaseElement";
 import { Tools } from "./lib/Util/Tools";

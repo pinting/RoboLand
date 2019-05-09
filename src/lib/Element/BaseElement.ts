@@ -1,12 +1,12 @@
-import { Vector } from "../Physics/Vector";
+import { Vector } from "../Geometry/Vector";
 import { Tools } from "../Util/Tools";
 import { Board } from "../Board";
 import { Exportable, ExportType } from "../Exportable";
 import { IExportObject } from "../IExportObject";
 import { Logger } from "../Util/Logger";
-import { Mesh } from "../Physics/Mesh";
-import { Triangle } from "../Physics/Triangle";
-import { IMTVector } from "../Physics/IMTVector";
+import { Mesh } from "../Geometry/Mesh";
+import { Triangle } from "../Geometry/Triangle";
+import { IMTVector } from "../Geometry/IMTVector";
 
 export interface BaseElementArgs
 {
@@ -301,11 +301,7 @@ export abstract class BaseElement extends Exportable
             return null;
         }
 
-        const b = element.GetVirtualMesh();
-        const a = this.GetVirtualMesh();
-        const r = a.Collide(b);
-
-        return r;
+        return this.GetVirtualMesh().Collide(element.GetVirtualMesh());
     }
 
     /**

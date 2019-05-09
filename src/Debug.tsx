@@ -9,7 +9,7 @@ import { Server } from "./lib/Net/Server";
 import { Exportable } from "./lib/Exportable";
 import { Sender } from "./lib/Net/Sender";
 import { Http } from "./lib/Util/Http";
-import { Vector } from "./lib/Physics/Vector";
+import { Vector } from "./lib/Geometry/Vector";
 import { GroundCell } from "./lib/Element/Cell/GroundCell";
 import { PlayerActor } from "./lib/Element/Actor/PlayerActor";
 import { StoneCell } from "./lib/Element/Cell/StoneCell";
@@ -18,8 +18,8 @@ import { SimplexNoise } from "./lib/Util/SimplexNoise";
 import { Shared } from "./Shared";
 import { Tools } from "./lib/Util/Tools";
 import { Constants } from "./Constants";
-import { Triangle } from "./lib/Physics/Triangle";
-import { Mesh } from "./lib/Physics/Mesh";
+import { Triangle } from "./lib/Geometry/Triangle";
+import { Mesh } from "./lib/Geometry/Mesh";
 
 export class Debug extends Shared
 {

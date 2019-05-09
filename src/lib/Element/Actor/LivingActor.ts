@@ -2,7 +2,7 @@ import { BaseActor } from "./BaseActor";
 import { Logger } from "../../Util/Logger";
 import { Exportable, ExportType } from "../../Exportable";
 import { BaseElementArgs } from "../BaseElement";
-import { Vector } from "../../Physics/Vector";
+import { Vector } from "../../Geometry/Vector";
 
 export interface LivingActorArgs extends BaseElementArgs
 {
@@ -55,7 +55,7 @@ export abstract class LivingActor extends BaseActor
 
         // Calculate the next position
         const direction = Vector.AngleToVector(this.GetAngle() + mod);
-        const next = this.GetPosition().Add(direction.F(v => v * this.speed)).Round(3);
+        const next = this.GetPosition().Add(direction.F(v => v * this.speed));
 
         // Do the moving
         if(this.SetPosition(next))

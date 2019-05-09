@@ -3,7 +3,7 @@ import { IChannel } from "./Channel/IChannel";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { Exportable } from "../Exportable";
 import { MessageType } from "./MessageType";
-import { Vector } from "../Physics/Vector";
+import { Vector } from "../Geometry/Vector";
 import { BaseElement } from "../Element/BaseElement";
 import { IExportObject } from "../IExportObject";
 import { IMessage } from "./IMessage";
