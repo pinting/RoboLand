@@ -36,7 +36,7 @@ export abstract class LivingActor extends BaseActor
     protected InitPre(args: LivingActorArgs = {})
     {
         super.InitPre(args);
-
+        
         this.health = args.health;
         this.damage = args.damage;
         this.speed = args.speed;
@@ -48,6 +48,11 @@ export abstract class LivingActor extends BaseActor
      */
     public Move(mod: number = 0): boolean
     {
+        if(!this.speed)
+        {
+            throw new Error("No speed!");
+        }
+
         // Calculate the next position
         const direction = Vector.AngleToVector(this.GetAngle() + mod);
         const next = this.GetPosition().Add(direction.F(v => v * this.speed)).Round(3);

@@ -50,7 +50,7 @@ export class Vector extends Exportable
      */
     public Dist(other: Vector): number
     {
-        return Math.sqrt(this.Dot(other));
+        return Math.sqrt(Math.pow(other.X - this.X, 2) + Math.pow(other.Y - this.Y, 2));
     }
 
     /**

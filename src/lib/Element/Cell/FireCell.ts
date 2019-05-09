@@ -36,7 +36,7 @@ export class FireCell extends BaseCell
     /**
      * @inheritDoc
      */
-    public MoveHere(actor: BaseActor, mesh: Mesh): boolean 
+    public MoveHere(actor: BaseActor): boolean 
     {
         return true;
     }

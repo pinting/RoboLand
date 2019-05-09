@@ -10,7 +10,7 @@ export abstract class BaseCell extends TickElement
      * Enter into the cell with an actor.
      * @param actor 
      */
-    public MoveHere(actor: BaseActor, mesh: Mesh): boolean 
+    public MoveHere(actor: BaseActor): boolean 
     {
         if(!this.actors.includes(actor.GetId()))
         {

@@ -91,10 +91,15 @@ export abstract class BaseShape extends Exportable
 
         for (let i = 0; i < this.vertices.length; i++) 
         {
-            const p1 = this.vertices[i];
-            const p2 = this.vertices[i + 1 == this.vertices.length ? 0 : i + 1];
+            const a = this.vertices[i];
+            const b = this.vertices[i + 1 == this.vertices.length ? 0 : i + 1];
 
-            const edge = p1.Sub(p2);
+            if(Number.isNaN(a.X) || Number.isNaN(a.Y) || Number.isNaN(b.Y) || Number.isNaN(b.Y))
+            {
+                throw new Error("NaN in Vector");
+            }
+
+            const edge = a.Sub(b);
             const normal = edge.Perp();
 
             this.axes[i] = normal.Normalize();

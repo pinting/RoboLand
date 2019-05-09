@@ -279,7 +279,7 @@ export class Editor extends Shared<EditorProps, EditorState>
         const p = Editor.CanvasP(this.canvas, event);
 
         this.selectedVector = this.renderer.Find(p[0], p[1]);
-        this.selectedElement = this.board.GetElements().FindNear(this.selectedVector);
+        this.selectedElement = this.board.GetElements().FindNearest(this.selectedVector);
 
         if(this.selectedElement)
         {

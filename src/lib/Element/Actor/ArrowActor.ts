@@ -53,7 +53,7 @@ export class ArrowActor extends BaseActor
             return;
         }
 
-        const result = this.board.GetActors().FindAround(this.virtualMesh);
+        const result = this.board.GetActors().FindCollisions(this);
 
         let hit = false;
 

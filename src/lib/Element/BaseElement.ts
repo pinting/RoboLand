@@ -6,6 +6,7 @@ import { IExportObject } from "../IExportObject";
 import { Logger } from "../Util/Logger";
 import { Mesh } from "../Physics/Mesh";
 import { Triangle } from "../Physics/Triangle";
+import { IMTVector } from "../Physics/IMTVector";
 
 export interface BaseElementArgs
 {
@@ -31,12 +32,12 @@ export abstract class BaseElement extends Exportable
     protected id: string;
 
     @Exportable.Register(ExportType.All)
-    protected origin: string; // ID of the origin element
+    protected origin: string; // ID of the parent element
 
     @Exportable.Register(ExportType.User)
     protected size: Vector;
 
-    @Exportable.Register(ExportType.User, (s, v) => v && s.SetMesh(v))
+    @Exportable.Register(ExportType.User, (s, v) => s.SetMesh(v))
     protected mesh: Mesh;
 
     @Exportable.Register(ExportType.User, (s, v) => s.SetPosition(v))
@@ -68,20 +69,10 @@ export abstract class BaseElement extends Exportable
     {
         this.id = args.id || Tools.Unique();
         this.board = args.board || Board.Current;
-        this.origin = args.origin || this.board.Origin;
+        this.origin = args.origin || this.board && this.board.Origin;
         this.size = args.size;
         this.texture = args.texture;
         this.angle = args.angle || 0;
-        this.mesh = args.mesh || new Mesh([
-            new Triangle([
-                new Vector(0, 0),
-                new Vector(1, 0),
-                new Vector(0, 1)]),
-            new Triangle([
-                new Vector(1, 0),
-                new Vector(1, 1),
-                new Vector(0, 1)])
-        ]);
     }
 
     /**
@@ -90,7 +81,8 @@ export abstract class BaseElement extends Exportable
      */
     protected InitPost(args: BaseElementArgs = {})
     {
-        args.position && this.SetPosition(args.position);
+        this.SetPosition(args.position);
+        this.SetMesh(args.mesh);
     }
 
     /**
@@ -134,6 +126,23 @@ export abstract class BaseElement extends Exportable
     }
 
     /**
+     * Get the center position of the element.
+     */
+    public GetCenter(): Vector
+    {
+        return this.position && this.size && this.position.Add(this.size.F(v => v / 2));
+    }
+
+    /**
+     * Get the radius of the element.
+     * radius = max(width, height)
+     */
+    public GetRadius(): number
+    {
+        return this.size && Math.sqrt(Math.pow(this.size.X, 2) + Math.pow(this.size.Y, 2)) / 2;
+    }
+
+    /**
      * Get the angle of the element.
      */
     public GetAngle(): number
@@ -146,7 +155,23 @@ export abstract class BaseElement extends Exportable
      */
     public GetMesh(): Mesh
     {
-        return this.mesh;
+        if(!this.size)
+        {
+            return null;
+        }
+
+        return this.mesh || (this.mesh = new Mesh([
+            new Triangle([
+                new Vector(0, 0),
+                new Vector(this.size.X, 0),
+                new Vector(0, this.size.Y)
+            ]),
+            new Triangle([
+                new Vector(this.size.X, 0),
+                new Vector(this.size.X, this.size.Y),
+                new Vector(0, this.size.Y)
+            ])
+        ]));
     }
 
     /**
@@ -154,7 +179,16 @@ export abstract class BaseElement extends Exportable
      */
     public GetVirtualMesh(): Mesh
     {
-        return this.virtualMesh;
+        if(!this.position)
+        {
+            return null;
+        }
+        
+        return this.virtualMesh || (this.virtualMesh = this.GetMesh() && 
+            this.GetMesh().F(v => v
+                .Add(this.position)
+                .Rotate(this.angle, this.GetCenter()))
+        );
     }
 
     /**
@@ -178,9 +212,10 @@ export abstract class BaseElement extends Exportable
         }
 
         this.position = position;
-        
-        this.SetMesh(this.mesh);
-        this.board.OnUpdate.Call(this);
+        this.virtualMesh = null;
+            
+        this.GetVirtualMesh();
+        this.board && this.board.OnUpdate.Call(this);
 
         return true;
     }
@@ -191,9 +226,16 @@ export abstract class BaseElement extends Exportable
      */
     public SetAngle(angle: number): boolean
     {
+        if(typeof angle != "number")
+        {
+            return false;
+        }
+
         this.angle = angle;
-        
-        this.SetMesh(this.mesh);
+        this.virtualMesh = null;
+
+        this.GetVirtualMesh();
+        this.board && this.board.OnUpdate.Call(this);
 
         return true;
     }
@@ -205,10 +247,15 @@ export abstract class BaseElement extends Exportable
      */
     public SetMesh(mesh: Mesh): void
     {
+        if(!mesh)
+        {
+            return;
+        }
+
         this.mesh = mesh;
-        this.virtualMesh = mesh.F(v => v
-            .Rotate(this.angle, this.size.F(s => s / 2))
-            .Add(this.position));
+        this.virtualMesh = null;
+
+        this.GetVirtualMesh();
     }
 
     /**
@@ -232,9 +279,48 @@ export abstract class BaseElement extends Exportable
      */
     public Import(input: IExportObject[]): void
     {
-        this.InitPre();
+        this.Init();
         super.Import(input);
-        this.InitPost();
+    }
+
+    /**
+     * Check if the element collides with another.
+     * @param element 
+     */
+    public Collide(element: BaseElement): IMTVector
+    {
+        if(element == this)
+        {
+            return null;
+        }
+
+        const dist = this.GetCenter().Dist(element.GetCenter());
+
+        if(dist >= this.GetRadius() + element.GetRadius())
+        {
+            return null;
+        }
+
+        const b = element.GetVirtualMesh();
+        const a = this.GetVirtualMesh();
+        const r = a.Collide(b);
+
+        return r;
+    }
+
+    /**
+     * Clone this element.
+     */
+    public Clone(): BaseElement
+    {
+        const current = Board.Current;
+        let clone: BaseElement;
+
+        Board.Current = null;
+        clone = Exportable.Import(Exportable.Export(this));
+        Board.Current = current;
+
+        return clone;
     }
 
     /**

@@ -51,37 +51,30 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
 
     /**
      * Get a element(s) by vector.
-     * @param vector 
+     * @param position 
      */ 
-    public Find(vector: Vector): Element[]
+    public Find(position: Vector): Element[]
     {
-        return this.elements.filter(e => e && e.GetPosition().Is(<Vector>vector));
+        return this.elements.filter(e => e && e.GetPosition().Is(position));
     }
 
     /**
-     * Get the nearest element to the given vector.
-     * @param vector 
+     * Get the nearest element to the given coordinate.
+     * @param position 
      */
-    public FindNear(vector: Vector): Element
+    public FindNearest(position: Vector): Element
     {
         let result: Element = null;
         let min = Infinity;
 
-        this.elements.forEach(element => 
+        this.elements.forEach(e => 
         {
-            if(!element)
-            {
-                return;
-            }
-
-            const size = element.GetSize();
-            const center = element.GetPosition().Add(size.F(n => n / 2));
-            const distance = center.Dist(vector);
+            const distance = e.GetCenter().Dist(position);
 
             if(distance < min) 
             {
                 min = distance;
-                result = element;
+                result = e;
             }
         });
 
@@ -89,23 +82,18 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     }
 
     /**
-     * Get elements under a mesh.
-     * @param mesh
+     * Get elements under an element.
+     * @param elementOrMesh
      */
-    public FindAround(mesh: Mesh): Element[]
+    public FindCollisions(element: BaseElement): Element[]
     {
         const result = [];
-
-        this.elements.forEach(element => 
+        
+        this.elements.forEach(e => 
         {
-            if(!element)
+            if(e && e.GetId() != element.GetId() && e.Collide(<Element>element))
             {
-                return;
-            }
-            
-            if(element.GetVirtualMesh().Collide(mesh))
-            {
-                result.push(element);
+                result.push(e);
             }
         });
 

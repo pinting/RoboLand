@@ -23,11 +23,9 @@ export class PlayerActor extends LivingActor
             throw new Error("Shot was too quick");
         }
 
-        const actor = new ArrowActor();
+        const actor = new ArrowActor;
         const direction = Vector.AngleToVector(this.GetAngle());
-        const position = this.GetPosition()
-            .Add(this.size.F(v => v / 2))
-            .Add(direction.Scale(this.size.F(v => v / 2)));
+        const position = this.GetCenter().Add(direction.Scale(this.size.F(v => v / 2)));
 
         actor.Init({
             id: id,

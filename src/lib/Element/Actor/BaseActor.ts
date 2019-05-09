@@ -25,17 +25,21 @@ export abstract class BaseActor extends TickElement
     /**
      * @inheritDoc
      */
-    public SetPosition(position: Vector): boolean
+    public SetPosition(position?: Vector): boolean
     {
-        return this.WillCollide(position, this.angle) && super.SetPosition(position);
+        return position &&
+            this.CanMove(position, this.angle) && 
+            super.SetPosition(position);
     }
 
     /**
      * @inheritDoc
      */
-    public SetAngle(angle: number): boolean
+    public SetAngle(angle?: number): boolean
     {
-        return this.WillCollide(this.position, angle) && super.SetAngle(angle);
+        return typeof angle === "number" && 
+            this.CanMove(this.position, angle) && 
+            super.SetAngle(angle);
     }
 
     /**
@@ -43,27 +47,33 @@ export abstract class BaseActor extends TickElement
      * @param position 
      * @param angle 
      */
-    private WillCollide(position: Vector, angle: number): boolean
+    private CanMove(position: Vector, angle: number): boolean
     {
-        const prevPos = this.GetPosition();
-        const nextPos = position;
+        if(!this.board)
+        {
+            return true;
+        }
 
-        const prevMesh = this.virtualMesh
-        const nextMesh = this.mesh.F(v => v
-            .Rotate(angle, this.size.F(s => s / 2))
-            .Add(nextPos));
+        const clone = <BaseActor>this.Clone();
+
+        clone.SetAngle(angle);
+        clone.SetPosition(position);
+
+        const actors = this.board.GetActors().FindCollisions(clone);
+
+        if(actors.length)
+        {
+            return false;
+        }
 
         // Get the currently covered cells and the next ones
-        const prev = prevPos 
-            ? this.board.GetCells().FindAround(prevMesh)
+        const prev = this.position 
+            ? this.board.GetCells().FindCollisions(this)
             : [];
         
-            const next = nextPos
-            ? this.board.GetCells().FindAround(nextMesh)
-            : [];
+        const next = this.board.GetCells().FindCollisions(clone);
 
-        // If prevPos/nextPos was given, but no cells found, return
-        if((prevPos && !prev.length) || (nextPos && !next.length))
+        if(!next.length)
         {
             return false;
         }
@@ -73,7 +83,7 @@ export abstract class BaseActor extends TickElement
         const nextFiltered = next.filter(v => !prev.includes(v));
 
         // Check if one of the cells blocks the movement
-        if(nextFiltered.some(cell => !cell.MoveHere(this, nextMesh)))
+        if(nextFiltered.some(cell => !cell.MoveHere(this)))
         {
             // If yes, revert all movement and return
             nextFiltered.forEach(v => v.MoveAway(this));

@@ -8,7 +8,7 @@ export class GroundCell extends BaseCell
     /**
      * @inheritDoc
      */
-    public MoveHere(actor: BaseActor, mesh: Mesh): boolean 
+    public MoveHere(actor: BaseActor): boolean 
     {
         return true;
     }

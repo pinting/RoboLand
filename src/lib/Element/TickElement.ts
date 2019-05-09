@@ -20,10 +20,13 @@ export abstract class TickElement extends BaseElement
     {
         super.InitPost(args);
 
-        // Start to listen to the tick event
-        this.tickEvent = this.board.OnTick.Add(() => this.OnTick());
-
-        Logger.Info(this, "Tick event was set", this);
+        if(this.board)
+        {
+            // Start to listen to the tick event
+            this.tickEvent = this.board.OnTick.Add(() => this.OnTick());
+    
+            Logger.Info(this, "Tick event was set", this);
+        }
     }
 
     /**

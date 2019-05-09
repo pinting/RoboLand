@@ -5,10 +5,14 @@ import { Exportable } from "../Exportable";
 import { IExportObject } from "../IExportObject";
 import { Vector } from "../Physics/Vector";
 import { Tools } from "../Util/Tools";
+import { GroundCell } from "../Element/Cell/GroundCell";
+import { BaseCell } from "../Element/Cell/BaseCell";
+import { BaseActor } from "../Element/Actor/BaseActor";
 
 export class Server
 {
     private readonly board: Board;
+    private readonly spawns: BaseCell[];
     private readonly clients: Sender[] = [];
 
     /**
@@ -20,6 +24,10 @@ export class Server
     public constructor(board: Board)
     {
         this.board = board;
+
+        this.spawns = this.board.GetCells().GetList()
+            .filter(c => c instanceof GroundCell)
+            .sort((a, b) => Tools.Random(-100, 100));
         
         this.board.OnUpdate.Add(element => this.clients
             .forEach(client => client.SendElement(element)));
@@ -87,18 +95,36 @@ export class Server
 
         const playerTag = Tools.Unique();
         const player = new PlayerActor;
+        let actors: BaseActor[];
 
-        player.Init({
-            id: playerTag,
-            origin: playerTag,
-            position: new Vector(1, 1),
-            size: new Vector(1, 1),
-            angle: 0,
-            texture: "res/player.png",
-            speed: 0.05,
-            damage: 0.1,
-            health: 1.0
-        });
+        for(let spawn of this.spawns)
+        {
+            actors = this.board.GetActors().FindCollisions(spawn);
+
+            if(actors.length)
+            {
+                continue;
+            }
+
+            player.Init({
+                id: playerTag,
+                origin: playerTag,
+                position: spawn.GetPosition(),
+                size: new Vector(1, 1),
+                angle: 0,
+                texture: "res/player.png",
+                speed: 0.05,
+                damage: 0.1,
+                health: 1.0
+            });
+
+            break;
+        }
+
+        if(actors.length)
+        {
+            throw new Error("Not enough space for new player!");
+        }
 
         this.board.GetActors().Set(player);
 
