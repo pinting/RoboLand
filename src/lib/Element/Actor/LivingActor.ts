@@ -58,12 +58,7 @@ export abstract class LivingActor extends BaseActor
         const next = this.GetPosition().Add(direction.F(v => v * this.speed));
 
         // Do the moving
-        if(this.SetPosition(next))
-        {
-            return true;
-        }
-
-        return false;
+        return this.SetPosition(next);
     }
 
     /**

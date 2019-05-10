@@ -73,25 +73,24 @@ export class Sender extends MessageHandler
     public async SendElement(element: BaseElement): Promise<void>
     {
         const exportable = Exportable.Export(element);
+        const id = element.GetId();
         const now = +new Date;
         
         let diff: IExportObject = null;
 
-        if(this.last.hasOwnProperty(element.GetId()))
+        if(this.lastTime.hasOwnProperty(id) && this.last.hasOwnProperty(id))
         {
-            diff = Exportable.Diff(exportable, this.last[element.GetId()]);
+            diff = Exportable.Diff(exportable, this.last[id]);
         }
 
-        if(this.lastTime.hasOwnProperty(element.GetId()) && 
-            this.lastTime[element.GetId()] + SLEEP_TIME >= now &&
-            BaseElement.IsOnlyPosDiff(diff))
+        if(diff && this.lastTime[id] + SLEEP_TIME >= now && BaseElement.IsOnlyPosDiff(diff))
         {
             Logger.Info(this, "Element was optimized out", element);
             return;
         }
 
-        this.last[element.GetId()] = exportable;
-        this.lastTime[element.GetId()] = now;
+        this.last[id] = exportable;
+        this.lastTime[id] = now;
 
         if(diff && diff.Payload && diff.Payload.length)
         {
@@ -99,11 +98,13 @@ export class Sender extends MessageHandler
             diff.Payload.push(<IExportObject>{
                 Name: "id",
                 Class: "string",
-                Payload: element.GetId()
+                Payload: id
             });
+
+            return this.SendMessage(MessageType.Diff, diff);
         }
 
-        return this.SendMessage(diff ? MessageType.Diff : MessageType.Element, diff || exportable);
+        return this.SendMessage(MessageType.Element, exportable);
     }
 
     /**

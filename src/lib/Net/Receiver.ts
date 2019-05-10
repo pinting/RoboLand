@@ -107,7 +107,7 @@ export class Receiver extends MessageHandler
 
         // Hack out ID from IExportObject
         const id = diff && diff.Payload && diff.Payload.length && 
-            diff.Payload.find(prop => prop.Name == "id").Payload;
+            diff.Payload.find((prop: IExportObject) => prop.Name == "id").Payload;
 
         if(!id)
         {
@@ -126,8 +126,9 @@ export class Receiver extends MessageHandler
 
         // If we have an older version, merge it
         const merged = Exportable.Export(oldElement);
+        console.log(diff);
 
-        Exportable.Merge(diff, merged);
+        Exportable.Merge(merged, diff);
 
         const newElement: BaseElement = Exportable.Import(merged);
 
