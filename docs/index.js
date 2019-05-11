@@ -33011,7 +33011,7 @@ class Exportable {
         });
     }
     /**
-     * Shallow convert an IExportObject to dictionary.
+     * Shallow convert an IDump to dictionary.
      * Top class property gonna be lost!
      * @param obj
      */
@@ -33487,7 +33487,7 @@ class Receiver extends MessageHandler_1.MessageHandler {
         return __awaiter(this, void 0, void 0, function* () {
             Board_1.Board.Current = this.board;
             Logger_1.Logger.Info(this, "Diff was received!", diff);
-            // Hack out ID from IExportObject
+            // Hack out ID from IDump
             const id = diff && diff.Payload && diff.Payload.length &&
                 diff.Payload.find(prop => prop.Name == "id").Payload;
             if (!id) {

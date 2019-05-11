@@ -7,7 +7,7 @@ import { ElementList } from "./ElementList";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
 import { Exportable, ExportType } from "./Exportable";
 import { Event } from "./Util/Event";
-import { IExportObject } from "./IExportObject";
+import { IDump } from "./IDump";
 
 export class Board extends Exportable
 {
@@ -85,7 +85,7 @@ export class Board extends Exportable
     /**
      * @inheritDoc
      */
-    public Import(input: IExportObject[])
+    public Import(input: IDump[])
     {
         Board.Current = this;
 

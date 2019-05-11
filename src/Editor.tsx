@@ -9,7 +9,7 @@ import { BaseElement } from "./lib/Element/BaseElement";
 import { Tools } from "./lib/Util/Tools";
 import { BaseActor } from "./lib/Element/Actor/BaseActor";
 import { BaseCell } from "./lib/Element/Cell/BaseCell";
-import { IExportObject } from "./lib/IExportObject";
+import { IDump } from "./lib/IDump";
 import { WaterCell } from "./lib/Element/Cell/WaterCell";
 import { StoneCell } from "./lib/Element/Cell/StoneCell";
 import { GroundCell } from "./lib/Element/Cell/GroundCell";
@@ -167,7 +167,7 @@ export class Editor extends Shared<EditorProps, EditorState>
         }
 
         const raw = this.state.selected;
-        let exported: IExportObject;
+        let exported: IDump;
 
         try
         {
@@ -228,7 +228,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     private async ImportBoard()
     {
         const raw = this.state.board;
-        let exported: IExportObject;
+        let exported: IDump;
 
         try 
         {

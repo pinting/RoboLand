@@ -2,7 +2,7 @@ import { Vector } from "../Geometry/Vector";
 import { Tools } from "../Util/Tools";
 import { Board } from "../Board";
 import { Exportable, ExportType } from "../Exportable";
-import { IExportObject } from "../IExportObject";
+import { IDump } from "../IDump";
 import { Logger } from "../Util/Logger";
 import { Mesh } from "../Geometry/Mesh";
 import { Triangle } from "../Geometry/Triangle";
@@ -69,7 +69,7 @@ export abstract class BaseElement extends Exportable
     {
         this.id = args.id || Tools.Unique();
         this.board = args.board || Board.Current;
-        this.origin = args.origin || this.board && this.board.Origin;
+        this.origin = args.origin || (this.board && this.board.Origin);
         this.size = args.size;
         this.texture = args.texture;
         this.angle = args.angle || 0;
@@ -277,7 +277,7 @@ export abstract class BaseElement extends Exportable
     /**
      * @inheritDoc
      */
-    public Import(input: IExportObject[]): void
+    public Import(input: IDump[]): void
     {
         this.Init();
         super.Import(input);
@@ -289,7 +289,7 @@ export abstract class BaseElement extends Exportable
      */
     public Collide(element: BaseElement): IMTVector
     {
-        if(element == this)
+        if(element == this || element.GetId() == this.GetId())
         {
             return null;
         }
@@ -317,45 +317,5 @@ export abstract class BaseElement extends Exportable
         Board.Current = current;
 
         return clone;
-    }
-
-    /**
-     * Compare two export objects using a diff.
-     * @param diff
-     * @returns Return true if only position or angle is different.
-     */
-    public static IsOnlyPosDiff(diff: IExportObject): boolean
-    {
-        const props = Exportable.Dict(diff);
-
-        // No diff
-        if(Object.keys(props).length == 0)
-        {
-            return true;
-        }
-
-        // Only position diff
-        if(Object.keys(props).length === 1 &&
-            props.hasOwnProperty("position"))
-        {
-            return true;
-        }
-
-        // Only angle diff
-        if(Object.keys(props).length === 1 &&
-            props.hasOwnProperty("angle"))
-        {
-            return true;
-        }
-
-        // Only position and angle diff
-        if(Object.keys(props).length === 2 &&
-            props.hasOwnProperty("position") &&
-            props.hasOwnProperty("angle"))
-        {
-            return true;
-        }
-
-        return false;
     }
 }

@@ -1,7 +1,7 @@
-export interface IExportObject
+export interface IDump
 {
     Name: string | number;
     Class: string;
-    Payload: IExportObject | any;
+    Payload: IDump | any;
     Args?: any[];
 }

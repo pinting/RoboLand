@@ -1,4 +1,4 @@
-import { IExportObject } from "./IExportObject";
+import { IDump } from "./IDump";
 
 const ExportMeta = Symbol("ExportMeta");
 const Dependencies: { [name: string]: any } = {};
@@ -59,7 +59,7 @@ export abstract class Exportable
     }
     
     /**
-     * Create an instance of a class by property (using the dependencies classes).
+     * Create an instance of a class by name (using the dependencies list).
      * @param className 
      */
     public static FromName<T extends Exportable>(name: string, ...args: any[]): T
@@ -70,12 +70,12 @@ export abstract class Exportable
     }
 
     /**
-     * Export all (registered) properties of THIS class - but not itself.
+     * Self export to IDump.
      * @param access
      */
-    public Export(access: number = 0): IExportObject[]
+    public Export(access: number = 0): IDump[]
     {
-        const result: IExportObject[] = [];
+        const result: IDump[] = [];
 
         for (let desc of this[ExportMeta])
         {   
@@ -84,11 +84,11 @@ export abstract class Exportable
                 continue;
             }
 
-            const exported = Exportable.Export(this[desc.Name], desc.Name, access);
+            const dump = Exportable.Export(this[desc.Name], desc.Name, access);
 
-            if(exported)
+            if(dump)
             {
-                result.push(exported);
+                result.push(dump);
             }
         }
 
@@ -96,12 +96,12 @@ export abstract class Exportable
     }
 
     /**
-     * Export a whole object - including itself.
-     * @param object The object to export.
+     * Export an object to IDump (standalone).
+     * @param object
      * @param access
      * @param name Name to export with.
      */
-    public static Export(object: any, name: string = null, access: number = 0): IExportObject
+    public static Export(object: any, name: string = null, access: number = 0): IDump
     {
         // Export each element of an array
         if(object instanceof Array)
@@ -137,10 +137,10 @@ export abstract class Exportable
     }
 
     /**
-     * Import all (registered) properties.
+     * Self import an IDump.
      * @param input 
      */
-    public Import(input: IExportObject[]): void
+    public Import(input: IDump[]): void
     {
         for (let element of input)
         {
@@ -173,10 +173,10 @@ export abstract class Exportable
     }
 
     /**
-     * Create a whole object.
+     * Import an IDump (standalone).
      * @param input 
      */
-    public static Import(input: IExportObject): any
+    public static Import(input: IDump): any
     {
         // Import array
         if(input.Class == "Array")
@@ -204,7 +204,7 @@ export abstract class Exportable
      * @param target 
      * @param depth Depth limit.
      */
-    public static Diff(source: IExportObject, target: IExportObject, depth: number = 3): IExportObject
+    public static Diff(source: IDump, target: IDump, depth = 3): IDump
     {
         if(!depth || 
             !source || 
@@ -221,16 +221,13 @@ export abstract class Exportable
             case "number":
             case "string":
             case "boolean":
-                return source.Payload != target.Payload 
-                    ? source 
-                    : null;
+                return source.Payload != target.Payload ? source : null;
             default:
-                const diff: IExportObject[] = source.Payload
-                    .map(ae => target.Payload.find(be => 
-                        Exportable.Diff(ae, be, depth - 1)))
-                    .filter(ae => ae);
+                const diff: IDump[] = source.Payload.filter((se: IDump) => 
+                    target.Payload.find((te: IDump) => 
+                        Exportable.Diff(se, te, depth - 1)));
 
-                return !diff.length ? null : {
+                return diff.length == 0 ? null : {
                     Name: source.Name,
                     Class: source.Class,
                     Payload: diff
@@ -239,21 +236,21 @@ export abstract class Exportable
     }
 
     /**
-     * Shallow merge two selected objects. Only the top layer 
-     * gonna be merged - so this is not a deep merge.
-     * @param target Other gonna be merged here!
+     * Shallow merge two dumps. Only the top layer 
+     * gonna be merged!
+     * @param target Other gonna be merged here.
      * @param other 
      */
-    public static Merge(target: IExportObject, other: IExportObject): void
+    public static Merge(target: IDump, other: IDump): void
     {
         if(!target || !target.Payload || !target.Payload.length)
         {
             return;
         }
 
-        const otherProps = this.Dict(other)
+        const otherProps = this.ToDict(other)
         
-        target.Payload.forEach((prop, i) => 
+        target.Payload.forEach((prop: IDump, i: number) => 
         {
             if(otherProps.hasOwnProperty(prop.Name))
             {
@@ -263,16 +260,16 @@ export abstract class Exportable
     }
 
     /**
-     * Shallow convert an IExportObject to dictionary.
+     * Shallow convert an IDump to dictionary.
      * Top class property gonna be lost!
      * @param obj 
      */
-    public static Dict(obj: IExportObject): { [id: string]: IExportObject }
+    public static ToDict(dump: IDump): { [id: string]: IDump }
     {
         const props = {};
 
-        obj && obj.Payload && obj.Payload.length && 
-            obj.Payload.forEach(p => props[p.Name] = p);
+        dump && dump.Payload && dump.Payload.length && 
+            dump.Payload.forEach((dump: IDump) => props[dump.Name] = dump);
 
         return props;
     }

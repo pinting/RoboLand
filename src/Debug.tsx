@@ -4,7 +4,7 @@ import { Board } from "./lib/Board";
 import { Renderer } from "./lib/Renderer";
 import { FakeChannel } from "./lib/Net/Channel/FakeChannel";
 import { Receiver } from "./lib/Net/Receiver";
-import { IExportObject } from "./lib/IExportObject";
+import { IDump } from "./lib/IDump";
 import { Server } from "./lib/Net/Server";
 import { Exportable } from "./lib/Exportable";
 import { Sender } from "./lib/Net/Sender";
@@ -61,7 +61,7 @@ export class Debug extends Shared
         const receiverA = new Receiver(channelA1, boardA)
         const receiverB = new Receiver(channelB1, boardB);
         
-        const raw: IExportObject = JSON.parse(await Http.Get("res/board.json"));
+        const raw: IDump = JSON.parse(await Http.Get("res/board.json"));
         const boardServer: Board = Exportable.Import(raw);
         const server = new Server(boardServer);
         

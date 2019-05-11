@@ -6,19 +6,22 @@ import { BaseCell } from "../Element/Cell/BaseCell";
 import { BaseActor } from "../Element/Actor/BaseActor";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { Tools } from "../Util/Tools";
-import { IExportObject } from "../IExportObject";
+import { IDump } from "../IDump";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
 import { Logger } from "../Util/Logger";
 import { BaseElement } from "../Element/BaseElement";
+import { Sender } from "./Sender";
+import { Vector } from "../Geometry/Vector";
 
-const MAX_DIST = 0.2;
+const MAX_POS_DIFF = 0.5;
+const MAX_ANGLE_DIFF = Vector.DegToRad(45);
 
 export class Receiver extends MessageHandler
 {
     private board: Board;
     private player: PlayerActor;
-    private last: { [id: string]: IExportObject } = {};
+    private last: { [id: string]: IDump } = {};
 
     /**
      * Construct a new client which communicates with a connection.
@@ -71,15 +74,15 @@ export class Receiver extends MessageHandler
   
     /**
      * Receive an element.
-     * @param exportable
+     * @param dump
      */
-    private async ReceiveElement(exportable: IExportObject): Promise<void>
+    private async ReceiveElement(dump: IDump): Promise<void>
     {   
         Board.Current = this.board;
 
-        const element: BaseElement = Exportable.Import(exportable);
+        const element: BaseElement = Exportable.Import(dump);
 
-        Logger.Info(this, "Element was received!", element, exportable);
+        Logger.Info(this, "Element was received!", element, dump);
 
         // Add element to the board
         if(element instanceof BaseCell)
@@ -92,53 +95,58 @@ export class Receiver extends MessageHandler
         }
 
         // Add to network cache
-        this.last[element.GetId()] = exportable;
+        this.last[element.GetId()] = dump;
     }
 
     /**
      * Receive an diff of an element.
      * @param diff
      */
-    private async ReceiveDiff(diff: IExportObject): Promise<void>
-    {   
-        Board.Current = this.board;
-
+    private async ReceiveDiff(diff: IDump): Promise<void>
+    {
         Logger.Info(this, "Diff was received!", diff);
 
-        // Hack out ID from IExportObject
+        // Hack out ID from the dump
         const id = diff && diff.Payload && diff.Payload.length && 
-            diff.Payload.find((prop: IExportObject) => prop.Name == "id").Payload;
+            diff.Payload.find((prop: IDump) => prop.Name == "id").Payload;
 
         if(!id)
         {
-            Logger.Warn(this, "No ID for diff!")
+            Logger.Warn(this, "No ID for diff!");
             return;
         }
 
         // Check if we already have it
         const oldElement = this.board.GetElements().Get(id);
 
-        // Return if we do not have an older version
+        // Return if we do not have an older version,
+        // because we cannot receive a diff without a base
         if(!oldElement)
         {
+            Logger.Warn(this, "Received diff, but no base element!");
             return;
         }
 
+        Board.Current = this.board;
+
         // If we have an older version, merge it
         const merged = Exportable.Export(oldElement);
-        console.log(diff);
 
         Exportable.Merge(merged, diff);
 
         const newElement: BaseElement = Exportable.Import(merged);
 
-        // Optimizations
-        if(this.last.hasOwnProperty(newElement.GetId()) && 
-            BaseElement.IsOnlyPosDiff(diff) && 
-            newElement.GetPosition().Dist(oldElement.GetPosition()) <= MAX_DIST)
+        // If the position or the angle difference is under a limit, skip updating
+        if(Sender.IsMovementDiff(diff) && oldElement.GetPosition())
         {
-            Logger.Info(this, "Element was optimized out", newElement);
-            return;
+            const posititonDiff = newElement.GetPosition().Dist(oldElement.GetPosition());
+            const angleDiff = Math.abs(newElement.GetAngle() - oldElement.GetAngle());
+
+            if(posititonDiff < MAX_POS_DIFF && angleDiff < MAX_ANGLE_DIFF)
+            {
+                Logger.Info(this, "Element was optimized out", newElement);
+                return;
+            }
         }
 
         return this.ReceiveElement(merged);
@@ -154,9 +162,9 @@ export class Receiver extends MessageHandler
 
         this.OnPlayer(Tools.Hook(player, (target, prop, args) => 
         {
-            const exportable = Exportable.Export([player.GetId(), prop].concat(args));
+            const dump = Exportable.Export([player.GetId(), prop].concat(args));
 
-            this.SendMessage(MessageType.Command, exportable);
+            this.SendMessage(MessageType.Command, dump);
         }));
     }
 
@@ -164,16 +172,16 @@ export class Receiver extends MessageHandler
      * Receive the size of the board.
      * @param size 
      */
-    private ReceiveSize(exportable: IExportObject): void
+    private ReceiveSize(dump: IDump): void
     {
-        this.board.Init(Exportable.Import(exportable));
+        this.board.Init(Exportable.Import(dump));
     }
 
     /**
      * Receive a command from another player.
      * @param command 
      */
-    private ReceiveCommand(command: IExportObject): void
+    private ReceiveCommand(command: IDump): void
     {
         if(!this.player)
         {

@@ -5,7 +5,7 @@ import { Exportable } from "../Exportable";
 import { MessageType } from "./MessageType";
 import { Vector } from "../Geometry/Vector";
 import { BaseElement } from "../Element/BaseElement";
-import { IExportObject } from "../IExportObject";
+import { IDump } from "../IDump";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
 import { Server } from "./Server";
@@ -17,7 +17,7 @@ export class Sender extends MessageHandler
 {
     private server: Server;
     private player: PlayerActor;
-    private last: { [id: string]: IExportObject } = {};
+    private last: { [id: string]: IDump } = {};
     private lastTime: { [id: string]: number } = {};
     
     /**
@@ -67,35 +67,80 @@ export class Sender extends MessageHandler
     }
 
     /**
+     * Return true if only the position or the angle is different.
+     * @param diff
+     */
+    public static IsMovementDiff(diff: IDump): boolean
+    {
+        const props = Exportable.ToDict(diff);
+
+        // Delete ID if it exists, because we do not need it
+        if(props.id)
+        {
+            delete props.id;
+        }
+
+        // No diff
+        if(Object.keys(props).length == 0)
+        {
+            return true;
+        }
+
+        // Only position diff
+        if(Object.keys(props).length === 1 &&
+            props.hasOwnProperty("position"))
+        {
+            return true;
+        }
+
+        // Only angle diff
+        if(Object.keys(props).length === 1 &&
+            props.hasOwnProperty("angle"))
+        {
+            return true;
+        }
+
+        // Only position and angle diff
+        if(Object.keys(props).length === 2 &&
+            props.hasOwnProperty("position") &&
+            props.hasOwnProperty("angle"))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Set an element (a cell or an actor).
      * @param element 
      */
     public async SendElement(element: BaseElement): Promise<void>
     {
-        const exportable = Exportable.Export(element);
+        const dump = Exportable.Export(element);
         const id = element.GetId();
         const now = +new Date;
         
-        let diff: IExportObject = null;
+        let diff: IDump = null;
 
         if(this.lastTime.hasOwnProperty(id) && this.last.hasOwnProperty(id))
         {
-            diff = Exportable.Diff(exportable, this.last[id]);
+            diff = Exportable.Diff(dump, this.last[id]);
         }
 
-        if(diff && this.lastTime[id] + SLEEP_TIME >= now && BaseElement.IsOnlyPosDiff(diff))
+        if(diff && this.lastTime[id] + SLEEP_TIME >= now && Sender.IsMovementDiff(diff))
         {
             Logger.Info(this, "Element was optimized out", element);
             return;
         }
 
-        this.last[id] = exportable;
+        this.last[id] = dump;
         this.lastTime[id] = now;
 
-        if(diff && diff.Payload && diff.Payload.length)
+        if(diff)
         {
             // Hack ID into it
-            diff.Payload.push(<IExportObject>{
+            diff.Payload.push(<IDump>{
                 Name: "id",
                 Class: "string",
                 Payload: id
@@ -104,7 +149,7 @@ export class Sender extends MessageHandler
             return this.SendMessage(MessageType.Diff, diff);
         }
 
-        return this.SendMessage(MessageType.Element, exportable);
+        return this.SendMessage(MessageType.Element, dump);
     }
 
     /**
@@ -157,5 +202,5 @@ export class Sender extends MessageHandler
      * Executed when the Connection receives a COMMAND from the client.
      * @param command
      */
-    public OnCommand: (command: IExportObject) => void = Tools.Noop;
+    public OnCommand: (command: IDump) => void = Tools.Noop;
 }

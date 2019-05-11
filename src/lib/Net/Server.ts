@@ -2,7 +2,7 @@ import { Board } from "../Board";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { Sender } from "./Sender";
 import { Exportable } from "../Exportable";
-import { IExportObject } from "../IExportObject";
+import { IDump } from "../IDump";
 import { Vector } from "../Geometry/Vector";
 import { Tools } from "../Util/Tools";
 import { GroundCell } from "../Element/Cell/GroundCell";
@@ -38,7 +38,7 @@ export class Server
      * @param client
      * @param command
      */
-    private OnCommand(client: Sender, command: IExportObject)
+    private OnCommand(client: Sender, command: IDump)
     {
         const args = Exportable.Import(command);
         const player = client.GetPlayer();
