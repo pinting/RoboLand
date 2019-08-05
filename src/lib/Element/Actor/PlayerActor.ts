@@ -7,7 +7,7 @@ const SHOT_DELAY = 800;
 
 export class PlayerActor extends LivingActor
 {
-    @Exportable.Register(ExportType.All)
+    @Exportable.Register(ExportType.Hidden)
     protected lastShot = +new Date(0);
 
     /**
@@ -37,20 +37,12 @@ export class PlayerActor extends LivingActor
             angle: this.GetAngle(),
             damage: this.damage,
             speed: 0.075,
-            origin: this.origin,
-            board: this.board
+            parent: this.parent,
+            world: this.world
         });
 
-        this.board.GetActors().Set(actor);
+        this.world.GetActors().Set(actor);
         this.lastShot = now;
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    protected OnTick(): void
-    {
-        return;
     }
 }
 

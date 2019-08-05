@@ -1,6 +1,6 @@
 {
     "Name":null,
-    "Class":"Board",
+    "Class":"World",
     "Payload":[
         {
             "Name":"cells",

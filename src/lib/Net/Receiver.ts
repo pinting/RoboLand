@@ -1,6 +1,6 @@
 import { IChannel } from "./Channel/IChannel";
 import { MessageType } from "./MessageType";
-import { Board } from "../Board";
+import { World } from "../World";
 import { Exportable } from "../Exportable";
 import { BaseCell } from "../Element/Cell/BaseCell";
 import { BaseActor } from "../Element/Actor/BaseActor";
@@ -10,7 +10,7 @@ import { IDump } from "../IDump";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
 import { Logger } from "../Util/Logger";
-import { BaseElement } from "../Element/BaseElement";
+import { Unit } from "../Element/Unit";
 import { Sender } from "./Sender";
 import { Vector } from "../Geometry/Vector";
 
@@ -19,7 +19,7 @@ const MAX_ANGLE_DIFF = Vector.DegToRad(45);
 
 export class Receiver extends MessageHandler
 {
-    private board: Board;
+    private world: World;
     private player: PlayerActor;
     private last: { [id: string]: IDump } = {};
 
@@ -27,15 +27,15 @@ export class Receiver extends MessageHandler
      * Construct a new client which communicates with a connection.
      * @param channel 
      */
-    constructor(channel: IChannel, board: Board)
+    constructor(channel: IChannel, world: World)
     {
         super(channel);
         
-        this.board = board;
+        this.world = world;
 
-        // Add updated element to network cache
-        this.board.OnUpdate.Add(element => 
-            this.last[element.GetId()] = Exportable.Export(element));
+        // Add updated unit to network cache
+        this.world.OnUpdate.Add(unit => 
+            this.last[unit.GetId()] = Exportable.Export(unit));
     }
 
     /**
@@ -44,7 +44,7 @@ export class Receiver extends MessageHandler
      */
     protected OnMessage(message: IMessage): void
     {
-        Board.Current = this.board;
+        World.Current = this.world;
 
         switch(message.Type)
         {
@@ -73,33 +73,33 @@ export class Receiver extends MessageHandler
     }
   
     /**
-     * Receive an element.
+     * Receive an unit.
      * @param dump
      */
     private async ReceiveElement(dump: IDump): Promise<void>
     {   
-        Board.Current = this.board;
+        World.Current = this.world;
 
-        const element: BaseElement = Exportable.Import(dump);
+        const unit: Unit = Exportable.Import(dump);
 
-        Logger.Info(this, "Element was received!", element, dump);
+        Logger.Info(this, "Element was received!", unit, dump);
 
-        // Add element to the board
-        if(element instanceof BaseCell)
+        // Add unit to the world
+        if(unit instanceof BaseCell)
         {
-            this.board.GetCells().Set(element);
+            this.world.GetCells().Set(unit);
         }
-        else if(element instanceof BaseActor)
+        else if(unit instanceof BaseActor)
         {
-            this.board.GetActors().Set(element);
+            this.world.GetActors().Set(unit);
         }
 
         // Add to network cache
-        this.last[element.GetId()] = dump;
+        this.last[unit.GetId()] = dump;
     }
 
     /**
-     * Receive an diff of an element.
+     * Receive an diff of an unit.
      * @param diff
      */
     private async ReceiveDiff(diff: IDump): Promise<void>
@@ -117,24 +117,24 @@ export class Receiver extends MessageHandler
         }
 
         // Check if we already have it
-        const oldElement = this.board.GetElements().Get(id);
+        const oldElement = this.world.GetElements().Get(id);
 
         // Return if we do not have an older version,
         // because we cannot receive a diff without a base
         if(!oldElement)
         {
-            Logger.Warn(this, "Received diff, but no base element!");
+            Logger.Warn(this, "Received diff, but no base unit!");
             return;
         }
 
-        Board.Current = this.board;
+        World.Current = this.world;
 
         // If we have an older version, merge it
         const merged = Exportable.Export(oldElement);
 
         Exportable.Merge(merged, diff);
 
-        const newElement: BaseElement = Exportable.Import(merged);
+        const newElement: Unit = Exportable.Import(merged);
 
         // If the position or the angle difference is under a limit, skip updating
         if(Sender.IsMovementDiff(diff) && oldElement.GetPosition())
@@ -158,7 +158,7 @@ export class Receiver extends MessageHandler
      */
     private ReceivePlayer(id: string): void
     {
-        const player = this.player = <PlayerActor>this.board.GetActors().Get(id);
+        const player = this.player = <PlayerActor>this.world.GetActors().Get(id);
 
         this.OnPlayer(Tools.Hook(player, (target, prop, args) => 
         {
@@ -169,12 +169,12 @@ export class Receiver extends MessageHandler
     }
 
     /**
-     * Receive the size of the board.
+     * Receive the size of the world.
      * @param size 
      */
     private ReceiveSize(dump: IDump): void
     {
-        this.board.Init(Exportable.Import(dump));
+        this.world.Init(Exportable.Import(dump));
     }
 
     /**
@@ -195,9 +195,9 @@ export class Receiver extends MessageHandler
             return;
         }
 
-        const player = <PlayerActor>this.board.GetActors().Get(args[0]);
+        const player = <PlayerActor>this.world.GetActors().Get(args[0]);
         
-        Board.Current = this.board;
+        World.Current = this.world;
 
         // Execute command on the player
         player[args[1]].bind(player)(...args.slice(2));

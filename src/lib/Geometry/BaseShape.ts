@@ -7,7 +7,7 @@ export abstract class BaseShape extends Exportable
 {
     private axes: Vector[];
 
-    @Exportable.Register(ExportType.User, () => this.FindAxes())
+    @Exportable.Register(ExportType.Visible, () => this.FindAxes())
     protected vertices: Vector[];
 
     /**

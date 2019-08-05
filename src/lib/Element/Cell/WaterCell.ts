@@ -17,14 +17,6 @@ export class WaterCell extends BaseCell
         
         return true;
     }
-    
-    /**
-     * @inheritDoc
-     */
-    protected OnTick(): void
-    {
-        return;
-    }
 }
 
 Exportable.Dependency(WaterCell);

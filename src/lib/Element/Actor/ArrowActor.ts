@@ -1,10 +1,8 @@
 import { BaseActor } from "./BaseActor";
-import { Vector } from "../../Geometry/Vector";
-import { LivingActor } from "./LivingActor";
 import { Exportable, ExportType } from "../../Exportable";
-import { BaseElementArgs } from "../BaseElement";
+import { UnitArgs } from "../Unit";
 
-export interface ArrowActorArgs extends BaseElementArgs
+export interface ArrowActorArgs extends UnitArgs
 {
     damage?: number;
     speed?: number;
@@ -12,10 +10,10 @@ export interface ArrowActorArgs extends BaseElementArgs
 
 export class ArrowActor extends BaseActor
 {
-    @Exportable.Register(ExportType.User)
+    @Exportable.Register(ExportType.Visible)
     protected damage: number;
 
-    @Exportable.Register(ExportType.User)
+    @Exportable.Register(ExportType.Visible)
     protected speed: number;
 
     /**
@@ -43,6 +41,9 @@ export class ArrowActor extends BaseActor
      */
     protected OnTick(): void
     {
+        super.OnTick();
+        
+        /*
         const facing = Vector.AngleToVector(this.GetAngle());
         const success = this.SetPosition(this.GetPosition().Add(facing.F(v => v * this.speed)));
 
@@ -53,7 +54,7 @@ export class ArrowActor extends BaseActor
             return;
         }
 
-        const result = this.board.GetActors().FindCollisions(this);
+        const result = this.world.GetActors().FindCollisions(this);
 
         let hit = false;
 
@@ -72,6 +73,7 @@ export class ArrowActor extends BaseActor
         {
             this.Dispose();
         }
+        */
     }
 }
 

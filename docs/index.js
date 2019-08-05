@@ -30997,7 +30997,7 @@ const Board_1 = __webpack_require__(/*! ./lib/Board */ "./src/lib/Board.ts");
 const Renderer_1 = __webpack_require__(/*! ./lib/Renderer */ "./src/lib/Renderer.ts");
 const Vector_1 = __webpack_require__(/*! ./lib/Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 const Exportable_1 = __webpack_require__(/*! ./lib/Exportable */ "./src/lib/Exportable.ts");
-const BaseElement_1 = __webpack_require__(/*! ./lib/Element/BaseElement */ "./src/lib/Element/BaseElement.ts");
+const Unit_1 = __webpack_require__(/*! ./lib/Element/Unit */ "./src/lib/Element/Unit.ts");
 const Tools_1 = __webpack_require__(/*! ./lib/Util/Tools */ "./src/lib/Util/Tools.ts");
 const BaseActor_1 = __webpack_require__(/*! ./lib/Element/Actor/BaseActor */ "./src/lib/Element/Actor/BaseActor.ts");
 const BaseCell_1 = __webpack_require__(/*! ./lib/Element/Cell/BaseCell */ "./src/lib/Element/Cell/BaseCell.ts");
@@ -31074,7 +31074,7 @@ class Editor extends Shared_1.Shared {
             }
             const element = Exportable_1.Exportable.FromName(this.newElementName);
             // If created object is not an element, return
-            if (!(element instanceof BaseElement_1.BaseElement)) {
+            if (!(element instanceof Unit_1.Unit)) {
                 return;
             }
             element.Init({
@@ -31111,7 +31111,7 @@ class Editor extends Shared_1.Shared {
             this.DeleteSelected();
             const element = Exportable_1.Exportable.Import(exported);
             // If created object is not an element, return
-            if (!(element instanceof BaseElement_1.BaseElement)) {
+            if (!(element instanceof Unit_1.Unit)) {
                 return;
             }
             if (element instanceof BaseCell_1.BaseCell) {
@@ -32171,9 +32171,9 @@ Exportable_1.Exportable.Dependency(PlayerActor);
 
 /***/ }),
 
-/***/ "./src/lib/Element/BaseElement.ts":
+/***/ "./src/lib/Element/Unit.ts":
 /*!****************************************!*\
-  !*** ./src/lib/Element/BaseElement.ts ***!
+  !*** ./src/lib/Element/Unit.ts ***!
   \****************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -32197,7 +32197,7 @@ const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exporta
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
 const Mesh_1 = __webpack_require__(/*! ../Geometry/Mesh */ "./src/lib/Geometry/Mesh.ts");
 const Triangle_1 = __webpack_require__(/*! ../Geometry/Triangle */ "./src/lib/Geometry/Triangle.ts");
-class BaseElement extends Exportable_1.Exportable {
+class Unit extends Exportable_1.Exportable {
     constructor() {
         super(...arguments);
         this.disposed = false;
@@ -32382,36 +32382,36 @@ class BaseElement extends Exportable_1.Exportable {
 __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.All, (s, v) => s.Dispose(v)),
     __metadata("design:type", Boolean)
-], BaseElement.prototype, "disposed", void 0);
+], Unit.prototype, "disposed", void 0);
 __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.All),
     __metadata("design:type", String)
-], BaseElement.prototype, "id", void 0);
+], Unit.prototype, "id", void 0);
 __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.All),
     __metadata("design:type", String)
-], BaseElement.prototype, "origin", void 0);
+], Unit.prototype, "origin", void 0);
 __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.User),
     __metadata("design:type", Vector_1.Vector)
-], BaseElement.prototype, "size", void 0);
+], Unit.prototype, "size", void 0);
 __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.User, (s, v) => v && s.SetMesh(v)),
     __metadata("design:type", Mesh_1.Mesh)
-], BaseElement.prototype, "mesh", void 0);
+], Unit.prototype, "mesh", void 0);
 __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.User, (s, v) => s.SetPosition(v)),
     __metadata("design:type", Vector_1.Vector)
-], BaseElement.prototype, "position", void 0);
+], Unit.prototype, "position", void 0);
 __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.User),
     __metadata("design:type", String)
-], BaseElement.prototype, "texture", void 0);
+], Unit.prototype, "texture", void 0);
 __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.User),
     __metadata("design:type", Number)
-], BaseElement.prototype, "angle", void 0);
-exports.BaseElement = BaseElement;
+], Unit.prototype, "angle", void 0);
+exports.Unit = Unit;
 
 
 /***/ }),
@@ -32645,8 +32645,8 @@ Exportable_1.Exportable.Dependency(WaterCell);
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
-const BaseElement_1 = __webpack_require__(/*! ./BaseElement */ "./src/lib/Element/BaseElement.ts");
-class TickElement extends BaseElement_1.BaseElement {
+const Unit_1 = __webpack_require__(/*! ./Unit */ "./src/lib/Element/Unit.ts");
+class TickElement extends Unit_1.Unit {
     /**
      * @inheritDoc
      */
@@ -33411,7 +33411,7 @@ const BaseActor_1 = __webpack_require__(/*! ../Element/Actor/BaseActor */ "./src
 const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 const MessageHandler_1 = __webpack_require__(/*! ./MessageHandler */ "./src/lib/Net/MessageHandler.ts");
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
-const BaseElement_1 = __webpack_require__(/*! ../Element/BaseElement */ "./src/lib/Element/BaseElement.ts");
+const Unit_1 = __webpack_require__(/*! ../Element/Unit */ "./src/lib/Element/Unit.ts");
 const MAX_DIST = 0.2;
 class Receiver extends MessageHandler_1.MessageHandler {
     /**
@@ -33506,7 +33506,7 @@ class Receiver extends MessageHandler_1.MessageHandler {
             const newElement = Exportable_1.Exportable.Import(merged);
             // Optimizations
             if (this.last.hasOwnProperty(newElement.GetId()) &&
-                BaseElement_1.BaseElement.IsOnlyPosDiff(diff) &&
+                Unit_1.Unit.IsOnlyPosDiff(diff) &&
                 newElement.GetPosition().Len(oldElement.GetPosition()) <= MAX_DIST) {
                 Logger_1.Logger.Info(this, "Element was optimized out", newElement);
                 return;
@@ -33585,7 +33585,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
 const MessageType_1 = __webpack_require__(/*! ./MessageType */ "./src/lib/Net/MessageType.ts");
-const BaseElement_1 = __webpack_require__(/*! ../Element/BaseElement */ "./src/lib/Element/BaseElement.ts");
+const Unit_1 = __webpack_require__(/*! ../Element/Unit */ "./src/lib/Element/Unit.ts");
 const MessageHandler_1 = __webpack_require__(/*! ./MessageHandler */ "./src/lib/Net/MessageHandler.ts");
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
 const SLEEP_TIME = 1000;
@@ -33649,7 +33649,7 @@ class Sender extends MessageHandler_1.MessageHandler {
             }
             if (this.lastTime.hasOwnProperty(element.GetId()) &&
                 this.lastTime[element.GetId()] + SLEEP_TIME >= now &&
-                BaseElement_1.BaseElement.IsOnlyPosDiff(diff)) {
+                Unit_1.Unit.IsOnlyPosDiff(diff)) {
                 Logger_1.Logger.Info(this, "Element was optimized out", element);
                 return;
             }

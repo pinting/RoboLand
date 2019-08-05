@@ -1,11 +1,11 @@
 import * as React from "react";
 import "./Editor.css";
 import { Shared } from "./Shared";
-import { Board } from "./lib/Board";
+import { World } from "./lib/World";
 import { Renderer } from "./lib/Renderer";
 import { Vector } from "./lib/Geometry/Vector";
 import { Exportable, ExportType } from "./lib/Exportable";
-import { BaseElement } from "./lib/Element/BaseElement";
+import { Unit } from "./lib/Element/Unit";
 import { Tools } from "./lib/Util/Tools";
 import { BaseActor } from "./lib/Element/Actor/BaseActor";
 import { BaseCell } from "./lib/Element/Cell/BaseCell";
@@ -28,7 +28,7 @@ interface EditorProps {
  * State of the User view.
  */
 interface EditorState {
-    board: string;
+    world: string;
     selected: string;
     loaded: string[];
 }
@@ -45,14 +45,14 @@ export class Editor extends Shared<EditorProps, EditorState>
     private disableDrag: boolean = true;
     private mouseDown: boolean = false;
 
-    private board: Board;
+    private world: World;
     private newBoardSize: Vector = new Vector;
 
     private newElementVector: Vector = new Vector;
     private newElementName: string;
     
     private selectedVector: Vector;
-    private selectedElement: BaseElement;
+    private selectedElement: Unit;
 
     /**
      * Construct a new User view.
@@ -63,7 +63,7 @@ export class Editor extends Shared<EditorProps, EditorState>
         super(props);
 
         this.state = {
-            board: "",
+            world: "",
             selected: "",
             loaded: []
         };
@@ -86,7 +86,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     }
 
     /**
-     * Dependency an element in the editor and also register it
+     * Dependency an unit in the editor and also register it
      * in the Exportable dependency list.
      * @param classObj
      * @param name
@@ -100,7 +100,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     }
 
     /**
-     * Create a new board.
+     * Create a new world.
      */
     private async NewBoard()
     {
@@ -109,10 +109,10 @@ export class Editor extends Shared<EditorProps, EditorState>
             return;
         }
 
-        this.board = Board.Current = new Board();
-        this.board.Init(this.newBoardSize);
+        this.world = World.Current = new World();
+        this.world.Init(this.newBoardSize);
 
-        this.renderer = new Renderer(this.board, this.canvas);
+        this.renderer = new Renderer(this.world, this.canvas);
         this.selectedElement = null;
         
         await this.renderer.Load();
@@ -121,47 +121,47 @@ export class Editor extends Shared<EditorProps, EditorState>
     }
 
     /**
-     * Add a new element onto the board.
+     * Add a new unit onto the world.
      */
     private async AddElement()
     {
-        if(!this.board || !this.newElementVector || !this.newElementName)
+        if(!this.world || !this.newElementVector || !this.newElementName)
         {
             return;
         }
         
-        const element = Exportable.FromName(this.newElementName);
+        const unit = Exportable.FromName(this.newElementName);
 
-        // If created object is not an element, return
-        if(!(element instanceof BaseElement))
+        // If created object is not an unit, return
+        if(!(unit instanceof Unit))
         {
             return;
         }
 
-        element.Init({
+        unit.Init({
             size: new Vector(1, 1),
             position: this.newElementVector.Clone(),
             texture: ""
         });
 
-        if(element instanceof BaseActor)
+        if(unit instanceof BaseActor)
         {
-            this.board.GetActors().Set(element);
+            this.world.GetActors().Set(unit);
         }
-        else if(element instanceof BaseCell)
+        else if(unit instanceof BaseCell)
         {
-            this.board.GetCells().Set(element);
+            this.world.GetCells().Set(unit);
         }
 
         await this.renderer.Load();
     }
 
     /**
-     * Save the selected element back to the map (using state.selected).
+     * Save the selected unit back to the map (using state.selected).
      */
     private async SaveSelected(): Promise<void>
     {
-        if(!this.board)
+        if(!this.world)
         {
             return;
         }
@@ -181,53 +181,53 @@ export class Editor extends Shared<EditorProps, EditorState>
 
         this.DeleteSelected();
 
-        const element = Exportable.Import(exported);
+        const unit = Exportable.Import(exported);
 
-        // If created object is not an element, return
-        if(!(element instanceof BaseElement))
+        // If created object is not an unit, return
+        if(!(unit instanceof Unit))
         {
             return;
         }
 
-        if(element instanceof BaseCell)
+        if(unit instanceof BaseCell)
         {
-            this.board.GetCells().Set(element);
+            this.world.GetCells().Set(unit);
         }
-        else if(element instanceof BaseActor)
+        else if(unit instanceof BaseActor)
         {
-            this.board.GetActors().Set(element);
+            this.world.GetActors().Set(unit);
         }
 
-        this.selectedElement = element;
+        this.selectedElement = unit;
 
         await this.renderer.Load();
     }
 
     /**
-     * Delete the selected element from the app.
+     * Delete the selected unit from the app.
      */
     private DeleteSelected(): void
     {
-        const element = this.selectedElement;
+        const unit = this.selectedElement;
 
-        if(element instanceof BaseCell)
+        if(unit instanceof BaseCell)
         {
-            this.board.GetCells().Remove(element);
+            this.world.GetCells().Remove(unit);
         }
-        else if(element instanceof BaseActor)
+        else if(unit instanceof BaseActor)
         {
-            this.board.GetActors().Remove(element);
+            this.world.GetActors().Remove(unit);
         }
 
         this.selectedElement = null;
     }
 
     /**
-     * Import the board from state.
+     * Import the world from state.
      */
     private async ImportBoard()
     {
-        const raw = this.state.board;
+        const raw = this.state.world;
         let exported: IDump;
 
         try 
@@ -240,8 +240,8 @@ export class Editor extends Shared<EditorProps, EditorState>
             return;
         }
 
-        this.board = Board.Current = Exportable.Import(exported);
-        this.renderer = new Renderer(this.board, this.canvas);
+        this.world = World.Current = Exportable.Import(exported);
+        this.renderer = new Renderer(this.world, this.canvas);
         this.selectedElement = null;
         
         await this.renderer.Load();
@@ -250,19 +250,19 @@ export class Editor extends Shared<EditorProps, EditorState>
     }
 
     /**
-     * Create a new board.
+     * Create a new world.
      */
     private async ExportBoard()
     {
-        if(!this.board)
+        if(!this.world)
         {
             return;
         }
 
-        const exportable = Exportable.Export(this.board, null, ExportType.User);
+        const exportable = Exportable.Export(this.world, null, ExportType.Visible);
         const raw = JSON.stringify(exportable, null, 4);
 
-        this.setState({ board: raw });
+        this.setState({ world: raw });
     }
 
     /**
@@ -271,7 +271,7 @@ export class Editor extends Shared<EditorProps, EditorState>
      */
     private OnClick(event: MouseEvent): void
     {
-        if(!this.board || !this.renderer)
+        if(!this.world || !this.renderer)
         {
             return;
         }
@@ -279,11 +279,11 @@ export class Editor extends Shared<EditorProps, EditorState>
         const p = Editor.CanvasP(this.canvas, event);
 
         this.selectedVector = this.renderer.Find(p[0], p[1]);
-        this.selectedElement = this.board.GetElements().FindNearest(this.selectedVector);
+        this.selectedElement = this.world.GetElements().FindNearest(this.selectedVector);
 
         if(this.selectedElement)
         {
-            const exportable = Exportable.Export(this.selectedElement, null, ExportType.User);
+            const exportable = Exportable.Export(this.selectedElement, null, ExportType.Visible);
             const raw = JSON.stringify(exportable, null, 4);
 
             this.setState({ selected: raw })
@@ -297,7 +297,7 @@ export class Editor extends Shared<EditorProps, EditorState>
      */
     private OnMouseMove(event: MouseEvent): void
     {
-        if(this.disableDrag || !this.board || !this.renderer)
+        if(this.disableDrag || !this.world || !this.renderer)
         {
             return;
         }
@@ -338,7 +338,7 @@ export class Editor extends Shared<EditorProps, EditorState>
     }
 
     /**
-     * Render the User element.
+     * Render the User unit.
      */
     public render(): JSX.Element
     {
@@ -389,8 +389,8 @@ export class Editor extends Shared<EditorProps, EditorState>
                 </div>
                 <div className="editor-box">
                     <textarea
-                        value={this.state.board}
-                        onChange={v => this.setState({ board: v.target.value })}>
+                        value={this.state.world}
+                        onChange={v => this.setState({ world: v.target.value })}>
                     </textarea>
                     <button onClick={this.ImportBoard.bind(this)}>Import</button>
                     <button onClick={this.ExportBoard.bind(this)}>Export</button>

@@ -6,10 +6,10 @@ const Dependencies: { [name: string]: any } = {};
 export enum ExportType
 {
     // Everything (e.g. for networking)
-    All = 0,
+    Hidden = 0,
 
-    // More restircted (e.g. for a board editor)
-    User = 1
+    // More restircted (e.g. for a world editor)
+    Visible = 1
 }
 
 export interface ExportDesc
@@ -69,6 +69,11 @@ export abstract class Exportable
         return classObj && new classObj(...args);
     }
 
+    public Clone(): Exportable
+    {
+        return Exportable.Import(Exportable.Export(this));
+    }
+
     /**
      * Self export to IDump.
      * @param access
@@ -103,7 +108,7 @@ export abstract class Exportable
      */
     public static Export(object: any, name: string = null, access: number = 0): IDump
     {
-        // Export each element of an array
+        // Export each unit of an array
         if(object instanceof Array)
         {
             return {
@@ -142,9 +147,9 @@ export abstract class Exportable
      */
     public Import(input: IDump[]): void
     {
-        for (let element of input)
+        for (let unit of input)
         {
-            const desc = this[ExportMeta].find(i => i.Name == element.Name);
+            const desc = this[ExportMeta].find(i => i.Name == unit.Name);
 
             // Only allow importing registered props
             if(!desc)
@@ -152,7 +157,7 @@ export abstract class Exportable
                 continue;
             }
 
-            const imported = Exportable.Import(element);
+            const imported = Exportable.Import(unit);
 
             // If undefined skip importing it
             if(imported === undefined)
@@ -167,7 +172,7 @@ export abstract class Exportable
             }
             else
             {
-                this[element.Name] = imported;
+                this[unit.Name] = imported;
             }
         }
     }

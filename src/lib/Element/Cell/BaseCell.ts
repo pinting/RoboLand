@@ -1,10 +1,28 @@
 import { BaseActor } from "../Actor/BaseActor";
-import { TickElement } from "../TickElement";
-import { Mesh } from "../../Geometry/Mesh";
+import { Unit, UnitArgs } from "../Unit";
+import { Exportable, ExportType } from "../../Exportable";
 
-export abstract class BaseCell extends TickElement
+export interface BaseCellArgs extends UnitArgs
+{
+    friction?: number;
+}
+
+export abstract class BaseCell extends Unit
 {
     protected actors: string[] = [];
+
+    @Exportable.Register(ExportType.Visible)
+    protected friction: number;
+
+    /**
+     * @inheritDoc
+     */
+    protected InitPre(args: BaseCellArgs = {})
+    {
+        super.InitPre(args);
+
+        this.friction = args.friction || 0.99;
+    }
 
     /**
      * Enter into the cell with an actor.
@@ -15,7 +33,7 @@ export abstract class BaseCell extends TickElement
         if(!this.actors.includes(actor.GetId()))
         {
             this.actors.push(actor.GetId());
-            this.board.OnUpdate.Call(this);
+            this.world.OnUpdate.Call(this);
         }
 
         return true;
@@ -32,7 +50,7 @@ export abstract class BaseCell extends TickElement
         if(index >= 0) 
         {
             this.actors.splice(index, 1);
-            this.board.OnUpdate.Call(this);
+            this.world.OnUpdate.Call(this);
         }
     }
 
@@ -46,7 +64,12 @@ export abstract class BaseCell extends TickElement
             return;
         }
 
-        this.board.GetCells().Remove(this);
+        this.world.GetCells().Remove(this);
         super.Dispose();
+    }
+
+    public GetFriction(): number
+    {
+        return this.friction;
     }
 }

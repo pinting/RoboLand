@@ -1,4 +1,4 @@
-import { Board } from "../Board";
+import { World } from "../World";
 import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { Sender } from "./Sender";
 import { Exportable } from "../Exportable";
@@ -11,26 +11,26 @@ import { BaseActor } from "../Element/Actor/BaseActor";
 
 export class Server
 {
-    private readonly board: Board;
+    private readonly world: World;
     private readonly spawns: BaseCell[];
     private readonly clients: Sender[] = [];
 
     /**
-     * Construct a new server with the given board. The server gonna
-     * update each client with the board and sync every
+     * Construct a new server with the given world. The server gonna
+     * update each client with the world and sync every
      * move of the clients between them.
-     * @param board 
+     * @param world 
      */
-    public constructor(board: Board)
+    public constructor(world: World)
     {
-        this.board = board;
+        this.world = world;
 
-        this.spawns = this.board.GetCells().GetList()
+        this.spawns = this.world.GetCells().GetList()
             .filter(c => c instanceof GroundCell)
             .sort((a, b) => Tools.Random(-100, 100));
         
-        this.board.OnUpdate.Add(element => this.clients
-            .forEach(client => client.SendElement(element)));
+        this.world.OnUpdate.Add(unit => this.clients
+            .forEach(client => client.SendElement(unit)));
     }
 
     /**
@@ -43,7 +43,7 @@ export class Server
         const args = Exportable.Import(command);
         const player = client.GetPlayer();
 
-        Board.Current = this.board;
+        World.Current = this.world;
 
         if(!args.length && player.GetId() == args[0])
         {
@@ -57,7 +57,7 @@ export class Server
 
             // Send the command to the other players
             this.clients
-                .filter(client => player.GetOrigin() != client.GetPlayer().GetOrigin())
+                .filter(client => player.GetParent() != client.GetPlayer().GetParent())
                 .forEach(client => client.SendCommand(args));
         }
         catch {
@@ -77,7 +77,7 @@ export class Server
         if(index >= 0)
         {
             this.clients.splice(index, 1);
-            this.board.GetActors().Remove(client.GetPlayer());
+            this.world.GetActors().Remove(client.GetPlayer());
             client.SendKick();
         }
     }
@@ -90,8 +90,8 @@ export class Server
      */
     public async Add(client: Sender)
     {
-        // Create player and add it to the board
-        Board.Current = this.board;
+        // Create player and add it to the world
+        World.Current = this.world;
 
         const playerTag = Tools.Unique();
         const player = new PlayerActor;
@@ -99,7 +99,7 @@ export class Server
 
         for(let spawn of this.spawns)
         {
-            actors = this.board.GetActors().FindCollisions(spawn);
+            actors = this.world.GetActors().FindCollisions(spawn);
 
             if(actors.length)
             {
@@ -108,7 +108,7 @@ export class Server
 
             player.Init({
                 id: playerTag,
-                origin: playerTag,
+                parent: playerTag,
                 position: spawn.GetPosition(),
                 size: new Vector(1, 1),
                 angle: 0,
@@ -126,19 +126,19 @@ export class Server
             throw new Error("Not enough space for new player!");
         }
 
-        this.board.GetActors().Set(player);
+        this.world.GetActors().Set(player);
 
         // Set size
-        await client.SendSize(this.board.GetSize());
+        await client.SendSize(this.world.GetSize());
 
         // Set cells
-        for(let cell of this.board.GetCells().GetList())
+        for(let cell of this.world.GetCells().GetList())
         {
             await client.SendElement(cell);
         }
 
         // Set actors
-        for(let actor of this.board.GetActors().GetList())
+        for(let actor of this.world.GetActors().GetList())
         {
             await client.SendElement(actor);
         }

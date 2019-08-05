@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Keyboard } from "./lib/Util/Keyboard";
-import { Board } from "./lib/Board";
+import { World } from "./lib/World";
 import { Renderer } from "./lib/Renderer";
 import { FakeChannel } from "./lib/Net/Channel/FakeChannel";
 import { Receiver } from "./lib/Net/Receiver";
@@ -38,8 +38,8 @@ export class Debug extends Shared
 
         const delay = Constants.DebugDelay;
 
-        const boardA: Board = new Board();
-        const boardB: Board = new Board();
+        const boardA: World = new World();
+        const boardB: World = new World();
     
         // Tagging for debug purposes
         boardA["_Name"] = "boardA";
@@ -61,8 +61,8 @@ export class Debug extends Shared
         const receiverA = new Receiver(channelA1, boardA)
         const receiverB = new Receiver(channelB1, boardB);
         
-        const raw: IDump = JSON.parse(await Http.Get("res/board.json"));
-        const boardServer: Board = Exportable.Import(raw);
+        const raw: IDump = JSON.parse(await Http.Get("res/world.json"));
+        const boardServer: World = Exportable.Import(raw);
         const server = new Server(boardServer);
         
         server.Add(new Sender(channelA2, server));
@@ -120,7 +120,7 @@ export class Debug extends Shared
             boardB,
             boardServer,
             // Classes
-            Board,
+            World,
             Tools,
             Exportable,
             Vector,

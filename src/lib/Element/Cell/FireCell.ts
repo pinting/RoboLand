@@ -1,17 +1,17 @@
 import { BaseActor } from "../Actor/BaseActor";
-import { BaseCell } from "./BaseCell";
+import { BaseCell, BaseCellArgs } from "./BaseCell";
 import { LivingActor } from "../Actor/LivingActor";
-import { BaseElementArgs } from "../BaseElement";
+import { UnitArgs } from "../Unit";
 import { Exportable, ExportType } from "../../Exportable";
 
-export interface FireCellArgs extends BaseElementArgs
+export interface FireCellArgs extends BaseCellArgs
 {
     damage?: number;
 }
 
 export class FireCell extends BaseCell
 {
-    @Exportable.Register(ExportType.User)
+    @Exportable.Register(ExportType.Visible)
     protected damage: number;
 
     /**
@@ -45,9 +45,11 @@ export class FireCell extends BaseCell
      */
     protected OnTick(): void
     {
+        super.OnTick();
+        
         this.actors.forEach(id =>
         {
-            const actor = this.board.GetActors().Get(id);
+            const actor = this.world.GetActors().Get(id);
 
             if(actor instanceof LivingActor)
             {

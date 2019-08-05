@@ -7762,9 +7762,9 @@ Exportable_1.Exportable.Register(PlayerActor);
 
 /***/ }),
 
-/***/ "./src/lib/Element/BaseElement.ts":
+/***/ "./src/lib/Element/Unit.ts":
 /*!****************************************!*\
-  !*** ./src/lib/Element/BaseElement.ts ***!
+  !*** ./src/lib/Element/Unit.ts ***!
   \****************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -7776,7 +7776,7 @@ const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.t
 const Board_1 = __webpack_require__(/*! ../Board */ "./src/lib/Board.ts");
 const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
-class BaseElement extends Exportable_1.Exportable {
+class Unit extends Exportable_1.Exportable {
     constructor() {
         super(...arguments);
         this.disposed = false;
@@ -7936,7 +7936,7 @@ class BaseElement extends Exportable_1.Exportable {
         return false;
     }
 }
-exports.BaseElement = BaseElement;
+exports.Unit = Unit;
 
 
 /***/ }),
@@ -8157,8 +8157,8 @@ Exportable_1.Exportable.Register(WaterCell);
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
-const BaseElement_1 = __webpack_require__(/*! ./BaseElement */ "./src/lib/Element/BaseElement.ts");
-class TickElement extends BaseElement_1.BaseElement {
+const Unit_1 = __webpack_require__(/*! ./Unit */ "./src/lib/Element/Unit.ts");
+class TickElement extends Unit_1.Unit {
     /**
      * @inheritDoc
      */
@@ -8894,7 +8894,7 @@ const BaseActor_1 = __webpack_require__(/*! ../Element/Actor/BaseActor */ "./src
 const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 const MessageHandler_1 = __webpack_require__(/*! ./MessageHandler */ "./src/lib/Net/MessageHandler.ts");
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
-const BaseElement_1 = __webpack_require__(/*! ../Element/BaseElement */ "./src/lib/Element/BaseElement.ts");
+const Unit_1 = __webpack_require__(/*! ../Element/Unit */ "./src/lib/Element/Unit.ts");
 class Receiver extends MessageHandler_1.MessageHandler {
     /**
      * Construct a new client which communicates with a connection.
@@ -8989,7 +8989,7 @@ class Receiver extends MessageHandler_1.MessageHandler {
             const newElement = Exportable_1.Exportable.Import(merged);
             // Optimizations
             if (this.last.hasOwnProperty(newElement.Id) &&
-                BaseElement_1.BaseElement.IsOnlyPosDiff(diff) &&
+                Unit_1.Unit.IsOnlyPosDiff(diff) &&
                 newElement.Position.GetDistance(oldElement.Position) <= this.maxDistance) {
                 Logger_1.Logger.Info(this, "Element was optimized out", newElement);
                 return;
@@ -9068,7 +9068,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
 const MessageType_1 = __webpack_require__(/*! ./MessageType */ "./src/lib/Net/MessageType.ts");
-const BaseElement_1 = __webpack_require__(/*! ../Element/BaseElement */ "./src/lib/Element/BaseElement.ts");
+const Unit_1 = __webpack_require__(/*! ../Element/Unit */ "./src/lib/Element/Unit.ts");
 const MessageHandler_1 = __webpack_require__(/*! ./MessageHandler */ "./src/lib/Net/MessageHandler.ts");
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
 class Sender extends MessageHandler_1.MessageHandler {
@@ -9132,7 +9132,7 @@ class Sender extends MessageHandler_1.MessageHandler {
             }
             if (this.lastTime.hasOwnProperty(element.Id) &&
                 this.lastTime[element.Id] + this.sleepTime >= now &&
-                BaseElement_1.BaseElement.IsOnlyPosDiff(diff)) {
+                Unit_1.Unit.IsOnlyPosDiff(diff)) {
                 Logger_1.Logger.Info(this, "Element was optimized out", element);
                 return;
             }

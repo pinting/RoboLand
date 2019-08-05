@@ -5,7 +5,7 @@ import { ExportType, Exportable } from "../Exportable";
 
 export class Triangle extends BaseShape
 {
-    @Exportable.Register(ExportType.User, () => this.FindAxes())
+    @Exportable.Register(ExportType.Visible, () => this.FindAxes())
     protected vertices: [Vector, Vector, Vector];
 
     constructor(vertices: [Vector, Vector, Vector]) 

@@ -8,7 +8,7 @@ import { Constants } from "./Constants";
 export class App extends React.Component
 {
     /**
-     * Construct a new app element which handles routes.
+     * Construct a new app unit which handles routes.
      */
     constructor(props) 
     {
@@ -16,7 +16,7 @@ export class App extends React.Component
     }
 
     /**
-     * Render the App element - the output depends on the hash string.
+     * Render the App unit - the output depends on the hash string.
      */
     render(): JSX.Element
     {

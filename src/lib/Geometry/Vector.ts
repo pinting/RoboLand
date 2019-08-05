@@ -2,10 +2,10 @@ import { Exportable, ExportType } from "../Exportable";
 
 export class Vector extends Exportable
 {
-    @Exportable.Register(ExportType.User)
+    @Exportable.Register(ExportType.Visible)
     public X: number;
 
-    @Exportable.Register(ExportType.User)
+    @Exportable.Register(ExportType.Visible)
     public Y: number;
 
     /**

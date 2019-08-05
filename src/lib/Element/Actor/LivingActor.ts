@@ -1,10 +1,10 @@
-import { BaseActor } from "./BaseActor";
+import { BaseActor, BaseActorArgs } from "./BaseActor";
 import { Logger } from "../../Util/Logger";
 import { Exportable, ExportType } from "../../Exportable";
-import { BaseElementArgs } from "../BaseElement";
+import { UnitArgs } from "../Unit";
 import { Vector } from "../../Geometry/Vector";
 
-export interface LivingActorArgs extends BaseElementArgs
+export interface LivingActorArgs extends BaseActorArgs
 {
     health?: number;
     damage?: number;
@@ -13,13 +13,13 @@ export interface LivingActorArgs extends BaseElementArgs
 
 export abstract class LivingActor extends BaseActor
 {
-    @Exportable.Register(ExportType.User)
+    @Exportable.Register(ExportType.Visible)
     protected health: number;
 
-    @Exportable.Register(ExportType.User)
+    @Exportable.Register(ExportType.Visible)
     protected damage: number;
 
-    @Exportable.Register(ExportType.User)
+    @Exportable.Register(ExportType.Visible)
     protected speed: number;
     
     /**
@@ -46,7 +46,7 @@ export abstract class LivingActor extends BaseActor
      * Move actor in a direction.
      * @param mod Modify the angle temporary.
      */
-    public Move(mod: number = 0): boolean
+    public Move(mod: number = 0): void
     {
         if(!this.speed)
         {
@@ -55,10 +55,9 @@ export abstract class LivingActor extends BaseActor
 
         // Calculate the next position
         const direction = Vector.AngleToVector(this.GetAngle() + mod);
-        const next = this.GetPosition().Add(direction.F(v => v * this.speed));
-
-        // Do the moving
-        return this.SetPosition(next);
+        const push = direction.F(v => v * this.speed);
+        
+        this.force = this.force.Add(push);
     }
 
     /**
@@ -76,7 +75,7 @@ export abstract class LivingActor extends BaseActor
             this.Dispose();
         }
 
-        this.board.OnUpdate.Call(this);
+        this.world.OnUpdate.Call(this);
     }
 
     /**

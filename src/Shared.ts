@@ -5,7 +5,7 @@ import { Vector } from "./lib/Geometry/Vector";
 import { Keyboard } from "./lib/Util/Keyboard";
 import { Tools } from "./lib/Util/Tools";
 import { Exportable } from "./lib/Exportable";
-import { Board } from "./lib/Board";
+import { World } from "./lib/World";
 import { WaterCell } from "./lib/Element/Cell/WaterCell";
 import { StoneCell } from "./lib/Element/Cell/StoneCell";
 import { GroundCell } from "./lib/Element/Cell/GroundCell";
@@ -19,7 +19,7 @@ Exportable.Dependency(FireCell);
 Exportable.Dependency(GroundCell);
 Exportable.Dependency(StoneCell);
 Exportable.Dependency(WaterCell);
-Exportable.Dependency(Board);
+Exportable.Dependency(World);
 Exportable.Dependency(Vector);
 
 const SHOT_DELAY = 1000;
@@ -30,7 +30,7 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
     protected nextShoot = +new Date(0);
 
     /**
-     * The consturtor of the Shared element - which is abstract, so
+     * The consturtor of the Shared unit - which is abstract, so
      * cannot be constructed on its own.
      * @param props
      */

@@ -2,35 +2,35 @@ import { Vector } from "./Geometry/Vector";
 import { BaseActor } from "./Element/Actor/BaseActor";
 import { Tools } from "./Util/Tools";
 import { BaseCell } from "./Element/Cell/BaseCell";
-import { BaseElement } from "./Element/BaseElement";
+import { Unit } from "./Element/Unit";
 import { ElementList } from "./ElementList";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
 import { Exportable, ExportType } from "./Exportable";
 import { Event } from "./Util/Event";
 import { IDump } from "./IDump";
 
-export class Board extends Exportable
+export class World extends Exportable
 {
-    public static Current: Board = null;
+    public static Current: World = null;
     
-    @Exportable.Register(ExportType.User)
+    @Exportable.Register(ExportType.Visible)
     private cells: Array<BaseCell> = [];
 
-    @Exportable.Register(ExportType.User)
+    @Exportable.Register(ExportType.Visible)
     private actors: Array<BaseActor> = [];
 
-    @Exportable.Register(ExportType.User)
+    @Exportable.Register(ExportType.Visible)
     private size: Vector = new Vector();
 
     /**
-     * Origin of the Board.
+     * Origin of the World.
      */
     public Origin: string = Tools.Unique();
 
     /**
-     * Called when the board was updated.
+     * Called when the world was updated.
      */
-    public OnUpdate: Event<BaseElement> = new Event<BaseElement>();
+    public OnUpdate: Event<Unit> = new Event<Unit>();
 
     /**
      * Called on tick.
@@ -38,7 +38,7 @@ export class Board extends Exportable
     public OnTick: Event<void> = new Event<void>();
 
     /**
-     * Init a board with null cells.
+     * Init a world with null cells.
      * @param size
      */
     public Init(size: Vector): void
@@ -49,7 +49,7 @@ export class Board extends Exportable
     }
 
     /**
-     * Get the size of the board.
+     * Get the size of the world.
      */
     public GetSize(): Vector
     {
@@ -57,17 +57,17 @@ export class Board extends Exportable
     }
 
     /**
-     * Get all elements of the board.
+     * Get all elements of the world.
      */
-    public GetElements(): IReadOnlyElementList<BaseElement>
+    public GetElements(): IReadOnlyElementList<Unit>
     {
-        const all = (<BaseElement[]>this.cells).concat(<BaseElement[]>this.actors);
+        const all = (<Unit[]>this.cells).concat(<Unit[]>this.actors);
         
-        return new ElementList<BaseElement>(all, this.OnUpdate);
+        return new ElementList<Unit>(all, this.OnUpdate);
     }
 
     /**
-     * Get the cells of the board.
+     * Get the cells of the world.
      */
     public GetCells(): ElementList<BaseCell>
     {
@@ -75,7 +75,7 @@ export class Board extends Exportable
     }
 
     /**
-     * Get the actors of the board.
+     * Get the actors of the world.
      */
     public GetActors(): ElementList<BaseActor>
     {
@@ -87,10 +87,10 @@ export class Board extends Exportable
      */
     public Import(input: IDump[])
     {
-        Board.Current = this;
+        World.Current = this;
 
         return super.Import(input);
     }
 }
 
-Exportable.Dependency(Board);
+Exportable.Dependency(World);

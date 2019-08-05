@@ -1,6 +1,6 @@
 import * as React from "react";
 import "./Game.css";
-import { Board } from "./lib/Board";
+import { World } from "./lib/World";
 import { Server } from './lib/Net/Server';
 import { Renderer } from "./lib/Renderer";
 import { Sender } from "./lib/Net/Sender";
@@ -55,7 +55,7 @@ export class Game extends Shared<GameProps, GameState>
     private canvas: HTMLCanvasElement;
 
     private tabId: string = Tools.Unique();
-    private board: Board = new Board();
+    private world: World = new World();
 
     private channel: PeerChannel;
     private server: Server;
@@ -158,11 +158,11 @@ export class Game extends Shared<GameProps, GameState>
     {
         if(this.channel && !this.channel.IsOfferor())
         {
-            return new Receiver(this.channel, this.board);
+            return new Receiver(this.channel, this.world);
         }
 
-        // Create server board, load it, create server
-        const rawboard = JSON.parse(await Http.Get("res/board.json"));
+        // Create server world, load it, create server
+        const rawboard = JSON.parse(await Http.Get("res/world.json"));
         const serverBoard = Exportable.Import(rawboard);
 
         this.server = new Server(serverBoard);
@@ -184,7 +184,7 @@ export class Game extends Shared<GameProps, GameState>
         this.server.Add(new Sender(localA, this.server));
 
         // Connect client to the server
-        return new Receiver(localB, this.board);
+        return new Receiver(localB, this.world);
     }
 
     /**
@@ -192,12 +192,12 @@ export class Game extends Shared<GameProps, GameState>
      */
     private async Start()
     {
-        const renderer = new Renderer(this.board, this.canvas);
+        const renderer = new Renderer(this.world, this.canvas);
         const receiver = await this.CreateReceiver(renderer);
 
         receiver.OnPlayer = async player =>
         {
-            this.board.Origin = player.GetId();
+            this.world.Origin = player.GetId();
 
             await renderer.Load();
             

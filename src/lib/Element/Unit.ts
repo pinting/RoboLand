@@ -1,6 +1,6 @@
 import { Vector } from "../Geometry/Vector";
 import { Tools } from "../Util/Tools";
-import { Board } from "../Board";
+import { World } from "../World";
 import { Exportable, ExportType } from "../Exportable";
 import { IDump } from "../IDump";
 import { Logger } from "../Util/Logger";
@@ -8,53 +8,53 @@ import { Mesh } from "../Geometry/Mesh";
 import { Triangle } from "../Geometry/Triangle";
 import { IMTVector } from "../Geometry/IMTVector";
 
-export interface BaseElementArgs
+export interface UnitArgs
 {
     id?: string;
     position?: Vector; 
     size?: Vector;
     texture?: string;
-    origin?: string;
-    board?: Board;
+    parent?: string;
+    world?: World;
     angle?: number;
     mesh?: Mesh;
 }
 
-export abstract class BaseElement extends Exportable
+export abstract class Unit extends Exportable
 {
-    protected board: Board;
+    protected world: World;
     protected virtualMesh: Mesh;
+    protected tickEvent: number;
 
-    @Exportable.Register(ExportType.All, (s, v) => s.Dispose(v))
+    @Exportable.Register(ExportType.Hidden, (s, v) => s.Dispose(v))
     protected disposed: boolean = false;
     
-    @Exportable.Register(ExportType.All)
+    @Exportable.Register(ExportType.Hidden)
     protected id: string;
 
-    @Exportable.Register(ExportType.All)
-    protected origin: string; // ID of the parent element
+    @Exportable.Register(ExportType.Hidden)
+    protected parent: string; // ID of the parent unit
 
-    @Exportable.Register(ExportType.User)
+    @Exportable.Register(ExportType.Visible)
     protected size: Vector;
 
-    @Exportable.Register(ExportType.User, (s, v) => s.SetMesh(v))
+    @Exportable.Register(ExportType.Visible, (s, v) => s.SetMesh(v))
     protected mesh: Mesh;
 
-    @Exportable.Register(ExportType.User, (s, v) => s.SetPosition(v))
+    @Exportable.Register(ExportType.Visible, (s, v) => s.SetPosition(v))
     protected position: Vector;
 
-    @Exportable.Register(ExportType.User)
+    @Exportable.Register(ExportType.Visible)
     protected texture: string;
 
-    @Exportable.Register(ExportType.User)
+    @Exportable.Register(ExportType.Visible)
     protected angle: number;
 
-
     /**
-     * Construct a new element with the given init args.
+     * Construct a new unit with the given init args.
      * @param args
      */
-    public Init(args: BaseElementArgs = {})
+    public Init(args: UnitArgs = {})
     {
         this.InitPre(args);
         this.InitPost(args);
@@ -65,11 +65,11 @@ export abstract class BaseElement extends Exportable
      * This will be called first!
      * @param args 
      */
-    protected InitPre(args: BaseElementArgs = {})
+    protected InitPre(args: UnitArgs = {})
     {
         this.id = args.id || Tools.Unique();
-        this.board = args.board || Board.Current;
-        this.origin = args.origin || (this.board && this.board.Origin);
+        this.world = args.world || World.Current;
+        this.parent = args.parent || (this.world && this.world.Origin);
         this.size = args.size;
         this.texture = args.texture;
         this.angle = args.angle || 0;
@@ -79,14 +79,22 @@ export abstract class BaseElement extends Exportable
      * For function setters.
      * @param args 
      */
-    protected InitPost(args: BaseElementArgs = {})
+    protected InitPost(args: UnitArgs = {})
     {
         this.SetPosition(args.position);
         this.SetMesh(args.mesh);
+
+        if(this.world)
+        {
+            // Start to listen to the tick event
+            this.tickEvent = this.world.OnTick.Add(() => this.OnTick());
+    
+            Logger.Info(this, "Tick event was set", this);
+        }
     }
 
     /**
-     * Get the id of the element.
+     * Get the id of the unit.
      */
     public GetId(): string
     {
@@ -94,15 +102,15 @@ export abstract class BaseElement extends Exportable
     }
 
     /**
-     * Get the origin of the element.
+     * Get the parent of the unit.
      */
-    public GetOrigin(): string
+    public GetParent(): string
     {
-        return this.origin;
+        return this.parent;
     }
 
     /**
-     * Get the size of the element.
+     * Get the size of the unit.
      */
     public GetSize(): Vector
     {
@@ -110,7 +118,7 @@ export abstract class BaseElement extends Exportable
     }
 
     /**
-     * Get the texture of the element.
+     * Get the texture of the unit.
      */
     public GetTexture(): string
     {
@@ -118,15 +126,7 @@ export abstract class BaseElement extends Exportable
     }
 
     /**
-     * Get the position of the element.
-     */
-    public GetPosition(): Vector
-    {
-        return this.position && this.position.Clone();
-    }
-
-    /**
-     * Get the center position of the element.
+     * Get the center position of the unit.
      */
     public GetCenter(): Vector
     {
@@ -134,7 +134,7 @@ export abstract class BaseElement extends Exportable
     }
 
     /**
-     * Get the radius of the element.
+     * Get the radius of the unit.
      * radius = max(width, height)
      */
     public GetRadius(): number
@@ -143,7 +143,36 @@ export abstract class BaseElement extends Exportable
     }
 
     /**
-     * Get the angle of the element.
+     * Get the position of the unit.
+     */
+    public GetPosition(): Vector
+    {
+        return this.position && this.position.Clone();
+    }
+
+    /**
+     * Set the position of the unit.
+     * @param position 
+     */
+    public SetPosition(position: Vector): boolean
+    {
+        if((position && this.position && this.position.Is(position)) &&
+            (position === this.position))
+        {
+            return false;
+        }
+
+        this.position = position;
+        this.virtualMesh = null;
+            
+        this.GetVirtualMesh();
+        this.world && this.world.OnUpdate.Call(this);
+
+        return true;
+    }
+
+    /**
+     * Get the angle of the unit.
      */
     public GetAngle(): number
     {
@@ -151,9 +180,29 @@ export abstract class BaseElement extends Exportable
     }
 
     /**
-     * Get the mesh of the element.
+     * Set the angle of the unit.
+     * @param angle Angle in deg
      */
-    public GetMesh(): Mesh
+    public SetAngle(angle: number): boolean
+    {
+        if(typeof angle != "number")
+        {
+            return false;
+        }
+
+        this.angle = angle;
+        this.virtualMesh = null;
+
+        this.GetVirtualMesh();
+        this.world && this.world.OnUpdate.Call(this);
+
+        return true;
+    }
+
+    /**
+     * Get the mesh of the unit.
+     */
+    protected GetMesh(): Mesh
     {
         if(!this.size)
         {
@@ -175,7 +224,7 @@ export abstract class BaseElement extends Exportable
     }
 
     /**
-     * Get the virtual mesh of the element.
+     * Get the virtual mesh of the unit.
      */
     public GetVirtualMesh(): Mesh
     {
@@ -189,55 +238,6 @@ export abstract class BaseElement extends Exportable
                 .Add(this.position)
                 .Rotate(this.angle, this.GetCenter()))
         );
-    }
-
-    /**
-     * Get value of disposed.
-     */
-    public IsDisposed(): boolean
-    {
-        return this.disposed;
-    }
-
-    /**
-     * Set the position of the element.
-     * @param position 
-     */
-    public SetPosition(position: Vector): boolean
-    {
-        if((position && this.position && this.position.Is(position)) &&
-            (position === this.position))
-        {
-            return false;
-        }
-
-        this.position = position;
-        this.virtualMesh = null;
-            
-        this.GetVirtualMesh();
-        this.board && this.board.OnUpdate.Call(this);
-
-        return true;
-    }
-
-    /**
-     * Set the angle of the element.
-     * @param angle Angle in deg
-     */
-    public SetAngle(angle: number): boolean
-    {
-        if(typeof angle != "number")
-        {
-            return false;
-        }
-
-        this.angle = angle;
-        this.virtualMesh = null;
-
-        this.GetVirtualMesh();
-        this.board && this.board.OnUpdate.Call(this);
-
-        return true;
     }
 
     /**
@@ -256,6 +256,14 @@ export abstract class BaseElement extends Exportable
         this.virtualMesh = null;
 
         this.GetVirtualMesh();
+    }
+
+    /**
+     * Get value of disposed.
+     */
+    public IsDisposed(): boolean
+    {
+        return this.disposed;
     }
 
     /**
@@ -284,38 +292,43 @@ export abstract class BaseElement extends Exportable
     }
 
     /**
-     * Check if the element collides with another.
-     * @param element 
+     * Check if the unit collides with another.
+     * @param unit 
      */
-    public Collide(element: BaseElement): IMTVector
+    public Collide(unit: Unit): IMTVector
     {
-        if(element == this || element.GetId() == this.GetId())
+        if(unit == this || unit.GetId() == this.GetId())
         {
             return null;
         }
 
-        const dist = this.GetCenter().Dist(element.GetCenter());
+        const dist = this.GetCenter().Dist(unit.GetCenter());
 
-        if(dist >= this.GetRadius() + element.GetRadius())
+        if(dist >= this.GetRadius() + unit.GetRadius())
         {
             return null;
         }
 
-        return this.GetVirtualMesh().Collide(element.GetVirtualMesh());
+        return this.GetVirtualMesh().Collide(unit.GetVirtualMesh());
     }
 
     /**
-     * Clone this element.
+     * Clone this unit.
      */
-    public Clone(): BaseElement
+    public Clone(): Unit
     {
-        const current = Board.Current;
-        let clone: BaseElement;
+        const current = World.Current;
+        let clone: Unit;
 
-        Board.Current = null;
-        clone = Exportable.Import(Exportable.Export(this));
-        Board.Current = current;
+        World.Current = null;
+        clone = <Unit>super.Clone();
+        World.Current = current;
 
         return clone;
+    }
+
+    protected OnTick(): void
+    {
+        return;
     }
 }

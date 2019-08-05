@@ -1,17 +1,19 @@
 import { Vector } from "./Geometry/Vector";
-import { BaseElement } from "./Element/BaseElement";
+import { Unit } from "./Element/Unit";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
 import { Tools } from "./Util/Tools";
 import { Event } from "./Util/Event";
 import { Logger } from "./Util/Logger";
+import { IMTVector } from "./Geometry/IMTVector";
+import { Ref } from "./Util/Ref";
 
-export class ElementList<Element extends BaseElement> implements IReadOnlyElementList<Element>
+export class ElementList<Element extends Unit> implements IReadOnlyElementList<Element>
 {
     private elements: Element[];
     private updateEvent: Event<Element>;
 
     /**
-     * Contstruct a new ElementList which wraps an element array
+     * Contstruct a new ElementList which wraps an unit array
      * and adds some awesome functions.
      * @param elements Array to wrap.
      * @param updateEvent Called when there is an update (remove, set).
@@ -40,7 +42,7 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     }
 
     /**
-     * Get element by id.
+     * Get unit by id.
      * @param id 
      */
     public Get(id: string): Element
@@ -49,7 +51,7 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     }
 
     /**
-     * Get a element(s) by vector.
+     * Get a unit(s) by vector.
      * @param position 
      */ 
     public Find(position: Vector): Element[]
@@ -58,7 +60,7 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     }
 
     /**
-     * Get the nearest element to the given coordinate.
+     * Get the nearest unit to the given coordinate.
      * @param position 
      */
     public FindNearest(position: Vector): Element
@@ -81,18 +83,26 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     }
 
     /**
-     * Get elements under an element.
+     * Get elements under an unit.
      * @param elementOrMesh
      */
-    public FindCollisions(element: BaseElement): Element[]
+    public FindCollisions(unit: Unit, axis?: Ref<Vector>): Element[]
     {
+        const smallest = Infinity;
         const result = [];
         
         this.elements.forEach(e => 
         {
-            if(e && e.GetId() != element.GetId() && e.Collide(<Element>element))
+            if(e && e.GetId() != unit.GetId())
             {
-                result.push(e);
+                const imt = e.Collide(<Element>unit);
+
+                if(imt.Overlap < smallest)
+                {
+                    axis && axis.Set(imt.Smallest);
+                }
+                
+                imt && result.push(e);
             }
         });
 
@@ -100,40 +110,40 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
     }
 
     /**
-     * Add a new element or overwrite an existing one (by id).
-     * @param element 
+     * Add a new unit or overwrite an existing one (by id).
+     * @param unit 
      */
-    public Set(element: Element): void
+    public Set(unit: Element): void
     {
-        if(element.IsDisposed())
+        if(unit.IsDisposed())
         {
-            this.Remove(element);
+            this.Remove(unit);
             return;
         }
 
-        const old = this.Get(element.GetId());
+        const old = this.Get(unit.GetId());
 
         if(old)
         {
-            Tools.Extract(old, element);
-            Logger.Info(this, "Element was moded!", element);
+            Tools.Extract(old, unit);
+            Logger.Info(this, "Element was moded!", unit);
         }
         else
         {
-            this.elements.push(element);
-            Logger.Info(this, "Element was added!", element);
+            this.elements.push(unit);
+            Logger.Info(this, "Element was added!", unit);
         }
 
-        this.updateEvent.Call(element);
+        this.updateEvent.Call(unit);
     }
 
     /**
-     * Remove an element from the list.
-     * @param element 
+     * Remove an unit from the list.
+     * @param unit 
      */
-    public Remove(element: Element): boolean
+    public Remove(unit: Element): boolean
     {
-        const index = this.elements.indexOf(element);
+        const index = this.elements.indexOf(unit);
 
         if(index < 0)
         {
@@ -142,13 +152,13 @@ export class ElementList<Element extends BaseElement> implements IReadOnlyElemen
 
         this.elements.splice(index, 1);
 
-        if(!element.IsDisposed()) 
+        if(!unit.IsDisposed()) 
         {
-            element.Dispose();
+            unit.Dispose();
         }
 
-        Logger.Info(this, "Element was removed!", element);
-        this.updateEvent.Call(element);
+        Logger.Info(this, "Element was removed!", unit);
+        this.updateEvent.Call(unit);
 
         return true;
     }

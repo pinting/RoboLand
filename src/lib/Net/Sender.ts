@@ -4,7 +4,7 @@ import { PlayerActor } from "../Element/Actor/PlayerActor";
 import { Exportable } from "../Exportable";
 import { MessageType } from "./MessageType";
 import { Vector } from "../Geometry/Vector";
-import { BaseElement } from "../Element/BaseElement";
+import { Unit } from "../Element/Unit";
 import { IDump } from "../IDump";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
@@ -58,7 +58,7 @@ export class Sender extends MessageHandler
     }
 
     /**
-     * Init board. Also deletes previously setted elements.
+     * Init world. Also deletes previously setted elements.
      * @param size 
      */
     public async SendSize(size: Vector): Promise<void>
@@ -112,13 +112,13 @@ export class Sender extends MessageHandler
     }
 
     /**
-     * Set an element (a cell or an actor).
-     * @param element 
+     * Set an unit (a cell or an actor).
+     * @param unit 
      */
-    public async SendElement(element: BaseElement): Promise<void>
+    public async SendElement(unit: Unit): Promise<void>
     {
-        const dump = Exportable.Export(element);
-        const id = element.GetId();
+        const dump = Exportable.Export(unit);
+        const id = unit.GetId();
         const now = +new Date;
         
         let diff: IDump = null;
@@ -130,7 +130,7 @@ export class Sender extends MessageHandler
 
         if(diff && this.lastTime[id] + SLEEP_TIME >= now && Sender.IsMovementDiff(diff))
         {
-            Logger.Info(this, "Element was optimized out", element);
+            Logger.Info(this, "Element was optimized out", unit);
             return;
         }
 

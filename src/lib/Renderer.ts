@@ -1,5 +1,5 @@
-import { Board } from "./Board";
-import { BaseElement } from "./Element/BaseElement";
+import { World } from "./World";
+import { Unit } from "./Element/Unit";
 import { Event } from "./Util/Event";
 import { Vector } from "./Geometry/Vector";
 
@@ -8,13 +8,14 @@ const DPI = 30;
 
 export class Renderer
 {
-    private readonly board: Board;
+    private readonly world: World;
     private readonly canvas: HTMLCanvasElement;
     private readonly context: CanvasRenderingContext2D;
     private readonly debug: boolean;
     
     private textures: { [id: string]: HTMLImageElement } = {};
     private stop: boolean = false;
+    private lastDate: number;
 
     /**
      * Called upon redraw.
@@ -24,33 +25,33 @@ export class Renderer
     /**
      * Construct a new game object.
      */
-    public constructor(board: Board, canvas: HTMLCanvasElement, debug: boolean = false)
+    public constructor(world: World, canvas: HTMLCanvasElement, debug: boolean = false)
     {
-        this.board = board;
+        this.world = world;
         this.canvas = canvas;
         this.context = <CanvasRenderingContext2D>canvas.getContext("2d");
         this.debug = debug;
     }
 
     /**
-     * Load textures for a loaded board.
+     * Load textures for a loaded world.
      */
     public async Load(): Promise<void>
     {
         return new Promise<void>((resolve, reject) => 
         {
-            const elements = this.board.GetElements();
+            const elements = this.world.GetElements();
             let i = 0;
     
-            elements.ForEach((element: BaseElement) =>
+            elements.ForEach((unit: Unit) =>
             {
-                if(!element)
+                if(!unit)
                 {
                     i++;
                     return;
                 }
     
-                const path = element.GetTexture();
+                const path = unit.GetTexture();
 
                 if(!path || this.textures[path] !== undefined)
                 {
@@ -92,19 +93,19 @@ export class Renderer
     }
 
     /**
-     * Draw the given element onto the canvas.
-     * @param element
+     * Draw the given unit onto the canvas.
+     * @param unit
      */
-    private DrawElement(element: BaseElement)
+    private DrawElement(unit: Unit)
     {
-        if(!element || !element.GetPosition() || !element.GetSize())
+        if(!unit || !unit.GetPosition() || !unit.GetSize())
         {
             return;
         }
         
-        const vector = element.GetPosition();
-        const size = element.GetSize();
-        const texture = this.textures[element.GetTexture()];
+        const vector = unit.GetPosition();
+        const size = unit.GetSize();
+        const texture = this.textures[unit.GetTexture()];
     
         const x = vector.X * DPI;
         const y = vector.Y * DPI;
@@ -118,7 +119,7 @@ export class Renderer
             this.context.translate(-(x + w / 2), -(y + h / 2));
         }
 
-        rot(element.GetAngle());
+        rot(unit.GetAngle());
     
         if(texture) {
             this.context.drawImage(texture, x, y, w, h);
@@ -128,23 +129,23 @@ export class Renderer
             this.context.fillRect(x, y, w, h);
         }
 
-        rot(-element.GetAngle());
+        rot(-unit.GetAngle());
         
         // Draw grid if debug mode is enabled
         if(this.debug) 
         {
-            this.DrawGrid(element, DEBUG_COLOR);
+            this.DrawGrid(unit, DEBUG_COLOR);
         }
     }
 
     /**
-     * Draw (debug) grid for an element.
-     * @param element 
+     * Draw (debug) grid for an unit.
+     * @param unit 
      * @param color 
      */
-    private DrawGrid(element: BaseElement, color: string)
+    private DrawGrid(unit: Unit, color: string)
     {
-        const mesh = element.GetVirtualMesh();
+        const mesh = unit.GetVirtualMesh();
         const shapes = mesh.GetShapes();
         let first = null;
 
@@ -177,7 +178,7 @@ export class Renderer
      */
     private Render()
     {
-        const size = this.board.GetSize();
+        const size = this.world.GetSize();
     
         const w = DPI * size.X;
         const h = DPI * size.Y;
@@ -190,16 +191,20 @@ export class Renderer
         this.context.fillStyle = "black";
         this.context.fillRect(0, 0, w, h);
         
-        this.board.GetCells().ForEach(e => this.DrawElement(e));
-        this.board.GetActors().ForEach(e => this.DrawElement(e));
+        this.world.GetCells().ForEach(e => this.DrawElement(e));
+        this.world.GetActors().ForEach(e => this.DrawElement(e));
     
         if(!this.stop)
         {
             window.requestAnimationFrame(() => this.Render());
         }
 
-        this.board.OnTick.Call();
+        const now = +new Date;
+
+        this.world.OnTick.Call();
         this.OnDraw.Call();
+
+        this.lastDate = now;
     }
 
     /**
@@ -207,7 +212,9 @@ export class Renderer
      */
     public Start()
     {
+        this.lastDate = +new Date;
         this.stop = false;
+
         window.requestAnimationFrame(() => this.Render());
     }
 

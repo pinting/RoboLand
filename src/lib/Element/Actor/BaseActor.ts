@@ -1,27 +1,34 @@
 import { Vector } from "../../Geometry/Vector";
-import { BaseElementArgs } from "../BaseElement";
-import { TickElement } from "../TickElement";
+import { Unit, UnitArgs } from "../Unit";
+import { Exportable, ExportType } from "../../Exportable";
 
-export abstract class BaseActor extends TickElement
+export interface BaseActorArgs extends UnitArgs
 {
-    /**
-     * @inheritDoc
-     */
-    public Init(args: BaseElementArgs = {})
-    {
-        super.Init(args);
-    }
+    mass?: number;
+    force?: Vector;
+}
+
+export abstract class BaseActor extends Unit
+{
+    private lastTick: number = +new Date;
+
+    @Exportable.Register(ExportType.Visible)
+    protected mass: number;
+
+    @Exportable.Register(ExportType.Visible)
+    protected force: Vector;
 
     /**
      * @inheritDoc
      */
-    protected InitPre(args: BaseElementArgs = {})
+    protected InitPre(args: BaseActorArgs = {})
     {
         super.InitPre(args);
 
-        this.angle = this.angle;
+        this.mass = args.mass || 1;
+        this.force = args.force || new Vector(0, 0);
     }
-    
+
     /**
      * @inheritDoc
      */
@@ -49,7 +56,7 @@ export abstract class BaseActor extends TickElement
      */
     private CanMove(position: Vector, angle: number): boolean
     {
-        if(!this.board)
+        if(!this.world)
         {
             return true;
         }
@@ -59,7 +66,7 @@ export abstract class BaseActor extends TickElement
         clone.SetAngle(angle);
         clone.SetPosition(position);
 
-        const actors = this.board.GetActors().FindCollisions(clone);
+        const actors = this.world.GetActors().FindCollisions(clone);
 
         if(actors.length)
         {
@@ -68,10 +75,10 @@ export abstract class BaseActor extends TickElement
 
         // Get the currently covered cells and the next ones
         const prev = this.position 
-            ? this.board.GetCells().FindCollisions(this)
+            ? this.world.GetCells().FindCollisions(this)
             : [];
         
-        const next = this.board.GetCells().FindCollisions(clone);
+        const next = this.world.GetCells().FindCollisions(clone);
 
         if(!next.length)
         {
@@ -106,7 +113,49 @@ export abstract class BaseActor extends TickElement
             return;
         }
 
-        this.board.GetActors().Remove(this);
+        this.world.GetActors().Remove(this);
         super.Dispose();
+    }
+
+    public GetAcceleration(): Vector
+    {
+        return this.force.F(n => n / this.mass);
+    }
+
+    public GetVelocity(t: number): Vector
+    {
+        return this.GetAcceleration().F(n => n * t);
+    }
+
+    public AddForce(vector: Vector): void
+    {
+        this.force.Add(vector);
+    }
+
+    protected OnTick(): void
+    {
+        if(!this.force)
+        {
+            // No force, no need to do the calculations
+            return;
+        }
+        
+        const d = (+new Date - this.lastTick) / 1000;
+
+        this.lastTick = +new Date;
+
+        const v = this.GetVelocity(d);
+
+        const cell = this.world.GetCells().FindNearest(this.GetCenter())
+        const nextPosition = this.GetPosition().Add(v);
+
+        if(this.SetPosition(nextPosition))
+        {
+            this.force = this.force.F(n => n * cell.GetFriction());
+        }
+        else
+        {
+            this.force = this.force.F(n => n / Infinity);
+        }
     }
 }

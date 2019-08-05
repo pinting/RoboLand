@@ -5,7 +5,7 @@ import { Exportable, ExportType } from "../Exportable";
 
 export abstract class BasePolygon<Shape extends BaseShape> extends Exportable
 {
-    @Exportable.Register(ExportType.User)
+    @Exportable.Register(ExportType.Visible)
     protected shapes: Shape[] = [];
 
     /**

@@ -14,12 +14,12 @@ export class Filo<T>
     }
 
     /**
-     * Add an element (maybe removes the last one).
-     * @param element 
+     * Add an unit (maybe removes the last one).
+     * @param unit 
      */
-    public Add(element: T): void
+    public Add(unit: T): void
     {
-        this.array.push(element);
+        this.array.push(unit);
 
         if(this.array.length >= this.size)
         {
