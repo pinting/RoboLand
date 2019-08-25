@@ -1,10 +1,10 @@
 import { Tools } from "../Util/Tools";
 import { IChannel } from "./Channel/IChannel";
-import { PlayerActor } from "../Element/Actor/PlayerActor";
+import { PlayerActor } from "../Unit/Actor/PlayerActor";
 import { Exportable } from "../Exportable";
 import { MessageType } from "./MessageType";
 import { Vector } from "../Geometry/Vector";
-import { Unit } from "../Element/Unit";
+import { Unit } from "../Unit/Unit";
 import { IDump } from "../IDump";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";

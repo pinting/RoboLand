@@ -1,8 +1,8 @@
 import { Vector } from "./Geometry/Vector";
-import { BaseActor } from "./Element/Actor/BaseActor";
+import { BaseActor } from "./Unit/Actor/BaseActor";
 import { Tools } from "./Util/Tools";
-import { BaseCell } from "./Element/Cell/BaseCell";
-import { Unit } from "./Element/Unit";
+import { BaseCell } from "./Unit/Cell/BaseCell";
+import { Unit } from "./Unit/Unit";
 import { ElementList } from "./ElementList";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
 import { Exportable, ExportType } from "./Exportable";

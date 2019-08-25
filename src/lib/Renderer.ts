@@ -1,7 +1,8 @@
 import { World } from "./World";
-import { Unit } from "./Element/Unit";
+import { Unit } from "./Unit/Unit";
 import { Event } from "./Util/Event";
 import { Vector } from "./Geometry/Vector";
+import { Polygon } from "./Geometry/Polygon";
 
 const DEBUG_COLOR = "purple";
 const DPI = 30;
@@ -145,24 +146,27 @@ export class Renderer
      */
     private DrawGrid(unit: Unit, color: string)
     {
-        const mesh = unit.GetVirtualMesh();
-        const shapes = mesh.GetShapes();
+        const body = unit.GetVirtualBody();
+        const shapes = body.GetShapes();
         let first = null;
 
         this.context.beginPath();
 
         for(let shape of shapes)
         {
-            for(let point of shape.GetVertices())
+            if (shape instanceof Polygon)
             {
-                if(first)
+                for(let point of shape.GetVertices())
                 {
-                    this.context.lineTo(point.X * DPI, point.Y * DPI);
-                }
-                else
-                {
-                    this.context.moveTo(point.X * DPI, point.Y * DPI);
-                    first = point;
+                    if(first)
+                    {
+                        this.context.lineTo(point.X * DPI, point.Y * DPI);
+                    }
+                    else
+                    {
+                        this.context.moveTo(point.X * DPI, point.Y * DPI);
+                        first = point;
+                    }
                 }
             }
         }

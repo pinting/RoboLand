@@ -5,17 +5,17 @@ import { World } from "./lib/World";
 import { Renderer } from "./lib/Renderer";
 import { Vector } from "./lib/Geometry/Vector";
 import { Exportable, ExportType } from "./lib/Exportable";
-import { Unit } from "./lib/Element/Unit";
+import { Unit } from "./lib/Unit/Unit";
 import { Tools } from "./lib/Util/Tools";
-import { BaseActor } from "./lib/Element/Actor/BaseActor";
-import { BaseCell } from "./lib/Element/Cell/BaseCell";
+import { BaseActor } from "./lib/Unit/Actor/BaseActor";
+import { BaseCell } from "./lib/Unit/Cell/BaseCell";
 import { IDump } from "./lib/IDump";
-import { WaterCell } from "./lib/Element/Cell/WaterCell";
-import { StoneCell } from "./lib/Element/Cell/StoneCell";
-import { GroundCell } from "./lib/Element/Cell/GroundCell";
-import { FireCell } from "./lib/Element/Cell/FireCell";
-import { PlayerActor } from "./lib/Element/Actor/PlayerActor";
-import { ArrowActor } from "./lib/Element/Actor/ArrowActor";
+import { WaterCell } from "./lib/Unit/Cell/WaterCell";
+import { StoneCell } from "./lib/Unit/Cell/StoneCell";
+import { GroundCell } from "./lib/Unit/Cell/GroundCell";
+import { FireCell } from "./lib/Unit/Cell/FireCell";
+import { PlayerActor } from "./lib/Unit/Actor/PlayerActor";
+import { ArrowActor } from "./lib/Unit/Actor/ArrowActor";
 
 /**
  * Props of the User view.

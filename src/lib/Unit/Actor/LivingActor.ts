@@ -1,8 +1,9 @@
 import { BaseActor, BaseActorArgs } from "./BaseActor";
 import { Logger } from "../../Util/Logger";
 import { Exportable, ExportType } from "../../Exportable";
-import { UnitArgs } from "../Unit";
 import { Vector } from "../../Geometry/Vector";
+
+const ROT_SPEED = 1;
 
 export interface LivingActorArgs extends BaseActorArgs
 {
@@ -42,22 +43,21 @@ export abstract class LivingActor extends BaseActor
         this.speed = args.speed;
     }
 
-    /**
-     * Move actor in a direction.
-     * @param mod Modify the angle temporary.
-     */
-    public Move(mod: number = 0): void
+    public Step(back: boolean): void
     {
         if(!this.speed)
         {
             throw new Error("No speed!");
         }
 
-        // Calculate the next position
-        const direction = Vector.AngleToVector(this.GetAngle() + mod);
-        const push = direction.F(v => v * this.speed);
+        const d = Vector.ByRad(this.GetAngle() + (back ? Math.PI : 0));
         
-        this.force = this.force.Add(push);
+        this.force = this.force.Add(d.F(v => v * this.speed));
+    }
+
+    public Rotate(left: boolean): void
+    {
+        this.av += (left ? -1 : +1) * ROT_SPEED;
     }
 
     /**

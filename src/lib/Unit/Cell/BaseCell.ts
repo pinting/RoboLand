@@ -4,7 +4,7 @@ import { Exportable, ExportType } from "../../Exportable";
 
 export interface BaseCellArgs extends UnitArgs
 {
-    friction?: number;
+    cf?: number;
 }
 
 export abstract class BaseCell extends Unit
@@ -12,7 +12,7 @@ export abstract class BaseCell extends Unit
     protected actors: string[] = [];
 
     @Exportable.Register(ExportType.Visible)
-    protected friction: number;
+    protected cf: number; // Cell friction
 
     /**
      * @inheritDoc
@@ -21,7 +21,7 @@ export abstract class BaseCell extends Unit
     {
         super.InitPre(args);
 
-        this.friction = args.friction || 0.99;
+        this.cf = args.cf || 0.0001;
     }
 
     /**
@@ -70,6 +70,6 @@ export abstract class BaseCell extends Unit
 
     public GetFriction(): number
     {
-        return this.friction;
+        return this.cf;
     }
 }

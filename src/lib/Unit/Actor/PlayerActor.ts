@@ -24,8 +24,8 @@ export class PlayerActor extends LivingActor
         }
 
         const r = this.GetRadius();
-        const direction = Vector.AngleToVector(this.GetAngle());
-        const position = this.GetCenter().Add(direction.Scale(new Vector(r, r)));
+        const direction = Vector.ByRad(this.GetAngle());
+        const position = this.GetCenter().Add(direction.Scale(r));
 
         const actor = new ArrowActor;
 

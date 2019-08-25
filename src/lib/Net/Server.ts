@@ -1,13 +1,13 @@
 import { World } from "../World";
-import { PlayerActor } from "../Element/Actor/PlayerActor";
+import { PlayerActor } from "../Unit/Actor/PlayerActor";
 import { Sender } from "./Sender";
 import { Exportable } from "../Exportable";
 import { IDump } from "../IDump";
 import { Vector } from "../Geometry/Vector";
 import { Tools } from "../Util/Tools";
-import { GroundCell } from "../Element/Cell/GroundCell";
-import { BaseCell } from "../Element/Cell/BaseCell";
-import { BaseActor } from "../Element/Actor/BaseActor";
+import { GroundCell } from "../Unit/Cell/GroundCell";
+import { BaseCell } from "../Unit/Cell/BaseCell";
+import { BaseActor } from "../Unit/Actor/BaseActor";
 
 export class Server
 {
@@ -95,8 +95,10 @@ export class Server
 
         const playerTag = Tools.Unique();
         const player = new PlayerActor;
+        const player2 = new PlayerActor;
         let actors: BaseActor[];
 
+        /*
         for(let spawn of this.spawns)
         {
             actors = this.world.GetActors().FindCollisions(spawn);
@@ -113,7 +115,7 @@ export class Server
                 size: new Vector(1, 1),
                 angle: 0,
                 texture: "res/player.png",
-                speed: 0.05,
+                speed: 100.0,
                 damage: 0.1,
                 health: 1.0
             });
@@ -125,8 +127,34 @@ export class Server
         {
             throw new Error("Not enough space for new player!");
         }
+        */
+
+        player.Init({
+            id: playerTag,
+            parent: playerTag,
+            position: new Vector(3, 3),
+            size: new Vector(1, 1),
+            angle: 0,
+            texture: "res/player.png",
+            speed: 100.0,
+            damage: 0.1,
+            health: 1.0
+        });
+
+        player2.Init({
+            id: Tools.Unique(),
+            parent: this.world.Origin,
+            position: new Vector(1, 1),
+            size: new Vector(1, 1),
+            angle: 0,
+            texture: "res/player.png",
+            speed: 100.0,
+            damage: 0.1,
+            health: 1.0
+        });
 
         this.world.GetActors().Set(player);
+        this.world.GetActors().Set(player2);
 
         // Set size
         await client.SendSize(this.world.GetSize());

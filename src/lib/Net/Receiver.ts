@@ -2,20 +2,20 @@ import { IChannel } from "./Channel/IChannel";
 import { MessageType } from "./MessageType";
 import { World } from "../World";
 import { Exportable } from "../Exportable";
-import { BaseCell } from "../Element/Cell/BaseCell";
-import { BaseActor } from "../Element/Actor/BaseActor";
-import { PlayerActor } from "../Element/Actor/PlayerActor";
+import { BaseCell } from "../Unit/Cell/BaseCell";
+import { BaseActor } from "../Unit/Actor/BaseActor";
+import { PlayerActor } from "../Unit/Actor/PlayerActor";
 import { Tools } from "../Util/Tools";
 import { IDump } from "../IDump";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
 import { Logger } from "../Util/Logger";
-import { Unit } from "../Element/Unit";
+import { Unit } from "../Unit/Unit";
 import { Sender } from "./Sender";
 import { Vector } from "../Geometry/Vector";
 
 const MAX_POS_DIFF = 0.5;
-const MAX_ANGLE_DIFF = Vector.DegToRad(45);
+const MAX_ANGLE_DIFF = Math.PI / 4;
 
 export class Receiver extends MessageHandler
 {

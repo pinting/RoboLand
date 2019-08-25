@@ -4,9 +4,23 @@ import { World } from "../World";
 import { Exportable, ExportType } from "../Exportable";
 import { IDump } from "../IDump";
 import { Logger } from "../Util/Logger";
-import { Mesh } from "../Geometry/Mesh";
-import { Triangle } from "../Geometry/Triangle";
+import { Body } from "../Geometry/Body";
+import { Polygon } from "../Geometry/Polygon";
+import { ICollison } from "../Geometry/ICollision";
 import { IMTVector } from "../Geometry/IMTVector";
+
+const DEFAULT_BODY = size => new Body([
+    new Polygon([
+        new Vector(0, 0),
+        new Vector(size.X, 0),
+        new Vector(0, size.Y)
+    ]),
+    new Polygon([
+        new Vector(size.X, 0),
+        new Vector(size.X, size.Y),
+        new Vector(0, size.Y)
+    ])
+]);
 
 export interface UnitArgs
 {
@@ -17,13 +31,13 @@ export interface UnitArgs
     parent?: string;
     world?: World;
     angle?: number;
-    mesh?: Mesh;
+    body?: Body;
 }
 
 export abstract class Unit extends Exportable
 {
     protected world: World;
-    protected virtualMesh: Mesh;
+    protected virtualBody: Body;
     protected tickEvent: number;
 
     @Exportable.Register(ExportType.Hidden, (s, v) => s.Dispose(v))
@@ -38,8 +52,8 @@ export abstract class Unit extends Exportable
     @Exportable.Register(ExportType.Visible)
     protected size: Vector;
 
-    @Exportable.Register(ExportType.Visible, (s, v) => s.SetMesh(v))
-    protected mesh: Mesh;
+    @Exportable.Register(ExportType.Visible, (s, v) => s.SetBody(v))
+    protected body: Body;
 
     @Exportable.Register(ExportType.Visible, (s, v) => s.SetPosition(v))
     protected position: Vector;
@@ -82,7 +96,7 @@ export abstract class Unit extends Exportable
     protected InitPost(args: UnitArgs = {})
     {
         this.SetPosition(args.position);
-        this.SetMesh(args.mesh);
+        this.SetBody(args.body);
 
         if(this.world)
         {
@@ -130,16 +144,25 @@ export abstract class Unit extends Exportable
      */
     public GetCenter(): Vector
     {
-        return this.position && this.size && this.position.Add(this.size.F(v => v / 2));
+        if(!this.position || !this.size)
+        {
+            throw new Error("GetCenter failed, no position or size!");
+        }
+
+        return this.position.Add(this.size.F(v => v / 2));
     }
 
     /**
      * Get the radius of the unit.
-     * radius = max(width, height)
      */
     public GetRadius(): number
     {
-        return this.size && Math.sqrt(Math.pow(this.size.X, 2) + Math.pow(this.size.Y, 2)) / 2;
+        if(!this.size)
+        {
+            throw new Error("GetRadius failed, no size!");
+        }
+
+        return Math.sqrt(Math.pow(this.size.X, 2) + Math.pow(this.size.Y, 2)) / 2;
     }
 
     /**
@@ -147,7 +170,12 @@ export abstract class Unit extends Exportable
      */
     public GetPosition(): Vector
     {
-        return this.position && this.position.Clone();
+        if(!this.position)
+        {
+            throw new Error("GetPosition failed, no position!");
+        }
+
+        return this.position.Clone();
     }
 
     /**
@@ -163,9 +191,9 @@ export abstract class Unit extends Exportable
         }
 
         this.position = position;
-        this.virtualMesh = null;
+        this.virtualBody = null;
             
-        this.GetVirtualMesh();
+        this.GetVirtualBody();
         this.world && this.world.OnUpdate.Call(this);
 
         return true;
@@ -191,71 +219,63 @@ export abstract class Unit extends Exportable
         }
 
         this.angle = angle;
-        this.virtualMesh = null;
+        this.virtualBody = null;
 
-        this.GetVirtualMesh();
+        this.GetVirtualBody();
         this.world && this.world.OnUpdate.Call(this);
 
         return true;
     }
 
     /**
-     * Get the mesh of the unit.
+     * Get the body of the unit.
      */
-    protected GetMesh(): Mesh
+    protected GetBody(): Body
     {
         if(!this.size)
         {
             return null;
         }
 
-        return this.mesh || (this.mesh = new Mesh([
-            new Triangle([
-                new Vector(0, 0),
-                new Vector(this.size.X, 0),
-                new Vector(0, this.size.Y)
-            ]),
-            new Triangle([
-                new Vector(this.size.X, 0),
-                new Vector(this.size.X, this.size.Y),
-                new Vector(0, this.size.Y)
-            ])
-        ]));
+        // Default body
+        return this.body || (this.body = DEFAULT_BODY(this.size));
     }
 
     /**
-     * Get the virtual mesh of the unit.
+     * Get the virtual body of the unit.
      */
-    public GetVirtualMesh(): Mesh
+    public GetVirtualBody(): Body
     {
         if(!this.position)
         {
             return null;
         }
         
-        return this.virtualMesh || (this.virtualMesh = this.GetMesh() && 
-            this.GetMesh().F(v => v
-                .Add(this.position)
-                .Rotate(this.angle, this.GetCenter()))
-        );
+        this.virtualBody = this.GetBody() && this.GetBody().F(v => v
+            .Add(this.position)
+            .Rotate(this.angle, this.GetCenter()));
+
+        (this.virtualBody as any).rotation = this.angle;
+
+        return this.virtualBody;
     }
 
     /**
-     * Set the mesh and generate the virtual hash.
-     * Virtual = Mesh -> Rotate(Angle) ->  Add(Position)
-     * @param mesh 
+     * Set the body and generate the virtual body.
+     * VirtualBody = Body.Rotate(Angle).Add(Position)
+     * @param body 
      */
-    public SetMesh(mesh: Mesh): void
+    public SetBody(body: Body): void
     {
-        if(!mesh)
+        if(!body)
         {
             return;
         }
 
-        this.mesh = mesh;
-        this.virtualMesh = null;
+        this.body = body;
+        this.virtualBody = null;
 
-        this.GetVirtualMesh();
+        this.GetVirtualBody();
     }
 
     /**
@@ -304,12 +324,13 @@ export abstract class Unit extends Exportable
 
         const dist = this.GetCenter().Dist(unit.GetCenter());
 
+        // Optimize, if unit is too far away, skip deeper collision detection
         if(dist >= this.GetRadius() + unit.GetRadius())
         {
             return null;
         }
 
-        return this.GetVirtualMesh().Collide(unit.GetVirtualMesh());
+        return this.GetVirtualBody().Collide(unit.GetVirtualBody());
     }
 
     /**

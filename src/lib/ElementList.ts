@@ -1,11 +1,9 @@
 import { Vector } from "./Geometry/Vector";
-import { Unit } from "./Element/Unit";
+import { Unit } from "./Unit/Unit";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
 import { Tools } from "./Util/Tools";
 import { Event } from "./Util/Event";
 import { Logger } from "./Util/Logger";
-import { IMTVector } from "./Geometry/IMTVector";
-import { Ref } from "./Util/Ref";
 
 export class ElementList<Element extends Unit> implements IReadOnlyElementList<Element>
 {
@@ -84,25 +82,19 @@ export class ElementList<Element extends Unit> implements IReadOnlyElementList<E
 
     /**
      * Get elements under an unit.
-     * @param elementOrMesh
+     * @param unit
      */
-    public FindCollisions(unit: Unit, axis?: Ref<Vector>): Element[]
+    public FindCollisions(unit: Unit): Element[]
     {
-        const smallest = Infinity;
         const result = [];
         
         this.elements.forEach(e => 
         {
             if(e && e.GetId() != unit.GetId())
             {
-                const imt = e.Collide(<Element>unit);
-
-                if(imt.Overlap < smallest)
-                {
-                    axis && axis.Set(imt.Smallest);
-                }
+                const collision = e.Collide(<Element>unit);
                 
-                imt && result.push(e);
+                collision && result.push(e);
             }
         });
 

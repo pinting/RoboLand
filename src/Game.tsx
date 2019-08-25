@@ -162,13 +162,13 @@ export class Game extends Shared<GameProps, GameState>
         }
 
         // Create server world, load it, create server
-        const rawboard = JSON.parse(await Http.Get("res/world.json"));
-        const serverBoard = Exportable.Import(rawboard);
+        const raw = JSON.parse(await Http.Get("res/world.json"));
+        const serverWorld = Exportable.Import(raw);
 
-        this.server = new Server(serverBoard);
+        this.server = new Server(serverWorld);
 
         // Use the tick of the local client on the server
-        renderer.OnDraw.Add(() => serverBoard.OnTick.Call());
+        renderer.OnDraw.Add(() => serverWorld.OnTick.Call());
 
         // Enable add button
         this.setState({ showAdd: true });
@@ -192,11 +192,14 @@ export class Game extends Shared<GameProps, GameState>
      */
     private async Start()
     {
-        const renderer = new Renderer(this.world, this.canvas);
+        window["world"] = this.world;
+
+        const renderer = new Renderer(this.world, this.canvas, true);
         const receiver = await this.CreateReceiver(renderer);
 
         receiver.OnPlayer = async player =>
         {
+            window["temp1"] = player;
             this.world.Origin = player.GetId();
 
             await renderer.Load();

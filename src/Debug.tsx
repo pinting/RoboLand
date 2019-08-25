@@ -10,16 +10,16 @@ import { Exportable } from "./lib/Exportable";
 import { Sender } from "./lib/Net/Sender";
 import { Http } from "./lib/Util/Http";
 import { Vector } from "./lib/Geometry/Vector";
-import { GroundCell } from "./lib/Element/Cell/GroundCell";
-import { PlayerActor } from "./lib/Element/Actor/PlayerActor";
-import { StoneCell } from "./lib/Element/Cell/StoneCell";
+import { Matrix } from "./lib/Geometry/Matrix";
+import { GroundCell } from "./lib/Unit/Cell/GroundCell";
+import { PlayerActor } from "./lib/Unit/Actor/PlayerActor";
+import { StoneCell } from "./lib/Unit/Cell/StoneCell";
 import { Logger } from "./lib/Util/Logger";
 import { SimplexNoise } from "./lib/Util/SimplexNoise";
 import { Shared } from "./Shared";
 import { Tools } from "./lib/Util/Tools";
 import { Constants } from "./Constants";
-import { Triangle } from "./lib/Geometry/Triangle";
-import { Mesh } from "./lib/Geometry/Mesh";
+import { Polygon } from "./lib/Geometry/Polygon";
 
 export class Debug extends Shared
 {
@@ -124,13 +124,13 @@ export class Debug extends Shared
             Tools,
             Exportable,
             Vector,
+            Matrix,
             GroundCell,
             PlayerActor,
             StoneCell,
             Logger,
             SimplexNoise,
-            Triangle,
-            Mesh
+            Polygon
         });
     }
 

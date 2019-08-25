@@ -1,16 +1,16 @@
 import * as React from "react";
 import "./Shared.css";
-import { PlayerActor } from "./lib/Element/Actor/PlayerActor";
+import { PlayerActor } from "./lib/Unit/Actor/PlayerActor";
 import { Vector } from "./lib/Geometry/Vector";
 import { Keyboard } from "./lib/Util/Keyboard";
 import { Tools } from "./lib/Util/Tools";
 import { Exportable } from "./lib/Exportable";
 import { World } from "./lib/World";
-import { WaterCell } from "./lib/Element/Cell/WaterCell";
-import { StoneCell } from "./lib/Element/Cell/StoneCell";
-import { GroundCell } from "./lib/Element/Cell/GroundCell";
-import { FireCell } from "./lib/Element/Cell/FireCell";
-import { ArrowActor } from "./lib/Element/Actor/ArrowActor";
+import { WaterCell } from "./lib/Unit/Cell/WaterCell";
+import { StoneCell } from "./lib/Unit/Cell/StoneCell";
+import { GroundCell } from "./lib/Unit/Cell/GroundCell";
+import { FireCell } from "./lib/Unit/Cell/FireCell";
+import { ArrowActor } from "./lib/Unit/Actor/ArrowActor";
 
 // Dependency classes as a dependency
 Exportable.Dependency(ArrowActor);
@@ -23,7 +23,6 @@ Exportable.Dependency(World);
 Exportable.Dependency(Vector);
 
 const SHOT_DELAY = 1000;
-const TURN_SPEED = Vector.DegToRad(2);
 
 export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
 {
@@ -58,22 +57,22 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
 
         if(Keyboard.Keys[left])
         {
-            player.SetAngle(player.GetAngle() - TURN_SPEED);
+            player.Rotate(true);
         }
 
         if(Keyboard.Keys[right])
         {
-            player.SetAngle(player.GetAngle() + TURN_SPEED);
+            player.Rotate(false);
         }
 
         if(Keyboard.Keys[up])
         {
-            player.Move();
+            player.Step(false);
         }
 
         if(Keyboard.Keys[down])
         {
-            player.Move(Vector.DegToRad(180));
+            player.Step(true);
         }
 
         if(Keyboard.Keys[space] && this.nextShoot <= +new Date)
