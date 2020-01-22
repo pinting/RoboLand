@@ -4,21 +4,20 @@ import { World } from "../World";
 import { Exportable, ExportType } from "../Exportable";
 import { IDump } from "../IDump";
 import { Logger } from "../Util/Logger";
-import { Body } from "../Geometry/Body";
+import { Body } from "../Physics/Body";
 import { Polygon } from "../Geometry/Polygon";
-import { ICollison } from "../Geometry/ICollision";
-import { IMTVector } from "../Geometry/IMTVector";
+import { IContact } from "../Geometry/IContact";
 
-const DEFAULT_BODY = size => new Body([
+const DEFAULT_BODY = (s: number) => new Body([
     new Polygon([
-        new Vector(0, 0),
-        new Vector(size.X, 0),
-        new Vector(0, size.Y)
+        new Vector(-s / 2, s / 2),
+        new Vector(s / 2, s / 2),
+        new Vector(-s / 2, -s / 2)
     ]),
     new Polygon([
-        new Vector(size.X, 0),
-        new Vector(size.X, size.Y),
-        new Vector(0, size.Y)
+        new Vector(s / 2, s / 2),
+        new Vector(s / 2, -s / 2),
+        new Vector(-s / 2, -s / 2)
     ])
 ]);
 
@@ -26,7 +25,7 @@ export interface UnitArgs
 {
     id?: string;
     position?: Vector; 
-    size?: Vector;
+    size?: number;
     texture?: string;
     parent?: string;
     world?: World;
@@ -37,7 +36,6 @@ export interface UnitArgs
 export abstract class Unit extends Exportable
 {
     protected world: World;
-    protected virtualBody: Body;
     protected tickEvent: number;
 
     @Exportable.Register(ExportType.Hidden, (s, v) => s.Dispose(v))
@@ -50,7 +48,7 @@ export abstract class Unit extends Exportable
     protected parent: string; // ID of the parent unit
 
     @Exportable.Register(ExportType.Visible)
-    protected size: Vector;
+    protected size: number;
 
     @Exportable.Register(ExportType.Visible, (s, v) => s.SetBody(v))
     protected body: Body;
@@ -58,11 +56,11 @@ export abstract class Unit extends Exportable
     @Exportable.Register(ExportType.Visible, (s, v) => s.SetPosition(v))
     protected position: Vector;
 
-    @Exportable.Register(ExportType.Visible)
-    protected texture: string;
+    @Exportable.Register(ExportType.Visible, (s, v) => s.SetAngle(v))
+    protected angle: number;
 
     @Exportable.Register(ExportType.Visible)
-    protected angle: number;
+    protected texture: string;
 
     /**
      * Construct a new unit with the given init args.
@@ -97,14 +95,6 @@ export abstract class Unit extends Exportable
     {
         this.SetPosition(args.position);
         this.SetBody(args.body);
-
-        if(this.world)
-        {
-            // Start to listen to the tick event
-            this.tickEvent = this.world.OnTick.Add(() => this.OnTick());
-    
-            Logger.Info(this, "Tick event was set", this);
-        }
     }
 
     /**
@@ -124,14 +114,6 @@ export abstract class Unit extends Exportable
     }
 
     /**
-     * Get the size of the unit.
-     */
-    public GetSize(): Vector
-    {
-        return this.size.Clone();
-    }
-
-    /**
      * Get the texture of the unit.
      */
     public GetTexture(): string
@@ -146,10 +128,10 @@ export abstract class Unit extends Exportable
     {
         if(!this.position || !this.size)
         {
-            throw new Error("GetCenter failed, no position or size!");
+            throw new Error("Get center failed, no position or size!");
         }
 
-        return this.position.Add(this.size.F(v => v / 2));
+        return this.position.Add(this.GetRadius());
     }
 
     /**
@@ -159,10 +141,15 @@ export abstract class Unit extends Exportable
     {
         if(!this.size)
         {
-            throw new Error("GetRadius failed, no size!");
+            throw new Error("Get radius failed, no size!");
         }
 
-        return Math.sqrt(Math.pow(this.size.X, 2) + Math.pow(this.size.Y, 2)) / 2;
+        return this.size / 2;
+    }
+
+    public GetSize(): number
+    {
+        return this.size;
     }
 
     /**
@@ -172,7 +159,7 @@ export abstract class Unit extends Exportable
     {
         if(!this.position)
         {
-            throw new Error("GetPosition failed, no position!");
+            throw new Error("Get position failed, no position!");
         }
 
         return this.position.Clone();
@@ -184,16 +171,17 @@ export abstract class Unit extends Exportable
      */
     public SetPosition(position: Vector): boolean
     {
-        if((position && this.position && this.position.Is(position)) &&
-            (position === this.position))
+        if(position && 
+            this.position && 
+            this.position.Is(position) &&
+            position === this.position)
         {
             return false;
         }
 
         this.position = position;
-        this.virtualBody = null;
-            
-        this.GetVirtualBody();
+
+        this.body && this.body.SetVirtual(null, null, position);
         this.world && this.world.OnUpdate.Call(this);
 
         return true;
@@ -219,9 +207,8 @@ export abstract class Unit extends Exportable
         }
 
         this.angle = angle;
-        this.virtualBody = null;
-
-        this.GetVirtualBody();
+        
+        this.body && this.body.SetVirtual(null, angle, null);
         this.world && this.world.OnUpdate.Call(this);
 
         return true;
@@ -230,7 +217,7 @@ export abstract class Unit extends Exportable
     /**
      * Get the body of the unit.
      */
-    protected GetBody(): Body
+    public GetBody(): Body
     {
         if(!this.size)
         {
@@ -238,26 +225,12 @@ export abstract class Unit extends Exportable
         }
 
         // Default body
-        return this.body || (this.body = DEFAULT_BODY(this.size));
-    }
-
-    /**
-     * Get the virtual body of the unit.
-     */
-    public GetVirtualBody(): Body
-    {
-        if(!this.position)
+        if(!this.body)
         {
-            return null;
+            this.SetBody(DEFAULT_BODY(this.size));
         }
-        
-        this.virtualBody = this.GetBody() && this.GetBody().F(v => v
-            .Add(this.position)
-            .Rotate(this.angle, this.GetCenter()));
 
-        (this.virtualBody as any).rotation = this.angle;
-
-        return this.virtualBody;
+        return this.body;
     }
 
     /**
@@ -273,9 +246,14 @@ export abstract class Unit extends Exportable
         }
 
         this.body = body;
-        this.virtualBody = null;
+        this.body.SetVirtual(this.size, this.angle, this.position);
 
-        this.GetVirtualBody();
+        this.body.OnChange = (size, angle, position) => 
+        {
+            size && (this.size = size);
+            angle && (this.angle = angle);
+            position && (this.position = position);
+        }
     }
 
     /**
@@ -315,7 +293,7 @@ export abstract class Unit extends Exportable
      * Check if the unit collides with another.
      * @param unit 
      */
-    public Collide(unit: Unit): IMTVector
+    public Collide(unit: Unit): IContact
     {
         if(unit == this || unit.GetId() == this.GetId())
         {
@@ -330,7 +308,7 @@ export abstract class Unit extends Exportable
             return null;
         }
 
-        return this.GetVirtualBody().Collide(unit.GetVirtualBody());
+        return this.GetBody().Collide(unit.GetBody());
     }
 
     /**
@@ -341,15 +319,12 @@ export abstract class Unit extends Exportable
         const current = World.Current;
         let clone: Unit;
 
+        // Clones should have a world,
+        // it could cause circular invocation 
         World.Current = null;
         clone = <Unit>super.Clone();
         World.Current = current;
 
         return clone;
-    }
-
-    protected OnTick(): void
-    {
-        return;
     }
 }

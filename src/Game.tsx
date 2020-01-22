@@ -13,6 +13,9 @@ import { Tools } from "./lib/Util/Tools";
 import { Helper } from "./Helper";
 import { Shared } from "./Shared";
 import { Constants } from "./Constants";
+import { LivingActor } from "./lib/Unit/Actor/LivingActor";
+import { PlayerActor } from "./lib/Unit/Actor/PlayerActor";
+import { Vector } from "./lib/Geometry/Vector";
 
 /**
  * Type of the connect format.
@@ -168,7 +171,7 @@ export class Game extends Shared<GameProps, GameState>
         this.server = new Server(serverWorld);
 
         // Use the tick of the local client on the server
-        renderer.OnDraw.Add(() => serverWorld.OnTick.Call());
+        renderer.OnDraw.Add(dt => serverWorld.OnTick.Call(dt));
 
         // Enable add button
         this.setState({ showAdd: true });
@@ -223,6 +226,29 @@ export class Game extends Shared<GameProps, GameState>
      */
     private async Main(): Promise<void>
     {
+        const p1 = new PlayerActor();
+        const p2 = new PlayerActor();
+
+        p1.Init({
+            id: Tools.Unique(),
+            position: new Vector(10, 10),
+            size: 1,
+            angle: Math.PI/6,
+            speed: 100.0,
+            damage: 0.1,
+            health: 1.0
+        });
+
+        p2.Init({
+            id: Tools.Unique(),
+            position: new Vector(10.5, 10.5),
+            size: 1,
+            angle: Math.PI/6,
+            speed: 100.0,
+            damage: 0.1,
+            health: 1.0
+        });
+
         const connect = Game.ReadConnect();
 
         // If it is an offer, create an answer and wait for an open channel.

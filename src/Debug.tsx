@@ -20,6 +20,8 @@ import { Shared } from "./Shared";
 import { Tools } from "./lib/Util/Tools";
 import { Constants } from "./Constants";
 import { Polygon } from "./lib/Geometry/Polygon";
+import { Body } from "./lib/Physics/Body";
+import { Overlap } from "./lib/Geometry/Overlap";
 
 export class Debug extends Shared
 {
@@ -45,8 +47,8 @@ export class Debug extends Shared
         boardA["_Name"] = "boardA";
         boardB["_Name"] = "boardB";
         
-        const rendererA = new Renderer(boardA, this.canvasA, false);
-        const rendererB = new Renderer(boardB, this.canvasB, false);
+        const rendererA = new Renderer(boardA, this.canvasA, true);
+        const rendererB = new Renderer(boardB, this.canvasB, true);
         
         const channelA1 = new FakeChannel(delay);
         const channelA2 = new FakeChannel(delay);
@@ -130,7 +132,8 @@ export class Debug extends Shared
             StoneCell,
             Logger,
             SimplexNoise,
-            Polygon
+            Polygon,
+            Body
         });
     }
 

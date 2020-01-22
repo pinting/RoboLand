@@ -134,7 +134,16 @@ export class Receiver extends MessageHandler
 
         Exportable.Merge(merged, diff);
 
-        const newElement: Unit = Exportable.Import(merged);
+        let newElement: Unit;
+
+        try 
+        {
+            newElement = Exportable.Import(merged);
+        }
+        catch
+        {
+            return;
+        }
 
         // If the position or the angle difference is under a limit, skip updating
         if(Sender.IsMovementDiff(diff) && oldElement.GetPosition())

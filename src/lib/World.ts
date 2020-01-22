@@ -8,10 +8,16 @@ import { IReadOnlyElementList } from "./IReadOnlyElementList";
 import { Exportable, ExportType } from "./Exportable";
 import { Event } from "./Util/Event";
 import { IDump } from "./IDump";
+import { Body } from "./Physics/Body";
+import { ICollision } from "./Physics/ICollision";
+
+const COLLISION_ITERATIONS = 10;
 
 export class World extends Exportable
 {
     public static Current: World = null;
+
+    private gravity = new Vector(0, 10.0);
     
     @Exportable.Register(ExportType.Visible)
     private cells: Array<BaseCell> = [];
@@ -35,7 +41,7 @@ export class World extends Exportable
     /**
      * Called on tick.
      */
-    public OnTick: Event<void> = new Event<void>();
+    public OnTick: Event<number> = new Event<number>();
 
     /**
      * Init a world with null cells.
@@ -46,6 +52,60 @@ export class World extends Exportable
         this.size = size.Clone();
         this.cells = [];
         this.actors = [];
+
+        this.OnTick.Add(dt =>
+        {
+            const contacts: ICollision[] = [];
+
+            for(let i = 0; i < this.actors.length; i++)
+            {
+                const a = this.actors[i].GetBody();
+
+                for(let j = i + 1; j < this.actors.length; j++)
+                {
+                    const b = this.actors[j].GetBody();
+                    const p = a.Collide(b);
+
+                    if(p && p.Points.length)
+                    {
+                        contacts.push(p);
+                    }
+                }
+            }
+
+            // Integrate forces
+            for(let unit of this.actors)
+            {
+                unit.GetBody().IntegrateForces(dt);
+            }
+            
+            // Solve collisions
+            for(let i = 0; i < COLLISION_ITERATIONS; i++)
+            {
+                for(let contact of contacts)
+                {
+                    Body.ResolveCollision(contact, dt);
+                }
+            }
+
+            // Integrate velocities
+            for(let unit of this.actors)
+            {
+                unit.GetBody().IntegrateVelocity(dt);
+            }
+
+            // Correct positions
+            for(let contact of contacts)
+            {
+                Body.PositionalCorrection(contact, dt);
+            }
+            
+            // Clear all forces
+            for(let unit of this.actors)
+            {
+                unit.GetBody().ClearForces();
+            }
+        });
     }
 
     /**
@@ -90,6 +150,11 @@ export class World extends Exportable
         World.Current = this;
 
         return super.Import(input);
+    }
+
+    public GetGravity(): Vector
+    {
+        return this.gravity;
     }
 }
 

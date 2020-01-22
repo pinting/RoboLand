@@ -1,79 +1,99 @@
 import { Vector } from "./Vector";
-import { Projection } from "./Projection";
-import { Exportable, ExportType } from "../Exportable";
-import { Logger } from "../Util/Logger";
-import { IShape } from "./IShape";
-import { ICollison } from "./ICollision";
-import { IMTVector } from "./IMTVector";
+import { BaseShape } from "./BaseShape";
 import { Ref } from "../Util/Ref";
+import { Matrix } from "./Matrix";
 
-export class Polygon extends Exportable implements IShape
+export class Polygon extends BaseShape
 {
     private axes: Vector[];
-    private rotation: number = 0;
+    protected points: Vector[];
 
-    @Exportable.Register(ExportType.Visible, () => this.FindAxes())
-    protected vertices: Vector[];
-
-    constructor(vertices: Vector[]) 
+    public constructor(vertices: Vector[])
     {
-        super();
+        let rightMost = 0;
+        let highestXCoord = vertices[0].X;
 
-        this.vertices = vertices;
-    }
-
-    public Add(v: Vector): Polygon
-    {
-        return new Polygon(this.vertices.map(n => n.Add(v)))
-    }
-
-    public Rotate(r: number, c: Vector): Polygon
-    {
-        const p = new Polygon(this.vertices.map(n => n.Rotate(r, c)));
-
-        p.rotation = r;
-
-        return p;
-    }
-
-    /**
-     * Check if the shape collides with another shape
-     * and return the Minimum Translation Vector if they do.
-     * @param other
-     * @deprecated
-     */
-    public Collide(other: IShape): IMTVector
-    {
-        if(!(other instanceof Polygon))
+        for (let i = 1; i < vertices.length; ++i) 
         {
-            throw new Error("Collision not implemented!");
-        }
+            let x = vertices[i].X;
 
-        let overlap: number = Infinity;
-        let smallest: Vector = null;
-
-        const axes = this.GetAxes().concat(other.GetAxes());
-        
-        for (let axis of axes) 
-        {
-            const p1 = this.Project(axis);
-            const p2 = other.Project(axis);
-            const o = Math.abs(p1.Overlap(p2));
-
-            if (o == 0)
+            if (x > highestXCoord)
             {
-                return null;
+                highestXCoord = x;
+                rightMost = i;
             }
-            else if (o < overlap) {
-                overlap = o;
-                smallest = axis;
+
+            // If matching x then take farthest negative y
+            else if (x == highestXCoord)
+            {
+                if (vertices[i].Y < vertices[rightMost].Y)
+                {
+                    rightMost = i;
+                }
             }
         }
-        
-        return {
-            Smallest: smallest,
-            Overlap: overlap
-        };
+
+        const hull = [];
+        let outCount = 0;
+        let indexHull = rightMost;
+
+        for (; ;) 
+        {
+            hull[outCount] = indexHull;
+
+            // Search for next index that wraps around the hull
+            // by computing cross products to find the most counter-clockwise
+            // vertex in the set, given the previos hull index
+            let nextHullIndex = 0;
+
+            for (let i = 1; i < vertices.length; ++i) 
+            {
+                // Skip if same coordinate as we need three unique
+                // points in the set to perform a cross product
+                if (nextHullIndex == indexHull) 
+                {
+                    nextHullIndex = i;
+                    continue;
+                }
+
+                // Cross every set of three unique vertices
+                // Record each counter clockwise third vertex and add
+                // to the output hull
+                let e1 = vertices[nextHullIndex].Sub(vertices[hull[outCount]]);
+                let e2 = vertices[i].Sub(vertices[hull[outCount]]);
+                let c = Vector.Cross(e1, e2);
+
+                if (c < 0)
+                {
+                    nextHullIndex = i;
+                }
+
+                // Cross product is zero then e vectors are on same line
+                // therefor want to record vertex farthest along that line
+                if (c == 0 && e2.Len2() > e1.Len2())
+                {
+                    nextHullIndex = i;
+                }
+            }
+
+            ++outCount;
+            indexHull = nextHullIndex;
+
+            // Conclude algorithm upon wrap-around
+            if (nextHullIndex == rightMost) {
+                break;
+            }
+        }
+
+        const result = [];
+
+        // Copy vertices into shape's vertices
+        for (let i = 0; i < outCount; ++i)
+        {
+            result[i] = vertices[hull[i]];
+        }
+
+        super(result);
     }
 
     public GetSupport(dir: Vector): Vector
@@ -81,7 +101,7 @@ export class Polygon extends Exportable implements IShape
         let bestProjection = -Infinity;
         let bestVertex: Vector = null;
 
-        for (let v of this.GetVertices())
+        for (let v of this.GetPoints())
         {
             const projection = v.Dot(dir);
 
@@ -95,21 +115,34 @@ export class Polygon extends Exportable implements IShape
         return bestVertex;
     }
 
-    public static FindAxisLeastPenetration(faceIndex: Ref<number>, a: Polygon, b: Polygon)
+    public FindAxisLeastPenetration(faceIndex: Ref<number>, other: Polygon)
     {
         let bestDistance: number = -Infinity;
         let bestIndex: number;
 
-        for (let i = 0; i < a.GetVertices().length; ++i)
+        for (let i = 0; i < this.GetPoints().length; ++i)
         {
+            const au = Matrix.ByRad(this.rotation);
+            const bu = Matrix.ByRad(other.rotation);
+
             // Retrieve a face normal from A
-            const n = a.GetAxes()[i];
+            let n = this.GetAxes()[i];
+            const nw = au.ScaleByVector(n);
+
+            // Transform face normal into B's model space
+            const buT = bu.Transpose();
+
+            n = buT.ScaleByVector(nw);
 
             // Retrieve support point from B along -n
-            const s = b.GetSupport(n.Neg());
+            const s = other.GetSupport(n.Neg());
 
-            // Retrieve vertex on face from A
-            const v = a.vertices[i];
+            // Retrieve vertex on face from A, transform into
+            // B's model space
+            let v = this.GetPoints()[i];
+
+            v = au.ScaleByVector(v).Add(this.offset).Sub(other.offset);
+            v = buT.ScaleByVector(v);
 
             // Compute penetration distance (in B's model space)
             const d = n.Dot(s.Sub(v));
@@ -127,241 +160,34 @@ export class Polygon extends Exportable implements IShape
         return bestDistance;
     }
 
-    public FindIncidentFace(refPoly: Polygon, incPoly: Polygon, referenceIndex: number): Vector[]
+    public FindIncidentFace(other: Polygon, i: number): Vector[]
     {
-        let referenceNormal = refPoly.GetAxes()[referenceIndex];
+        const normal = this.GetAxes()[i]
+            .Rotate(this.rotation) // To world space
+            .Rotate(-other.rotation); // To other's model space
 
-        // Find most anti-normal face on incident polygon
-        let incidentFace = 0;
-        let minDot = Infinity;
-
-        for(let i = 0; i < incPoly.GetVertices().length; ++i)
-        {
-            const dot = referenceNormal.Dot(incPoly.GetAxes()[i]);
-
-                if(dot < minDot)
-                {
-                    minDot = dot;
-                    incidentFace = i;
-                }
-        }
-
-        const v1 = incPoly.vertices[incidentFace];
-
-        incidentFace = incidentFace + 1 >= incPoly.vertices.length ? 0 : incidentFace + 1;
-
-        const v2 = incPoly.vertices[incidentFace];
-
-        return [v1, v2]
-    }
-
-    public Clip(n: Vector, c: number, face: Vector[]): number
-    {
-        let sp = 0;
-        let out = [];
-
-        // Retrieve distances from each endpoint to the line
-        // d = ax + by - c
-        const d1 = n.Dot(face[0]) - c;
-        const d2 = n.Dot(face[1]) - c;
-
-        // If negative (behind plane) clip
-        if(d1 <= 0.0) 
-        {
-            out[sp++] = face[0];
-        }
-
-        if(d2 <= 0.0)
-        {
-            out[sp++] = face[1];
-        }
-
-        // If the points are on different sides of the plane
-        if(d1 * d2 < 0.0) // less than to ignore -0.0f
-        {
-            // Push interesection point
-            const alpha = d1 / (d1 - d2);
-
-            out[sp] = face[0].Add(new Vector(alpha, alpha).Scale(face[1].Sub(face[0])));
-
-            ++sp;
-        }
-
-        // Assign our new converted values
-        face[0] = out[0];
-        face[1] = out[1];
-
-        return sp;
-    }
-
-    public GetPenetration(other: IShape): ICollison
-    {
-        if(!(other instanceof Polygon)) {
-            throw new Error("Collision type not implemented!")
-        }
-        
-        let contactCount = 0;
-
-        // Check for a separating axis with A's face planes
-        let faceA = new Ref<number>();
-        const penetrationA = Polygon.FindAxisLeastPenetration(faceA, this, other);
-
-        if(penetrationA >= 0)
-        {
-            console.log(penetrationA)
-            return;
-        }
-
-        // Check for a separating axis with B's face planes
-        let faceB = new Ref<number>();
-        const penetrationB = Polygon.FindAxisLeastPenetration(faceB, other, this);
-
-        if(penetrationB >= 0)
-        {
-            console.log(penetrationB)
-            return;
-        }
-
-        let referenceIndex: number;
-        let flip: boolean; // Always point from a to b
-
-        let refPoly: Polygon;
-        let incPoly: Polygon;
-      
-        // Determine which shape contains reference face
-        if(Vector.BiasGreaterThan(penetrationA, penetrationB))
-        {
-            refPoly = this;
-            incPoly = other;
-            referenceIndex = faceA.Get();
-            flip = false;
-        }
-        else
-        {
-            refPoly = other;
-            incPoly = this;
-            referenceIndex = faceB.Get();
-            flip = true;
-        }
-
-        // World space incident face
-        const incidentFace = this.FindIncidentFace(refPoly, incPoly, referenceIndex );
-
-        //        y
-        //        ^  ->n       ^
-        //      +---c ------posPlane--
-        //  x < | i |\
-        //      +---+ c-----negPlane--
-        //             \       v
-        //              r
-        //
-        //  r : reference face
-        //  i : incident poly
-        //  c : clipped point
-        //  n : incident normal
-
-        // Setup reference face vertices
-        let v1 = refPoly.vertices[referenceIndex]
-
-        referenceIndex = referenceIndex + 1 >= refPoly.vertices.length ? 0 : referenceIndex + 1;
-
-        let v2 = refPoly.vertices[referenceIndex];
-
-        // Calculate reference face side normal in world space
-        const sidePlaneNormal = v2.Sub(v1).Normalize();
-
-        // Orthogonalize
-        const refFaceNormal = sidePlaneNormal.Perp();
-
-        // ax + by = c
-        // c is distance from origin
-        const refC = refFaceNormal.Dot(v1);
-        const negSide = -sidePlaneNormal.Dot(v1);
-        const posSide =  sidePlaneNormal.Dot(v2);
-
-        // Clip incident face to reference face side planes
-        if(this.Clip(sidePlaneNormal.Neg(), negSide, incidentFace) < 2)
-        {
-            // Due to floating point error, possible to not have required points
-            return null;
-        }
-
-        if(this.Clip(sidePlaneNormal, posSide, incidentFace) < 2) 
-        {
-            // Due to floating point error, possible to not have required points
-            return null;
-        }
-
-        // Flip
-        const normal = flip ? refFaceNormal.Neg() : refFaceNormal;
-
-        const contacts: Vector[] = [];
-        let penetration = 0;
-
-        // Keep points behind reference face
-        let clippedPoints = 0; // Clipped points behind reference face
-        let separation = refFaceNormal.Dot(incidentFace[0]) - refC;
-
-        if (separation <= 0.0)
-        {
-            contacts[clippedPoints] = incidentFace[0];
-            penetration = -separation;
-            clippedPoints++;
-        }
-        else
-        {
-            penetration = 0;
-        }
-
-        separation = refFaceNormal.Dot(incidentFace[1]) - refC;
-
-        if (separation <= 0.0)
-        {
-            contacts[clippedPoints] = incidentFace[1];
-
-            penetration += -separation;
-            clippedPoints++;
-
-            // Average penetration
-            penetration /= clippedPoints;
-        }
-
-        contactCount = clippedPoints;
-
-        return {
-            Normal: normal,
-            Penetration: penetration,
-            Contacts: contacts,
-            ContactCount: contactCount
-        };
-    }
-
-    /**
-     * Project the shape onto an axis (2D -> 1D).
-     * @param axis
-     * @deprecated
-     */
-    public Project(axis: Vector): Projection
-    {
+        // Find most anti-normal face on the other polygon
+        let face = 0;
         let min = Infinity;
-        let max = -Infinity;
 
-        for (let vertice of this.vertices) 
+        for(let i = 0; i < other.GetPoints().length; ++i)
         {
-            const p = vertice.Dot(axis);
+            const dot = normal.Dot(other.GetAxes()[i]);
 
-            if (p < min)
+            if(dot < min)
             {
-                min = p;
-            }
-            
-            if (p > max)
-            {
-                max = p;
+                min = dot;
+                face = i;
             }
         }
 
-        return new Projection(min, max);
+        const v1 = other.GetVirtual()[face];
+
+        face = face + 1 >= other.GetPoints().length ? 0 : face + 1;
+
+        const v2 = other.GetVirtual()[face];
+
+        return [v1, v2];
     }
 
     /**
@@ -376,29 +202,23 @@ export class Polygon extends Exportable implements IShape
 
         this.axes = [];
 
-        for (let i = 0; i < this.vertices.length; i++) 
+        // Compute face normals
+        for (let i1 = 0; i1 < this.points.length; ++i1)
         {
-            const a = this.vertices[i];
-            const b = this.vertices[i + 1 == this.vertices.length ? 0 : i + 1];
+            let i2 = i1 + 1 < this.points.length ? i1 + 1 : 0;
+            let face = this.points[i2].Sub(this.points[i1]);
 
-            if(Number.isNaN(a.X) || Number.isNaN(a.Y) || Number.isNaN(b.Y) || Number.isNaN(b.Y))
+            // Ensure no zero-length edges, because that's bad
+            if (face.Len2() <= Vector.EPSILON * Vector.EPSILON)
             {
-                throw new Error("NaN in Vector");
+                throw new Error("Zero length edges");
             }
 
-            const edge = a.Sub(b);
-            const normal = edge.Perp();
-
-            this.axes[i] = normal.Normalize();
+            // Calculate normal with 2D cross product between vector and scalar
+            this.axes[i1] = new Vector(face.Y, -face.X);
+            this.axes[i1].Normalize();
         }
 
         return this.axes;
-    }
-
-    /**
-     * Get the vertices of the object.
-     */
-    public GetVertices() {
-        return this.vertices;
     }
 }

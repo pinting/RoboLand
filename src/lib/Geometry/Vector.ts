@@ -10,10 +10,7 @@ export class Vector extends Exportable
 
     @Exportable.Register(ExportType.Visible)
     public Y: number;
-
-    /**
-     * Construct a new vector.
-     */
+    
     constructor(x: number = 0, y: number = 0)
     {
         super();
@@ -32,9 +29,6 @@ export class Vector extends Exportable
         return new Vector(Math.cos(rad), Math.sin(rad))
     }
 
-    /**
-     * Clone the vector.
-     */
     public Clone(): Vector
     {
         return new Vector(this.X, this.Y);
@@ -59,13 +53,24 @@ export class Vector extends Exportable
 
     public static Cross(a: Vector | number, b: Vector | number): Vector | number
     {
+
         if(a instanceof Vector && typeof b === "number")
         {
+            if(Number.isNaN(b))
+            {
+                throw new Error("Cross resulted in NaN");
+            }
+
             return new Vector(b * a.Y, -b * a.X);
         }
 
         if(typeof a === "number" && b instanceof Vector)
         {
+            if(Number.isNaN(a))
+            {
+                throw new Error("Cross resulted in NaN");
+            }
+
             return new Vector(-a * b.Y, a * b.X);
         }
 
@@ -126,6 +131,11 @@ export class Vector extends Exportable
     {
         if(typeof other === "number")
         {
+            if(Number.isNaN(other))
+            {
+                throw new Error("Add resulted in NaN");
+            }
+
             return new Vector(this.X + other, this.Y + other);
         }
 
@@ -140,6 +150,11 @@ export class Vector extends Exportable
     {
         if(typeof other === "number")
         {
+            if(Number.isNaN(other))
+            {
+                throw new Error("Sub resulted in NaN");
+            }
+
             return new Vector(this.X - other, this.Y - other);
         }
 
@@ -159,19 +174,15 @@ export class Vector extends Exportable
     {
         if(typeof other === "number")
         {
+            if(Number.isNaN(other))
+            {
+                throw new Error("Scale resulted in NaN");
+            }
+    
             return new Vector(this.X * other, this.Y * other);
         }
 
         return new Vector(this.X * other.X, this.Y * other.Y);
-    }
-
-    /**
-     * Round up the vectorinates.
-     * @param d Decimal places to round up.
-     */
-    public Round(d = 0): Vector
-    {
-        return this.F(n => Math.round(n * Math.pow(10, d)) / Math.pow(10, d));
     }
 
     /**
@@ -204,15 +215,6 @@ export class Vector extends Exportable
         var l = this.Len();
 
         return new Vector(this.X / l, this.Y / l);
-    }
-
-    /**
-     * Execute a function on the vectorinates.
-     * @param f Function to execute.
-     */
-    public F(f: (n: number) => number): Vector
-    {
-        return new Vector(f(this.X), f(this.Y));
     }
 
     public static Equal(a: number, b: number)

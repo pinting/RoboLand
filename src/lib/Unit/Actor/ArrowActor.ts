@@ -41,11 +41,11 @@ export class ArrowActor extends BaseActor
      */
     protected OnTick(): void
     {
+        /*
         super.OnTick();
         
-        /*
         const facing = Vector.AngleToVector(this.GetAngle());
-        const success = this.SetPosition(this.GetPosition().Add(facing.F(v => v * this.speed)));
+        const success = this.SetPosition(this.GetPosition().Add(facing.Scale(this.speed)));
 
         // If the arrow hit a wall, dispose it
         if(!success)

@@ -45,6 +45,7 @@ export class FireCell extends BaseCell
      */
     protected OnTick(): void
     {
+        /*
         super.OnTick();
         
         this.actors.forEach(id =>
@@ -56,6 +57,7 @@ export class FireCell extends BaseCell
                 actor.Damage(this.damage);
             }
         });
+        */
     }
 }
 

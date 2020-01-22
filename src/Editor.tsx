@@ -139,7 +139,7 @@ export class Editor extends Shared<EditorProps, EditorState>
         }
 
         unit.Init({
-            size: new Vector(1, 1),
+            size: 1,
             position: this.newElementVector.Clone(),
             texture: ""
         });

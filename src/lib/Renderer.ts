@@ -3,6 +3,7 @@ import { Unit } from "./Unit/Unit";
 import { Event } from "./Util/Event";
 import { Vector } from "./Geometry/Vector";
 import { Polygon } from "./Geometry/Polygon";
+import { LivingActor } from "./Unit/Actor/LivingActor";
 
 const DEBUG_COLOR = "purple";
 const DPI = 30;
@@ -16,12 +17,12 @@ export class Renderer
     
     private textures: { [id: string]: HTMLImageElement } = {};
     private stop: boolean = false;
-    private lastDate: number;
+    private lastTick: number;
 
     /**
      * Called upon redraw.
      */
-    public OnDraw: Event<void> = new Event();
+    public OnDraw: Event<number> = new Event();
 
     /**
      * Construct a new game object.
@@ -107,33 +108,34 @@ export class Renderer
         const vector = unit.GetPosition();
         const size = unit.GetSize();
         const texture = this.textures[unit.GetTexture()];
-    
-        const x = vector.X * DPI;
-        const y = vector.Y * DPI;
-        const w = size.X * DPI;
-        const h = size.Y * DPI;
+        
+        const s = size * DPI;
+        const cx = vector.X * DPI;
+        const cy = vector.Y * DPI;
+        const x = cx - s / 2;
+        const y = cy - s / 2;
         
         const rot = (angle: number) =>
         {
-            this.context.translate(x + w / 2, y + h / 2);
+            this.context.translate(cx, cy);
             this.context.rotate(angle);
-            this.context.translate(-(x + w / 2), -(y + h / 2));
+            this.context.translate(-cx, -cy);
         }
 
         rot(unit.GetAngle());
     
         if(texture) {
-            this.context.drawImage(texture, x, y, w, h);
+            this.context.drawImage(texture, x, y, s, s);
         }
         else {
             this.context.fillStyle = DEBUG_COLOR;
-            this.context.fillRect(x, y, w, h);
+            this.context.fillRect(x, y, s, s);
         }
 
         rot(-unit.GetAngle());
         
         // Draw grid if debug mode is enabled
-        if(this.debug) 
+        if(this.debug)
         {
             this.DrawGrid(unit, DEBUG_COLOR);
         }
@@ -146,8 +148,7 @@ export class Renderer
      */
     private DrawGrid(unit: Unit, color: string)
     {
-        const body = unit.GetVirtualBody();
-        const shapes = body.GetShapes();
+        const shapes = unit.GetBody().GetShapes();
         let first = null;
 
         this.context.beginPath();
@@ -156,7 +157,7 @@ export class Renderer
         {
             if (shape instanceof Polygon)
             {
-                for(let point of shape.GetVertices())
+                for(let point of shape.GetVirtual())
                 {
                     if(first)
                     {
@@ -205,10 +206,10 @@ export class Renderer
 
         const now = +new Date;
 
-        this.world.OnTick.Call();
-        this.OnDraw.Call();
+        this.world.OnTick.Call((now - this.lastTick) / 1000);
+        this.OnDraw.Call((now - this.lastTick) / 1000);
 
-        this.lastDate = now;
+        this.lastTick = now;
     }
 
     /**
@@ -216,7 +217,7 @@ export class Renderer
      */
     public Start()
     {
-        this.lastDate = +new Date;
+        this.lastTick = +new Date;
         this.stop = false;
 
         window.requestAnimationFrame(() => this.Render());

@@ -3,13 +3,12 @@ import { Logger } from "../../Util/Logger";
 import { Exportable, ExportType } from "../../Exportable";
 import { Vector } from "../../Geometry/Vector";
 
-const ROT_SPEED = 1;
-
 export interface LivingActorArgs extends BaseActorArgs
 {
     health?: number;
     damage?: number;
     speed?: number;
+    rotSpeed?: number;
 }
 
 export abstract class LivingActor extends BaseActor
@@ -22,6 +21,12 @@ export abstract class LivingActor extends BaseActor
 
     @Exportable.Register(ExportType.Visible)
     protected speed: number;
+
+    @Exportable.Register(ExportType.Visible)
+    protected rotSpeed: number;
+
+    private walkJob: number;
+    private rotJob: number;
     
     /**
      * @inheritDoc
@@ -41,23 +46,81 @@ export abstract class LivingActor extends BaseActor
         this.health = args.health;
         this.damage = args.damage;
         this.speed = args.speed;
+        this.rotSpeed = args.rotSpeed;
     }
 
-    public Step(back: boolean): void
+    protected InitPost(args: LivingActorArgs = {})
+    {
+        super.InitPost(args);
+    }
+
+    public IsWalking(): boolean
+    {
+        return !!this.walkJob;
+    }
+
+    public IsRotating(): boolean
+    {
+        return !!this.rotJob;
+    }
+
+    public StartWalk(back: boolean): void
     {
         if(!this.speed)
         {
             throw new Error("No speed!");
         }
 
-        const d = Vector.ByRad(this.GetAngle() + (back ? Math.PI : 0));
-        
-        this.force = this.force.Add(d.F(v => v * this.speed));
+        this.walkJob = this.world.OnTick.Add(dt =>
+        {
+            const angle = Vector.ByRad(this.GetAngle() + (back ? Math.PI : 0));
+            const body = this.GetBody();
+
+            body.AddForce(angle.Scale(this.speed * dt));
+        });
     }
 
-    public Rotate(left: boolean): void
+    public StopWalk(): void
     {
-        this.av += (left ? -1 : +1) * ROT_SPEED;
+        if(!this.speed)
+        {
+            throw new Error("No speed!");
+        }
+
+        if(this.walkJob)
+        {
+            this.world.OnTick.Remove(this.walkJob);
+            this.walkJob = null;
+        }
+    }
+
+    public StartRot(left: boolean): void
+    {
+        if(!this.rotSpeed)
+        {
+            throw new Error("No rot speed!");
+        }
+
+        this.rotJob = this.world.OnTick.Add(dt =>
+        {
+            const body = this.GetBody();
+
+            body.AddTorque((left ? -1 : 1) * this.rotSpeed * dt);
+        });
+    }
+
+    public StopRot(): void
+    {
+        if(!this.rotJob)
+        {
+            throw new Error("No rot speed!");
+        }
+
+        if(this.rotJob)
+        {
+            this.world.OnTick.Remove(this.rotJob);
+            this.rotJob = null;
+        }
     }
 
     /**

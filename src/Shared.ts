@@ -57,22 +57,50 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
 
         if(Keyboard.Keys[left])
         {
-            player.Rotate(true);
+            if(!player.IsRotating())
+            {
+                player.StartRot(true);
+            }
+        }
+        else if(!Keyboard.Keys[right] && player.IsRotating())
+        {
+            player.StopRot();
         }
 
         if(Keyboard.Keys[right])
         {
-            player.Rotate(false);
+            if(!player.IsRotating())
+            {
+                player.StartRot(false);
+            }
+        }
+        else if(!Keyboard.Keys[left] && player.IsRotating())
+        {
+            player.StopRot();
         }
 
         if(Keyboard.Keys[up])
         {
-            player.Step(false);
+            if(!player.IsWalking())
+            {
+                player.StartWalk(false);
+            }
+        }
+        else if(!Keyboard.Keys[down] && player.IsWalking())
+        {
+            player.StopWalk();
         }
 
         if(Keyboard.Keys[down])
         {
-            player.Step(true);
+            if(!player.IsWalking())
+            {
+                player.StartWalk(true);
+            }
+        }
+        else if(!Keyboard.Keys[up] && player.IsWalking())
+        {
+            player.StopWalk();
         }
 
         if(Keyboard.Keys[space] && this.nextShoot <= +new Date)

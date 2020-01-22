@@ -95,10 +95,8 @@ export class Server
 
         const playerTag = Tools.Unique();
         const player = new PlayerActor;
-        const player2 = new PlayerActor;
         let actors: BaseActor[];
 
-        /*
         for(let spawn of this.spawns)
         {
             actors = this.world.GetActors().FindCollisions(spawn);
@@ -112,12 +110,13 @@ export class Server
                 id: playerTag,
                 parent: playerTag,
                 position: spawn.GetPosition(),
-                size: new Vector(1, 1),
+                size: 1,
                 angle: 0,
                 texture: "res/player.png",
-                speed: 100.0,
+                speed: 1500,
                 damage: 0.1,
-                health: 1.0
+                health: 1,
+                rotSpeed: 200
             });
 
             break;
@@ -127,34 +126,8 @@ export class Server
         {
             throw new Error("Not enough space for new player!");
         }
-        */
-
-        player.Init({
-            id: playerTag,
-            parent: playerTag,
-            position: new Vector(3, 3),
-            size: new Vector(1, 1),
-            angle: 0,
-            texture: "res/player.png",
-            speed: 100.0,
-            damage: 0.1,
-            health: 1.0
-        });
-
-        player2.Init({
-            id: Tools.Unique(),
-            parent: this.world.Origin,
-            position: new Vector(1, 1),
-            size: new Vector(1, 1),
-            angle: 0,
-            texture: "res/player.png",
-            speed: 100.0,
-            damage: 0.1,
-            health: 1.0
-        });
 
         this.world.GetActors().Set(player);
-        this.world.GetActors().Set(player2);
 
         // Set size
         await client.SendSize(this.world.GetSize());
