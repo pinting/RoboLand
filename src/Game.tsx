@@ -196,7 +196,11 @@ export class Game extends Shared<GameProps, GameState>
     {
         window["world"] = this.world;
 
-        const renderer = new Renderer(this.world, this.canvas, true);
+        const renderer = new Renderer({ 
+            canvas: this.canvas, 
+            world: this.world,
+            debug: false
+        });
         const receiver = await this.CreateReceiver(renderer);
 
         receiver.OnPlayer = async player =>

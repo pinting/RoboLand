@@ -40,15 +40,15 @@ export class Debug extends Shared
 
         const delay = Constants.DebugDelay;
 
-        const boardA: World = new World();
-        const boardB: World = new World();
+        const worldA: World = new World();
+        const worldB: World = new World();
     
         // Tagging for debug purposes
-        boardA["_Name"] = "boardA";
-        boardB["_Name"] = "boardB";
+        worldA["_Name"] = "worldA";
+        worldB["_Name"] = "worldB";
         
-        const rendererA = new Renderer(boardA, this.canvasA, true);
-        const rendererB = new Renderer(boardB, this.canvasB, true);
+        const rendererA = new Renderer({ canvas: this.canvasA, world: worldA, debug: true });
+        const rendererB = new Renderer({ canvas: this.canvasB, world: worldB, debug: true });
         
         const channelA1 = new FakeChannel(delay);
         const channelA2 = new FakeChannel(delay);
@@ -60,19 +60,19 @@ export class Debug extends Shared
         channelB1.SetOther(channelB2);
         channelB2.SetOther(channelB1);
     
-        const receiverA = new Client(channelA1, boardA)
-        const receiverB = new Client(channelB1, boardB);
+        const receiverA = new Client(channelA1, worldA)
+        const receiverB = new Client(channelB1, worldB);
         
         const raw: IDump = JSON.parse(await Http.Get("res/world.json"));
-        const boardServer: World = Exportable.Import(raw);
-        const server = new Server(boardServer);
+        const worldS: World = Exportable.Import(raw);
+        const server = new Server(worldS);
         
         server.Add(new Host(channelA2, server));
         server.Add(new Host(channelB2, server));
         
         receiverA.OnPlayer = async player =>
         {
-            boardA.Origin = player.GetId();
+            worldA.Origin = player.GetId();
     
             await rendererA.Load();
             
@@ -91,7 +91,7 @@ export class Debug extends Shared
         
         receiverB.OnPlayer = async player =>
         {
-            boardB.Origin = player.GetId();
+            worldB.Origin = player.GetId();
     
             await rendererB.Load();
     
@@ -109,7 +109,7 @@ export class Debug extends Shared
         };
     
         // Render the server
-        const rendererS = new Renderer(boardServer, this.canvasS, true);
+        const rendererS = new Renderer({ canvas: this.canvasS, world: worldS, debug: true });
     
         await rendererS.Load();
     
@@ -118,9 +118,9 @@ export class Debug extends Shared
         // For debug
         Tools.Extract(window, {
             // Instances
-            boardA,
-            boardB,
-            boardServer,
+            boardA: worldA,
+            boardB: worldB,
+            boardServer: worldS,
             // Classes
             World,
             Tools,

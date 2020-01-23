@@ -33,7 +33,7 @@
     "ts-loader": "5.2.x",
     "typescript": "2.9.x",
     "webpack": "4.20.x",
-    "webpack-cli": "3.1.x",
+    "webpack-cli": "^3.1.2",
     "webpack-dev-server": "3.1.x"
   }
 }

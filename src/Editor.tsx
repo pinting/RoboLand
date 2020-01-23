@@ -112,7 +112,11 @@ export class Editor extends Shared<EditorProps, EditorState>
         this.world = World.Current = new World();
         this.world.Init(this.newBoardSize);
 
-        this.renderer = new Renderer(this.world, this.canvas);
+        this.renderer = new Renderer({
+            canvas: this.canvas, 
+            world: this.world
+        });
+        
         this.selectedElement = null;
         
         await this.renderer.Load();
@@ -241,7 +245,10 @@ export class Editor extends Shared<EditorProps, EditorState>
         }
 
         this.world = World.Current = Exportable.Import(exported);
-        this.renderer = new Renderer(this.world, this.canvas);
+        this.renderer = new Renderer({ 
+            canvas: this.canvas,
+            world: this.world
+        });
         this.selectedElement = null;
         
         await this.renderer.Load();
