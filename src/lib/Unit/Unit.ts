@@ -20,6 +20,8 @@ export interface UnitArgs
     angle?: number;
     body?: Body;
     blocking?: boolean;
+    light?: number;
+    z?: number;
 }
 
 export abstract class Unit extends Exportable
@@ -54,6 +56,12 @@ export abstract class Unit extends Exportable
     @Exportable.Register(ExportType.Visible)
     protected blocking: boolean;
 
+    @Exportable.Register(ExportType.Visible)
+    protected light: number;
+
+    @Exportable.Register(ExportType.Visible)
+    protected z: number;
+
     /**
      * Construct a new unit with the given init args.
      * @param args
@@ -77,6 +85,8 @@ export abstract class Unit extends Exportable
         this.texture = args.texture;
         this.angle = args.angle || 0;
         this.blocking = args.blocking || false;
+        this.light = args.light || 0;
+        this.z = args.z || 0;
 
         this.world && (this.tickEvent = this.world.OnTick.Add(dt => this.OnTick(dt)));
     }
@@ -113,19 +123,6 @@ export abstract class Unit extends Exportable
     public GetTexture(): string
     {
         return this.texture;
-    }
-
-    /**
-     * Get the center position of the unit.
-     */
-    public GetCenter(): Vector
-    {
-        if(!this.position || !this.size)
-        {
-            throw new Error("Get center failed, no position or size!");
-        }
-
-        return this.position.Add(this.size.Scale(0.5));
     }
 
     /**
@@ -261,6 +258,16 @@ export abstract class Unit extends Exportable
         }
     }
     
+    public GetLight(): number
+    {
+        return this.light;
+    }
+    
+    public GetZ(): number
+    {
+        return this.z;
+    }
+    
     public IsBlocking(): boolean
     {
         return this.blocking;
@@ -311,7 +318,7 @@ export abstract class Unit extends Exportable
             return null;
         }
 
-        const dist = this.GetCenter().Dist(unit.GetCenter());
+        const dist = this.GetPosition().Dist(unit.GetPosition());
 
         // Optimize, if unit is too far away, skip deeper collision detection
         if(dist > this.GetRadius() + unit.GetRadius())

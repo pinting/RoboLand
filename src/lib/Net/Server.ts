@@ -116,7 +116,9 @@ export class Server
                 speed: 1500,
                 damage: 0.1,
                 health: 1,
-                rotSpeed: 200
+                rotSpeed: 200,
+                light: 6,
+                z: 1
             });
 
             break;

@@ -4,9 +4,18 @@ import { Event } from "./Util/Event";
 import { Vector } from "./Geometry/Vector";
 import { Polygon } from "./Geometry/Polygon";
 import { LivingActor } from "./Unit/Actor/LivingActor";
+import { Body } from "./Physics/Body";
 
+const TEST_BODY_SIZE = 1 / 3;
 const DEBUG_COLOR = "purple";
+const DYNAMIC_LIGHTING = true;
 const DPI = 30;
+
+export interface RendererArgs
+{
+    debug?: boolean;
+    dynamicLightning?: boolean;
+}
 
 export class Renderer
 {
@@ -18,6 +27,7 @@ export class Renderer
     private textures: { [id: string]: HTMLImageElement } = {};
     private stop: boolean = false;
     private lastTick: number;
+    private lightMap: number[] = [];
 
     /**
      * Called upon redraw.
@@ -177,6 +187,83 @@ export class Renderer
         this.context.strokeStyle = color;
         this.context.stroke();
     }
+
+    private ResetLight()
+    {
+        const size = this.world.GetSize();
+        
+        for(let i = 0; i < DPI * size.X * DPI * size.Y; i++)
+        {
+            this.lightMap[i] = 0;
+        }
+    }
+
+    private LightCalculation(u: Unit)
+    {
+        if(!u.GetLight())
+        {
+            return;
+        }
+        
+        const size = this.world.GetSize();
+    
+        const w = DPI * size.X;
+        const h = DPI * size.Y;
+        
+        const testBody = new Body([Polygon.CreateBox(TEST_BODY_SIZE)]);
+
+        for(let r = 0; r < 2 * Math.PI; r += 20 * (Math.PI / 180))
+        {
+            const origin = u.GetPosition();
+            const step = Vector.ByRad(r).Scale(1 / 2);
+
+            for(let point = origin; point.Dist(origin) < u.GetLight(); point = point.Add(step))
+            {
+                const startX = Math.floor(point.X * DPI);
+                const startY = Math.floor(point.Y * DPI);
+                
+                if(startX >= w || startY >= h || startX < 0 || startY < 0)
+                {
+                    break;
+                }
+                
+                testBody.SetVirtual(1, 0, point);
+
+                let collision = false;
+
+                for(const unit of this.world.GetCells().GetList())
+                {
+                    if(unit.IsBlocking() && testBody.Collide(unit.GetBody()))
+                    {
+                        collision = true;
+                        break;
+                    }
+                }
+
+                if(collision)
+                {
+                    break;
+                }
+
+                const fillSize = Math.max(Math.floor(point.Dist(origin) * DPI), DPI)
+
+                for(let y = startY; y < startY + fillSize; ++y)
+                {
+                    for(let x = startX; x < startX + fillSize; ++x)
+                    {
+                        if(x >= w || y >= h || x < 0 || y < 0)
+                        {
+                            continue;
+                        }
+
+                        const p = new Vector(Math.floor(x / DPI), Math.floor(y / DPI));
+
+                        this.lightMap[x + y * w] += 1 - (p.Dist(origin) / u.GetLight());
+                    }
+                }
+            }
+        }
+    }
     
     /**
      * Update the canvas.
@@ -196,8 +283,41 @@ export class Renderer
         this.context.fillStyle = "black";
         this.context.fillRect(0, 0, w, h);
         
-        this.world.GetCells().ForEach(e => this.DrawElement(e));
-        this.world.GetActors().ForEach(e => this.DrawElement(e));
+        if(DYNAMIC_LIGHTING)
+        {
+            this.ResetLight();
+        }
+        else if(!this.lightMap.length)
+        {
+            this.ResetLight();
+            this.world.GetCells().ForEach(u => this.LightCalculation(u));
+        }
+
+        this.world
+            .GetUnits()
+            .GetList()
+            .sort((a, b) => a.GetZ() - b.GetZ())
+            .forEach(u =>
+            {
+                this.DrawElement(u);
+
+                if(DYNAMIC_LIGHTING)
+                {
+                    this.LightCalculation(u);
+                }
+            });
+
+        const imageData = this.context.getImageData(0, 0, w, h);
+        
+        for(let y = 0; y < h; y++)
+        {
+            for(let x = 0; x < w; x++)
+            {
+                imageData.data[(y * imageData.width + x) * 4 + 3] = Math.min(255, this.lightMap[x + y * w] * 255);
+            }
+        }
+        
+        this.context.putImageData(imageData, 0, 0);
     
         if(!this.stop)
         {

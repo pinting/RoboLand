@@ -68,7 +68,7 @@ export class ElementList<Element extends Unit> implements IReadOnlyElementList<E
 
         this.elements.forEach(e => 
         {
-            const distance = e.GetCenter().Dist(position);
+            const distance = e.GetPosition().Dist(position);
 
             if(distance < min) 
             {

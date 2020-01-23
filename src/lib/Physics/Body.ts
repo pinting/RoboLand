@@ -166,19 +166,6 @@ export class Body extends Exportable
     }
 
     /**
-     * Get the center position of the unit.
-     */
-    public GetCenter(): Vector
-    {
-        if(!this.offset || !this.scale)
-        {
-            throw new Error("Get center failed, no position or size!");
-        }
-
-        return this.offset.Add(this.GetRadius());
-    }
-
-    /**
      * Get the radius of the unit.
      */
     public GetRadius(): number

@@ -221,4 +221,14 @@ export class Polygon extends BaseShape
 
         return this.axes;
     }
+
+    public static CreateBox(size: number): Polygon
+    {
+        return new Polygon([
+            new Vector(-size / 2, size / 2),
+            new Vector(-size / 2, -size / 2),
+            new Vector(size / 2, -size / 2),
+            new Vector(size / 2, size / 2)
+        ])
+    }
 }

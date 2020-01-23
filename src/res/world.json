@@ -1642,7 +1642,7 @@
                 },
                 {
                     "Name": "38",
-                    "Class": "GroundCell",
+                    "Class": "StoneCell",
                     "Payload": [
                         {
                             "Name": "size",
@@ -1663,7 +1663,7 @@
                         {
                             "Name": "texture",
                             "Class": "string",
-                            "Payload": "res/ground.png"
+                            "Payload": "res/stone.png"
                         },
                         {
                             "Name": "position",
@@ -1685,7 +1685,7 @@
                 },
                 {
                     "Name": "39",
-                    "Class": "GroundCell",
+                    "Class": "StoneCell",
                     "Payload": [
                         {
                             "Name": "size",
@@ -1706,7 +1706,7 @@
                         {
                             "Name": "texture",
                             "Class": "string",
-                            "Payload": "res/ground.png"
+                            "Payload": "res/stone.png"
                         },
                         {
                             "Name": "position",

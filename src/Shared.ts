@@ -11,6 +11,7 @@ import { StoneCell } from "./lib/Unit/Cell/StoneCell";
 import { GroundCell } from "./lib/Unit/Cell/GroundCell";
 import { FireCell } from "./lib/Unit/Cell/FireCell";
 import { ArrowActor } from "./lib/Unit/Actor/ArrowActor";
+import { LightCell } from "./lib/Unit/Cell/LightCell";
 
 // Dependency classes as a dependency
 Exportable.Dependency(ArrowActor);
@@ -19,6 +20,7 @@ Exportable.Dependency(FireCell);
 Exportable.Dependency(GroundCell);
 Exportable.Dependency(StoneCell);
 Exportable.Dependency(WaterCell);
+Exportable.Dependency(LightCell);
 Exportable.Dependency(World);
 Exportable.Dependency(Vector);
 
