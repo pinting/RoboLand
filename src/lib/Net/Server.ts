@@ -1,6 +1,6 @@
 import { World } from "../World";
 import { PlayerActor } from "../Unit/Actor/PlayerActor";
-import { Sender } from "./Sender";
+import { Host } from "./Host";
 import { Exportable } from "../Exportable";
 import { IDump } from "../IDump";
 import { Vector } from "../Geometry/Vector";
@@ -13,7 +13,7 @@ export class Server
 {
     private readonly world: World;
     private readonly spawns: BaseCell[];
-    private readonly clients: Sender[] = [];
+    private readonly clients: Host[] = [];
 
     /**
      * Construct a new server with the given world. The server gonna
@@ -38,7 +38,7 @@ export class Server
      * @param client
      * @param command
      */
-    private OnCommand(client: Sender, command: IDump)
+    private OnCommand(client: Host, command: IDump)
     {
         const args = Exportable.Import(command);
         const player = client.GetPlayer();
@@ -70,7 +70,7 @@ export class Server
      * Kick client out of the server.
      * @param client 
      */
-    public Kick(client: Sender)
+    public Kick(client: Host)
     {
         const index = this.clients.indexOf(client);
 
@@ -88,7 +88,7 @@ export class Server
      * with a Client object through an IChannel implementation.
      * @param client 
      */
-    public async Add(client: Sender)
+    public async Add(client: Host)
     {
         // Create player and add it to the world
         World.Current = this.world;
@@ -110,7 +110,7 @@ export class Server
                 id: playerTag,
                 parent: playerTag,
                 position: spawn.GetPosition(),
-                size: 1,
+                size: new Vector(1, 1),
                 angle: 0,
                 texture: "res/player.png",
                 speed: 1500,

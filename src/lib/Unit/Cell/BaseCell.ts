@@ -1,6 +1,9 @@
 import { BaseActor } from "../Actor/BaseActor";
 import { Unit, UnitArgs } from "../Unit";
 import { Exportable, ExportType } from "../../Exportable";
+import { Vector } from "../../Geometry/Vector";
+import { Body } from "../../Physics/Body";
+import { Polygon } from "../../Geometry/Polygon";
 
 export interface BaseCellArgs extends UnitArgs
 {
@@ -20,23 +23,35 @@ export abstract class BaseCell extends Unit
     protected InitPre(args: BaseCellArgs = {})
     {
         super.InitPre(args);
-
+        
         this.cf = args.cf || 0.0001;
+    }
+    
+    protected BodyFactory()
+    {
+        return new Body([
+            new Polygon([
+                new Vector(-0.5, 0.5),
+                new Vector(0.5, 0.5),
+                new Vector(0.5, -0.5),
+                new Vector(-0.5, -0.5)
+            ])
+        ], {
+            density: Infinity
+        });
     }
 
     /**
      * Enter into the cell with an actor.
      * @param actor 
      */
-    public MoveHere(actor: BaseActor): boolean 
+    public MoveHere(actor: BaseActor): void 
     {
         if(!this.actors.includes(actor.GetId()))
         {
             this.actors.push(actor.GetId());
             this.world.OnUpdate.Call(this);
         }
-
-        return true;
     }
 
     /**

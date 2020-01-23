@@ -214,7 +214,7 @@ export class Vector extends Exportable
     {
         var l = this.Len();
 
-        return new Vector(this.X / l, this.Y / l);
+        return l === 0 ? new Vector(0, 0) : new Vector(this.X / l, this.Y / l);
     }
 
     public static Equal(a: number, b: number)

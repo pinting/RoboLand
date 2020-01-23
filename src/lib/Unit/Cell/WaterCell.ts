@@ -8,14 +8,12 @@ export class WaterCell extends BaseCell
     /**
      * @inheritDoc
      */
-    public MoveHere(actor: BaseActor): boolean 
+    public MoveHere(actor: BaseActor): void 
     {
         if(actor instanceof LivingActor)
         {
             actor.Dispose();
         }
-        
-        return true;
     }
 }
 

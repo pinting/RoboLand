@@ -1,5 +1,5 @@
 import { BaseActor } from "../Actor/BaseActor";
-import { BaseCell } from "./BaseCell";
+import { BaseCell, BaseCellArgs } from "./BaseCell";
 import { Exportable } from "../../Exportable";
 
 export class StoneCell extends BaseCell
@@ -7,9 +7,11 @@ export class StoneCell extends BaseCell
     /**
      * @inheritDoc
      */
-    public MoveHere(actor: BaseActor): boolean 
+    protected InitPre(args: BaseCellArgs = {})
     {
-        return false;
+        super.InitPre(args);
+        
+        this.blocking = args.blocking || true;
     }
 }
 

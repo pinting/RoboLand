@@ -7,30 +7,19 @@ import { Logger } from "../Util/Logger";
 import { Body } from "../Physics/Body";
 import { Polygon } from "../Geometry/Polygon";
 import { IContact } from "../Geometry/IContact";
-
-const DEFAULT_BODY = (s: number) => new Body([
-    new Polygon([
-        new Vector(-s / 2, s / 2),
-        new Vector(s / 2, s / 2),
-        new Vector(-s / 2, -s / 2)
-    ]),
-    new Polygon([
-        new Vector(s / 2, s / 2),
-        new Vector(s / 2, -s / 2),
-        new Vector(-s / 2, -s / 2)
-    ])
-]);
+import { ICollision } from "../Physics/ICollision";
 
 export interface UnitArgs
 {
     id?: string;
     position?: Vector; 
-    size?: number;
+    size?: Vector;
     texture?: string;
     parent?: string;
     world?: World;
     angle?: number;
     body?: Body;
+    blocking?: boolean;
 }
 
 export abstract class Unit extends Exportable
@@ -48,7 +37,7 @@ export abstract class Unit extends Exportable
     protected parent: string; // ID of the parent unit
 
     @Exportable.Register(ExportType.Visible)
-    protected size: number;
+    protected size: Vector;
 
     @Exportable.Register(ExportType.Visible, (s, v) => s.SetBody(v))
     protected body: Body;
@@ -62,6 +51,9 @@ export abstract class Unit extends Exportable
     @Exportable.Register(ExportType.Visible)
     protected texture: string;
 
+    @Exportable.Register(ExportType.Visible)
+    protected blocking: boolean;
+
     /**
      * Construct a new unit with the given init args.
      * @param args
@@ -73,8 +65,7 @@ export abstract class Unit extends Exportable
     }
 
     /**
-     * For direct assignments.
-     * This will be called first!
+     * For direct assignments. This will be called first!
      * @param args 
      */
     protected InitPre(args: UnitArgs = {})
@@ -85,6 +76,9 @@ export abstract class Unit extends Exportable
         this.size = args.size;
         this.texture = args.texture;
         this.angle = args.angle || 0;
+        this.blocking = args.blocking || false;
+
+        this.world && (this.tickEvent = this.world.OnTick.Add(dt => this.OnTick(dt)));
     }
 
     /**
@@ -131,7 +125,7 @@ export abstract class Unit extends Exportable
             throw new Error("Get center failed, no position or size!");
         }
 
-        return this.position.Add(this.GetRadius());
+        return this.position.Add(this.size.Scale(0.5));
     }
 
     /**
@@ -144,10 +138,10 @@ export abstract class Unit extends Exportable
             throw new Error("Get radius failed, no size!");
         }
 
-        return this.size / 2;
+        return Math.sqrt(Math.pow(this.size.X, 2) + Math.pow(this.size.Y, 2)) / 2;
     }
 
-    public GetSize(): number
+    public GetSize(): Vector
     {
         return this.size;
     }
@@ -214,6 +208,18 @@ export abstract class Unit extends Exportable
         return true;
     }
 
+    protected BodyFactory()
+    {
+        return new Body([
+            new Polygon([
+                new Vector(-0.5, 0.5),
+                new Vector(0.5, 0.5),
+                new Vector(0.5, -0.5),
+                new Vector(-0.5, -0.5)
+            ])
+        ]);
+    }
+
     /**
      * Get the body of the unit.
      */
@@ -227,7 +233,7 @@ export abstract class Unit extends Exportable
         // Default body
         if(!this.body)
         {
-            this.SetBody(DEFAULT_BODY(this.size));
+            this.SetBody(this.BodyFactory());
         }
 
         return this.body;
@@ -246,14 +252,18 @@ export abstract class Unit extends Exportable
         }
 
         this.body = body;
-        this.body.SetVirtual(this.size, this.angle, this.position);
+        this.body.SetVirtual(Math.max(this.size.X, this.size.Y), this.angle, this.position);
 
-        this.body.OnChange = (size, angle, position) => 
+        this.body.OnChange = (scale, rotation, offset) => 
         {
-            size && (this.size = size);
-            angle && (this.angle = angle);
-            position && (this.position = position);
+            rotation && (this.angle = rotation);
+            offset && (this.position = offset);
         }
+    }
+    
+    public IsBlocking(): boolean
+    {
+        return this.blocking;
     }
 
     /**
@@ -276,6 +286,7 @@ export abstract class Unit extends Exportable
         }
 
         this.disposed = true;
+        this.world && this.world.OnTick.Remove(this.tickEvent);
 
         Logger.Info(this, "Element was disposed!", this);
     }
@@ -293,7 +304,7 @@ export abstract class Unit extends Exportable
      * Check if the unit collides with another.
      * @param unit 
      */
-    public Collide(unit: Unit): IContact
+    public Collide(unit: Unit): ICollision
     {
         if(unit == this || unit.GetId() == this.GetId())
         {
@@ -303,7 +314,7 @@ export abstract class Unit extends Exportable
         const dist = this.GetCenter().Dist(unit.GetCenter());
 
         // Optimize, if unit is too far away, skip deeper collision detection
-        if(dist >= this.GetRadius() + unit.GetRadius())
+        if(dist > this.GetRadius() + unit.GetRadius())
         {
             return null;
         }
@@ -326,5 +337,10 @@ export abstract class Unit extends Exportable
         World.Current = current;
 
         return clone;
+    }
+    
+    protected OnTick(dt: number)
+    {
+        return;
     }
 }

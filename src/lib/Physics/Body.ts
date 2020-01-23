@@ -7,6 +7,20 @@ import { Polygon } from "../Geometry/Polygon";
 import { Tools } from "../Util/Tools";
 import { ICollision } from "./ICollision";
 
+export interface BodyArgs
+{
+    density?: number; // Mass density
+    gravity?: Vector; // Gravity
+    force?: Vector; // Force
+    v?: Vector; // Velocity
+    av?: number; // Angular velocity
+    torque?: number; // Torque
+    sf?: number; // Static friction
+    df?: number; // Dynamic friction
+    r?: number; // Restitution
+}
+
+
 export class Body extends Exportable
 {
     @Exportable.Register(ExportType.Visible)
@@ -35,22 +49,22 @@ export class Body extends Exportable
      * Construct a new body with the given shapes.
      * @param shapes Can be empty.
      */
-    constructor(shapes: BaseShape[] = []) 
+    constructor(shapes: BaseShape[] = [], args: BodyArgs = {}) 
     {
         super();
 
         this.shapes = shapes;
 
-        this.gravity = new Vector(0, 0);
-        this.force = new Vector(0, 0);
-        this.sf = 0.5;
-        this.df = 0.3;
-        this.r = 0.2;
-        this.av = 0;
-        this.torque = 0;
-        this.v = new Vector(0, 0);
+        this.gravity = args.gravity || new Vector(0, 0);
+        this.force = args.force || new Vector(0, 0);
+        this.sf = args.sf || 0.5;
+        this.df = args.df || 0.3;
+        this.r = args.r || 0.2;
+        this.av = args.av || 0;
+        this.torque = args.torque || 0;
+        this.v = args.v || new Vector(0, 0);
 
-        this.ComputeMass();
+        this.ComputeMass(args.density);
     }
 
     private EveryShape<T>(other: Body, callback: (s1: BaseShape, s2: BaseShape) => T): T

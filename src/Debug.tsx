@@ -3,11 +3,11 @@ import { Keyboard } from "./lib/Util/Keyboard";
 import { World } from "./lib/World";
 import { Renderer } from "./lib/Renderer";
 import { FakeChannel } from "./lib/Net/Channel/FakeChannel";
-import { Receiver } from "./lib/Net/Receiver";
+import { Client } from "./lib/Net/Client";
 import { IDump } from "./lib/IDump";
 import { Server } from "./lib/Net/Server";
 import { Exportable } from "./lib/Exportable";
-import { Sender } from "./lib/Net/Sender";
+import { Host } from "./lib/Net/Host";
 import { Http } from "./lib/Util/Http";
 import { Vector } from "./lib/Geometry/Vector";
 import { Matrix } from "./lib/Geometry/Matrix";
@@ -60,15 +60,15 @@ export class Debug extends Shared
         channelB1.SetOther(channelB2);
         channelB2.SetOther(channelB1);
     
-        const receiverA = new Receiver(channelA1, boardA)
-        const receiverB = new Receiver(channelB1, boardB);
+        const receiverA = new Client(channelA1, boardA)
+        const receiverB = new Client(channelB1, boardB);
         
         const raw: IDump = JSON.parse(await Http.Get("res/world.json"));
         const boardServer: World = Exportable.Import(raw);
         const server = new Server(boardServer);
         
-        server.Add(new Sender(channelA2, server));
-        server.Add(new Sender(channelB2, server));
+        server.Add(new Host(channelA2, server));
+        server.Add(new Host(channelB2, server));
         
         receiverA.OnPlayer = async player =>
         {

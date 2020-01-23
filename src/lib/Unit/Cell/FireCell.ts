@@ -35,18 +35,9 @@ export class FireCell extends BaseCell
     /**
      * @inheritDoc
      */
-    public MoveHere(actor: BaseActor): boolean 
+    protected OnTick(dt: number): void
     {
-        return true;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected OnTick(): void
-    {
-        /*
-        super.OnTick();
+        super.OnTick(dt);
         
         this.actors.forEach(id =>
         {
@@ -54,10 +45,9 @@ export class FireCell extends BaseCell
 
             if(actor instanceof LivingActor)
             {
-                actor.Damage(this.damage);
+                actor.Damage(this.damage * dt);
             }
         });
-        */
     }
 }
 

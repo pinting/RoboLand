@@ -1,6 +1,7 @@
 import { Vector } from "../../Geometry/Vector";
 import { Unit, UnitArgs } from "../Unit";
 import { CollisionError } from "../../Physics/CollisionError";
+import { BaseCellArgs } from "../Cell/BaseCell";
 
 export interface BaseActorArgs extends UnitArgs
 {
@@ -9,6 +10,16 @@ export interface BaseActorArgs extends UnitArgs
 
 export abstract class BaseActor extends Unit
 {
+    /**
+     * @inheritDoc
+     */
+    protected InitPre(args: BaseActorArgs = {})
+    {
+        super.InitPre(args);
+        
+        this.blocking = args.blocking || true;
+    }
+    
     /**
      * @inheritDoc
      */
@@ -66,19 +77,8 @@ export abstract class BaseActor extends Unit
         const prevFiltered = prev.filter(v => !next.includes(v));
         const nextFiltered = next.filter(v => !prev.includes(v));
 
-        // TODO: The move will really occur in cells - should I change this?
-        // Check if one of the cells blocks the movement
-        if(nextFiltered.some(cell => !cell.MoveHere(this)))
-        {
-            // If yes, revert all movement and return
-            nextFiltered.forEach(v => v.MoveAway(this));
-
-            // Position is taken by a cell!
-            throw new CollisionError(nextFiltered.map(unit => unit.GetBody()));
-        }
-
-        // If it was successful, move away from the old cells
-        prevFiltered.forEach(v => v.MoveAway(this));
+        nextFiltered.forEach(cell => cell.MoveHere(this))
+        prevFiltered.forEach(cell => cell.MoveAway(this));
 
         return true;
     }

@@ -8,4 +8,5 @@ export interface IReadOnlyElementList<Element>
     Find(position: Vector): Element[];
     FindNearest(position: Vector): Element;
     FindCollisions(unit: Element): Element[];
+    GetList(): Element[];
 }

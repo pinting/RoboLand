@@ -3,9 +3,9 @@ import "./Game.css";
 import { World } from "./lib/World";
 import { Server } from './lib/Net/Server';
 import { Renderer } from "./lib/Renderer";
-import { Sender } from "./lib/Net/Sender";
+import { Host } from "./lib/Net/Host";
 import { FakeChannel } from "./lib/Net/Channel/FakeChannel";
-import { Receiver } from "./lib/Net/Receiver";
+import { Client } from "./lib/Net/Client";
 import { PeerChannel } from "./lib/Net/Channel/PeerChannel";
 import { Exportable } from "./lib/Exportable";
 import { Http } from "./lib/Util/Http";
@@ -13,7 +13,6 @@ import { Tools } from "./lib/Util/Tools";
 import { Helper } from "./Helper";
 import { Shared } from "./Shared";
 import { Constants } from "./Constants";
-import { LivingActor } from "./lib/Unit/Actor/LivingActor";
 import { PlayerActor } from "./lib/Unit/Actor/PlayerActor";
 import { Vector } from "./lib/Geometry/Vector";
 
@@ -136,7 +135,7 @@ export class Game extends Shared<GameProps, GameState>
         channel.OnOpen = () => 
         {
             this.setState({ message: "A new player joined!" });
-            this.server.Add(new Sender(channel, this.server));
+            this.server.Add(new Host(channel, this.server));
         };
 
         while(true)
@@ -157,11 +156,11 @@ export class Game extends Shared<GameProps, GameState>
     /**
      * Create receiver (and server).
      */
-    private async CreateReceiver(renderer: Renderer): Promise<Receiver>
+    private async CreateReceiver(renderer: Renderer): Promise<Client>
     {
         if(this.channel && !this.channel.IsOfferor())
         {
-            return new Receiver(this.channel, this.world);
+            return new Client(this.channel, this.world);
         }
 
         // Create server world, load it, create server
@@ -184,10 +183,10 @@ export class Game extends Shared<GameProps, GameState>
         localB.SetOther(localA);
 
         // Add connection to the server
-        this.server.Add(new Sender(localA, this.server));
+        this.server.Add(new Host(localA, this.server));
 
         // Connect client to the server
-        return new Receiver(localB, this.world);
+        return new Client(localB, this.world);
     }
 
     /**
@@ -232,7 +231,7 @@ export class Game extends Shared<GameProps, GameState>
         p1.Init({
             id: Tools.Unique(),
             position: new Vector(10, 10),
-            size: 1,
+            size: new Vector(1, 1),
             angle: Math.PI/6,
             speed: 100.0,
             damage: 0.1,
@@ -242,7 +241,7 @@ export class Game extends Shared<GameProps, GameState>
         p2.Init({
             id: Tools.Unique(),
             position: new Vector(10.5, 10.5),
-            size: 1,
+            size: new Vector(1, 1),
             angle: Math.PI/6,
             speed: 100.0,
             damage: 0.1,

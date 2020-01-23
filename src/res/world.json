@@ -12,8 +12,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -44,8 +55,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -76,8 +98,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -108,8 +141,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -140,8 +184,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -172,8 +227,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -204,8 +270,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -236,8 +313,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -268,8 +356,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -300,8 +399,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -332,8 +442,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -364,8 +485,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -396,8 +528,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -428,8 +571,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -460,8 +614,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -492,8 +657,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -524,8 +700,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -556,8 +743,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -588,8 +786,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -620,8 +829,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -652,8 +872,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -684,8 +915,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -716,8 +958,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -748,8 +1001,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -780,8 +1044,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -812,8 +1087,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -844,8 +1130,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -876,8 +1173,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -908,8 +1216,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -940,8 +1259,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -972,8 +1302,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1004,8 +1345,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1036,8 +1388,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1068,8 +1431,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1100,8 +1474,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1132,8 +1517,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1164,8 +1560,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1196,8 +1603,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1228,8 +1646,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1260,8 +1689,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1292,8 +1732,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1324,8 +1775,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1356,8 +1818,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1388,8 +1861,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1420,8 +1904,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1452,8 +1947,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1484,8 +1990,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",
@@ -1516,8 +2033,19 @@
                     "Payload": [
                         {
                             "Name": "size",
-                            "Class": "number",
-                            "Payload": 1
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 1
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 1
+                                }
+                            ]
                         },
                         {
                             "Name": "texture",

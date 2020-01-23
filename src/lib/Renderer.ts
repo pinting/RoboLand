@@ -42,7 +42,7 @@ export class Renderer
     {
         return new Promise<void>((resolve, reject) => 
         {
-            const elements = this.world.GetElements();
+            const elements = this.world.GetUnits();
             let i = 0;
     
             elements.ForEach((unit: Unit) =>
@@ -109,11 +109,11 @@ export class Renderer
         const size = unit.GetSize();
         const texture = this.textures[unit.GetTexture()];
         
-        const s = size * DPI;
+        const s = size.Scale(DPI);
         const cx = vector.X * DPI;
         const cy = vector.Y * DPI;
-        const x = cx - s / 2;
-        const y = cy - s / 2;
+        const x = cx - s.X / 2;
+        const y = cy - s.Y / 2;
         
         const rot = (angle: number) =>
         {
@@ -125,11 +125,11 @@ export class Renderer
         rot(unit.GetAngle());
     
         if(texture) {
-            this.context.drawImage(texture, x, y, s, s);
+            this.context.drawImage(texture, x, y, s.X, s.Y);
         }
         else {
             this.context.fillStyle = DEBUG_COLOR;
-            this.context.fillRect(x, y, s, s);
+            this.context.fillRect(x, y, s.X, s.Y);
         }
 
         rot(-unit.GetAngle());

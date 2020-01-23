@@ -11,7 +11,7 @@ import { IDump } from "./IDump";
 import { Body } from "./Physics/Body";
 import { ICollision } from "./Physics/ICollision";
 
-const COLLISION_ITERATIONS = 10;
+const COLLISION_ITERATIONS = 50;
 
 export class World extends Exportable
 {
@@ -56,28 +56,26 @@ export class World extends Exportable
         this.OnTick.Add(dt =>
         {
             const contacts: ICollision[] = [];
+            const units = this.GetUnits();
 
-            for(let i = 0; i < this.actors.length; i++)
+            for(let i = 0; i < units.GetLength(); i++)
             {
-                const a = this.actors[i].GetBody();
+                const a: Unit = units.GetList()[i];
 
-                for(let j = i + 1; j < this.actors.length; j++)
+                for(let j = i + 1; j < units.GetLength(); j++)
                 {
-                    const b = this.actors[j].GetBody();
-                    const p = a.Collide(b);
+                    const b: Unit = units.GetList()[j];
+                    const collision = a.IsBlocking() && b.IsBlocking() && a.Collide(b);
 
-                    if(p && p.Points.length)
+                    if(collision && collision.Points.length)
                     {
-                        contacts.push(p);
+                        contacts.push(collision);
                     }
                 }
             }
 
             // Integrate forces
-            for(let unit of this.actors)
-            {
-                unit.GetBody().IntegrateForces(dt);
-            }
+            units.ForEach(unit => unit.GetBody().IntegrateForces(dt));
             
             // Solve collisions
             for(let i = 0; i < COLLISION_ITERATIONS; i++)
@@ -89,10 +87,7 @@ export class World extends Exportable
             }
 
             // Integrate velocities
-            for(let unit of this.actors)
-            {
-                unit.GetBody().IntegrateVelocity(dt);
-            }
+            units.ForEach(unit => unit.GetBody().IntegrateVelocity(dt));
 
             // Correct positions
             for(let contact of contacts)
@@ -101,10 +96,7 @@ export class World extends Exportable
             }
             
             // Clear all forces
-            for(let unit of this.actors)
-            {
-                unit.GetBody().ClearForces();
-            }
+            units.ForEach(unit => unit.GetBody().ClearForces());
         });
     }
 
@@ -119,7 +111,7 @@ export class World extends Exportable
     /**
      * Get all elements of the world.
      */
-    public GetElements(): IReadOnlyElementList<Unit>
+    public GetUnits(): IReadOnlyElementList<Unit>
     {
         const all = (<Unit[]>this.cells).concat(<Unit[]>this.actors);
         

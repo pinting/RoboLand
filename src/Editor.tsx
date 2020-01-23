@@ -139,7 +139,7 @@ export class Editor extends Shared<EditorProps, EditorState>
         }
 
         unit.Init({
-            size: 1,
+            size: new Vector(1, 1),
             position: this.newElementVector.Clone(),
             texture: ""
         });
@@ -279,7 +279,7 @@ export class Editor extends Shared<EditorProps, EditorState>
         const p = Editor.CanvasP(this.canvas, event);
 
         this.selectedVector = this.renderer.Find(p[0], p[1]);
-        this.selectedElement = this.world.GetElements().FindNearest(this.selectedVector);
+        this.selectedElement = this.world.GetUnits().FindNearest(this.selectedVector);
 
         if(this.selectedElement)
         {

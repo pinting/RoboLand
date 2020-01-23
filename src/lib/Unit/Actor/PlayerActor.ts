@@ -32,7 +32,7 @@ export class PlayerActor extends LivingActor
         actor.Init({
             id: id,
             position: position,
-            size: 0.1,
+            size: new Vector(0.1, 0.1),
             texture: "res/stone.png",
             angle: this.GetAngle(),
             damage: this.damage,
