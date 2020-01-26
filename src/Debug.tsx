@@ -21,7 +21,7 @@ import { Tools } from "./lib/Util/Tools";
 import { Constants } from "./Constants";
 import { Polygon } from "./lib/Geometry/Polygon";
 import { Body } from "./lib/Physics/Body";
-import NetTest from "./lib/Tests/NetTest";
+import NetTest from "./lib/Test/NetTest";
 import { Helper } from "./Helper";
 
 export class Debug extends Shared
@@ -52,39 +52,7 @@ export class Debug extends Shared
             Polygon,
             Body
         });
-
-        if(Helper.GetParam(Constants.Params.Test))
-        {
-            await this.RunTests();
-        }
-        else
-        {
-            await this.RunDebugGame();
-        }
-    }
-
-    public async RunTests()
-    {
-        // Run tests
-        Logger.Type = LogType.Info;
-
-        try
-        {
-            await NetTest();
-        }
-        catch(e)
-        {
-            Logger.Warn(this, e);
-        }
-        finally
-        {
-            Logger.Info(this, "Tests complete!");
-        }
-    }
-
-    public async RunDebugGame()
-    {
-        // Start the debug game
+        
         Logger.Type = LogType.Warn;
         Keyboard.Init();
 

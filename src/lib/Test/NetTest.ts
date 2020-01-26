@@ -3,10 +3,7 @@ import { FakeChannel } from "../Net/Channel/FakeChannel";
 import { Client } from "../Net/Client";
 import { Server } from "../Net/Server";
 import { Host } from "../Net/Host";
-import { GroundCell } from "../Unit/Cell/GroundCell";
-import { Vector } from "../Geometry/Vector";
 import { Logger } from "../Util/Logger";
-import { Body } from "../Physics/Body";
 
 async function TestNetSetup(): Promise<void>
 {
