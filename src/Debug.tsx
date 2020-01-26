@@ -123,9 +123,8 @@ export class Debug extends Shared
         const receiverA = new Client(channelA1, worldA)
         const receiverB = new Client(channelB1, worldB);
         
-        const raw: IDump = JSON.parse(await Http.Get("res/world.json"));
-        const worldS: World = Exportable.Import(raw);
-        const server = new Server(worldS);
+        const world: World = World.CreateBox(6);
+        const server = new Server(world);
         
         server.Add(new Host(channelA2, server));
         server.Add(new Host(channelB2, server));
@@ -171,7 +170,7 @@ export class Debug extends Shared
         // Render the server
         const rendererS = new Renderer({ 
             canvas: this.canvasS,
-            world: worldS, 
+            world: world, 
             debug: true,
             disableShadows: true
         });
@@ -184,7 +183,7 @@ export class Debug extends Shared
         Tools.Extract(window, {
             worldA: worldA,
             worldB: worldB,
-            worldS: worldS
+            worldS: world
         });
     }
 

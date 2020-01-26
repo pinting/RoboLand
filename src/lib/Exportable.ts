@@ -1,4 +1,5 @@
 import { IDump } from "./IDump";
+import { Logger } from "./Util/Logger";
 
 const ExportMeta = Symbol("ExportMeta");
 const Dependencies: { [name: string]: any } = {};
@@ -64,7 +65,14 @@ export abstract class Exportable
      */
     public static FromName<T extends Exportable>(name: string, ...args: any[]): T
     {
-        const classObj = Dependencies[name] || null;
+        if(!Dependencies.hasOwnProperty(name))
+        {
+            Logger.Warn(this, "Class of dump is missing from dependencies", name);
+
+            return null;
+        }
+
+        const classObj = Dependencies[name];
 
         return classObj && new classObj(...args);
     }
@@ -143,13 +151,13 @@ export abstract class Exportable
 
     /**
      * Self import an IDump.
-     * @param input 
+     * @param dumps 
      */
-    public Import(input: IDump[]): void
+    public Import(dumps: IDump[]): void
     {
-        for (let unit of input)
+        for (let dump of dumps)
         {
-            const desc = this[ExportMeta].find(i => i.Name == unit.Name);
+            const desc = this[ExportMeta].find(i => i.Name == dump.Name);
 
             // Only allow importing registered props
             if(!desc)
@@ -157,7 +165,7 @@ export abstract class Exportable
                 continue;
             }
 
-            const imported = Exportable.Import(unit);
+            const imported = Exportable.Import(dump);
 
             // If undefined skip importing it
             if(imported === undefined)
@@ -172,33 +180,33 @@ export abstract class Exportable
             }
             else
             {
-                this[unit.Name] = imported;
+                this[dump.Name] = imported;
             }
         }
     }
 
     /**
      * Import an IDump (standalone).
-     * @param input 
+     * @param dump 
      */
-    public static Import(input: IDump): any
+    public static Import(dump: IDump): any
     {
         // Import array
-        if(input.Class == "Array")
+        if(dump.Class == "Array")
         {
-            return input.Payload.map(e => Exportable.Import(e));
+            return dump.Payload.map(e => Exportable.Import(e));
         }
         
         // Import native types
-        if(["string", "number", "boolean"].includes(input.Class))
+        if(["string", "number", "boolean"].includes(dump.Class))
         {
-            return input.Payload;
+            return dump.Payload;
         }
 
         // Import Exportable types
-        const instance = Exportable.FromName(input.Class, ...(input.Args || []));
+        const instance = Exportable.FromName(dump.Class, ...(dump.Args || []));
 
-        instance && instance.Import(input.Payload);
+        instance && instance.Import(dump.Payload);
 
         return instance;
     }

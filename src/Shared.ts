@@ -12,6 +12,9 @@ import { GroundCell } from "./lib/Unit/Cell/GroundCell";
 import { FireCell } from "./lib/Unit/Cell/FireCell";
 import { ArrowActor } from "./lib/Unit/Actor/ArrowActor";
 import { LightCell } from "./lib/Unit/Cell/LightCell";
+import { Polygon } from "./lib/Geometry/Polygon";
+import { Body } from "./lib/Physics/Body";
+import { Matrix } from "./lib/Geometry/Matrix";
 
 // Dependency classes as a dependency
 Exportable.Dependency(ArrowActor);
@@ -23,6 +26,9 @@ Exportable.Dependency(WaterCell);
 Exportable.Dependency(LightCell);
 Exportable.Dependency(World);
 Exportable.Dependency(Vector);
+Exportable.Dependency(Matrix);
+Exportable.Dependency(Polygon);
+Exportable.Dependency(Body);
 
 const SHOT_DELAY = 1000;
 

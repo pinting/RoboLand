@@ -2,14 +2,20 @@ import { Vector } from "./Vector";
 import { BaseShape } from "./BaseShape";
 import { Ref } from "../Util/Ref";
 import { Matrix } from "./Matrix";
+import { Exportable } from "../Exportable";
 
 export class Polygon extends BaseShape
 {
     private axes: Vector[];
-    protected points: Vector[];
 
-    public constructor(vertices: Vector[])
+    public constructor(vertices: Vector[] = [])
     {
+        if(!vertices.length)
+        {
+            super(vertices);
+            return;
+        }
+
         let rightMost = 0;
         let highestXCoord = vertices[0].X;
 
@@ -232,3 +238,5 @@ export class Polygon extends BaseShape
         ])
     }
 }
+
+Exportable.Dependency(Polygon);

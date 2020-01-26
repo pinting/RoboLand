@@ -8,6 +8,7 @@ import { Tools } from "../Util/Tools";
 import { GroundCell } from "../Unit/Cell/GroundCell";
 import { BaseCell } from "../Unit/Cell/BaseCell";
 import { BaseActor } from "../Unit/Actor/BaseActor";
+import { Body } from "../Physics/Body";
 
 export class Server
 {
@@ -107,12 +108,12 @@ export class Server
                 continue;
             }
 
+            const body = Body.CreateBoxBody(new Vector(1, 1), 0, spawn.GetBody().GetOffset());
+
             player.Init({
                 id: playerTag,
                 parent: playerTag,
-                position: spawn.GetPosition(),
-                size: new Vector(1, 1),
-                angle: 0,
+                body: body,
                 texture: "res/player.png",
                 speed: 1500,
                 damage: 0.1,

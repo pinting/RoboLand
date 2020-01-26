@@ -10,6 +10,7 @@ import { Event } from "./Util/Event";
 import { IDump } from "./IDump";
 import { Body } from "./Physics/Body";
 import { ICollision } from "./Physics/ICollision";
+import { GroundCell } from "./Unit/Cell/GroundCell";
 
 const COLLISION_ITERATIONS = 50;
 
@@ -159,6 +160,29 @@ export class World extends Exportable
         World.Current = this;
 
         return super.Import(input);
+    }
+    
+    public static CreateBox(size: number, texture: string = null): World
+    {
+        const world = new World;
+
+        world.Init(new Vector(size, size));
+
+        // Init world with size x size number of GroundCells
+        for(let i = 0; i < size * size; i++)
+        {
+            const cell = new GroundCell();
+
+            cell.Init({
+                body: Body.CreateBoxBody(new Vector(1, 1), 0, new Vector(i % size, (i -  (i % size)) / size)),
+                texture: texture,
+                world: world
+            });
+
+            world.Add(cell);
+        }
+
+        return world;
     }
 }
 

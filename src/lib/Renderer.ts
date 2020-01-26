@@ -123,16 +123,16 @@ export class Renderer
      */
     private DrawElement(unit: Unit)
     {
-        if(!unit || !unit.GetPosition() || !unit.GetSize())
+        if(!unit || !unit.GetBody())
         {
             return;
         }
         
-        const vector = unit.GetPosition();
-        const size = unit.GetSize();
+        const vector = unit.GetBody().GetOffset();
+        const scale = unit.GetBody().GetScale();
         const texture = this.textures[unit.GetTexture()];
         
-        const s = size.Scale(this.dotPerPoint);
+        const s = scale.Scale(this.dotPerPoint);
         const cx = vector.X * this.dotPerPoint;
         const cy = vector.Y * this.dotPerPoint;
         const x = cx - s.X / 2;
@@ -145,7 +145,7 @@ export class Renderer
             this.context.translate(-cx, -cy);
         }
 
-        rot(unit.GetAngle());
+        rot(unit.GetBody().GetRotation());
     
         if(texture) {
             this.context.drawImage(texture, x, y, s.X, s.Y);
@@ -155,7 +155,7 @@ export class Renderer
             this.context.fillRect(x, y, s.X, s.Y);
         }
 
-        rot(-unit.GetAngle());
+        rot(-unit.GetBody().GetRotation());
         
         // Draw grid if debug mode is enabled
         if(this.debug)
@@ -218,7 +218,7 @@ export class Renderer
 
         for(let r = 0; r < 2 * Math.PI; r += stepR * (Math.PI / 180))
         {
-            const origin = unit.GetPosition();
+            const origin = unit.GetBody().GetOffset();
             const step = Vector.ByRad(r).Scale(stepD);
 
             for(let point = origin; point.Dist(origin) < unit.GetLight(); point = point.Add(step))
@@ -277,7 +277,7 @@ export class Renderer
     /**
      * Update the canvas.
      */
-    private Render(t = 0, dt: number = 1 / 60)
+    private Render()
     {
         const size = this.world.GetSize();
     
@@ -336,7 +336,7 @@ export class Renderer
     
         if(!this.stop)
         {
-            window.requestAnimationFrame(() => this.Render(now, now - this.lastTick));
+            window.requestAnimationFrame(() => this.Render());
         }
 
         const now = +new Date;

@@ -20,40 +20,11 @@ export abstract class BaseActor extends Unit
         this.blocking = args.blocking || true;
     }
     
-    /**
-     * @inheritDoc
-     */
-    public SetSize(size?: Vector): boolean
-    {
-        return size &&
-            this.Move(this.size, size, this.angle) && 
-            super.SetSize(size);
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public SetPosition(position?: Vector): boolean
-    {
-        return position &&
-            this.Move(this.size, position, this.angle) && 
-            super.SetPosition(position);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public SetAngle(angle?: number): boolean
-    {
-        return typeof angle === "number" && 
-            this.Move(this.size, this.position, angle) && 
-            super.SetAngle(angle);
-    }
-    
+    /*
     protected Move(size: Vector, position: Vector, angle: number): boolean
     {
         // For clones, because they do not have a world
-        if(!this.world || !this.size || !this.angle || !this.position)
+        if(!this.world)
         {
             return true;
         }
@@ -93,6 +64,7 @@ export abstract class BaseActor extends Unit
 
         return true;
     }
+    */
 
     /**
      * @inheritDoc

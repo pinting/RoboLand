@@ -30,8 +30,7 @@ export class ArrowActor extends BaseActor
     protected InitPre(args: ArrowActorArgs = {})
     {
         super.InitPre(args);
-
-        this.angle = args.angle;
+        
         this.damage = args.damage;
         this.speed = args.speed;
     }

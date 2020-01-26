@@ -20,28 +20,51 @@ export interface BodyArgs
     r?: number; // Restitution
 }
 
-
 export class Body extends Exportable
 {
     @Exportable.Register(ExportType.Visible)
     protected shapes: BaseShape[] = [];
 
+    @Exportable.Register(ExportType.Visible)
     protected scale: Vector = new Vector(1, 1);
+    
+    @Exportable.Register(ExportType.Visible)
     protected rotation: number = 0;
+    
+    @Exportable.Register(ExportType.Visible)
     protected offset: Vector = new Vector(0, 0);
 
+    @Exportable.Register(ExportType.Visible)
     protected gravity: Vector; // Gravity
+    
+    @Exportable.Register(ExportType.Visible)
     protected force: Vector; // Force
+    
+    @Exportable.Register(ExportType.Visible)
     protected v: Vector; // Velocity
+    
+    @Exportable.Register(ExportType.Visible)
     protected av: number; // Angular velocity
+    
+    @Exportable.Register(ExportType.Visible)
     protected torque: number; // Torque
+    
+    @Exportable.Register(ExportType.Visible)
+    protected sf: number; // Static friction
+    
+    @Exportable.Register(ExportType.Visible)
+    protected df: number; // Dynamic friction
+    
+    @Exportable.Register(ExportType.Visible)
+    protected r: number; // Restitution
+
+    @Exportable.Register(ExportType.Visible, (s, v) => s.ComputeMass(v))
+    protected density: number; // Mass density
+    
     protected I: number;  // Moment of inertia
     protected iI: number; // Inverse inertia
     protected m: number;  // Mass
     protected im: number; // Inverse mass
-    protected sf: number; // Static friction
-    protected df: number; // Dynamic friction
-    protected r: number; // Restitution
 
     public Validate: (scale?: Vector, rotation?: number, offset?: Vector) => boolean = Tools.Noop;
 
@@ -63,8 +86,9 @@ export class Body extends Exportable
         this.av = args.av || 0;
         this.torque = args.torque || 0;
         this.v = args.v || new Vector(0, 0);
+        this.density = args.density || 1.0;
 
-        this.ComputeMass(args.density);
+        this.ComputeMass(this.density);
     }
 
     private EveryShape<T>(other: Body, callback: (s1: BaseShape, s2: BaseShape) => T): T
@@ -189,6 +213,16 @@ export class Body extends Exportable
         return this.scale.Len() / 2;
     }
 
+    public GetRotation(): number
+    {
+        return this.rotation;
+    }
+
+    public GetOffset(): Vector
+    {
+        return this.offset;
+    }
+
     public GetScale(): Vector
     {
         return this.scale;
@@ -198,8 +232,14 @@ export class Body extends Exportable
      * Calculate centroid and moment of interia
      * @param density 
      */
-    private ComputeMass(density = 1) 
+    protected ComputeMass(density: number): void
     {
+        if(!this.shapes.length)
+        {
+            return;
+        }
+
+        this.density = density;
         let c = new Vector(0, 0);
         let area = 0;
         let inertia = 0;
@@ -383,4 +423,15 @@ export class Body extends Exportable
             b.ApplyImpulse(tangentImpulse, rb);
         }
     }
+    
+    public static CreateBoxBody(scale: Vector, rotation: number, offset: Vector, args: BodyArgs = {}): Body
+    {
+        const body = new Body([Polygon.CreateBox(1)], args);
+
+        body.SetVirtual(scale, rotation, offset);
+
+        return body;
+    }
 }
+
+Exportable.Dependency(Body);

@@ -229,29 +229,6 @@ export class Game extends Shared<GameProps, GameState>
      */
     private async Main(): Promise<void>
     {
-        const p1 = new PlayerActor();
-        const p2 = new PlayerActor();
-
-        p1.Init({
-            id: Tools.Unique(),
-            position: new Vector(10, 10),
-            size: new Vector(1, 1),
-            angle: Math.PI/6,
-            speed: 100.0,
-            damage: 0.1,
-            health: 1.0
-        });
-
-        p2.Init({
-            id: Tools.Unique(),
-            position: new Vector(10.5, 10.5),
-            size: new Vector(1, 1),
-            angle: Math.PI/6,
-            speed: 100.0,
-            damage: 0.1,
-            health: 1.0
-        });
-
         const connect = Game.ReadConnect();
 
         // If it is an offer, create an answer and wait for an open channel.

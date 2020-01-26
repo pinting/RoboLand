@@ -11,6 +11,7 @@ export interface LivingActorArgs extends BaseActorArgs
     rotSpeed?: number;
 }
 
+// TODO: Restructure this
 export abstract class LivingActor extends BaseActor
 {
     @Exportable.Register(ExportType.Visible)
@@ -49,11 +50,6 @@ export abstract class LivingActor extends BaseActor
         this.rotSpeed = args.rotSpeed;
     }
 
-    protected InitPost(args: LivingActorArgs = {})
-    {
-        super.InitPost(args);
-    }
-
     public IsWalking(): boolean
     {
         return !!this.walkJob;
@@ -73,7 +69,7 @@ export abstract class LivingActor extends BaseActor
 
         this.walkJob = this.world.OnTick.Add(dt =>
         {
-            const angle = Vector.ByRad(this.GetAngle() + (back ? Math.PI : 0));
+            const angle = Vector.ByRad(this.GetBody().GetRotation() + (back ? Math.PI : 0));
 
             this.GetBody().AddForce(angle.Scale(this.speed * dt));
         });

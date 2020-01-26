@@ -44,7 +44,7 @@ export class Client extends MessageHandler
     protected OnMessage(message: IMessage): void
     {
         Logger.Info(this, "Message was received", message);
-        
+
         World.Current = this.world;
 
         switch(message.Type)
@@ -147,10 +147,10 @@ export class Client extends MessageHandler
         }
 
         // If the position or the angle difference is under a limit, skip updating
-        if(Host.IsMovementDiff(diff) && oldElement.GetPosition())
+        if(Host.IsMovementDiff(diff) && oldElement.GetBody().GetOffset())
         {
-            const posititonDiff = newElement.GetPosition().Dist(oldElement.GetPosition());
-            const angleDiff = Math.abs(newElement.GetAngle() - oldElement.GetAngle());
+            const posititonDiff = newElement.GetBody().GetOffset().Dist(oldElement.GetBody().GetOffset());
+            const angleDiff = Math.abs(newElement.GetBody().GetRotation() - oldElement.GetBody().GetRotation());
 
             if(posititonDiff < MAX_POS_DIFF && angleDiff < MAX_ANGLE_DIFF)
             {

@@ -8,8 +8,13 @@ export abstract class BaseShape extends Exportable
     @Exportable.Register(ExportType.Visible)
     protected points: Vector[];
 
+    @Exportable.Register(ExportType.Visible)
     protected offset: Vector = new Vector(0, 0);
+    
+    @Exportable.Register(ExportType.Visible)
     protected rotation: number = 0;
+    
+    @Exportable.Register(ExportType.Visible)
     protected scale: Vector = new Vector(1, 1);
 
     public constructor(points: Vector[])

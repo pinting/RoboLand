@@ -2,6 +2,7 @@ import { Vector } from "../../Geometry/Vector";
 import { ArrowActor } from "./ArrowActor";
 import { LivingActor } from "./LivingActor";
 import { Exportable, ExportType } from "../../Exportable";
+import { Body } from "../../Physics/Body";
 
 const SHOT_DELAY = 800;
 
@@ -23,22 +24,20 @@ export class PlayerActor extends LivingActor
             throw new Error("Shot was too quick");
         }
 
-        const r = this.GetRadius();
-        const direction = Vector.ByRad(this.GetAngle());
-        const position = this.GetPosition().Add(direction.Scale(r));
+        const r = this.GetBody().GetRadius();
+        const d = Vector.ByRad(this.GetBody().GetRotation());
+        const p = this.GetBody().GetOffset().Add(d.Scale(r));
 
         const actor = new ArrowActor;
 
         actor.Init({
             id: id,
-            position: position,
-            size: new Vector(0.1, 0.1),
             texture: "res/stone.png",
-            angle: this.GetAngle(),
             damage: this.damage,
             speed: 0.075,
             parent: this.parent,
-            world: this.world
+            world: this.world,
+            body: Body.CreateBoxBody(new Vector(0.1, 0.1), this.GetBody().GetRotation(), p)
         });
 
         this.world.GetActors().Set(actor);

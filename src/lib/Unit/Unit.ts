@@ -11,12 +11,9 @@ import { ICollision } from "../Physics/ICollision";
 export interface UnitArgs
 {
     id?: string;
-    position?: Vector; 
-    size?: Vector;
     texture?: string;
     parent?: string;
     world?: World;
-    angle?: number;
     body?: Body;
     blocking?: boolean;
     light?: number;
@@ -37,17 +34,8 @@ export abstract class Unit extends Exportable
     @Exportable.Register(ExportType.Hidden)
     protected parent: string; // ID of the parent unit
 
-    @Exportable.Register(ExportType.Visible, (s, v) => s.SetSize(v))
-    protected size: Vector;
-
-    @Exportable.Register(ExportType.Visible, (s, v) => s.SetBody(v))
+    @Exportable.Register(ExportType.Visible)
     protected body: Body;
-
-    @Exportable.Register(ExportType.Visible, (s, v) => s.SetPosition(v))
-    protected position: Vector;
-
-    @Exportable.Register(ExportType.Visible, (s, v) => s.SetAngle(v))
-    protected angle: number;
 
     @Exportable.Register(ExportType.Visible)
     protected texture: string;
@@ -80,14 +68,10 @@ export abstract class Unit extends Exportable
         this.id = args.id || Tools.Unique();
         this.world = args.world || World.Current;
         this.parent = args.parent || (this.world && this.world.Origin);
-        this.size = args.size;
         this.texture = args.texture;
-        this.angle = args.angle || 0;
         this.blocking = args.blocking || false;
         this.light = args.light || 0;
         this.z = args.z || 0;
-
-        this.world && (this.tickEvent = this.world.OnTick.Add(dt => this.OnTick(dt)));
     }
 
     /**
@@ -96,8 +80,9 @@ export abstract class Unit extends Exportable
      */
     protected InitPost(args: UnitArgs = {})
     {
-        this.SetPosition(args.position);
         this.SetBody(args.body);
+        
+        this.world && (this.tickEvent = this.world.OnTick.Add(dt => this.OnTick(dt)));
     }
 
     /**
@@ -125,129 +110,10 @@ export abstract class Unit extends Exportable
     }
 
     /**
-     * Get the radius of the unit.
-     */
-    public GetRadius(): number
-    {
-        if(!this.size)
-        {
-            throw new Error("Get radius failed, no size!");
-        }
-
-        return this.size.Len() / 2;
-    }
-
-    public GetSize(): Vector
-    {
-        return this.size;
-    }
-
-    public SetSize(size: Vector): boolean
-    {
-        if(size.X < 0 || size.Y < 0)
-        {
-            return false;
-        }
-
-        this.size = size;
-
-        // this.size.Len()
-        this.body && this.body.SetVirtual(size, null, null);
-        this.world && this.world.OnUpdate.Call(this);
-
-        return true;
-    }
-
-    /**
-     * Get the position of the unit.
-     */
-    public GetPosition(): Vector
-    {
-        if(!this.position)
-        {
-            throw new Error("Get position failed, no position!");
-        }
-
-        return this.position.Clone();
-    }
-
-    /**
-     * Set the position of the unit.
-     * @param position 
-     */
-    public SetPosition(position: Vector): boolean
-    {
-        if(position && 
-            this.position && 
-            this.position.Is(position) &&
-            position === this.position)
-        {
-            return false;
-        }
-
-        this.position = position;
-
-        this.body && this.body.SetVirtual(null, null, position);
-        this.world && this.world.OnUpdate.Call(this);
-
-        return true;
-    }
-
-    /**
-     * Get the angle of the unit.
-     */
-    public GetAngle(): number
-    {
-        return this.angle;
-    }
-
-    /**
-     * Set the angle of the unit.
-     * @param angle Angle in deg
-     */
-    public SetAngle(angle: number): boolean
-    {
-        if(typeof angle != "number")
-        {
-            return false;
-        }
-
-        this.angle = angle;
-        
-        this.body && this.body.SetVirtual(null, angle, null);
-        this.world && this.world.OnUpdate.Call(this);
-
-        return true;
-    }
-
-    protected BodyFactory()
-    {
-        return new Body([
-            new Polygon([
-                new Vector(-0.5, 0.5),
-                new Vector(0.5, 0.5),
-                new Vector(0.5, -0.5),
-                new Vector(-0.5, -0.5)
-            ])
-        ]);
-    }
-
-    /**
      * Get the body of the unit.
      */
     public GetBody(): Body
     {
-        if(!this.size)
-        {
-            return null;
-        }
-
-        // Default body
-        if(!this.body)
-        {
-            this.SetBody(this.BodyFactory());
-        }
-
         return this.body;
     }
 
@@ -256,7 +122,7 @@ export abstract class Unit extends Exportable
      * VirtualBody = Body.Rotate(Angle).Add(Position)
      * @param body 
      */
-    public SetBody(body: Body): void
+    public SetBody(body?: Body): void
     {
         if(!body)
         {
@@ -264,13 +130,9 @@ export abstract class Unit extends Exportable
         }
 
         this.body = body;
-        this.body.SetVirtual(this.size, this.angle, this.position);
-
         this.body.Validate = (scale, rotation, offset) => 
         {
-            scale && (this.angle = rotation);
-            rotation && (this.angle = rotation);
-            offset && (this.position = offset);
+            // TODO
 
             return true;
         }

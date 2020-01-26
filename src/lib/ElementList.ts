@@ -54,7 +54,7 @@ export class ElementList<Element extends Unit> implements IReadOnlyElementList<E
      */ 
     public Find(position: Vector): Element[]
     {
-        return this.elements.filter(e => e && e.GetPosition().Is(position));
+        return this.elements.filter(e => e && e.GetBody().GetOffset().Is(position));
     }
 
     /**
@@ -68,7 +68,7 @@ export class ElementList<Element extends Unit> implements IReadOnlyElementList<E
 
         this.elements.forEach(e => 
         {
-            const distance = e.GetPosition().Dist(position);
+            const distance = e.GetBody().GetOffset().Dist(position);
 
             if(distance < min) 
             {

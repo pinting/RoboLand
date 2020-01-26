@@ -1,14 +1,24 @@
 import { Vector } from "./Vector";
+import { Exportable, ExportType } from "../Exportable";
 
-export class Matrix
+export class Matrix extends Exportable
 {
-    private m00: number;
-    private m01: number;
-    private m10: number;
-    private m11: number;
+    @Exportable.Register(ExportType.Visible)
+    protected m00: number;
+    
+    @Exportable.Register(ExportType.Visible)
+    protected m01: number;
+    
+    @Exportable.Register(ExportType.Visible)
+    protected m10: number;
+    
+    @Exportable.Register(ExportType.Visible)
+    protected m11: number;
 
     public constructor(m00 = 0, m01 = 0, m10 = 0, m11 = 0)
     {
+        super();
+
         this.m00 = m00;
         this.m01 = m01;
         this.m10 = m10;
@@ -63,3 +73,5 @@ export class Matrix
             this.m10 * m.m01 + this.m11 * m.m11);
     }
 }
+
+Exportable.Dependency(Matrix);

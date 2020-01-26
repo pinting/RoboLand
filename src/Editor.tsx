@@ -16,6 +16,7 @@ import { GroundCell } from "./lib/Unit/Cell/GroundCell";
 import { FireCell } from "./lib/Unit/Cell/FireCell";
 import { PlayerActor } from "./lib/Unit/Actor/PlayerActor";
 import { ArrowActor } from "./lib/Unit/Actor/ArrowActor";
+import { Body } from "./lib/Physics/Body";
 
 /**
  * Props of the User view.
@@ -143,8 +144,7 @@ export class Editor extends Shared<EditorProps, EditorState>
         }
 
         unit.Init({
-            size: new Vector(1, 1),
-            position: this.newElementVector.Clone(),
+            body: Body.CreateBoxBody(new Vector(1, 1), 0, this.newElementVector.Clone()),
             texture: ""
         });
 
@@ -310,11 +310,11 @@ export class Editor extends Shared<EditorProps, EditorState>
         }
 
         const p = Editor.CanvasP(this.canvas, event);
-        const Vector = this.renderer.Find(p[0], p[1]);
+        const v = this.renderer.Find(p[0], p[1]);
 
         if(this.selectedElement)
         {
-            this.selectedElement.SetPosition(Vector);
+            this.selectedElement.GetBody().SetVirtual(null, null, v);
         }
     }
 

@@ -6,27 +6,7 @@ import { Host } from "../Net/Host";
 import { GroundCell } from "../Unit/Cell/GroundCell";
 import { Vector } from "../Geometry/Vector";
 import { Logger } from "../Util/Logger";
-
-function WorldFactory(size: number): World
-{
-    const world = new World;
-
-    // Init world with size x size number of GroundCells
-    for(let i = 0; i < size * size; i++)
-    {
-        const cell = new GroundCell();
-
-        cell.Init({
-            position: new Vector(i % size, i - (i % size) * size),
-            size: new Vector(1, 1),
-            world: world
-        });
-
-        world.Add(cell);
-    }
-
-    return world;
-}
+import { Body } from "../Physics/Body";
 
 async function TestNetSetup(): Promise<void>
 {
@@ -54,7 +34,7 @@ async function TestNetSetup(): Promise<void>
     const clientA = new Client(channelA1, worldA)
     const clientB = new Client(channelB1, worldB);
     
-    const world = WorldFactory(size);
+    const world = World.CreateBox(size);
     const server = new Server(world);
 
     // Create two host objects
