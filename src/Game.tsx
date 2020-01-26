@@ -219,7 +219,7 @@ export class Game extends Shared<GameProps, GameState>
                 space: " "
             };
 
-            renderer.OnDraw.Add(() => this.OnDraw(player, keys));
+            renderer.OnDraw.Add(() => this.SetupControl(player, keys));
             renderer.Start();
         };
     }

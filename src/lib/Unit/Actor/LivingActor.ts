@@ -74,9 +74,8 @@ export abstract class LivingActor extends BaseActor
         this.walkJob = this.world.OnTick.Add(dt =>
         {
             const angle = Vector.ByRad(this.GetAngle() + (back ? Math.PI : 0));
-            const body = this.GetBody();
 
-            body.AddForce(angle.Scale(this.speed * dt));
+            this.GetBody().AddForce(angle.Scale(this.speed * dt));
         });
     }
 
@@ -103,9 +102,7 @@ export abstract class LivingActor extends BaseActor
 
         this.rotJob = this.world.OnTick.Add(dt =>
         {
-            const body = this.GetBody();
-
-            body.AddTorque((left ? -1 : 1) * this.rotSpeed * dt);
+            this.GetBody().AddTorque((left ? -1 : 1) * this.rotSpeed * dt);
         });
     }
 

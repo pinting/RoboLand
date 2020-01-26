@@ -14,14 +14,15 @@ import { Matrix } from "./lib/Geometry/Matrix";
 import { GroundCell } from "./lib/Unit/Cell/GroundCell";
 import { PlayerActor } from "./lib/Unit/Actor/PlayerActor";
 import { StoneCell } from "./lib/Unit/Cell/StoneCell";
-import { Logger } from "./lib/Util/Logger";
+import { Logger, LogType } from "./lib/Util/Logger";
 import { SimplexNoise } from "./lib/Util/SimplexNoise";
 import { Shared } from "./Shared";
 import { Tools } from "./lib/Util/Tools";
 import { Constants } from "./Constants";
 import { Polygon } from "./lib/Geometry/Polygon";
 import { Body } from "./lib/Physics/Body";
-import { Overlap } from "./lib/Geometry/Overlap";
+import NetTest from "./lib/Tests/NetTest";
+import { Helper } from "./Helper";
 
 export class Debug extends Shared
 {
@@ -36,6 +37,55 @@ export class Debug extends Shared
      */
     public async Main()
     {
+        // For debug
+        Tools.Extract(window, {
+            World,
+            Tools,
+            Exportable,
+            Vector,
+            Matrix,
+            GroundCell,
+            PlayerActor,
+            StoneCell,
+            Logger,
+            SimplexNoise,
+            Polygon,
+            Body
+        });
+
+        if(Helper.GetParam(Constants.Params.Test))
+        {
+            await this.RunTests();
+        }
+        else
+        {
+            await this.RunDebugGame();
+        }
+    }
+
+    public async RunTests()
+    {
+        // Run tests
+        Logger.Type = LogType.Info;
+
+        try
+        {
+            await NetTest();
+        }
+        catch(e)
+        {
+            Logger.Warn(this, e);
+        }
+        finally
+        {
+            Logger.Info(this, "Tests complete!");
+        }
+    }
+
+    public async RunDebugGame()
+    {
+        // Start the debug game
+        Logger.Type = LogType.Warn;
         Keyboard.Init();
 
         const delay = Constants.DebugDelay;
@@ -47,8 +97,18 @@ export class Debug extends Shared
         worldA["_Name"] = "worldA";
         worldB["_Name"] = "worldB";
         
-        const rendererA = new Renderer({ canvas: this.canvasA, world: worldA, debug: true });
-        const rendererB = new Renderer({ canvas: this.canvasB, world: worldB, debug: true });
+        const rendererA = new Renderer({ 
+            canvas: this.canvasA,
+            world: worldA,
+            debug: true,
+            disableShadows: true
+        });
+        const rendererB = new Renderer({
+            canvas: this.canvasB,
+            world: worldB,
+            debug: true,
+            disableShadows: true
+        });
         
         const channelA1 = new FakeChannel(delay);
         const channelA2 = new FakeChannel(delay);
@@ -85,7 +145,7 @@ export class Debug extends Shared
                 space: " "
             };
     
-            rendererA.OnDraw.Add(() => this.OnDraw(player, keys));
+            rendererA.OnDraw.Add(() => this.SetupControl(player, keys));
             rendererA.Start();
         };
         
@@ -104,36 +164,27 @@ export class Debug extends Shared
                 space: "E"
             };
             
-            rendererB.OnDraw.Add(() => this.OnDraw(player, keys));
+            rendererB.OnDraw.Add(() => this.SetupControl(player, keys));
             rendererB.Start();
         };
     
         // Render the server
-        const rendererS = new Renderer({ canvas: this.canvasS, world: worldS, debug: true });
+        const rendererS = new Renderer({ 
+            canvas: this.canvasS,
+            world: worldS, 
+            debug: true,
+            disableShadows: true
+        });
     
         await rendererS.Load();
     
         rendererS.Start();
-    
+
         // For debug
         Tools.Extract(window, {
-            // Instances
-            boardA: worldA,
-            boardB: worldB,
-            boardServer: worldS,
-            // Classes
-            World,
-            Tools,
-            Exportable,
-            Vector,
-            Matrix,
-            GroundCell,
-            PlayerActor,
-            StoneCell,
-            Logger,
-            SimplexNoise,
-            Polygon,
-            Body
+            worldA: worldA,
+            worldB: worldB,
+            worldS: worldS
         });
     }
 

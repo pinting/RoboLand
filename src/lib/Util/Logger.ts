@@ -4,6 +4,17 @@ export enum LogType
     Info = 2
 }
 
+function StringLogType(type: LogType)
+{
+    switch(type)
+    {
+        case LogType.Warn:
+            return "WARN";
+        case LogType.Info:
+            return "INFO";
+    }
+}
+
 export class Logger
 {
     public static Type: LogType = LogType.Warn;
@@ -17,11 +28,11 @@ export class Logger
      */
     public static Log(self: Object, type: LogType, ...args: any[])
     {
-        const name = self.constructor.name;
+        const name = self ? self.constructor.name : "";
 
         if(this.Type >= type && (!this.Filter || this.Filter === name))
         {
-            console.log(`(${type}) [${name}] `, ...args);
+            console.log(`${type && StringLogType(type)} ${name && `[${name}] `}`, ...args);
         }
     }
 

@@ -13,7 +13,7 @@ export class Server
 {
     private readonly world: World;
     private readonly spawns: BaseCell[];
-    private readonly clients: Host[] = [];
+    private readonly hosts: Host[] = [];
 
     /**
      * Construct a new server with the given world. The server gonna
@@ -29,25 +29,25 @@ export class Server
             .filter(c => c instanceof GroundCell)
             .sort((a, b) => Tools.Random(-100, 100));
         
-        this.world.OnUpdate.Add(unit => this.clients
-            .forEach(client => client.SendElement(unit)));
+        this.world.OnUpdate.Add(unit => this.hosts
+            .forEach(host => host.SendElement(unit)));
     }
 
     /**
-     * Executed when the server receives a new message from a client/clientection.
-     * @param client
+     * Executed when the server receives a new message from a client.
+     * @param host
      * @param command
      */
-    private OnCommand(client: Host, command: IDump)
+    private OnCommand(host: Host, command: IDump)
     {
         const args = Exportable.Import(command);
-        const player = client.GetPlayer();
+        const player = host.GetPlayer();
 
         World.Current = this.world;
 
         if(!args.length && player.GetId() == args[0])
         {
-            this.Kick(client);
+            this.Kick(host);
             return;
         }
 
@@ -56,45 +56,46 @@ export class Server
             player[args[1]].bind(player)(...args.slice(2));
 
             // Send the command to the other players
-            this.clients
-                .filter(client => player.GetParent() != client.GetPlayer().GetParent())
-                .forEach(client => client.SendCommand(args));
+            this.hosts
+                .filter(host => player.GetParent() != host.GetPlayer().GetParent())
+                .forEach(host => host.SendCommand(args));
         }
         catch {
             // Kick if we receive an exception
-            client.SendKick();
+            host.SendKick();
         }
     }
 
     /**
      * Kick client out of the server.
-     * @param client 
+     * @param host 
      */
-    public Kick(client: Host)
+    public Kick(host: Host)
     {
-        const index = this.clients.indexOf(client);
+        const index = this.hosts.indexOf(host);
 
         if(index >= 0)
         {
-            this.clients.splice(index, 1);
-            this.world.GetActors().Remove(client.GetPlayer());
-            client.SendKick();
+            this.hosts.splice(index, 1);
+            this.world.GetActors().Remove(host.GetPlayer());
+            host.SendKick();
         }
     }
 
     /**
-     * Add a new clientection/client to the server. This represents
+     * Add a new client to the server. The host represents
      * the client on the server side - it only communicates
      * with a Client object through an IChannel implementation.
-     * @param client 
+     * @param host 
      */
-    public async Add(client: Host)
+    public async Add(host: Host)
     {
         // Create player and add it to the world
         World.Current = this.world;
 
         const playerTag = Tools.Unique();
         const player = new PlayerActor;
+
         let actors: BaseActor[];
 
         for(let spawn of this.spawns)
@@ -132,27 +133,27 @@ export class Server
         this.world.GetActors().Set(player);
 
         // Set size
-        await client.SendSize(this.world.GetSize());
+        await host.SendSize(this.world.GetSize());
 
         // Set cells
         for(let cell of this.world.GetCells().GetList())
         {
-            await client.SendElement(cell);
+            await host.SendElement(cell);
         }
 
         // Set actors
         for(let actor of this.world.GetActors().GetList())
         {
-            await client.SendElement(actor);
+            await host.SendElement(actor);
         }
         
         // Subscribe to the OnCommand callback
-        client.OnCommand = command => this.OnCommand(client, command);
+        host.OnCommand = command => this.OnCommand(host, command);
         
         // Set player
-        await client.SendPlayer(player);
+        await host.SendPlayer(player);
 
-        // Add client to the internal client list
-        this.clients.push(client);
+        // Add host to the internal host list
+        this.hosts.push(host);
     }
 }

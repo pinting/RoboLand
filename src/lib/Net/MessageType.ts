@@ -1,15 +1,15 @@
 export enum MessageType
 {
     // OUT
-    Size,
-    Element,
-    Diff,
-    Player,
-    Kick,
+    Size = "Size",
+    Element = "Element",
+    Diff = "Diff",
+    Player = "Player",
+    Kick = "Kick",
 
     // IN
-    Command,
+    Command = "Command",
 
     // IN & OUT
-    Received
+    Received = "Received"
 }

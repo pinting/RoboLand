@@ -16,8 +16,6 @@ const COLLISION_ITERATIONS = 50;
 export class World extends Exportable
 {
     public static Current: World = null;
-
-    private gravity = new Vector(0, 10.0);
     
     @Exportable.Register(ExportType.Visible)
     private cells: Array<BaseCell> = [];
@@ -53,51 +51,70 @@ export class World extends Exportable
         this.cells = [];
         this.actors = [];
 
-        this.OnTick.Add(dt =>
+        this.OnTick.Add(dt => this.Step(dt));
+    }
+
+    public Add(unit: Unit)
+    {
+        if(unit instanceof BaseCell)
         {
-            const contacts: ICollision[] = [];
-            const units = this.GetUnits();
+            this.cells.push(unit);
+        }
+        else if(unit instanceof BaseActor)
+        {
+            this.actors.push(unit);
+        }
+        else
+        {
+            throw new Error("Bad object type for unit")
+        }
+    }
 
-            for(let i = 0; i < units.GetLength(); i++)
+    public Step(dt: number)
+    {
+        const contacts: ICollision[] = [];
+        const units = this.GetUnits();
+
+        // Look for collisions
+        for(let i = 0; i < units.GetLength(); i++)
+        {
+            const a: Unit = units.GetList()[i];
+
+            for(let j = i + 1; j < units.GetLength(); j++)
             {
-                const a: Unit = units.GetList()[i];
+                const b: Unit = units.GetList()[j];
+                const collision = a.IsBlocking() && b.IsBlocking() && a.Collide(b);
 
-                for(let j = i + 1; j < units.GetLength(); j++)
+                if(collision && collision.Points.length)
                 {
-                    const b: Unit = units.GetList()[j];
-                    const collision = a.IsBlocking() && b.IsBlocking() && a.Collide(b);
-
-                    if(collision && collision.Points.length)
-                    {
-                        contacts.push(collision);
-                    }
+                    contacts.push(collision);
                 }
             }
+        }
 
-            // Integrate forces
-            units.ForEach(unit => unit.GetBody().IntegrateForces(dt));
-            
-            // Solve collisions
-            for(let i = 0; i < COLLISION_ITERATIONS; i++)
-            {
-                for(let contact of contacts)
-                {
-                    Body.ResolveCollision(contact, dt);
-                }
-            }
-
-            // Integrate velocities
-            units.ForEach(unit => unit.GetBody().IntegrateVelocity(dt));
-
-            // Correct positions
+        // Integrate forces
+        units.ForEach(unit => unit.GetBody().IntegrateForces(dt));
+        
+        // Solve collisions
+        for(let i = 0; i < COLLISION_ITERATIONS; i++)
+        {
             for(let contact of contacts)
             {
-                Body.PositionalCorrection(contact, dt);
+                Body.ResolveCollision(contact, dt);
             }
-            
-            // Clear all forces
-            units.ForEach(unit => unit.GetBody().ClearForces());
-        });
+        }
+
+        // Integrate velocities
+        units.ForEach(unit => unit.GetBody().IntegrateVelocity(dt));
+
+        // Correct positions
+        for(let contact of contacts)
+        {
+            Body.PositionalCorrection(contact, dt);
+        }
+        
+        // Clear all forces
+        units.ForEach(unit => unit.GetBody().ClearForces());
     }
 
     /**
@@ -142,11 +159,6 @@ export class World extends Exportable
         World.Current = this;
 
         return super.Import(input);
-    }
-
-    public GetGravity(): Vector
-    {
-        return this.gravity;
     }
 }
 

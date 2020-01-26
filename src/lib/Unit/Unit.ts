@@ -6,7 +6,6 @@ import { IDump } from "../IDump";
 import { Logger } from "../Util/Logger";
 import { Body } from "../Physics/Body";
 import { Polygon } from "../Geometry/Polygon";
-import { IContact } from "../Geometry/IContact";
 import { ICollision } from "../Physics/ICollision";
 
 export interface UnitArgs
@@ -38,7 +37,7 @@ export abstract class Unit extends Exportable
     @Exportable.Register(ExportType.Hidden)
     protected parent: string; // ID of the parent unit
 
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.Visible, (s, v) => s.SetSize(v))
     protected size: Vector;
 
     @Exportable.Register(ExportType.Visible, (s, v) => s.SetBody(v))
@@ -135,12 +134,28 @@ export abstract class Unit extends Exportable
             throw new Error("Get radius failed, no size!");
         }
 
-        return Math.sqrt(Math.pow(this.size.X, 2) + Math.pow(this.size.Y, 2)) / 2;
+        return this.size.Len() / 2;
     }
 
     public GetSize(): Vector
     {
         return this.size;
+    }
+
+    public SetSize(size: Vector): boolean
+    {
+        if(size.X < 0 || size.Y < 0)
+        {
+            return false;
+        }
+
+        this.size = size;
+
+        // this.size.Len()
+        this.body && this.body.SetVirtual(size, null, null);
+        this.world && this.world.OnUpdate.Call(this);
+
+        return true;
     }
 
     /**
@@ -249,12 +264,15 @@ export abstract class Unit extends Exportable
         }
 
         this.body = body;
-        this.body.SetVirtual(Math.max(this.size.X, this.size.Y), this.angle, this.position);
+        this.body.SetVirtual(this.size, this.angle, this.position);
 
-        this.body.OnChange = (scale, rotation, offset) => 
+        this.body.Validate = (scale, rotation, offset) => 
         {
+            scale && (this.angle = rotation);
             rotation && (this.angle = rotation);
             offset && (this.position = offset);
+
+            return true;
         }
     }
     
@@ -314,14 +332,6 @@ export abstract class Unit extends Exportable
     public Collide(unit: Unit): ICollision
     {
         if(unit == this || unit.GetId() == this.GetId())
-        {
-            return null;
-        }
-
-        const dist = this.GetPosition().Dist(unit.GetPosition());
-
-        // Optimize, if unit is too far away, skip deeper collision detection
-        if(dist > this.GetRadius() + unit.GetRadius())
         {
             return null;
         }

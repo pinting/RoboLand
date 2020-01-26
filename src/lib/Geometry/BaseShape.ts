@@ -10,7 +10,7 @@ export abstract class BaseShape extends Exportable
 
     protected offset: Vector = new Vector(0, 0);
     protected rotation: number = 0;
-    protected scale: number = 1;
+    protected scale: Vector = new Vector(1, 1);
 
     public constructor(points: Vector[])
     {
@@ -37,7 +37,7 @@ export abstract class BaseShape extends Exportable
         return this.virtual;
     }
 
-    public SetVirtual(scale?: number, rotation?: number, offset?: Vector): void
+    public SetVirtual(scale?: Vector, rotation?: number, offset?: Vector): void
     {
         scale && (this.scale = scale);
         rotation && (this.rotation = rotation);

@@ -27,12 +27,12 @@
     "webrtc-adapter": "6.3.x"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "4.5.x",
+    "copy-webpack-plugin": "^5.1.1",
     "css-loader": "2.0.x",
     "style-loader": "0.23.x",
     "ts-loader": "5.2.x",
     "typescript": "2.9.x",
-    "webpack": "4.20.x",
+    "webpack": "^4.41.5",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "3.1.x"
   }

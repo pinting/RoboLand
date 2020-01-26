@@ -26,7 +26,7 @@ export class Body extends Exportable
     @Exportable.Register(ExportType.Visible)
     protected shapes: BaseShape[] = [];
 
-    protected scale: number = 1;
+    protected scale: Vector = new Vector(1, 1);
     protected rotation: number = 0;
     protected offset: Vector = new Vector(0, 0);
 
@@ -43,7 +43,7 @@ export class Body extends Exportable
     protected df: number; // Dynamic friction
     protected r: number; // Restitution
 
-    public OnChange: (scale?: number, rotation?: number, offset?: Vector) => void = Tools.Noop;
+    public Validate: (scale?: Vector, rotation?: number, offset?: Vector) => boolean = Tools.Noop;
 
     /**
      * Construct a new body with the given shapes.
@@ -97,6 +97,14 @@ export class Body extends Exportable
 
     public Collide(other: Body): ICollision
     {
+        const dist = this.offset.Dist(other.offset);
+
+        // Optimize, if unit is too far away, skip deeper collision detection
+        if(dist > this.GetRadius() + other.GetRadius())
+        {
+            return null;
+        }
+
         const contact = this.EveryShape<IContact>(other, (s1, s2) => Overlap.Test(s1, s2)) as ICollision;
 
         if(contact)
@@ -108,13 +116,16 @@ export class Body extends Exportable
         return contact;
     }
 
-    public SetVirtual(scale?: number, rotation?: number, offset?: Vector): void
+    public SetVirtual(scale?: Vector, rotation?: number, offset?: Vector): void
     {
+        if(!this.Validate(scale, rotation, offset))
+        {
+            return;
+        }
+
         scale && (this.scale = scale);
         rotation && (this.rotation = rotation);
         offset && (this.offset = offset);
-
-        this.OnChange(scale, rotation, offset);
 
         this.shapes.forEach(s => s.SetVirtual(scale, rotation, offset));
     }
@@ -175,10 +186,10 @@ export class Body extends Exportable
             throw new Error("Get radius failed, no size!");
         }
 
-        return this.scale / 2;
+        return this.scale.Len() / 2;
     }
 
-    public GetSize(): number
+    public GetScale(): Vector
     {
         return this.scale;
     }
@@ -189,11 +200,9 @@ export class Body extends Exportable
      */
     private ComputeMass(density = 1) 
     {
-        let c = new Vector(0, 0); // Centroid
+        let c = new Vector(0, 0);
         let area = 0;
-        let I = 0;
-
-        const inv3 = 1 / 3;
+        let inertia = 0;
 
         for (let shape of this.shapes)
         {
@@ -211,12 +220,12 @@ export class Body extends Exportable
                     area += triangleArea;
 
                     // Use area to weight the centroid average, not just vertex position
-                    c = c.Add(p1.Add(p2).Scale(triangleArea * inv3));
+                    c = c.Add(p1.Add(p2).Scale(triangleArea * (1 / 3)));
 
                     const intx2 = p1.X * p1.X + p2.X * p1.X + p2.X * p2.X;
                     const inty2 = p1.Y * p1.Y + p2.Y * p1.Y + p2.Y * p2.Y;
 
-                    I += (0.25 * inv3 * D) * (intx2 + inty2);
+                    inertia += (0.25 * (1 / 3) * D) * (intx2 + inty2);
                 }
             }
         }
@@ -225,7 +234,7 @@ export class Body extends Exportable
 
         this.m = density * area;
         this.im = (this.m) ? 1.0 / this.m : 0.0;
-        this.I = I * density;
+        this.I = inertia * density;
         this.iI = this.I ? 1.0 / this.I : 0.0;
     }
 
@@ -279,6 +288,7 @@ export class Body extends Exportable
 
             const ca = Vector.Cross(a.av, ra) as Vector;
             const cb = Vector.Cross(b.av, rb) as Vector;
+
             const rv = b.v.Add(cb).Sub(a.v.Sub(ca));
 
             // Determine if we should perform a resting collision or not
@@ -363,7 +373,8 @@ export class Body extends Exportable
             {
                 tangentImpulse = t.Scale(jt);
             }
-            else {
+            else
+            {
                 tangentImpulse = t.Scale(-j * df);
             }
 

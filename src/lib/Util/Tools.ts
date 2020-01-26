@@ -163,8 +163,8 @@ export class Tools
     /**
      * A noop function.
      */
-    public static Noop()
+    public static Noop(...args: any[]): any
     {
-        return;
+        return true;
     }
 }

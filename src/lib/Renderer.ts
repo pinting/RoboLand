@@ -10,10 +10,10 @@ export interface RendererArgs
     world: World;
     canvas: HTMLCanvasElement;
 
-    shadows?: boolean;
-    debug?: boolean;
     dotPerPoint?: number;
+    debug?: boolean;
     debugColor?: string;
+    disableShadows?: boolean;
     shadowStep?: number;
     shadowStepR?: number;
 }
@@ -27,7 +27,7 @@ export class Renderer
     private readonly dotPerPoint: number;
     private readonly debug: boolean;
     private readonly debugColor: string;
-    private readonly shadows: boolean;
+    private readonly disableShadows: boolean;
     private readonly shadowStep: number;
     private readonly shadowStepR: number;
 
@@ -53,7 +53,7 @@ export class Renderer
         this.dotPerPoint = args.dotPerPoint || 30;
         this.debug = args.debug || false;
         this.debugColor = args.debugColor || "purple";
-        this.shadows = args.shadows || true;
+        this.disableShadows = args.disableShadows || false;
         this.shadowStep = args.shadowStep || 1 / 3;
         this.shadowStepR = args.shadowStepR || 2;
     }
@@ -231,7 +231,7 @@ export class Renderer
                     break;
                 }
                 
-                testBody.SetVirtual(1, 0, point);
+                testBody.SetVirtual(new Vector(1, 1), 0, point);
 
                 let collision = false;
 
@@ -293,7 +293,7 @@ export class Renderer
         this.context.fillRect(0, 0, w, h);
         
         // Init static shadow map
-        if(this.shadows && !this.shadowMap)
+        if(!this.disableShadows && !this.shadowMap)
         {
             this.shadowMap = new Array(w * h).fill(1);
             this.world.GetCells().ForEach(unit => 
@@ -319,7 +319,7 @@ export class Renderer
             });
 
         // Apply shadow map onto the picture
-        if(this.shadows)
+        if(!this.disableShadows)
         {
             const imageData = this.context.getImageData(0, 0, w, h);
             

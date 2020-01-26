@@ -43,6 +43,8 @@ export class Client extends MessageHandler
      */
     protected OnMessage(message: IMessage): void
     {
+        Logger.Info(this, "Message was received", message);
+        
         World.Current = this.world;
 
         switch(message.Type)

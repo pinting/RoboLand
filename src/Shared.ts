@@ -50,7 +50,7 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
      * @param data.right
      * @param data.space
      */
-    protected OnDraw(player: PlayerActor, { up, left, down, right, space })
+    protected SetupControl(player: PlayerActor, { up, left, down, right, space })
     {
         if(!player)
         {
