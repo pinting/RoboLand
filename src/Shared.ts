@@ -54,9 +54,9 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
      * @param data.left
      * @param data.down
      * @param data.right
-     * @param data.space
+     * @param data.shoot
      */
-    protected SetupControl(player: PlayerActor, { up, left, down, right, space })
+    protected SetupControl(player: PlayerActor, { up, left, down, right, shoot })
     {
         if(!player)
         {
@@ -111,7 +111,7 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
             player.StopWalk();
         }
 
-        if(Keyboard.Keys[space] && this.nextShoot <= +new Date)
+        if(Keyboard.Keys[shoot] && this.nextShoot <= +new Date)
         {
             player.Shoot(Tools.Unique());
             this.nextShoot = +new Date + SHOT_DELAY;

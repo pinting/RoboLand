@@ -1,8 +1,10 @@
-import { BaseActor } from "./BaseActor";
+import { BaseActor, BaseActorArgs } from "./BaseActor";
 import { Exportable, ExportType } from "../../Exportable";
 import { UnitArgs } from "../Unit";
+import { Vector } from "../../Geometry/Vector";
+import { PlayerActor } from "./PlayerActor";
 
-export interface ArrowActorArgs extends UnitArgs
+export interface ArrowActorArgs extends BaseActorArgs
 {
     damage?: number;
     speed?: number;
@@ -38,29 +40,33 @@ export class ArrowActor extends BaseActor
     /**
      * @inheritDoc
      */
-    protected OnTick(): void
+    protected InitPost(args: ArrowActorArgs = {})
     {
-        /*
-        super.OnTick();
+        super.InitPost(args);
         
-        const facing = Vector.AngleToVector(this.GetAngle());
-        const success = this.SetPosition(this.GetPosition().Add(facing.Scale(this.speed)));
+        const facing = Vector.ByRad(this.GetBody().GetRotation());
+        const force = facing.Scale(-1 * this.speed);
 
-        // If the arrow hit a wall, dispose it
-        if(!success)
-        {
-            this.Dispose();
-            return;
-        }
+        this.GetBody().AddForce(force);
+        console.log(this.GetBody(), force);
+    }
 
-        const result = this.world.GetActors().FindCollisions(this);
+    /**
+     * @inheritDoc
+     */
+    protected OnTick(dt: number): void
+    {
+        super.OnTick(dt);
+        
+        /*
+        const result = this.world.GetUnits().FindCollisions(this);
 
         let hit = false;
 
         // Damage every touched living actor
         for(const actor of result)
         {
-            if(actor instanceof LivingActor)
+            if(actor instanceof PlayerActor)
             {
                 actor.Damage(this.damage);
                 hit = true;

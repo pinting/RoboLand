@@ -1,6 +1,6 @@
 import { BaseActor } from "../Actor/BaseActor";
 import { BaseCell } from "./BaseCell";
-import { LivingActor } from "../Actor/LivingActor";
+import { PlayerActor } from "../Actor/PlayerActor";
 import { Exportable } from "../../Exportable";
 
 export class WaterCell extends BaseCell
@@ -10,7 +10,7 @@ export class WaterCell extends BaseCell
      */
     public MoveHere(actor: BaseActor): void 
     {
-        if(actor instanceof LivingActor)
+        if(actor instanceof PlayerActor)
         {
             actor.Dispose();
         }

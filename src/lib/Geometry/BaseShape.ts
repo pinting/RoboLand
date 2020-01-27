@@ -29,6 +29,10 @@ export abstract class BaseShape extends Exportable
         return this.points;
     }
 
+    /**
+     * Get virtual points.
+     * Virtual equals the base points scaled, rotated and increased by an offset.
+     */
     public GetVirtual(): Vector[]
     {
         if(!this.virtual)
@@ -41,7 +45,7 @@ export abstract class BaseShape extends Exportable
 
         return this.virtual;
     }
-
+    
     public SetVirtual(scale?: Vector, rotation?: number, offset?: Vector): void
     {
         scale && (this.scale = scale);

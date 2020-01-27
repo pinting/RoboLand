@@ -68,7 +68,7 @@ export class Renderer
             const elements = this.world.GetUnits();
             let i = 0;
     
-            elements.ForEach((unit: Unit) =>
+            elements.Some((unit: Unit) =>
             {
                 if(!unit)
                 {
@@ -160,7 +160,7 @@ export class Renderer
         // Draw grid if debug mode is enabled
         if(this.debug)
         {
-            this.DrawGrid(unit, this.debugColor);
+            this.DrawDebugGrid(unit, this.debugColor);
         }
     }
 
@@ -169,7 +169,7 @@ export class Renderer
      * @param unit 
      * @param color 
      */
-    private DrawGrid(unit: Unit, color: string)
+    private DrawDebugGrid(unit: Unit, color: string)
     {
         const shapes = unit.GetBody().GetShapes();
         let first = null;
@@ -201,6 +201,13 @@ export class Renderer
         this.context.stroke();
     }
 
+    /**
+     * Generate shadows tracing light.
+     * @param unit Unit to trace from.
+     * @param stepD Step size to go in the direction of the unit.
+     * @param stepR Step size to go around the unit.
+     * @param set Shadow value for a position.
+     */
     private GenerateShadows(unit: Unit, stepD: number, stepR: number, set: (s: number, x: number, y: number) => void)
     {
         if(!unit.GetLight())
@@ -235,7 +242,7 @@ export class Renderer
 
                 let collision = false;
 
-                for(const unit of this.world.GetCells().GetList())
+                for(const unit of this.world.GetCells().GetArray())
                 {
                     // If the light ray hits a blocking cell, break the loop
                     if(unit.IsBlocking() && testBody.Collide(unit.GetBody()))
@@ -296,7 +303,7 @@ export class Renderer
         if(!this.disableShadows && !this.shadowMap)
         {
             this.shadowMap = new Array(w * h).fill(1);
-            this.world.GetCells().ForEach(unit => 
+            this.world.GetCells().Some(unit => 
             {
                 this.GenerateShadows(unit, this.shadowStep, this.shadowStepR, (light, x, y) =>
                 {
@@ -309,14 +316,34 @@ export class Renderer
         }
 
         // Draw units in the order of their Z index
-        this.world
-            .GetUnits()
-            .GetList()
-            .sort((a, b) => a.GetZ() - b.GetZ())
-            .forEach(unit =>
+        const levels: Unit[][] = [];
+
+        const process = (unit: Unit) =>
+        {
+            const z = unit.GetBody().GetZ();
+                
+            if(!levels.hasOwnProperty(z))
             {
-                this.DrawElement(unit);
-            });
+                levels[z] = [];
+            }
+
+            levels[z].push(unit);
+        }
+
+        this.world
+            .GetCells()
+            .GetArray()
+            .forEach(process);
+
+        this.world
+            .GetActors()
+            .GetArray()
+            .forEach(process);
+
+        for(let level of levels)
+        {
+            level.forEach(unit => this.DrawElement(unit));
+        }
 
         // Apply shadow map onto the picture
         if(!this.disableShadows)
@@ -347,9 +374,6 @@ export class Renderer
         this.lastTick = now;
     }
 
-    /**
-     * Start rendering.
-     */
     public Start()
     {
         this.lastTick = +new Date;
@@ -358,9 +382,6 @@ export class Renderer
         window.requestAnimationFrame(() => this.Render());
     }
 
-    /**
-     * Stop rendering.
-     */
     public Stop()
     {
         this.stop = true;

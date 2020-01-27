@@ -17,13 +17,15 @@ export interface UnitArgs
     body?: Body;
     blocking?: boolean;
     light?: number;
-    z?: number;
 }
 
 export abstract class Unit extends Exportable
 {
     protected world: World;
     protected tickEvent: number;
+    
+    @Exportable.Register(ExportType.Visible)
+    protected template: string;
 
     @Exportable.Register(ExportType.Hidden, (s, v) => s.Dispose(v))
     protected disposed: boolean = false;
@@ -34,7 +36,7 @@ export abstract class Unit extends Exportable
     @Exportable.Register(ExportType.Hidden)
     protected parent: string; // ID of the parent unit
 
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.Visible, (s, v) => s.SetBody(v))
     protected body: Body;
 
     @Exportable.Register(ExportType.Visible)
@@ -45,9 +47,6 @@ export abstract class Unit extends Exportable
 
     @Exportable.Register(ExportType.Visible)
     protected light: number;
-
-    @Exportable.Register(ExportType.Visible)
-    protected z: number;
 
     /**
      * Construct a new unit with the given init args.
@@ -71,7 +70,6 @@ export abstract class Unit extends Exportable
         this.texture = args.texture;
         this.blocking = args.blocking || false;
         this.light = args.light || 0;
-        this.z = args.z || 0;
     }
 
     /**
@@ -132,20 +130,20 @@ export abstract class Unit extends Exportable
         this.body = body;
         this.body.Validate = (scale, rotation, offset) => 
         {
-            // TODO
+            this.world.OnUpdate.Call(this);
 
-            return true;
+            return this.ValidateBody(scale, rotation, offset);
         }
+    }
+
+    protected ValidateBody(scale: Vector, rotation: Number, offset: Vector): boolean
+    {
+        return true;
     }
     
     public GetLight(): number
     {
         return this.light;
-    }
-    
-    public GetZ(): number
-    {
-        return this.z;
     }
     
     public IsBlocking(): boolean
@@ -183,8 +181,9 @@ export abstract class Unit extends Exportable
      */
     public Import(input: IDump[]): void
     {
-        this.Init();
+        this.InitPre();
         super.Import(input);
+        this.InitPost();
     }
 
     /**
@@ -218,6 +217,10 @@ export abstract class Unit extends Exportable
         return clone;
     }
     
+    /**
+     * Called by the map every tick
+     * @param dt The amount of time passed since the last tick
+     */
     protected OnTick(dt: number)
     {
         return;

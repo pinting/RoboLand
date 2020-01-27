@@ -3,7 +3,7 @@ import { BaseActor } from "./Unit/Actor/BaseActor";
 import { Tools } from "./Util/Tools";
 import { BaseCell } from "./Unit/Cell/BaseCell";
 import { Unit } from "./Unit/Unit";
-import { ElementList } from "./ElementList";
+import { UnitList } from "./UnitList";
 import { IReadOnlyElementList } from "./IReadOnlyElementList";
 import { Exportable, ExportType } from "./Exportable";
 import { Event } from "./Util/Event";
@@ -11,6 +11,7 @@ import { IDump } from "./IDump";
 import { Body } from "./Physics/Body";
 import { ICollision } from "./Physics/ICollision";
 import { GroundCell } from "./Unit/Cell/GroundCell";
+import { StoneCell } from "./Unit/Cell/StoneCell";
 
 const COLLISION_ITERATIONS = 50;
 
@@ -79,11 +80,11 @@ export class World extends Exportable
         // Look for collisions
         for(let i = 0; i < units.GetLength(); i++)
         {
-            const a: Unit = units.GetList()[i];
+            const a: Unit = units.GetArray()[i];
 
             for(let j = i + 1; j < units.GetLength(); j++)
             {
-                const b: Unit = units.GetList()[j];
+                const b: Unit = units.GetArray()[j];
                 const collision = a.IsBlocking() && b.IsBlocking() && a.Collide(b);
 
                 if(collision && collision.Points.length)
@@ -94,7 +95,7 @@ export class World extends Exportable
         }
 
         // Integrate forces
-        units.ForEach(unit => unit.GetBody().IntegrateForces(dt));
+        units.Some(unit => unit.GetBody().IntegrateForces(dt));
         
         // Solve collisions
         for(let i = 0; i < COLLISION_ITERATIONS; i++)
@@ -106,7 +107,7 @@ export class World extends Exportable
         }
 
         // Integrate velocities
-        units.ForEach(unit => unit.GetBody().IntegrateVelocity(dt));
+        units.Some(unit => unit.GetBody().IntegrateVelocity(dt));
 
         // Correct positions
         for(let contact of contacts)
@@ -115,12 +116,9 @@ export class World extends Exportable
         }
         
         // Clear all forces
-        units.ForEach(unit => unit.GetBody().ClearForces());
+        units.Some(unit => unit.GetBody().ClearForces());
     }
 
-    /**
-     * Get the size of the world.
-     */
     public GetSize(): Vector
     {
         return this.size.Clone();
@@ -133,23 +131,23 @@ export class World extends Exportable
     {
         const all = (<Unit[]>this.cells).concat(<Unit[]>this.actors);
         
-        return new ElementList<Unit>(all, this.OnUpdate);
+        return new UnitList<Unit>(all, this.OnUpdate);
     }
 
     /**
      * Get the cells of the world.
      */
-    public GetCells(): ElementList<BaseCell>
+    public GetCells(): UnitList<BaseCell>
     {
-        return new ElementList(this.cells, <Event<BaseCell>>this.OnUpdate);
+        return new UnitList(this.cells, <Event<BaseCell>>this.OnUpdate);
     }
 
     /**
      * Get the actors of the world.
      */
-    public GetActors(): ElementList<BaseActor>
+    public GetActors(): UnitList<BaseActor>
     {
-        return new ElementList(this.actors, <Event<BaseActor>>this.OnUpdate);
+        return new UnitList(this.actors, <Event<BaseActor>>this.OnUpdate);
     }
 
     /**
@@ -171,12 +169,33 @@ export class World extends Exportable
         // Init world with size x size number of GroundCells
         for(let i = 0; i < size * size; i++)
         {
-            const cell = new GroundCell();
+            let args = {};
+            let cell: BaseCell;
+            
+            // TODO: Remove this, refactor this
+            if(i == 0)
+            {
+                cell = new StoneCell();
+                args = {
+                    texture: "res/stone.png"
+                };
+            }
+            else
+            { 
+                cell = new GroundCell();
+                args = {
+                    texture: "res/ground.png"
+                };
+            }
 
             cell.Init({
-                body: Body.CreateBoxBody(new Vector(1, 1), 0, new Vector(i % size, (i -  (i % size)) / size)),
-                texture: texture,
-                world: world
+                ...args,
+                world: world,
+                body: Body.CreateBoxBody(
+                    new Vector(1, 1), 
+                    0,
+                    new Vector(i % size, (i -  (i % size)) / size),
+                    { z: 0 })
             });
 
             world.Add(cell);

@@ -17,7 +17,9 @@ export interface BodyArgs
     torque?: number; // Torque
     sf?: number; // Static friction
     df?: number; // Dynamic friction
+    cf?: number; // Cell friction
     r?: number; // Restitution
+    z?: number; // Z-Index
 }
 
 export class Body extends Exportable
@@ -25,13 +27,13 @@ export class Body extends Exportable
     @Exportable.Register(ExportType.Visible)
     protected shapes: BaseShape[] = [];
 
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.Visible, (s, v) => s.SetVirtual(v, null, null))
     protected scale: Vector = new Vector(1, 1);
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.Visible, (s, v) => s.SetVirtual(null, v, null))
     protected rotation: number = 0;
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.Visible, (s, v) => s.SetVirtual(null, null, v))
     protected offset: Vector = new Vector(0, 0);
 
     @Exportable.Register(ExportType.Visible)
@@ -55,18 +57,24 @@ export class Body extends Exportable
     @Exportable.Register(ExportType.Visible)
     protected df: number; // Dynamic friction
     
+    @Exportable.Register(ExportType.Hidden)
+    protected cf: number; // Cell friction
+    
     @Exportable.Register(ExportType.Visible)
     protected r: number; // Restitution
 
     @Exportable.Register(ExportType.Visible, (s, v) => s.ComputeMass(v))
     protected density: number; // Mass density
     
+    @Exportable.Register(ExportType.Visible)
+    protected z: number; // Z-Index
+    
     protected I: number;  // Moment of inertia
     protected iI: number; // Inverse inertia
     protected m: number;  // Mass
     protected im: number; // Inverse mass
 
-    public Validate: (scale?: Vector, rotation?: number, offset?: Vector) => boolean = Tools.Noop;
+    public Validate: (scale: Vector, rotation: number, offset: Vector) => boolean;
 
     /**
      * Construct a new body with the given shapes.
@@ -87,117 +95,10 @@ export class Body extends Exportable
         this.torque = args.torque || 0;
         this.v = args.v || new Vector(0, 0);
         this.density = args.density || 1.0;
+        this.z = args.z || 0;
+        this.cf = args.cf || 0.85;
 
         this.ComputeMass(this.density);
-    }
-
-    private EveryShape<T>(other: Body, callback: (s1: BaseShape, s2: BaseShape) => T): T
-    {
-        for(let s1 of this.shapes)
-        {
-            for(let s2 of other.shapes)
-            {
-                const result = callback(s1, s2);
-
-                if(result)
-                {
-                    return result;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    public AddShape(shape: BaseShape)
-    {
-        this.shapes.push(shape);
-    }
-
-    public GetShapes() 
-    {
-        return this.shapes;
-    }
-
-    public Collide(other: Body): ICollision
-    {
-        const dist = this.offset.Dist(other.offset);
-
-        // Optimize, if unit is too far away, skip deeper collision detection
-        if(dist > this.GetRadius() + other.GetRadius())
-        {
-            return null;
-        }
-
-        const contact = this.EveryShape<IContact>(other, (s1, s2) => Overlap.Test(s1, s2)) as ICollision;
-
-        if(contact)
-        {
-            contact.A = this;
-            contact.B = other;
-        }
-
-        return contact;
-    }
-
-    public SetVirtual(scale?: Vector, rotation?: number, offset?: Vector): void
-    {
-        if(!this.Validate(scale, rotation, offset))
-        {
-            return;
-        }
-
-        scale && (this.scale = scale);
-        rotation && (this.rotation = rotation);
-        offset && (this.offset = offset);
-
-        this.shapes.forEach(s => s.SetVirtual(scale, rotation, offset));
-    }
-
-    public IntegrateForces(dt: number, cf: number = 0.85)
-    {
-        if(this.im == 0)
-        {
-            return;
-        }
-
-        this.av = this.av * cf + this.torque * this.iI * (dt / 2);
-        this.v = this.v.Scale(cf).Add(this.force.Scale(this.im * dt));
-    }
-
-    public IntegrateVelocity(dt: number)
-    {
-        if(this.im == 0)
-        {
-            return;
-        }
-
-        const nextOffset = this.offset.Add(this.v.Scale(dt));
-        const nextRot = this.rotation + this.av * dt;
-
-        this.SetVirtual(null, nextRot, nextOffset);
-    }
-
-    public AddForce(f: Vector)
-    {
-        this.force = this.force.Add(f);
-    }
-
-    public AddTorque(t: number)
-    {
-        this.torque += t;
-    }
-
-    public ApplyImpulse(impulse: Vector, contactVector: Vector)
-    {
-        this.v = this.v.Add(impulse.Scale(new Vector(this.im, this.im)));
-        this.av += this.iI * <number>Vector.Cross(contactVector, impulse);
-    }
-
-    public ClearForces()
-    {   
-        this.force = new Vector(0, 0);
-        this.torque = 0;
     }
 
     /**
@@ -226,6 +127,167 @@ export class Body extends Exportable
     public GetScale(): Vector
     {
         return this.scale;
+    }
+
+    public GetShapes() 
+    {
+        return this.shapes;
+    }
+    
+    public GetZ(): number
+    {
+        return this.z;
+    }
+
+    public SetCellFriction(friction: number): void
+    {
+        this.cf = friction;
+    }
+
+    public SetGravity(gravity: Vector): void
+    {
+        this.gravity = gravity;
+    }
+
+    public SetZ(z: number): void
+    {
+        this.z = z;
+    }
+
+    public AddForce(f: Vector)
+    {
+        this.force = this.force.Add(f);
+    }
+    
+    public AddTorque(t: number)
+    {
+        this.torque += t;
+    }
+
+    /**
+     * Go through each shape combination of this and the other body.
+     * @param other 
+     * @param callback 
+     */
+    private EveryShape<T>(other: Body, callback: (s1: BaseShape, s2: BaseShape) => T): T
+    {
+        for(let s1 of this.shapes)
+        {
+            for(let s2 of other.shapes)
+            {
+                const result = callback(s1, s2);
+
+                if(result)
+                {
+                    return result;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Add a new shape to this body.
+     * @param shape 
+     */
+    public AddShape(shape: BaseShape)
+    {
+        this.shapes.push(shape);
+    }
+
+    public Collide(other: Body): ICollision
+    {
+        if(this.GetZ() != other.GetZ())
+        {
+            return null;
+        }
+
+        const dist = this.offset.Dist(other.offset);
+
+        // Optimize, if unit is too far away, skip deeper collision detection
+        if(dist > this.GetRadius() + other.GetRadius())
+        {
+            return null;
+        }
+
+        const contact = this.EveryShape<IContact>(other, (s1, s2) => Overlap.Test(s1, s2)) as ICollision;
+
+        if(contact)
+        {
+            contact.A = this;
+            contact.B = other;
+        }
+
+        return contact;
+    }
+
+    public SetVirtual(scale?: Vector, rotation?: number, offset?: Vector): void
+    {
+        if(this.Validate && !this.Validate(scale || this.scale,
+            Number.isFinite(rotation) ? rotation : this.rotation,
+            offset || this.offset))
+        {
+            return;
+        }
+
+        scale && (this.scale = scale);
+        rotation && (this.rotation = rotation);
+        offset && (this.offset = offset);
+
+        this.shapes.forEach(s => s.SetVirtual(scale, rotation, offset));
+    }
+
+    /**
+     * Calculate angular velocity and velocity.
+     * @param dt 
+     */
+    public IntegrateForces(dt: number)
+    {
+        if(this.im == 0)
+        {
+            return;
+        }
+
+        this.av = this.av * this.cf + this.torque * this.iI * (dt / 2);
+        this.v = this.v.Scale(this.cf).Add((this.force.Scale(this.im).Add(this.gravity).Scale(dt / 2)));
+    }
+
+    /**
+     * Calculate the next rotation and offset from the angular velocity and velocity.
+     * @param dt 
+     */
+    public IntegrateVelocity(dt: number)
+    {
+        if(this.im == 0 || (!this.av && !this.v.Len()))
+        {
+            return;
+        }
+
+        const nextOffset = this.offset.Add(this.v.Scale(dt));
+        const nextRot = this.rotation + this.av * dt;
+
+        this.SetVirtual(null, nextRot, nextOffset);
+    }
+
+    /**
+     * Apply impluse onto the body.
+     * @param impulse 
+     * @param contactVector 
+     */
+    private ApplyImpulse(impulse: Vector, contactVector: Vector)
+    {
+        this.v = this.v.Add(impulse.Scale(new Vector(this.im, this.im)));
+        this.av += this.iI * <number>Vector.Cross(contactVector, impulse);
+    }
+
+    /**
+     * Clear the force and the torque of the body.
+     */
+    public ClearForces()
+    {   
+        this.force = new Vector(0, 0);
+        this.torque = 0;
     }
 
     /**

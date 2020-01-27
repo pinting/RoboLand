@@ -26,7 +26,7 @@ export class Server
     {
         this.world = world;
 
-        this.spawns = this.world.GetCells().GetList()
+        this.spawns = this.world.GetCells().GetArray()
             .filter(c => c instanceof GroundCell)
             .sort((a, b) => Tools.Random(-100, 100));
         
@@ -108,7 +108,11 @@ export class Server
                 continue;
             }
 
-            const body = Body.CreateBoxBody(new Vector(1, 1), 0, spawn.GetBody().GetOffset());
+            const body = Body.CreateBoxBody(
+                new Vector(1, 1), 
+                0, 
+                spawn.GetBody().GetOffset(), 
+                { z: spawn.GetBody().GetZ() });
 
             player.Init({
                 id: playerTag,
@@ -119,8 +123,7 @@ export class Server
                 damage: 0.1,
                 health: 1,
                 rotSpeed: 200,
-                light: 6,
-                z: 1
+                light: 6
             });
 
             break;
@@ -137,13 +140,13 @@ export class Server
         await host.SendSize(this.world.GetSize());
 
         // Set cells
-        for(let cell of this.world.GetCells().GetList())
+        for(let cell of this.world.GetCells().GetArray())
         {
             await host.SendElement(cell);
         }
 
         // Set actors
-        for(let actor of this.world.GetActors().GetList())
+        for(let actor of this.world.GetActors().GetArray())
         {
             await host.SendElement(actor);
         }

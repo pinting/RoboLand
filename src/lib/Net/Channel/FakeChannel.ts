@@ -8,7 +8,7 @@ export class FakeChannel implements IChannel
     private other: FakeChannel;
 
     /**
-     * Construct a new fake channel with the given delay.
+     * Construct a new fake channel with a given fake delay.
      * @param delay 
      */
     public constructor(delay: number = 0)
@@ -16,19 +16,11 @@ export class FakeChannel implements IChannel
         this.delay = delay;
     }
 
-    /**
-     * Set the other peer.
-     * @param other 
-     */
     public SetOther(other: FakeChannel)
     {
         this.other = other;
     }
-    
-    /**
-     * Send a Message to the other peer.
-     * @param message 
-     */
+
     public SendMessage(message: string): void 
     {
         if(this.other)
@@ -37,16 +29,10 @@ export class FakeChannel implements IChannel
         }
     }
 
-    /**
-     * Close the channel.
-     */
     public Close()
     {
         Logger.Info("Channel was closed!");
     }
 
-    /**
-     * Receive a Message from the other peer.
-     */
     public OnMessage: (message: string) => void = Tools.Noop;
 }

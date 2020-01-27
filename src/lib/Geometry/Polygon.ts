@@ -29,7 +29,7 @@ export class Polygon extends BaseShape
                 rightMost = i;
             }
 
-            // If matching x then take farthest negative y
+            // If matching X then take farthest negative Y
             else if (x == highestXCoord)
             {
                 if (vertices[i].Y < vertices[rightMost].Y)

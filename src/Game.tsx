@@ -216,7 +216,7 @@ export class Game extends Shared<GameProps, GameState>
                 left: "ARROWLEFT", 
                 down: "ARROWDOWN", 
                 right: "ARROWRIGHT",
-                space: " "
+                shoot: " "
             };
 
             renderer.OnDraw.Add(() => this.SetupControl(player, keys));

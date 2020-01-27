@@ -14,7 +14,8 @@ import { Unit } from "../Unit/Unit";
 import { Host } from "./Host";
 
 const MAX_POS_DIFF = 0.5;
-const MAX_ANGLE_DIFF = Math.PI / 4;
+const MAX_ROT_DIFF = Math.PI / 4;
+const PLAYER_SYNCED_FUNCTIONS = ["Damage", "Shoot", "StopRot", "StartRot", "StartWalk", "StopWalk"];
 
 export class Client extends MessageHandler
 {
@@ -146,13 +147,16 @@ export class Client extends MessageHandler
             return;
         }
 
-        // If the position or the angle difference is under a limit, skip updating
-        if(Host.IsMovementDiff(diff) && oldElement.GetBody().GetOffset())
-        {
-            const posititonDiff = newElement.GetBody().GetOffset().Dist(oldElement.GetBody().GetOffset());
-            const angleDiff = Math.abs(newElement.GetBody().GetRotation() - oldElement.GetBody().GetRotation());
+        const newBody = newElement.GetBody();
+        const oldBody = oldElement.GetBody();
 
-            if(posititonDiff < MAX_POS_DIFF && angleDiff < MAX_ANGLE_DIFF)
+        // If the position or the rotation difference is under a limit, skip updating
+        if(Host.IsMovementDiff(diff) && oldBody.GetOffset())
+        {
+            const posDiff = newBody.GetOffset().Dist(oldBody.GetOffset());
+            const rotDiff = Math.abs(newBody.GetRotation() - oldBody.GetRotation());
+
+            if(posDiff < MAX_POS_DIFF && rotDiff < MAX_ROT_DIFF)
             {
                 Logger.Info(this, "Element was optimized out", newElement);
                 return;
@@ -172,6 +176,11 @@ export class Client extends MessageHandler
 
         this.OnPlayer(Tools.Hook(player, (target, prop, args) => 
         {
+            if(!PLAYER_SYNCED_FUNCTIONS.includes(prop))
+            {
+                return;
+            }
+
             const dump = Exportable.Export([player.GetId(), prop].concat(args));
 
             this.SendMessage(MessageType.Command, dump);

@@ -1,12 +1,12 @@
 import { Vector } from "./Geometry/Vector";
 
-export interface IReadOnlyElementList<Element>
+export interface IReadOnlyElementList<U>
 {
     GetLength(): number;
-    ForEach(callback: (e: Element) => boolean | void): void;
-    Get(id: string): Element;
-    Find(position: Vector): Element[];
-    FindNearest(position: Vector): Element;
-    FindCollisions(unit: Element): Element[];
-    GetList(): Element[];
+    Some(callback: (e: U) => boolean | void): void;
+    Get(id: string): U;
+    Find(position: Vector): U[];
+    FindNearest(position: Vector): U;
+    FindCollisions(unit: U): U[];
+    GetArray(): U[];
 }

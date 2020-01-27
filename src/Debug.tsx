@@ -52,7 +52,7 @@ export class Debug extends Shared
             Polygon,
             Body
         });
-        
+
         Logger.Type = LogType.Warn;
         Keyboard.Init();
 
@@ -109,7 +109,7 @@ export class Debug extends Shared
                 left: "ARROWLEFT", 
                 down: "ARROWDOWN", 
                 right: "ARROWRIGHT",
-                space: " "
+                shoot: " "
             };
     
             rendererA.OnDraw.Add(() => this.SetupControl(player, keys));
@@ -128,7 +128,7 @@ export class Debug extends Shared
                 left: "A", 
                 down: "S", 
                 right: "D",
-                space: "E"
+                shoot: "E"
             };
             
             rendererB.OnDraw.Add(() => this.SetupControl(player, keys));
@@ -171,11 +171,8 @@ export class Debug extends Shared
         return (
             <div>
                 <canvas ref={c => this.canvasA = c}></canvas>
-                <span>A</span>
                 <canvas ref={c => this.canvasB = c}></canvas>
-                <span>B</span>
                 <canvas ref={c => this.canvasS = c}></canvas>
-                <span>S</span>
             </div>
         );
     }

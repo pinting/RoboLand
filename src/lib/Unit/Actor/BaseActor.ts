@@ -1,7 +1,6 @@
 import { Vector } from "../../Geometry/Vector";
 import { Unit, UnitArgs } from "../Unit";
-import { CollisionError } from "../../Physics/CollisionError";
-import { BaseCellArgs } from "../Cell/BaseCell";
+import { Body } from "../../Physics/Body";
 
 export interface BaseActorArgs extends UnitArgs
 {
@@ -17,33 +16,23 @@ export abstract class BaseActor extends Unit
     {
         super.InitPre(args);
         
-        this.blocking = args.blocking || true;
+        this.blocking = typeof args.blocking === "boolean" ? args.blocking : true;
     }
-    
-    /*
-    protected Move(size: Vector, position: Vector, angle: number): boolean
+
+    protected ValidateBody(scale: Vector, rotation: number, offset: Vector): boolean
     {
-        // For clones, because they do not have a world
         if(!this.world)
         {
             return true;
         }
 
+        const body = this.GetBody();
         const clone = <BaseActor>this.Clone();
 
-        clone.SetSize(size);
-        clone.SetAngle(angle);
-        clone.SetPosition(position);
-
-        const actors = this.world.GetActors().FindCollisions(clone);
-
-        if(actors.length)
-        {
-            throw new CollisionError(actors.map(actor => actor.GetBody()));
-        }
+        clone.SetBody(Body.CreateBoxBody(scale, rotation, offset, { z: body.GetZ() }));
 
         // Get the currently covered cells and the next ones
-        const prev = this.position 
+        const prev = body.GetOffset()
             ? this.world.GetCells().FindCollisions(this)
             : [];
         
@@ -51,8 +40,7 @@ export abstract class BaseActor extends Unit
 
         if(!next.length)
         {
-            // Position is taken by a cell
-            throw new CollisionError([]);
+            return false;
         }
 
         // Remove intersection 
@@ -64,7 +52,6 @@ export abstract class BaseActor extends Unit
 
         return true;
     }
-    */
 
     /**
      * @inheritDoc

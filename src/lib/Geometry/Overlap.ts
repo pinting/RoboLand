@@ -90,18 +90,20 @@ export class Overlap
         // World space incident face
         const incidentFace = ref.FindIncidentFace(inc, refIndex);
 
-        //        y
-        //        ^  ->n       ^
-        //      +---c ------posPlane--
-        //  x < | i |\
-        //      +---+ c-----negPlane--
-        //             \       v
-        //              r
-        //
-        //  r : reference face
-        //  i : incident poly
-        //  c : clipped point
-        //  n : incident normal
+        /**
+         *        Y
+         *        ^  ->N       ^^^^^^^^^
+         *      +---C ------ positive plane ----
+         *  x < | I |\
+         *      +---+ C ---- negative plane ----
+         *             \       vvvvvvvvv
+         *              R
+         *
+         *  R : reference face
+         *  I : incident poly
+         *  C : clipped point
+         *  N : incident normal
+         */
 
         // Setup reference face points
         let v1 = ref.GetVirtual()[refIndex]

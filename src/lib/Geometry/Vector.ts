@@ -51,6 +51,11 @@ export class Vector extends Exportable
         return this.X * other.X + this.Y * other.Y;
     }
 
+    /**
+     * Calculate the cross product of two vectors or a vector-number pair.
+     * @param a 
+     * @param b 
+     */
     public static Cross(a: Vector | number, b: Vector | number): Vector | number
     {
 
@@ -118,6 +123,10 @@ export class Vector extends Exportable
         return this.X == other.X && this.Y == other.Y;
     }
 
+    /**
+     * Check if the difference between this and the other vector is inside EPSILON.
+     * @param other 
+     */
     public Equal(other: Vector): boolean
     {
         return Vector.Equal(this.X, other.X) && Vector.Equal(this.Y, other.Y);

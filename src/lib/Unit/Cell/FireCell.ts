@@ -1,6 +1,6 @@
 import { BaseActor } from "../Actor/BaseActor";
 import { BaseCell, BaseCellArgs } from "./BaseCell";
-import { LivingActor } from "../Actor/LivingActor";
+import { PlayerActor } from "../Actor/PlayerActor";
 import { UnitArgs } from "../Unit";
 import { Exportable, ExportType } from "../../Exportable";
 
@@ -43,7 +43,7 @@ export class FireCell extends BaseCell
         {
             const actor = this.world.GetActors().Get(id);
 
-            if(actor instanceof LivingActor)
+            if(actor instanceof PlayerActor)
             {
                 actor.Damage(this.damage * dt);
             }

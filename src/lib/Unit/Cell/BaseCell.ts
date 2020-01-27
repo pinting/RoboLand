@@ -2,17 +2,19 @@ import { BaseActor } from "../Actor/BaseActor";
 import { Unit, UnitArgs } from "../Unit";
 import { Exportable, ExportType } from "../../Exportable";
 import { Vector } from "../../Geometry/Vector";
-import { Body } from "../../Physics/Body";
-import { Polygon } from "../../Geometry/Polygon";
 
 export interface BaseCellArgs extends UnitArgs
 {
     cf?: number;
+    gravity?: Vector;
 }
 
 export abstract class BaseCell extends Unit
 {
     protected actors: string[] = [];
+
+    @Exportable.Register(ExportType.Visible)
+    protected gravity: Vector; // Gravity inside the cell
 
     @Exportable.Register(ExportType.Visible)
     protected cf: number; // Cell friction
@@ -24,21 +26,8 @@ export abstract class BaseCell extends Unit
     {
         super.InitPre(args);
         
-        this.cf = args.cf || 0.0001;
-    }
-    
-    protected BodyFactory()
-    {
-        return new Body([
-            new Polygon([
-                new Vector(-0.5, 0.5),
-                new Vector(0.5, 0.5),
-                new Vector(0.5, -0.5),
-                new Vector(-0.5, -0.5)
-            ])
-        ], {
-            density: Infinity
-        });
+        this.cf = args.cf || 0.85;
+        this.gravity = args.gravity || new Vector(0, 0);
     }
 
     /**
@@ -47,11 +36,20 @@ export abstract class BaseCell extends Unit
      */
     public MoveHere(actor: BaseActor): void 
     {
-        if(!this.actors.includes(actor.GetId()))
+        if(this.actors.includes(actor.GetId()))
         {
-            this.actors.push(actor.GetId());
-            this.world.OnUpdate.Call(this);
+            return;
         }
+        
+        this.actors.push(actor.GetId());
+        
+        const body = actor.GetBody();
+
+        // TODO: Issue: when multiply cells are hit, the last cell props will be set and not the max props.
+        body.SetCellFriction(this.cf);
+        body.SetGravity(this.gravity);
+
+        this.world.OnUpdate.Call(this);
     }
 
     /**
@@ -83,6 +81,9 @@ export abstract class BaseCell extends Unit
         super.Dispose();
     }
 
+    /**
+     * Get the friction of the surface of the cell.
+     */
     public GetFriction(): number
     {
         return this.cf;
