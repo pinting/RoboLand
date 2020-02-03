@@ -40,13 +40,17 @@ export class Debug extends Shared
         {
             await NetTest();
         }
-        catch(e)
+        catch(error)
         {
-            Logger.Warn(this, e);
+            const e = error as Error;
+
+            Logger.Warn(this, e.message);
+
+            alert(e.message);
         }
         finally
         {
-            Logger.Info(this, "Tests complete!");
+            alert("Tests complete!");
         }
     }
 
