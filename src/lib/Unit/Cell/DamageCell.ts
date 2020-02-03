@@ -1,7 +1,5 @@
-import { BaseActor } from "../Actor/BaseActor";
 import { BaseCell, BaseCellArgs } from "./BaseCell";
 import { PlayerActor } from "../Actor/PlayerActor";
-import { UnitArgs } from "../Unit";
 import { Exportable, ExportType } from "../../Exportable";
 
 export interface FireCellArgs extends BaseCellArgs
@@ -9,7 +7,7 @@ export interface FireCellArgs extends BaseCellArgs
     damage?: number;
 }
 
-export class FireCell extends BaseCell
+export class DamageCell extends BaseCell
 {
     @Exportable.Register(ExportType.Visible)
     protected damage: number;
@@ -29,7 +27,7 @@ export class FireCell extends BaseCell
     {
         super.InitPre(args);
 
-        this.damage = args.damage;
+        this.damage = args.damage === undefined ? this.damage : args.damage;
     }
 
     /**
@@ -51,4 +49,4 @@ export class FireCell extends BaseCell
     }
 }
 
-Exportable.Dependency(FireCell);
+Exportable.Dependency(DamageCell);

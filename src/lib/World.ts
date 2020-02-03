@@ -10,10 +10,8 @@ import { Event } from "./Util/Event";
 import { IDump } from "./IDump";
 import { Body } from "./Physics/Body";
 import { ICollision } from "./Physics/ICollision";
-import { GroundCell } from "./Unit/Cell/GroundCell";
-import { StoneCell } from "./Unit/Cell/StoneCell";
+import { NormalCell } from "./Unit/Cell/NormalCell";
 import { Polygon } from "./Geometry/Polygon";
-import { LightCell } from "./Unit/Cell/LightCell";
 
 const COLLISION_ITERATIONS = 50;
 const SHADOW_DOT_PER_POINT = 10;
@@ -316,61 +314,19 @@ export class World extends Exportable
 
         world.Init(new Vector(size, size));
 
-        // Init world with size x size number of GroundCells
+        // Init world with size * size number of GroundCells
         for(let i = 0; i < size * size; i++)
         {
-            let args = {};
-            let cell: BaseCell;
-            
-            if(i % (size - 1) == 0)
-            {
-                cell = new LightCell();
+            const cell = new NormalCell();
 
-                cell.Init({
-                    texture: "res/lamp.png",
-                    world: world,
-                    body: Body.CreateBoxBody(
-                        new Vector(1, 1), 
-                        0,
-                        new Vector(i % size, (i -  (i % size)) / size),
-                        { 
-                            z: 1,
-                            density: Infinity
-                        })
-                });
-            }
-            else if(i < size || i >= size * size - size)
-            {
-                cell = new StoneCell();
-                cell.Init({
-                    texture: "res/stone.png",
-                    world: world,
-                    body: Body.CreateBoxBody(
-                        new Vector(1, 1), 
-                        0,
-                        new Vector(i % size, (i -  (i % size)) / size),
-                        { 
-                            z: 0,
-                            density: Infinity
-                        })
-                });
-            }
-            else
-            { 
-                cell = new GroundCell();
-                cell.Init({
-                    texture: "res/ground.png",
-                    world: world,
-                    body: Body.CreateBoxBody(
-                        new Vector(1, 1), 
-                        0,
-                        new Vector(i % size, (i -  (i % size)) / size),
-                        { 
-                            z: 0,
-                            density: Infinity
-                        })
-                });
-            }
+            cell.Init({
+                light: 1,
+                world: world,
+                body: Body.CreateBoxBody(
+                    new Vector(1, 1), 
+                    0,
+                    new Vector(i % size, (i - (i % size)) / size))
+            });
 
             world.Add(cell);
         }

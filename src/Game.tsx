@@ -165,6 +165,7 @@ export class Game extends Shared<GameProps, GameState>
             return new Client(this.channel, this.world);
         }
 
+    /*
         // Create server world, load it, create server
         const buffer = await Http.Get("res/sample.roboland");
         
@@ -173,8 +174,10 @@ export class Game extends Shared<GameProps, GameState>
         const rootResource = ResourceManager.ByUri("world.dump");
         const rootDump = JSON.parse(Tools.BufferToString(rootResource.Buffer)) as IDump;
         const dump = Exportable.Resolve(rootDump);
-
         const serverWorld = Exportable.Import(dump);
+        */
+
+        const serverWorld = this.CreateSampleWorld(16);
 
         this.server = new Server(serverWorld);
 
@@ -203,17 +206,15 @@ export class Game extends Shared<GameProps, GameState>
      */
     private async Start()
     {
-        window["world"] = this.world;
-
         const renderer = new Renderer({ 
             canvas: this.canvas, 
             world: this.world
         });
+        
         const receiver = await this.CreateReceiver(renderer);
 
         receiver.OnPlayer = async player =>
         {
-            window["temp1"] = player;
             this.world.Origin = player.GetId();
 
             await renderer.Load();
@@ -227,7 +228,12 @@ export class Game extends Shared<GameProps, GameState>
                 shoot: " "
             };
 
-            renderer.OnDraw.Add(() => this.SetupControl(player, keys));
+            renderer.OnDraw.Add(() => 
+            {
+                this.SetupControl(player, keys);
+                renderer.SetCenter(player.GetBody().GetOffset());
+            });
+
             renderer.Start();
         };
     }

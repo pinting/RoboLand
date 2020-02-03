@@ -11,9 +11,8 @@ import { Host } from "./lib/Net/Host";
 import { Http } from "./lib/Util/Http";
 import { Vector } from "./lib/Geometry/Vector";
 import { Matrix } from "./lib/Geometry/Matrix";
-import { GroundCell } from "./lib/Unit/Cell/GroundCell";
+import { NormalCell } from "./lib/Unit/Cell/NormalCell";
 import { PlayerActor } from "./lib/Unit/Actor/PlayerActor";
-import { StoneCell } from "./lib/Unit/Cell/StoneCell";
 import { Logger, LogType } from "./lib/Util/Logger";
 import { SimplexNoise } from "./lib/Util/SimplexNoise";
 import { Shared } from "./Shared";
@@ -24,35 +23,70 @@ import { Polygon } from "./lib/Geometry/Polygon";
 import { Body } from "./lib/Physics/Body";
 import NetTest from "./lib/Test/NetTest";
 import { Helper } from "./Helper";
+import { ArrowActor } from "./lib/Unit/Actor/ArrowActor";
 
 export class Debug extends Shared
 {
     public static Name = "debug";
 
-    private canvasA: HTMLCanvasElement;
-    private canvasB: HTMLCanvasElement;
-    private canvasS: HTMLCanvasElement;
-
-    public async OnePlayer()
+    private canvasHolder: HTMLDivElement;
+    
+    public async RunTests()
     {
-        const world = World.CreateBox(16);
+        // Run tests
+        Logger.Type = LogType.Info;
 
+        try
+        {
+            await NetTest();
+        }
+        catch(e)
+        {
+            Logger.Warn(this, e);
+        }
+        finally
+        {
+            Logger.Info(this, "Tests complete!");
+        }
+    }
+
+    public async RunOnePlayer()
+    {
+        // Clear
+        this.canvasHolder.innerHTML = "";
+
+        // New canvas
+        const canvas = document.createElement("canvas");
+
+        // Append canvas to the holder
+        this.canvasHolder.appendChild(canvas);
+
+        // Create world
+        const world = this.CreateSampleWorld(16);
+
+        // Add player
         const player = new PlayerActor();
+        const arrow = new ArrowActor();
+
+        arrow.Init({
+            ignore: true,
+            body: Body.CreateBoxBody(new Vector(0.1, 0.1), 0, new Vector(0, 0))
+        });
 
         player.Init({
             body: Body.CreateBoxBody(new Vector(1, 1), 0, new Vector(2, 2)),
             texture: "res/player.png",
             speed: 1500,
-            damage: 0.1,
             health: 1,
-            rotSpeed: 200
+            rotSpeed: 200,
+            arrow: arrow
         });
 
         world.Add(player);
     
         // Render the server
         const renderer = new Renderer({ 
-            canvas: this.canvasS,
+            canvas: canvas,
             world: world, 
             debug: true
         });
@@ -68,13 +102,31 @@ export class Debug extends Shared
             shoot: " "
         };
 
-        renderer.OnDraw.Add(() => this.SetupControl(player, keys));
+        renderer.OnDraw.Add(() => 
+        {
+            this.SetupControl(player, keys);
+            renderer.SetCenter(player.GetBody().GetOffset());
+        });
+
         renderer.Start();
 
     }
 
-    public async TwoPlayer()
+    public async RunTwoPlayer()
     {
+        // Clear
+        this.canvasHolder.innerHTML = "";
+
+        // New canvas
+        const canvasA = document.createElement("canvas");
+        const canvasB = document.createElement("canvas");
+        const canvasS = document.createElement("canvas");
+
+        // Append canvas to the holder
+        this.canvasHolder.appendChild(canvasA);
+        this.canvasHolder.appendChild(canvasB);
+        this.canvasHolder.appendChild(canvasS);
+
         const delay = Constants.DebugDelay;
 
         const worldA: World = new World();
@@ -85,13 +137,13 @@ export class Debug extends Shared
         worldB["_Name"] = "worldB";
         
         const rendererA = new Renderer({ 
-            canvas: this.canvasA,
+            canvas: canvasA,
             world: worldA,
             debug: true
         });
 
         const rendererB = new Renderer({
-            canvas: this.canvasB,
+            canvas: canvasB,
             world: worldB,
             debug: true
         });
@@ -109,7 +161,7 @@ export class Debug extends Shared
         const receiverA = new Client(channelA1, worldA)
         const receiverB = new Client(channelB1, worldB);
         
-        const world: World = World.CreateBox(16);
+        const world: World = this.CreateSampleWorld(16);
         const server = new Server(world);
         
         server.Add(new Host(channelA2, server));
@@ -165,7 +217,7 @@ export class Debug extends Shared
     
         // Render the server
         const rendererS = new Renderer({ 
-            canvas: this.canvasS,
+            canvas: canvasS,
             world: world, 
             debug: false,
             disableShadows: true,
@@ -198,9 +250,8 @@ export class Debug extends Shared
             Exportable,
             Vector,
             Matrix,
-            GroundCell,
+            NormalCell,
             PlayerActor,
-            StoneCell,
             Logger,
             SimplexNoise,
             ResourceManager,
@@ -211,8 +262,6 @@ export class Debug extends Shared
 
         Logger.Type = LogType.Warn;
         Keyboard.Init();
-
-        this.TwoPlayer();
     }
 
     /**
@@ -230,9 +279,10 @@ export class Debug extends Shared
     {
         return (
             <div>
-                <canvas ref={c => this.canvasA = c}></canvas>
-                <canvas ref={c => this.canvasB = c}></canvas>
-                <canvas ref={c => this.canvasS = c}></canvas>
+                <button onClick={this.RunOnePlayer.bind(this)}>One Player</button>
+                <button onClick={this.RunTwoPlayer.bind(this)}>Two Player</button>
+                <button onClick={this.RunTests.bind(this)}>Run Tests</button>
+                <div ref={c => this.canvasHolder = c}></div>
             </div>
         );
     }

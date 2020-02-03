@@ -6,27 +6,22 @@ import { Keyboard } from "./lib/Util/Keyboard";
 import { Tools } from "./lib/Util/Tools";
 import { Exportable } from "./lib/Exportable";
 import { World } from "./lib/World";
-import { WaterCell } from "./lib/Unit/Cell/WaterCell";
-import { StoneCell } from "./lib/Unit/Cell/StoneCell";
-import { GroundCell } from "./lib/Unit/Cell/GroundCell";
-import { FireCell } from "./lib/Unit/Cell/FireCell";
+import { KillCell } from "./lib/Unit/Cell/KillCell";
+import { NormalCell } from "./lib/Unit/Cell/NormalCell";
+import { DamageCell } from "./lib/Unit/Cell/DamageCell";
 import { ArrowActor } from "./lib/Unit/Actor/ArrowActor";
-import { LightCell } from "./lib/Unit/Cell/LightCell";
 import { Polygon } from "./lib/Geometry/Polygon";
 import { Body } from "./lib/Physics/Body";
 import { Matrix } from "./lib/Geometry/Matrix";
-import { Logger } from "./lib/Util/Logger";
-import { IDump } from "./lib/IDump";
 import { ResourceManager } from "./lib/Util/ResourceManager";
+import { BaseCell } from "./lib/Unit/Cell/BaseCell";
 
 // Dependency classes as a dependency
 Exportable.Dependency(ArrowActor);
 Exportable.Dependency(PlayerActor);
-Exportable.Dependency(FireCell);
-Exportable.Dependency(GroundCell);
-Exportable.Dependency(StoneCell);
-Exportable.Dependency(WaterCell);
-Exportable.Dependency(LightCell);
+Exportable.Dependency(DamageCell);
+Exportable.Dependency(NormalCell);
+Exportable.Dependency(KillCell);
 Exportable.Dependency(World);
 Exportable.Dependency(Vector);
 Exportable.Dependency(Matrix);
@@ -51,6 +46,83 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
         Keyboard.Init();
     }
 
+    /**
+     * Create a sample world.
+     * @param size 
+     */
+    public CreateSampleWorld(size: number): World
+    {
+        const world = new World;
+
+        world.Init(new Vector(size, size));
+
+        // Init world with size x size number of GroundCells
+        for(let i = 0; i < size * size; i++)
+        {
+            let cell: BaseCell;
+            
+            if(i % (size - 1) == 0)
+            {
+                // Light
+                cell = new NormalCell();
+                cell.Init({
+                    texture: "res/lamp.png",
+                    blocking: false,
+                    light: 6,
+                    body: Body.CreateBoxBody(
+                        new Vector(1, 1), 
+                        0,
+                        new Vector(i % size, (i -  (i % size)) / size),
+                        { 
+                            z: 1,
+                            density: Infinity
+                        })
+                });
+            }
+            else if(i < size || i > size * size - size)
+            {
+                // Stone
+                cell = new NormalCell();
+                cell.Init({
+                    texture: "res/stone.png",
+                    blocking: true,
+                    body: Body.CreateBoxBody(
+                        new Vector(1, 1), 
+                        0,
+                        new Vector(i % size, (i -  (i % size)) / size),
+                        { 
+                            z: 0,
+                            density: Infinity
+                        })
+                });
+            }
+            else
+            { 
+                // Ground
+                cell = new NormalCell();
+                cell.Init({
+                    texture: "res/ground.png",
+                    blocking: false,
+                    body: Body.CreateBoxBody(
+                        new Vector(1, 1), 
+                        0,
+                        new Vector(i % size, (i -  (i % size)) / size),
+                        { 
+                            z: 0,
+                            density: Infinity
+                        })
+                });
+            }
+
+            world.Add(cell);
+        }
+
+        return world;
+    }
+
+    /**
+     * Save all loaded resources as a file.
+     */
     public SaveWorkspace()
     {
         const blob = ResourceManager.Save();

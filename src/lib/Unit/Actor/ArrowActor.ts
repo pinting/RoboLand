@@ -28,7 +28,7 @@ export class ArrowActor extends BaseActor
     {
         super.InitPre(args);
         
-        this.damage = args.damage;
+        this.damage = args.damage === undefined ? this.damage : args.damage;
     }
 
     /**

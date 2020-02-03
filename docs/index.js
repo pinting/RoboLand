@@ -14881,7 +14881,7 @@ function setInitialDOMProperties(tag, domElement, rootContainerElement, nextProp
       // on server rendering (but we *do* want to emit it in SSR).
     } else if (registrationNameModules.hasOwnProperty(propKey)) {
       if (nextProp != null) {
-        if (true && typeof nextProp !== 'function') {
+        if ( true && typeof nextProp !== 'function') {
           warnForInvalidEventListener(propKey, nextProp);
         }
         ensureListeningTo(rootContainerElement, propKey);
@@ -15226,7 +15226,7 @@ function diffProperties(domElement, tag, lastRawProps, nextRawProps, rootContain
     } else if (registrationNameModules.hasOwnProperty(propKey)) {
       if (nextProp != null) {
         // We eagerly listen to this even though we haven't committed yet.
-        if (true && typeof nextProp !== 'function') {
+        if ( true && typeof nextProp !== 'function') {
           warnForInvalidEventListener(propKey, nextProp);
         }
         ensureListeningTo(rootContainerElement, propKey);
@@ -15408,14 +15408,14 @@ function diffHydratedProperties(domElement, tag, rawProps, parentNamespace, root
       // TODO: Should we use domElement.firstChild.nodeValue to compare?
       if (typeof nextProp === 'string') {
         if (domElement.textContent !== nextProp) {
-          if (true && !suppressHydrationWarning) {
+          if ( true && !suppressHydrationWarning) {
             warnForTextDifference(domElement.textContent, nextProp);
           }
           updatePayload = [CHILDREN, nextProp];
         }
       } else if (typeof nextProp === 'number') {
         if (domElement.textContent !== '' + nextProp) {
-          if (true && !suppressHydrationWarning) {
+          if ( true && !suppressHydrationWarning) {
             warnForTextDifference(domElement.textContent, nextProp);
           }
           updatePayload = [CHILDREN, '' + nextProp];
@@ -15423,12 +15423,12 @@ function diffHydratedProperties(domElement, tag, rawProps, parentNamespace, root
       }
     } else if (registrationNameModules.hasOwnProperty(propKey)) {
       if (nextProp != null) {
-        if (true && typeof nextProp !== 'function') {
+        if ( true && typeof nextProp !== 'function') {
           warnForInvalidEventListener(propKey, nextProp);
         }
         ensureListeningTo(rootContainerElement, propKey);
       }
-    } else if (true &&
+    } else if ( true &&
     // Convince Flow we've calculated it (it's DEV-only in this method.)
     typeof isCustomComponentTag === 'boolean') {
       // Validate that the properties correspond to their expected values.
@@ -16251,7 +16251,7 @@ function didNotMatchHydratedContainerTextInstance(parentContainer, textInstance,
 }
 
 function didNotMatchHydratedTextInstance(parentType, parentProps, parentInstance, textInstance, text) {
-  if (true && parentProps[SUPPRESS_HYDRATION_WARNING] !== true) {
+  if ( true && parentProps[SUPPRESS_HYDRATION_WARNING] !== true) {
     warnForUnmatchedText(textInstance, text);
   }
 }
@@ -16267,7 +16267,7 @@ function didNotHydrateContainerInstance(parentContainer, instance) {
 }
 
 function didNotHydrateInstance(parentType, parentProps, parentInstance, instance) {
-  if (true && parentProps[SUPPRESS_HYDRATION_WARNING] !== true) {
+  if ( true && parentProps[SUPPRESS_HYDRATION_WARNING] !== true) {
     if (instance.nodeType === ELEMENT_NODE) {
       warnForDeletedHydratableElement(parentInstance, instance);
     } else {
@@ -16289,13 +16289,13 @@ function didNotFindHydratableContainerTextInstance(parentContainer, text) {
 }
 
 function didNotFindHydratableInstance(parentType, parentProps, parentInstance, type, props) {
-  if (true && parentProps[SUPPRESS_HYDRATION_WARNING] !== true) {
+  if ( true && parentProps[SUPPRESS_HYDRATION_WARNING] !== true) {
     warnForInsertedHydratedElement(parentInstance, type, props);
   }
 }
 
 function didNotFindHydratableTextInstance(parentType, parentProps, parentInstance, text) {
-  if (true && parentProps[SUPPRESS_HYDRATION_WARNING] !== true) {
+  if ( true && parentProps[SUPPRESS_HYDRATION_WARNING] !== true) {
     warnForInsertedHydratedText(parentInstance, text);
   }
 }
@@ -17007,7 +17007,7 @@ function catchErrors(fn) {
     try {
       return fn(arg);
     } catch (err) {
-      if (true && !hasLoggedError) {
+      if ( true && !hasLoggedError) {
         hasLoggedError = true;
         warningWithoutStack$1(false, 'React DevTools encountered an error: %s', err);
       }
@@ -24492,7 +24492,7 @@ var mayReplayFailedUnitOfWork = void 0;
 var isReplayingFailedUnitOfWork = void 0;
 var originalReplayError = void 0;
 var rethrowOriginalError = void 0;
-if (true && replayFailedUnitOfWorkWithInvokeGuardedCallback) {
+if ( true && replayFailedUnitOfWorkWithInvokeGuardedCallback) {
   stashedWorkInProgressProperties = null;
   mayReplayFailedUnitOfWork = true;
   isReplayingFailedUnitOfWork = false;
@@ -24926,7 +24926,7 @@ function commitRoot(root, finishedWork) {
   stopCommitLifeCyclesTimer();
   stopCommitTimer();
   onCommitRoot(finishedWork.stateNode);
-  if (true && ReactFiberInstrumentation_1.debugTool) {
+  if ( true && ReactFiberInstrumentation_1.debugTool) {
     ReactFiberInstrumentation_1.debugTool.onCommitWork(finishedWork);
   }
 
@@ -25071,7 +25071,7 @@ function completeUnitOfWork(workInProgress) {
     var siblingFiber = workInProgress.sibling;
 
     if ((workInProgress.effectTag & Incomplete) === NoEffect) {
-      if (true && replayFailedUnitOfWorkWithInvokeGuardedCallback) {
+      if ( true && replayFailedUnitOfWorkWithInvokeGuardedCallback) {
         // Don't replay if it fails during completion phase.
         mayReplayFailedUnitOfWork = false;
       }
@@ -25090,7 +25090,7 @@ function completeUnitOfWork(workInProgress) {
       } else {
         nextUnitOfWork = completeWork(current$$1, workInProgress, nextRenderExpirationTime);
       }
-      if (true && replayFailedUnitOfWorkWithInvokeGuardedCallback) {
+      if ( true && replayFailedUnitOfWorkWithInvokeGuardedCallback) {
         // We're out of completion phase so replaying is fine now.
         mayReplayFailedUnitOfWork = true;
       }
@@ -25140,7 +25140,7 @@ function completeUnitOfWork(workInProgress) {
         }
       }
 
-      if (true && ReactFiberInstrumentation_1.debugTool) {
+      if ( true && ReactFiberInstrumentation_1.debugTool) {
         ReactFiberInstrumentation_1.debugTool.onCompleteWork(workInProgress);
       }
 
@@ -25188,7 +25188,7 @@ function completeUnitOfWork(workInProgress) {
 
       if (next !== null) {
         stopWorkTimer(workInProgress);
-        if (true && ReactFiberInstrumentation_1.debugTool) {
+        if ( true && ReactFiberInstrumentation_1.debugTool) {
           ReactFiberInstrumentation_1.debugTool.onCompleteWork(workInProgress);
         }
 
@@ -25206,7 +25206,7 @@ function completeUnitOfWork(workInProgress) {
         returnFiber.effectTag |= Incomplete;
       }
 
-      if (true && ReactFiberInstrumentation_1.debugTool) {
+      if ( true && ReactFiberInstrumentation_1.debugTool) {
         ReactFiberInstrumentation_1.debugTool.onCompleteWork(workInProgress);
       }
 
@@ -25242,7 +25242,7 @@ function performUnitOfWork(workInProgress) {
     setCurrentFiber(workInProgress);
   }
 
-  if (true && replayFailedUnitOfWorkWithInvokeGuardedCallback) {
+  if ( true && replayFailedUnitOfWorkWithInvokeGuardedCallback) {
     stashedWorkInProgressProperties = assignFiberPropertiesInDEV(stashedWorkInProgressProperties, workInProgress);
   }
 
@@ -25274,7 +25274,7 @@ function performUnitOfWork(workInProgress) {
       rethrowOriginalError();
     }
   }
-  if (true && ReactFiberInstrumentation_1.debugTool) {
+  if ( true && ReactFiberInstrumentation_1.debugTool) {
     ReactFiberInstrumentation_1.debugTool.onBeginWork(workInProgress);
   }
 
@@ -25386,7 +25386,7 @@ function renderRoot(root, isYieldy) {
       // Reset in case completion throws.
       // This is only used in DEV and when replaying is on.
       var mayReplay = void 0;
-      if (true && replayFailedUnitOfWorkWithInvokeGuardedCallback) {
+      if ( true && replayFailedUnitOfWorkWithInvokeGuardedCallback) {
         mayReplay = mayReplayFailedUnitOfWork;
         mayReplayFailedUnitOfWork = true;
       }
@@ -25408,7 +25408,7 @@ function renderRoot(root, isYieldy) {
           resetCurrentlyProcessingQueue();
         }
 
-        if (true && replayFailedUnitOfWorkWithInvokeGuardedCallback) {
+        if ( true && replayFailedUnitOfWorkWithInvokeGuardedCallback) {
           if (mayReplay) {
             var failedUnitOfWork = nextUnitOfWork;
             replayUnitOfWork(failedUnitOfWork, thrownValue, isYieldy);
@@ -30716,7 +30716,7 @@ g = (function() {
 
 try {
 	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1, eval)("this");
+	g = g || new Function("return this")();
 } catch (e) {
 	// This works if the window reference is available
 	if (typeof window === "object") g = window;
@@ -30827,31 +30827,109 @@ const Host_1 = __webpack_require__(/*! ./lib/Net/Host */ "./src/lib/Net/Host.ts"
 const Http_1 = __webpack_require__(/*! ./lib/Util/Http */ "./src/lib/Util/Http.ts");
 const Vector_1 = __webpack_require__(/*! ./lib/Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 const Matrix_1 = __webpack_require__(/*! ./lib/Geometry/Matrix */ "./src/lib/Geometry/Matrix.ts");
-const GroundCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/GroundCell */ "./src/lib/Unit/Cell/GroundCell.ts");
+const NormalCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/NormalCell */ "./src/lib/Unit/Cell/NormalCell.ts");
 const PlayerActor_1 = __webpack_require__(/*! ./lib/Unit/Actor/PlayerActor */ "./src/lib/Unit/Actor/PlayerActor.ts");
-const StoneCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/StoneCell */ "./src/lib/Unit/Cell/StoneCell.ts");
 const Logger_1 = __webpack_require__(/*! ./lib/Util/Logger */ "./src/lib/Util/Logger.ts");
 const SimplexNoise_1 = __webpack_require__(/*! ./lib/Util/SimplexNoise */ "./src/lib/Util/SimplexNoise.ts");
 const Shared_1 = __webpack_require__(/*! ./Shared */ "./src/Shared.ts");
 const Tools_1 = __webpack_require__(/*! ./lib/Util/Tools */ "./src/lib/Util/Tools.ts");
+const ResourceManager_1 = __webpack_require__(/*! ./lib/Util/ResourceManager */ "./src/lib/Util/ResourceManager.ts");
 const Constants_1 = __webpack_require__(/*! ./Constants */ "./src/Constants.ts");
 const Polygon_1 = __webpack_require__(/*! ./lib/Geometry/Polygon */ "./src/lib/Geometry/Polygon.ts");
 const Body_1 = __webpack_require__(/*! ./lib/Physics/Body */ "./src/lib/Physics/Body.ts");
+const NetTest_1 = __webpack_require__(/*! ./lib/Test/NetTest */ "./src/lib/Test/NetTest.ts");
+const ArrowActor_1 = __webpack_require__(/*! ./lib/Unit/Actor/ArrowActor */ "./src/lib/Unit/Actor/ArrowActor.ts");
 class Debug extends Shared_1.Shared {
-    /**
-     * Create 2 clients and 1 server and render everthing onto the 3 canvases.
-     */
-    Main() {
+    RunTests() {
         return __awaiter(this, void 0, void 0, function* () {
-            Keyboard_1.Keyboard.Init();
+            // Run tests
+            Logger_1.Logger.Type = Logger_1.LogType.Info;
+            try {
+                yield NetTest_1.default();
+            }
+            catch (e) {
+                Logger_1.Logger.Warn(this, e);
+            }
+            finally {
+                Logger_1.Logger.Info(this, "Tests complete!");
+            }
+        });
+    }
+    RunOnePlayer() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Clear
+            this.canvasHolder.innerHTML = "";
+            // New canvas
+            const canvas = document.createElement("canvas");
+            // Append canvas to the holder
+            this.canvasHolder.appendChild(canvas);
+            // Create world
+            const world = this.CreateSampleWorld(16);
+            // Add player
+            const player = new PlayerActor_1.PlayerActor();
+            const arrow = new ArrowActor_1.ArrowActor();
+            arrow.Init({
+                ignore: true,
+                body: Body_1.Body.CreateBoxBody(new Vector_1.Vector(0.1, 0.1), 0, new Vector_1.Vector(0, 0))
+            });
+            player.Init({
+                body: Body_1.Body.CreateBoxBody(new Vector_1.Vector(1, 1), 0, new Vector_1.Vector(2, 2)),
+                texture: "res/player.png",
+                speed: 1500,
+                health: 1,
+                rotSpeed: 200,
+                arrow: arrow
+            });
+            world.Add(player);
+            // Render the server
+            const renderer = new Renderer_1.Renderer({
+                canvas: canvas,
+                world: world,
+                debug: true
+            });
+            yield renderer.Load();
+            const keys = {
+                up: "ARROWUP",
+                left: "ARROWLEFT",
+                down: "ARROWDOWN",
+                right: "ARROWRIGHT",
+                shoot: " "
+            };
+            renderer.OnDraw.Add(() => {
+                this.SetupControl(player, keys);
+                renderer.SetCenter(player.GetBody().GetOffset());
+            });
+            renderer.Start();
+        });
+    }
+    RunTwoPlayer() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Clear
+            this.canvasHolder.innerHTML = "";
+            // New canvas
+            const canvasA = document.createElement("canvas");
+            const canvasB = document.createElement("canvas");
+            const canvasS = document.createElement("canvas");
+            // Append canvas to the holder
+            this.canvasHolder.appendChild(canvasA);
+            this.canvasHolder.appendChild(canvasB);
+            this.canvasHolder.appendChild(canvasS);
             const delay = Constants_1.Constants.DebugDelay;
             const worldA = new World_1.World();
             const worldB = new World_1.World();
             // Tagging for debug purposes
             worldA["_Name"] = "worldA";
             worldB["_Name"] = "worldB";
-            const rendererA = new Renderer_1.Renderer({ canvas: this.canvasA, world: worldA, debug: true });
-            const rendererB = new Renderer_1.Renderer({ canvas: this.canvasB, world: worldB, debug: true });
+            const rendererA = new Renderer_1.Renderer({
+                canvas: canvasA,
+                world: worldA,
+                debug: true
+            });
+            const rendererB = new Renderer_1.Renderer({
+                canvas: canvasB,
+                world: worldB,
+                debug: true
+            });
             const channelA1 = new FakeChannel_1.FakeChannel(delay);
             const channelA2 = new FakeChannel_1.FakeChannel(delay);
             const channelB1 = new FakeChannel_1.FakeChannel(delay);
@@ -30862,9 +30940,8 @@ class Debug extends Shared_1.Shared {
             channelB2.SetOther(channelB1);
             const receiverA = new Client_1.Client(channelA1, worldA);
             const receiverB = new Client_1.Client(channelB1, worldB);
-            const raw = JSON.parse(yield Http_1.Http.Get("res/world.json"));
-            const worldS = Exportable_1.Exportable.Import(raw);
-            const server = new Server_1.Server(worldS);
+            const world = this.CreateSampleWorld(16);
+            const server = new Server_1.Server(world);
             server.Add(new Host_1.Host(channelA2, server));
             server.Add(new Host_1.Host(channelB2, server));
             receiverA.OnPlayer = (player) => __awaiter(this, void 0, void 0, function* () {
@@ -30875,9 +30952,12 @@ class Debug extends Shared_1.Shared {
                     left: "ARROWLEFT",
                     down: "ARROWDOWN",
                     right: "ARROWRIGHT",
-                    space: " "
+                    shoot: " "
                 };
-                rendererA.OnDraw.Add(() => this.OnDraw(player, keys));
+                rendererB.OnDraw.Add(() => {
+                    this.SetupControl(player, keys);
+                    rendererB.SetCenter(player.GetBody().GetOffset());
+                });
                 rendererA.Start();
             });
             receiverB.OnPlayer = (player) => __awaiter(this, void 0, void 0, function* () {
@@ -30888,35 +30968,57 @@ class Debug extends Shared_1.Shared {
                     left: "A",
                     down: "S",
                     right: "D",
-                    space: "E"
+                    shoot: "E"
                 };
-                rendererB.OnDraw.Add(() => this.OnDraw(player, keys));
+                rendererB.OnDraw.Add(() => {
+                    this.SetupControl(player, keys);
+                    rendererA.SetCenter(player.GetBody().GetOffset());
+                });
                 rendererB.Start();
             });
             // Render the server
-            const rendererS = new Renderer_1.Renderer({ canvas: this.canvasS, world: worldS, debug: true });
+            const rendererS = new Renderer_1.Renderer({
+                canvas: canvasS,
+                world: world,
+                debug: false,
+                disableShadows: true,
+                center: world.GetSize().Scale(1 / 2),
+                viewport: world.GetSize(),
+                dotPerPoint: 10
+            });
             yield rendererS.Load();
             rendererS.Start();
             // For debug
             Tools_1.Tools.Extract(window, {
-                // Instances
-                boardA: worldA,
-                boardB: worldB,
-                boardServer: worldS,
-                // Classes
+                worldA: worldA,
+                worldB: worldB,
+                worldS: world
+            });
+        });
+    }
+    /**
+     * Create 2 clients and 1 server and render everthing onto the 3 canvases.
+     */
+    Main() {
+        return __awaiter(this, void 0, void 0, function* () {
+            // For debug
+            Tools_1.Tools.Extract(window, {
                 World: World_1.World,
                 Tools: Tools_1.Tools,
                 Exportable: Exportable_1.Exportable,
                 Vector: Vector_1.Vector,
                 Matrix: Matrix_1.Matrix,
-                GroundCell: GroundCell_1.GroundCell,
+                NormalCell: NormalCell_1.NormalCell,
                 PlayerActor: PlayerActor_1.PlayerActor,
-                StoneCell: StoneCell_1.StoneCell,
                 Logger: Logger_1.Logger,
                 SimplexNoise: SimplexNoise_1.SimplexNoise,
+                ResourceManager: ResourceManager_1.ResourceManager,
                 Polygon: Polygon_1.Polygon,
-                Body: Body_1.Body
+                Body: Body_1.Body,
+                Http: Http_1.Http
             });
+            Logger_1.Logger.Type = Logger_1.LogType.Warn;
+            Keyboard_1.Keyboard.Init();
         });
     }
     /**
@@ -30930,12 +31032,10 @@ class Debug extends Shared_1.Shared {
      */
     render() {
         return (React.createElement("div", null,
-            React.createElement("canvas", { ref: c => this.canvasA = c }),
-            React.createElement("span", null, "A"),
-            React.createElement("canvas", { ref: c => this.canvasB = c }),
-            React.createElement("span", null, "B"),
-            React.createElement("canvas", { ref: c => this.canvasS = c }),
-            React.createElement("span", null, "S")));
+            React.createElement("button", { onClick: this.RunOnePlayer.bind(this) }, "One Player"),
+            React.createElement("button", { onClick: this.RunTwoPlayer.bind(this) }, "Two Player"),
+            React.createElement("button", { onClick: this.RunTests.bind(this) }, "Run Tests"),
+            React.createElement("div", { ref: c => this.canvasHolder = c })));
     }
 }
 Debug.Name = "debug";
@@ -31003,12 +31103,11 @@ const Unit_1 = __webpack_require__(/*! ./lib/Unit/Unit */ "./src/lib/Unit/Unit.t
 const Tools_1 = __webpack_require__(/*! ./lib/Util/Tools */ "./src/lib/Util/Tools.ts");
 const BaseActor_1 = __webpack_require__(/*! ./lib/Unit/Actor/BaseActor */ "./src/lib/Unit/Actor/BaseActor.ts");
 const BaseCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/BaseCell */ "./src/lib/Unit/Cell/BaseCell.ts");
-const WaterCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/WaterCell */ "./src/lib/Unit/Cell/WaterCell.ts");
-const StoneCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/StoneCell */ "./src/lib/Unit/Cell/StoneCell.ts");
-const GroundCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/GroundCell */ "./src/lib/Unit/Cell/GroundCell.ts");
-const FireCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/FireCell */ "./src/lib/Unit/Cell/FireCell.ts");
+const NormalCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/NormalCell */ "./src/lib/Unit/Cell/NormalCell.ts");
+const DamageCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/DamageCell */ "./src/lib/Unit/Cell/DamageCell.ts");
 const PlayerActor_1 = __webpack_require__(/*! ./lib/Unit/Actor/PlayerActor */ "./src/lib/Unit/Actor/PlayerActor.ts");
 const ArrowActor_1 = __webpack_require__(/*! ./lib/Unit/Actor/ArrowActor */ "./src/lib/Unit/Actor/ArrowActor.ts");
+const Body_1 = __webpack_require__(/*! ./lib/Physics/Body */ "./src/lib/Physics/Body.ts");
 const DRAG_WAIT = 300;
 class Editor extends Shared_1.Shared {
     /**
@@ -31028,10 +31127,8 @@ class Editor extends Shared_1.Shared {
         };
         this.RegisterElement(ArrowActor_1.ArrowActor);
         this.RegisterElement(PlayerActor_1.PlayerActor);
-        this.RegisterElement(FireCell_1.FireCell);
-        this.RegisterElement(GroundCell_1.GroundCell);
-        this.RegisterElement(StoneCell_1.StoneCell);
-        this.RegisterElement(WaterCell_1.WaterCell);
+        this.RegisterElement(DamageCell_1.DamageCell);
+        this.RegisterElement(NormalCell_1.NormalCell);
     }
     static CanvasP(canvas, event) {
         const rect = canvas.getBoundingClientRect();
@@ -31083,8 +31180,7 @@ class Editor extends Shared_1.Shared {
                 return;
             }
             unit.Init({
-                size: new Vector_1.Vector(1, 1),
-                position: this.newElementVector.Clone(),
+                body: Body_1.Body.CreateBoxBody(new Vector_1.Vector(1, 1), 0, this.newElementVector.Clone()),
                 texture: ""
             });
             if (unit instanceof BaseActor_1.BaseActor) {
@@ -31206,9 +31302,9 @@ class Editor extends Shared_1.Shared {
             return;
         }
         const p = Editor.CanvasP(this.canvas, event);
-        const Vector = this.renderer.Find(p[0], p[1]);
+        const v = this.renderer.Find(p[0], p[1]);
         if (this.selectedElement) {
-            this.selectedElement.SetPosition(Vector);
+            this.selectedElement.GetBody().SetVirtual(null, null, v);
         }
     }
     /**
@@ -31323,14 +31419,10 @@ const Host_1 = __webpack_require__(/*! ./lib/Net/Host */ "./src/lib/Net/Host.ts"
 const FakeChannel_1 = __webpack_require__(/*! ./lib/Net/Channel/FakeChannel */ "./src/lib/Net/Channel/FakeChannel.ts");
 const Client_1 = __webpack_require__(/*! ./lib/Net/Client */ "./src/lib/Net/Client.ts");
 const PeerChannel_1 = __webpack_require__(/*! ./lib/Net/Channel/PeerChannel */ "./src/lib/Net/Channel/PeerChannel.ts");
-const Exportable_1 = __webpack_require__(/*! ./lib/Exportable */ "./src/lib/Exportable.ts");
-const Http_1 = __webpack_require__(/*! ./lib/Util/Http */ "./src/lib/Util/Http.ts");
 const Tools_1 = __webpack_require__(/*! ./lib/Util/Tools */ "./src/lib/Util/Tools.ts");
 const Helper_1 = __webpack_require__(/*! ./Helper */ "./src/Helper.ts");
 const Shared_1 = __webpack_require__(/*! ./Shared */ "./src/Shared.ts");
 const Constants_1 = __webpack_require__(/*! ./Constants */ "./src/Constants.ts");
-const PlayerActor_1 = __webpack_require__(/*! ./lib/Unit/Actor/PlayerActor */ "./src/lib/Unit/Actor/PlayerActor.ts");
-const Vector_1 = __webpack_require__(/*! ./lib/Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 /**
  * Type of the connect format.
  */
@@ -31422,9 +31514,18 @@ class Game extends Shared_1.Shared {
             if (this.channel && !this.channel.IsOfferor()) {
                 return new Client_1.Client(this.channel, this.world);
             }
-            // Create server world, load it, create server
-            const raw = JSON.parse(yield Http_1.Http.Get("res/world.json"));
-            const serverWorld = Exportable_1.Exportable.Import(raw);
+            /*
+                // Create server world, load it, create server
+                const buffer = await Http.Get("res/sample.roboland");
+                
+                ResourceManager.Load(buffer);
+        
+                const rootResource = ResourceManager.ByUri("world.dump");
+                const rootDump = JSON.parse(Tools.BufferToString(rootResource.Buffer)) as IDump;
+                const dump = Exportable.Resolve(rootDump);
+                const serverWorld = Exportable.Import(dump);
+                */
+            const serverWorld = this.CreateSampleWorld(16);
             this.server = new Server_1.Server(serverWorld);
             // Use the tick of the local client on the server
             renderer.OnDraw.Add(dt => serverWorld.OnTick.Call(dt));
@@ -31446,15 +31547,12 @@ class Game extends Shared_1.Shared {
      */
     Start() {
         return __awaiter(this, void 0, void 0, function* () {
-            window["world"] = this.world;
             const renderer = new Renderer_1.Renderer({
                 canvas: this.canvas,
-                world: this.world,
-                debug: false
+                world: this.world
             });
             const receiver = yield this.CreateReceiver(renderer);
             receiver.OnPlayer = (player) => __awaiter(this, void 0, void 0, function* () {
-                window["temp1"] = player;
                 this.world.Origin = player.GetId();
                 yield renderer.Load();
                 const keys = {
@@ -31462,9 +31560,12 @@ class Game extends Shared_1.Shared {
                     left: "ARROWLEFT",
                     down: "ARROWDOWN",
                     right: "ARROWRIGHT",
-                    space: " "
+                    shoot: " "
                 };
-                renderer.OnDraw.Add(() => this.OnDraw(player, keys));
+                renderer.OnDraw.Add(() => {
+                    this.SetupControl(player, keys);
+                    renderer.SetCenter(player.GetBody().GetOffset());
+                });
                 renderer.Start();
             });
         });
@@ -31474,26 +31575,6 @@ class Game extends Shared_1.Shared {
      */
     Main() {
         return __awaiter(this, void 0, void 0, function* () {
-            const p1 = new PlayerActor_1.PlayerActor();
-            const p2 = new PlayerActor_1.PlayerActor();
-            p1.Init({
-                id: Tools_1.Tools.Unique(),
-                position: new Vector_1.Vector(10, 10),
-                size: new Vector_1.Vector(1, 1),
-                angle: Math.PI / 6,
-                speed: 100.0,
-                damage: 0.1,
-                health: 1.0
-            });
-            p2.Init({
-                id: Tools_1.Tools.Unique(),
-                position: new Vector_1.Vector(10.5, 10.5),
-                size: new Vector_1.Vector(1, 1),
-                angle: Math.PI / 6,
-                speed: 100.0,
-                damage: 0.1,
-                health: 1.0
-            });
             const connect = Game.ReadConnect();
             // If it is an offer, create an answer and wait for an open channel.
             if (connect.Type == ConnectType.Offer) {
@@ -31689,22 +31770,25 @@ const Keyboard_1 = __webpack_require__(/*! ./lib/Util/Keyboard */ "./src/lib/Uti
 const Tools_1 = __webpack_require__(/*! ./lib/Util/Tools */ "./src/lib/Util/Tools.ts");
 const Exportable_1 = __webpack_require__(/*! ./lib/Exportable */ "./src/lib/Exportable.ts");
 const World_1 = __webpack_require__(/*! ./lib/World */ "./src/lib/World.ts");
-const WaterCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/WaterCell */ "./src/lib/Unit/Cell/WaterCell.ts");
-const StoneCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/StoneCell */ "./src/lib/Unit/Cell/StoneCell.ts");
-const GroundCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/GroundCell */ "./src/lib/Unit/Cell/GroundCell.ts");
-const FireCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/FireCell */ "./src/lib/Unit/Cell/FireCell.ts");
+const KillCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/KillCell */ "./src/lib/Unit/Cell/KillCell.ts");
+const NormalCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/NormalCell */ "./src/lib/Unit/Cell/NormalCell.ts");
+const DamageCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/DamageCell */ "./src/lib/Unit/Cell/DamageCell.ts");
 const ArrowActor_1 = __webpack_require__(/*! ./lib/Unit/Actor/ArrowActor */ "./src/lib/Unit/Actor/ArrowActor.ts");
-const LightCell_1 = __webpack_require__(/*! ./lib/Unit/Cell/LightCell */ "./src/lib/Unit/Cell/LightCell.ts");
+const Polygon_1 = __webpack_require__(/*! ./lib/Geometry/Polygon */ "./src/lib/Geometry/Polygon.ts");
+const Body_1 = __webpack_require__(/*! ./lib/Physics/Body */ "./src/lib/Physics/Body.ts");
+const Matrix_1 = __webpack_require__(/*! ./lib/Geometry/Matrix */ "./src/lib/Geometry/Matrix.ts");
+const ResourceManager_1 = __webpack_require__(/*! ./lib/Util/ResourceManager */ "./src/lib/Util/ResourceManager.ts");
 // Dependency classes as a dependency
 Exportable_1.Exportable.Dependency(ArrowActor_1.ArrowActor);
 Exportable_1.Exportable.Dependency(PlayerActor_1.PlayerActor);
-Exportable_1.Exportable.Dependency(FireCell_1.FireCell);
-Exportable_1.Exportable.Dependency(GroundCell_1.GroundCell);
-Exportable_1.Exportable.Dependency(StoneCell_1.StoneCell);
-Exportable_1.Exportable.Dependency(WaterCell_1.WaterCell);
-Exportable_1.Exportable.Dependency(LightCell_1.LightCell);
+Exportable_1.Exportable.Dependency(DamageCell_1.DamageCell);
+Exportable_1.Exportable.Dependency(NormalCell_1.NormalCell);
+Exportable_1.Exportable.Dependency(KillCell_1.KillCell);
 Exportable_1.Exportable.Dependency(World_1.World);
 Exportable_1.Exportable.Dependency(Vector_1.Vector);
+Exportable_1.Exportable.Dependency(Matrix_1.Matrix);
+Exportable_1.Exportable.Dependency(Polygon_1.Polygon);
+Exportable_1.Exportable.Dependency(Body_1.Body);
 const SHOT_DELAY = 1000;
 class Shared extends React.PureComponent {
     /**
@@ -31718,15 +31802,83 @@ class Shared extends React.PureComponent {
         Keyboard_1.Keyboard.Init();
     }
     /**
+     * Create a sample world.
+     * @param size
+     */
+    CreateSampleWorld(size) {
+        const world = new World_1.World;
+        world.Init(new Vector_1.Vector(size, size));
+        // Init world with size x size number of GroundCells
+        for (let i = 0; i < size * size; i++) {
+            let cell;
+            if (i % (size - 1) == 0) {
+                // Light
+                cell = new NormalCell_1.NormalCell();
+                cell.Init({
+                    texture: "res/lamp.png",
+                    blocking: false,
+                    light: 6,
+                    body: Body_1.Body.CreateBoxBody(new Vector_1.Vector(1, 1), 0, new Vector_1.Vector(i % size, (i - (i % size)) / size), {
+                        z: 1,
+                        density: Infinity
+                    })
+                });
+            }
+            else if (i < size || i > size * size - size) {
+                // Stone
+                cell = new NormalCell_1.NormalCell();
+                cell.Init({
+                    texture: "res/stone.png",
+                    blocking: true,
+                    body: Body_1.Body.CreateBoxBody(new Vector_1.Vector(1, 1), 0, new Vector_1.Vector(i % size, (i - (i % size)) / size), {
+                        z: 0,
+                        density: Infinity
+                    })
+                });
+            }
+            else {
+                // Ground
+                cell = new NormalCell_1.NormalCell();
+                cell.Init({
+                    texture: "res/ground.png",
+                    blocking: false,
+                    body: Body_1.Body.CreateBoxBody(new Vector_1.Vector(1, 1), 0, new Vector_1.Vector(i % size, (i - (i % size)) / size), {
+                        z: 0,
+                        density: Infinity
+                    })
+                });
+            }
+            world.Add(cell);
+        }
+        return world;
+    }
+    /**
+     * Save all loaded resources as a file.
+     */
+    SaveWorkspace() {
+        const blob = ResourceManager_1.ResourceManager.Save();
+        if (window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveBlob(blob, name);
+        }
+        else {
+            const link = window.document.createElement("a");
+            link.href = window.URL.createObjectURL(blob);
+            link.download = name;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+    /**
      * Game cycle
      * @param player
      * @param data.up
      * @param data.left
      * @param data.down
      * @param data.right
-     * @param data.space
+     * @param data.shoot
      */
-    OnDraw(player, { up, left, down, right, space }) {
+    SetupControl(player, { up, left, down, right, shoot }) {
         if (!player) {
             return;
         }
@@ -31762,7 +31914,7 @@ class Shared extends React.PureComponent {
         else if (!Keyboard_1.Keyboard.Keys[up] && player.IsWalking()) {
             player.StopWalk();
         }
-        if (Keyboard_1.Keyboard.Keys[space] && this.nextShoot <= +new Date) {
+        if (Keyboard_1.Keyboard.Keys[shoot] && this.nextShoot <= +new Date) {
             player.Shoot(Tools_1.Tools.Unique());
             this.nextShoot = +new Date + SHOT_DELAY;
         }
@@ -31793,135 +31945,6 @@ window.onload = window.onhashchange = () => {
 
 /***/ }),
 
-/***/ "./src/lib/ElementList.ts":
-/*!********************************!*\
-  !*** ./src/lib/ElementList.ts ***!
-  \********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const Tools_1 = __webpack_require__(/*! ./Util/Tools */ "./src/lib/Util/Tools.ts");
-const Logger_1 = __webpack_require__(/*! ./Util/Logger */ "./src/lib/Util/Logger.ts");
-class ElementList {
-    /**
-     * Contstruct a new ElementList which wraps an unit array
-     * and adds some awesome functions.
-     * @param elements Array to wrap.
-     * @param updateEvent Called when there is an update (remove, set).
-     */
-    constructor(elements, updateEvent) {
-        this.elements = elements;
-        this.updateEvent = updateEvent;
-    }
-    /**
-     * Get the length of the internal array.
-     */
-    GetLength() {
-        return this.elements.length;
-    }
-    /**
-     * Go over the elements of the array.
-     * @param callback
-     */
-    ForEach(callback) {
-        return this.elements.some(callback);
-    }
-    /**
-     * Get unit by id.
-     * @param id
-     */
-    Get(id) {
-        return this.elements.find(e => e && e.GetId() == id);
-    }
-    /**
-     * Get a unit(s) by vector.
-     * @param position
-     */
-    Find(position) {
-        return this.elements.filter(e => e && e.GetPosition().Is(position));
-    }
-    /**
-     * Get the nearest unit to the given coordinate.
-     * @param position
-     */
-    FindNearest(position) {
-        let result = null;
-        let min = Infinity;
-        this.elements.forEach(e => {
-            const distance = e.GetPosition().Dist(position);
-            if (distance < min) {
-                min = distance;
-                result = e;
-            }
-        });
-        return result;
-    }
-    /**
-     * Get elements under an unit.
-     * @param unit
-     */
-    FindCollisions(unit) {
-        const result = [];
-        this.elements.forEach(e => {
-            if (e && e.GetId() != unit.GetId()) {
-                const collision = e.Collide(unit);
-                collision && result.push(e);
-            }
-        });
-        return result;
-    }
-    /**
-     * Add a new unit or overwrite an existing one (by id).
-     * @param unit
-     */
-    Set(unit) {
-        if (unit.IsDisposed()) {
-            this.Remove(unit);
-            return;
-        }
-        const old = this.Get(unit.GetId());
-        if (old) {
-            Tools_1.Tools.Extract(old, unit);
-            Logger_1.Logger.Info(this, "Element was moded!", unit);
-        }
-        else {
-            this.elements.push(unit);
-            Logger_1.Logger.Info(this, "Element was added!", unit);
-        }
-        this.updateEvent.Call(unit);
-    }
-    /**
-     * Remove an unit from the list.
-     * @param unit
-     */
-    Remove(unit) {
-        const index = this.elements.indexOf(unit);
-        if (index < 0) {
-            return false;
-        }
-        this.elements.splice(index, 1);
-        if (!unit.IsDisposed()) {
-            unit.Dispose();
-        }
-        Logger_1.Logger.Info(this, "Element was removed!", unit);
-        this.updateEvent.Call(unit);
-        return true;
-    }
-    /**
-     * Get the internal array.
-     */
-    GetList() {
-        return this.elements;
-    }
-}
-exports.ElementList = ElementList;
-
-
-/***/ }),
-
 /***/ "./src/lib/Exportable.ts":
 /*!*******************************!*\
   !*** ./src/lib/Exportable.ts ***!
@@ -31931,7 +31954,18 @@ exports.ElementList = ElementList;
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const Logger_1 = __webpack_require__(/*! ./Util/Logger */ "./src/lib/Util/Logger.ts");
+const Tools_1 = __webpack_require__(/*! ./Util/Tools */ "./src/lib/Util/Tools.ts");
+const ResourceManager_1 = __webpack_require__(/*! ./Util/ResourceManager */ "./src/lib/Util/ResourceManager.ts");
 const ExportMeta = Symbol("ExportMeta");
 const Dependencies = {};
 var ExportType;
@@ -31975,7 +32009,11 @@ class Exportable {
      * @param className
      */
     static FromName(name, ...args) {
-        const classObj = Dependencies[name] || null;
+        if (!Dependencies.hasOwnProperty(name)) {
+            Logger_1.Logger.Warn(this, "Class of dump is missing from dependencies", name);
+            return null;
+        }
+        const classObj = Dependencies[name];
         return classObj && new classObj(...args);
     }
     Clone() {
@@ -32033,16 +32071,16 @@ class Exportable {
     }
     /**
      * Self import an IDump.
-     * @param input
+     * @param dumps
      */
-    Import(input) {
-        for (let unit of input) {
-            const desc = this[ExportMeta].find(i => i.Name == unit.Name);
+    Import(dumps) {
+        for (let dump of dumps) {
+            const desc = this[ExportMeta].find(i => i.Name == dump.Name);
             // Only allow importing registered props
             if (!desc) {
                 continue;
             }
-            const imported = Exportable.Import(unit);
+            const imported = Exportable.Import(dump);
             // If undefined skip importing it
             if (imported === undefined) {
                 continue;
@@ -32052,27 +32090,127 @@ class Exportable {
                 desc.Callback(this, imported);
             }
             else {
-                this[unit.Name] = imported;
+                this[dump.Name] = imported;
             }
         }
     }
     /**
      * Import an IDump (standalone).
-     * @param input
+     * @param dump
      */
-    static Import(input) {
+    static Import(dump) {
         // Import array
-        if (input.Class == "Array") {
-            return input.Payload.map(e => Exportable.Import(e));
+        if (dump.Class == "Array") {
+            return dump.Payload.map(e => Exportable.Import(e));
         }
         // Import native types
-        if (["string", "number", "boolean"].includes(input.Class)) {
-            return input.Payload;
+        if (["string", "number", "boolean"].includes(dump.Class)) {
+            return dump.Payload;
         }
         // Import Exportable types
-        const instance = Exportable.FromName(input.Class, ...(input.Args || []));
-        instance && instance.Import(input.Payload);
+        const instance = Exportable.FromName(dump.Class, ...(dump.Args || []));
+        instance && instance.Import(dump.Payload);
         return instance;
+    }
+    /**
+     * Function that called when saving a dump is needed.
+     * @param json JSON of the dump
+     * @param dump Dump object of the dump
+     */
+    static SaveDump(json, dump) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const buffer = Tools_1.Tools.StringToBuffer(json);
+            const hash = yield Tools_1.Tools.Sha256(buffer);
+            const existing = ResourceManager_1.ResourceManager.ByHash(hash);
+            if (existing) {
+                return existing.Uri;
+            }
+            let name = `${dump.Name ? `${dump.Name.toString().toLowerCase()}-` : ""}${dump.Class.toLowerCase()}`;
+            let c;
+            for (c = 0; (yield ResourceManager_1.ResourceManager.Add(name + (c > 0 ? ("-" + c) : "") + ".dump", buffer)) === null; c++)
+                ;
+            name = name + (c > 0 ? ("-" + c) : "") + ".dump";
+            return name;
+        });
+    }
+    /**
+     * Save an exportable as small resources.
+     * @param dump
+     */
+    static Save(dump) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const extract = (dump) => {
+                const toRemove = [];
+                for (let index in dump.Payload) {
+                    const e = dump.Payload[index];
+                    if (Exportable.SaveFileExtract.includes(e.Name)) {
+                        toRemove.unshift([e, index]);
+                    }
+                }
+                toRemove.forEach(e => dump.Payload.splice(e[1], 1));
+                return toRemove.map(e => e[0]);
+            };
+            const process = (dump) => __awaiter(this, void 0, void 0, function* () {
+                if (["string", "number", "boolean"].includes(dump.Class)) {
+                    return dump;
+                }
+                if (!dump.Payload || !dump.Payload.length) {
+                    return dump;
+                }
+                let newPayload = [];
+                for (let subDump of dump.Payload) {
+                    newPayload.push(yield process(subDump));
+                }
+                const newDump = Object.assign({}, dump, { Payload: newPayload });
+                const extracted = extract(newDump);
+                const json = JSON.stringify(newDump);
+                if (json.length < Exportable.SaveSplitLimit) {
+                    return newDump;
+                }
+                const fileName = yield Exportable.SaveDump(json, newDump);
+                return {
+                    Name: dump.Name,
+                    Class: dump.Class,
+                    Payload: [
+                        ...extracted
+                    ],
+                    Base: fileName
+                };
+            });
+            yield process(dump);
+        });
+    }
+    /**
+     * Resolve split up dump by putting together the pieces.
+     * @param dump Dump to resolve.
+     * @returns Resolved new dump.
+     */
+    static Resolve(dump) {
+        if (!dump) {
+            return;
+        }
+        let result = Object.assign({}, dump);
+        if (dump.Base) {
+            const resource = ResourceManager_1.ResourceManager.ByUri(dump.Base);
+            if (resource) {
+                const baseDump = JSON.parse(Tools_1.Tools.BufferToString(resource.Buffer));
+                if (baseDump && baseDump.Class === dump.Class) {
+                    result = Object.assign({}, result, { Base: undefined, Payload: [
+                            ...(baseDump && baseDump.Payload && baseDump.Payload.length ? baseDump.Payload : []),
+                            ...(dump && dump.Payload && dump.Payload.length ? dump.Payload : []),
+                        ] });
+                }
+            }
+        }
+        if (["string", "number", "boolean"].includes(result.Class)) {
+            return result;
+        }
+        if (result.Payload && result.Payload.length) {
+            for (let i in result.Payload) {
+                result.Payload[i] = Exportable.Resolve(result.Payload[i]);
+            }
+        }
+        return result;
     }
     /**
      * Return the difference from source to target (properties of source).
@@ -32131,7 +32269,50 @@ class Exportable {
             dump.Payload.forEach((dump) => props[dump.Name] = dump);
         return props;
     }
+    /**
+     * Return true if only the
+     * @param diff
+     */
+    // TODO: Fix this
+    static IsMovementDiff(diff) {
+        const props = Exportable.ToDict(diff);
+        // Delete ID if it exists, because we do not need it
+        if (props.id) {
+            delete props.id;
+        }
+        // No diff
+        if (Object.keys(props).length == 0) {
+            return true;
+        }
+        // Only position diff
+        if (Object.keys(props).length === 1 &&
+            props.hasOwnProperty("offset")) {
+            return true;
+        }
+        // Only angle diff
+        if (Object.keys(props).length === 1 &&
+            props.hasOwnProperty("rotation")) {
+            return true;
+        }
+        // Only position and angle diff
+        if (Object.keys(props).length === 2 &&
+            props.hasOwnProperty("offset") &&
+            props.hasOwnProperty("rotation")) {
+            return true;
+        }
+        return false;
+    }
 }
+/**
+ * These properties will not be moved to the base.
+ * By doing this, we can use the same base for multiply objects.
+ */
+Exportable.SaveFileExtract = ["offset", "scale", "rotation"];
+/**
+ * Under this length limit, the exported JSON will not be splitted
+ * into multiply files.
+ */
+Exportable.SaveSplitLimit = 160;
 exports.Exportable = Exportable;
 
 
@@ -32163,12 +32344,16 @@ class BaseShape extends Exportable_1.Exportable {
         super();
         this.offset = new Vector_1.Vector(0, 0);
         this.rotation = 0;
-        this.scale = 1;
+        this.scale = new Vector_1.Vector(1, 1);
         this.points = points;
     }
     GetPoints() {
         return this.points;
     }
+    /**
+     * Get virtual points.
+     * Virtual equals the base points scaled, rotated and increased by an offset.
+     */
     GetVirtual() {
         if (!this.virtual) {
             this.virtual = this.points.map(p => p
@@ -32189,6 +32374,18 @@ __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
     __metadata("design:type", Array)
 ], BaseShape.prototype, "points", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Vector_1.Vector)
+], BaseShape.prototype, "offset", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Number)
+], BaseShape.prototype, "rotation", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Vector_1.Vector)
+], BaseShape.prototype, "scale", void 0);
 exports.BaseShape = BaseShape;
 
 
@@ -32203,10 +32400,21 @@ exports.BaseShape = BaseShape;
 
 "use strict";
 
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const Vector_1 = __webpack_require__(/*! ./Vector */ "./src/lib/Geometry/Vector.ts");
-class Matrix {
+const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
+class Matrix extends Exportable_1.Exportable {
     constructor(m00 = 0, m01 = 0, m10 = 0, m11 = 0) {
+        super();
         this.m00 = m00;
         this.m01 = m01;
         this.m10 = m10;
@@ -32236,7 +32444,24 @@ class Matrix {
         return new Matrix(this.m00 * m.m00 + this.m01 * m.m10, this.m00 * m.m01 + this.m01 * m.m11, this.m10 * m.m00 + this.m11 * m.m10, this.m10 * m.m01 + this.m11 * m.m11);
     }
 }
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Number)
+], Matrix.prototype, "m00", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Number)
+], Matrix.prototype, "m01", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Number)
+], Matrix.prototype, "m10", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Number)
+], Matrix.prototype, "m11", void 0);
 exports.Matrix = Matrix;
+Exportable_1.Exportable.Dependency(Matrix);
 
 
 /***/ }),
@@ -32314,18 +32539,20 @@ class Overlap {
         }
         // World space incident face
         const incidentFace = ref.FindIncidentFace(inc, refIndex);
-        //        y
-        //        ^  ->n       ^
-        //      +---c ------posPlane--
-        //  x < | i |\
-        //      +---+ c-----negPlane--
-        //             \       v
-        //              r
-        //
-        //  r : reference face
-        //  i : incident poly
-        //  c : clipped point
-        //  n : incident normal
+        /**
+         *        Y
+         *        ^  ->N       ^^^^^^^^^
+         *      +---C ------ positive plane ----
+         *  x < | I |\
+         *      +---+ C ---- negative plane ----
+         *             \       vvvvvvvvv
+         *              R
+         *
+         *  R : reference face
+         *  I : incident poly
+         *  C : clipped point
+         *  N : incident normal
+         */
         // Setup reference face points
         let v1 = ref.GetVirtual()[refIndex];
         refIndex = refIndex + 1 >= ref.GetVirtual().length ? 0 : refIndex + 1;
@@ -32402,8 +32629,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Vector_1 = __webpack_require__(/*! ./Vector */ "./src/lib/Geometry/Vector.ts");
 const BaseShape_1 = __webpack_require__(/*! ./BaseShape */ "./src/lib/Geometry/BaseShape.ts");
 const Matrix_1 = __webpack_require__(/*! ./Matrix */ "./src/lib/Geometry/Matrix.ts");
+const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
 class Polygon extends BaseShape_1.BaseShape {
-    constructor(vertices) {
+    constructor(vertices = []) {
+        if (!vertices.length) {
+            super(vertices);
+            return;
+        }
         let rightMost = 0;
         let highestXCoord = vertices[0].X;
         for (let i = 1; i < vertices.length; ++i) {
@@ -32412,7 +32644,7 @@ class Polygon extends BaseShape_1.BaseShape {
                 highestXCoord = x;
                 rightMost = i;
             }
-            // If matching x then take farthest negative y
+            // If matching X then take farthest negative Y
             else if (x == highestXCoord) {
                 if (vertices[i].Y < vertices[rightMost].Y) {
                     rightMost = i;
@@ -32557,6 +32789,7 @@ class Polygon extends BaseShape_1.BaseShape {
     }
 }
 exports.Polygon = Polygon;
+Exportable_1.Exportable.Dependency(Polygon);
 
 
 /***/ }),
@@ -32610,6 +32843,11 @@ class Vector extends Exportable_1.Exportable {
     Dot(other) {
         return this.X * other.X + this.Y * other.Y;
     }
+    /**
+     * Calculate the cross product of two vectors or a vector-number pair.
+     * @param a
+     * @param b
+     */
     static Cross(a, b) {
         if (a instanceof Vector && typeof b === "number") {
             if (Number.isNaN(b)) {
@@ -32656,6 +32894,10 @@ class Vector extends Exportable_1.Exportable {
     Is(other) {
         return this.X == other.X && this.Y == other.Y;
     }
+    /**
+     * Check if the difference between this and the other vector is inside EPSILON.
+     * @param other
+     */
     Equal(other) {
         return Vector.Equal(this.X, other.X) && Vector.Equal(this.Y, other.Y);
     }
@@ -32763,36 +33005,22 @@ const Tools_1 = __webpack_require__(/*! ../../Util/Tools */ "./src/lib/Util/Tool
 const Logger_1 = __webpack_require__(/*! ../../Util/Logger */ "./src/lib/Util/Logger.ts");
 class FakeChannel {
     /**
-     * Construct a new fake channel with the given delay.
+     * Construct a new fake channel with a given fake delay.
      * @param delay
      */
     constructor(delay = 0) {
         this.delay = 0;
-        /**
-         * Receive a Message from the other peer.
-         */
         this.OnMessage = Tools_1.Tools.Noop;
         this.delay = delay;
     }
-    /**
-     * Set the other peer.
-     * @param other
-     */
     SetOther(other) {
         this.other = other;
     }
-    /**
-     * Send a Message to the other peer.
-     * @param message
-     */
     SendMessage(message) {
         if (this.other) {
             setTimeout(() => this.other.OnMessage(message), this.delay);
         }
     }
-    /**
-     * Close the channel.
-     */
     Close() {
         Logger_1.Logger.Info("Channel was closed!");
     }
@@ -32813,7 +33041,6 @@ exports.FakeChannel = FakeChannel;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Tools_1 = __webpack_require__(/*! ../../Util/Tools */ "./src/lib/Util/Tools.ts");
-const pako = __webpack_require__(/*! pako */ "./node_modules/pako/index.js");
 const Logger_1 = __webpack_require__(/*! ../../Util/Logger */ "./src/lib/Util/Logger.ts");
 class PeerChannel {
     constructor() {
@@ -32913,7 +33140,7 @@ class PeerChannel {
      */
     ParseMessage(event) {
         if (event && event.data) {
-            const uncompressed = pako.inflate(event.data, { to: "string" });
+            const uncompressed = Tools_1.Tools.BufferToString(Tools_1.Tools.ZLibInflate(event.data));
             this.OnMessage(uncompressed);
         }
     }
@@ -32923,7 +33150,7 @@ class PeerChannel {
      */
     SendMessage(message) {
         if (this.IsOpen()) {
-            const compressed = pako.deflate(message, { to: "string" });
+            const compressed = Tools_1.Tools.ZLibDeflate(Tools_1.Tools.StringToBuffer(message));
             this.dataChannel.send(compressed);
         }
     }
@@ -32977,14 +33204,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const MessageType_1 = __webpack_require__(/*! ./MessageType */ "./src/lib/Net/MessageType.ts");
 const World_1 = __webpack_require__(/*! ../World */ "./src/lib/World.ts");
 const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
-const BaseCell_1 = __webpack_require__(/*! ../Unit/Cell/BaseCell */ "./src/lib/Unit/Cell/BaseCell.ts");
-const BaseActor_1 = __webpack_require__(/*! ../Unit/Actor/BaseActor */ "./src/lib/Unit/Actor/BaseActor.ts");
 const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 const MessageHandler_1 = __webpack_require__(/*! ./MessageHandler */ "./src/lib/Net/MessageHandler.ts");
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
-const Host_1 = __webpack_require__(/*! ./Host */ "./src/lib/Net/Host.ts");
 const MAX_POS_DIFF = 0.5;
-const MAX_ANGLE_DIFF = Math.PI / 4;
+const MAX_ROT_DIFF = Math.PI / 4;
+const PLAYER_SYNCED_FUNCTIONS = ["Damage", "Shoot", "StopRot", "StartRot", "StartWalk", "StopWalk"];
 class Client extends MessageHandler_1.MessageHandler {
     /**
      * Construct a new client which communicates with a connection.
@@ -33006,10 +33231,11 @@ class Client extends MessageHandler_1.MessageHandler {
      * @param message
      */
     OnMessage(message) {
+        Logger_1.Logger.Info(this, "Message was received", message);
         World_1.World.Current = this.world;
         switch (message.Type) {
-            case MessageType_1.MessageType.Element:
-                this.ReceiveElement(message.Payload);
+            case MessageType_1.MessageType.Unit:
+                this.ReceiveUnit(message.Payload);
                 break;
             case MessageType_1.MessageType.Diff:
                 this.ReceiveDiff(message.Payload);
@@ -33035,18 +33261,13 @@ class Client extends MessageHandler_1.MessageHandler {
      * Receive an unit.
      * @param dump
      */
-    ReceiveElement(dump) {
+    ReceiveUnit(dump) {
         return __awaiter(this, void 0, void 0, function* () {
             World_1.World.Current = this.world;
             const unit = Exportable_1.Exportable.Import(dump);
-            Logger_1.Logger.Info(this, "Element was received!", unit, dump);
+            Logger_1.Logger.Info(this, "Unit was received!", unit, dump);
             // Add unit to the world
-            if (unit instanceof BaseCell_1.BaseCell) {
-                this.world.GetCells().Set(unit);
-            }
-            else if (unit instanceof BaseActor_1.BaseActor) {
-                this.world.GetActors().Set(unit);
-            }
+            this.world.Add(unit);
             // Add to network cache
             this.last[unit.GetId()] = dump;
         });
@@ -33066,34 +33287,36 @@ class Client extends MessageHandler_1.MessageHandler {
                 return;
             }
             // Check if we already have it
-            const oldElement = this.world.GetUnits().Get(id);
+            const oldUnit = this.world.GetUnits().Get(id);
             // Return if we do not have an older version,
             // because we cannot receive a diff without a base
-            if (!oldElement) {
+            if (!oldUnit) {
                 Logger_1.Logger.Warn(this, "Received diff, but no base unit!");
                 return;
             }
             World_1.World.Current = this.world;
             // If we have an older version, merge it
-            const merged = Exportable_1.Exportable.Export(oldElement);
+            const merged = Exportable_1.Exportable.Export(oldUnit);
             Exportable_1.Exportable.Merge(merged, diff);
-            let newElement;
+            let newUnit;
             try {
-                newElement = Exportable_1.Exportable.Import(merged);
+                newUnit = Exportable_1.Exportable.Import(merged);
             }
             catch (_a) {
                 return;
             }
-            // If the position or the angle difference is under a limit, skip updating
-            if (Host_1.Host.IsMovementDiff(diff) && oldElement.GetPosition()) {
-                const posititonDiff = newElement.GetPosition().Dist(oldElement.GetPosition());
-                const angleDiff = Math.abs(newElement.GetAngle() - oldElement.GetAngle());
-                if (posititonDiff < MAX_POS_DIFF && angleDiff < MAX_ANGLE_DIFF) {
-                    Logger_1.Logger.Info(this, "Element was optimized out", newElement);
+            const newBody = newUnit.GetBody();
+            const oldBody = oldUnit.GetBody();
+            // If the position or the rotation difference is under a limit, skip updating
+            if (Exportable_1.Exportable.IsMovementDiff(diff) && oldBody.GetOffset()) {
+                const posDiff = newBody.GetOffset().Dist(oldBody.GetOffset());
+                const rotDiff = Math.abs(newBody.GetRotation() - oldBody.GetRotation());
+                if (posDiff < MAX_POS_DIFF && rotDiff < MAX_ROT_DIFF) {
+                    Logger_1.Logger.Info(this, "Unit was optimized out", newUnit);
                     return;
                 }
             }
-            return this.ReceiveElement(merged);
+            return this.ReceiveUnit(merged);
         });
     }
     /**
@@ -33103,6 +33326,9 @@ class Client extends MessageHandler_1.MessageHandler {
     ReceivePlayer(id) {
         const player = this.player = this.world.GetActors().Get(id);
         this.OnPlayer(Tools_1.Tools.Hook(player, (target, prop, args) => {
+            if (!PLAYER_SYNCED_FUNCTIONS.includes(prop)) {
+                return;
+            }
             const dump = Exportable_1.Exportable.Export([player.GetId(), prop].concat(args));
             this.SendMessage(MessageType_1.MessageType.Command, dump);
         }));
@@ -33137,7 +33363,7 @@ class Client extends MessageHandler_1.MessageHandler {
      * Kick this client of the server.
      */
     ReceiveKick() {
-        Logger_1.Logger.Warn("Kicked from the server!");
+        Logger_1.Logger.Warn(this, "Kicked from the server!");
         this.channel.Close();
     }
 }
@@ -33208,7 +33434,7 @@ class Host extends MessageHandler_1.MessageHandler {
         }
     }
     /**
-     * Init world. Also deletes previously setted elements.
+     * Init world. Also deletes previously setted units.
      * @param size
      */
     SendSize(size) {
@@ -33217,42 +33443,10 @@ class Host extends MessageHandler_1.MessageHandler {
         });
     }
     /**
-     * Return true if only the position or the angle is different.
-     * @param diff
-     */
-    static IsMovementDiff(diff) {
-        const props = Exportable_1.Exportable.ToDict(diff);
-        // Delete ID if it exists, because we do not need it
-        if (props.id) {
-            delete props.id;
-        }
-        // No diff
-        if (Object.keys(props).length == 0) {
-            return true;
-        }
-        // Only position diff
-        if (Object.keys(props).length === 1 &&
-            props.hasOwnProperty("position")) {
-            return true;
-        }
-        // Only angle diff
-        if (Object.keys(props).length === 1 &&
-            props.hasOwnProperty("angle")) {
-            return true;
-        }
-        // Only position and angle diff
-        if (Object.keys(props).length === 2 &&
-            props.hasOwnProperty("position") &&
-            props.hasOwnProperty("angle")) {
-            return true;
-        }
-        return false;
-    }
-    /**
      * Set an unit (a cell or an actor).
      * @param unit
      */
-    SendElement(unit) {
+    SendUnit(unit) {
         return __awaiter(this, void 0, void 0, function* () {
             const dump = Exportable_1.Exportable.Export(unit);
             const id = unit.GetId();
@@ -33261,8 +33455,8 @@ class Host extends MessageHandler_1.MessageHandler {
             if (this.lastTime.hasOwnProperty(id) && this.last.hasOwnProperty(id)) {
                 diff = Exportable_1.Exportable.Diff(dump, this.last[id]);
             }
-            if (diff && this.lastTime[id] + SLEEP_TIME >= now && Host.IsMovementDiff(diff)) {
-                Logger_1.Logger.Info(this, "Element was optimized out", unit);
+            if (diff && this.lastTime[id] + SLEEP_TIME >= now && Exportable_1.Exportable.IsMovementDiff(diff)) {
+                Logger_1.Logger.Info(this, "Unit was optimized out", unit);
                 return;
             }
             this.last[id] = dump;
@@ -33276,12 +33470,12 @@ class Host extends MessageHandler_1.MessageHandler {
                 });
                 return this.SendMessage(MessageType_1.MessageType.Diff, diff);
             }
-            return this.SendMessage(MessageType_1.MessageType.Element, dump);
+            return this.SendMessage(MessageType_1.MessageType.Unit, dump);
         });
     }
     /**
      * Set the active player actor for the client (the actor needs to be
-     * already sent via SetElement).
+     * already sent via SetUnit).
      * @param player
      */
     SendPlayer(player) {
@@ -33376,7 +33570,7 @@ class MessageHandler {
                 }
                 this.SendReceived(message);
                 break;
-            case MessageType_1.MessageType.Element:
+            case MessageType_1.MessageType.Unit:
             case MessageType_1.MessageType.Command:
             case MessageType_1.MessageType.Player:
             case MessageType_1.MessageType.Kick:
@@ -33460,15 +33654,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var MessageType;
 (function (MessageType) {
     // OUT
-    MessageType[MessageType["Size"] = 0] = "Size";
-    MessageType[MessageType["Element"] = 1] = "Element";
-    MessageType[MessageType["Diff"] = 2] = "Diff";
-    MessageType[MessageType["Player"] = 3] = "Player";
-    MessageType[MessageType["Kick"] = 4] = "Kick";
+    MessageType["Size"] = "Size";
+    MessageType["Unit"] = "Unit";
+    MessageType["Diff"] = "Diff";
+    MessageType["Player"] = "Player";
+    MessageType["Kick"] = "Kick";
     // IN
-    MessageType[MessageType["Command"] = 5] = "Command";
+    MessageType["Command"] = "Command";
     // IN & OUT
-    MessageType[MessageType["Received"] = 6] = "Received";
+    MessageType["Received"] = "Received";
 })(MessageType = exports.MessageType || (exports.MessageType = {}));
 
 
@@ -33497,7 +33691,10 @@ const PlayerActor_1 = __webpack_require__(/*! ../Unit/Actor/PlayerActor */ "./sr
 const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
 const Vector_1 = __webpack_require__(/*! ../Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
-const GroundCell_1 = __webpack_require__(/*! ../Unit/Cell/GroundCell */ "./src/lib/Unit/Cell/GroundCell.ts");
+const NormalCell_1 = __webpack_require__(/*! ../Unit/Cell/NormalCell */ "./src/lib/Unit/Cell/NormalCell.ts");
+const Body_1 = __webpack_require__(/*! ../Physics/Body */ "./src/lib/Physics/Body.ts");
+const ArrowActor_1 = __webpack_require__(/*! ../Unit/Actor/ArrowActor */ "./src/lib/Unit/Actor/ArrowActor.ts");
+const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
 class Server {
     /**
      * Construct a new server with the given world. The server gonna
@@ -33506,59 +33703,61 @@ class Server {
      * @param world
      */
     constructor(world) {
-        this.clients = [];
+        this.hosts = [];
         this.world = world;
-        this.spawns = this.world.GetCells().GetList()
-            .filter(c => c instanceof GroundCell_1.GroundCell)
-            .sort((a, b) => Tools_1.Tools.Random(-100, 100));
-        this.world.OnUpdate.Add(unit => this.clients
-            .forEach(client => client.SendElement(unit)));
+        this.spawns = this.world.GetCells().GetArray()
+            .filter(c => c instanceof NormalCell_1.NormalCell)
+            .sort((a, b) => Tools_1.Tools.Random(-100, 100))
+            .map(c => c.GetBody());
+        this.world.OnUpdate.Add(unit => this.hosts
+            .forEach(host => host.SendUnit(unit)));
     }
     /**
-     * Executed when the server receives a new message from a client/clientection.
-     * @param client
+     * Executed when the server receives a new message from a client.
+     * @param host
      * @param command
      */
-    OnCommand(client, command) {
+    OnCommand(host, command) {
         const args = Exportable_1.Exportable.Import(command);
-        const player = client.GetPlayer();
+        const player = host.GetPlayer();
         World_1.World.Current = this.world;
         if (!args.length && player.GetId() == args[0]) {
-            this.Kick(client);
+            this.Kick(host);
             return;
         }
         try {
             // Execute command on the player
             player[args[1]].bind(player)(...args.slice(2));
             // Send the command to the other players
-            this.clients
-                .filter(client => player.GetParent() != client.GetPlayer().GetParent())
-                .forEach(client => client.SendCommand(args));
+            this.hosts
+                .filter(host => player.GetParent() != host.GetPlayer().GetParent())
+                .forEach(host => host.SendCommand(args));
         }
-        catch (_a) {
+        catch (e) {
             // Kick if we receive an exception
-            client.SendKick();
+            host.SendKick();
+            Logger_1.Logger.Warn(this, e);
         }
     }
     /**
      * Kick client out of the server.
-     * @param client
+     * @param host
      */
-    Kick(client) {
-        const index = this.clients.indexOf(client);
+    Kick(host) {
+        const index = this.hosts.indexOf(host);
         if (index >= 0) {
-            this.clients.splice(index, 1);
-            this.world.GetActors().Remove(client.GetPlayer());
-            client.SendKick();
+            this.hosts.splice(index, 1);
+            this.world.GetActors().Remove(host.GetPlayer());
+            host.SendKick();
         }
     }
     /**
-     * Add a new clientection/client to the server. This represents
+     * Add a new client to the server. The host represents
      * the client on the server side - it only communicates
      * with a Client object through an IChannel implementation.
-     * @param client
+     * @param host
      */
-    Add(client) {
+    Add(host) {
         return __awaiter(this, void 0, void 0, function* () {
             // Create player and add it to the world
             World_1.World.Current = this.world;
@@ -33566,23 +33765,26 @@ class Server {
             const player = new PlayerActor_1.PlayerActor;
             let actors;
             for (let spawn of this.spawns) {
-                actors = this.world.GetActors().FindCollisions(spawn);
+                actors = this.world.GetActors().GetArray().filter(u => u.GetBody().Collide(spawn));
                 if (actors.length) {
                     continue;
                 }
+                const body = Body_1.Body.CreateBoxBody(new Vector_1.Vector(1, 1), 0, spawn.GetOffset(), { z: spawn.GetZ() });
+                const arrow = new ArrowActor_1.ArrowActor();
+                arrow.Init({
+                    ignore: true,
+                    body: Body_1.Body.CreateBoxBody(new Vector_1.Vector(0.1, 0.1), 0, new Vector_1.Vector(0, 0))
+                });
                 player.Init({
                     id: playerTag,
                     parent: playerTag,
-                    position: spawn.GetPosition(),
-                    size: new Vector_1.Vector(1, 1),
-                    angle: 0,
+                    body: body,
                     texture: "res/player.png",
                     speed: 1500,
-                    damage: 0.1,
                     health: 1,
                     rotSpeed: 200,
                     light: 6,
-                    z: 1
+                    arrow: arrow
                 });
                 break;
             }
@@ -33591,21 +33793,21 @@ class Server {
             }
             this.world.GetActors().Set(player);
             // Set size
-            yield client.SendSize(this.world.GetSize());
+            yield host.SendSize(this.world.GetSize());
             // Set cells
-            for (let cell of this.world.GetCells().GetList()) {
-                yield client.SendElement(cell);
+            for (let cell of this.world.GetCells().GetArray()) {
+                yield host.SendUnit(cell);
             }
             // Set actors
-            for (let actor of this.world.GetActors().GetList()) {
-                yield client.SendElement(actor);
+            for (let actor of this.world.GetActors().GetArray()) {
+                yield host.SendUnit(actor);
             }
             // Subscribe to the OnCommand callback
-            client.OnCommand = command => this.OnCommand(client, command);
+            host.OnCommand = command => this.OnCommand(host, command);
             // Set player
-            yield client.SendPlayer(player);
-            // Add client to the internal client list
-            this.clients.push(client);
+            yield host.SendPlayer(player);
+            // Add host to the internal host list
+            this.hosts.push(host);
         });
     }
 }
@@ -33637,7 +33839,6 @@ const Vector_1 = __webpack_require__(/*! ../Geometry/Vector */ "./src/lib/Geomet
 const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
 const Overlap_1 = __webpack_require__(/*! ../Geometry/Overlap */ "./src/lib/Geometry/Overlap.ts");
 const Polygon_1 = __webpack_require__(/*! ../Geometry/Polygon */ "./src/lib/Geometry/Polygon.ts");
-const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 class Body extends Exportable_1.Exportable {
     /**
      * Construct a new body with the given shapes.
@@ -33646,21 +33847,79 @@ class Body extends Exportable_1.Exportable {
     constructor(shapes = [], args = {}) {
         super();
         this.shapes = [];
-        this.scale = 1;
+        this.scale = new Vector_1.Vector(1, 1);
         this.rotation = 0;
         this.offset = new Vector_1.Vector(0, 0);
-        this.OnChange = Tools_1.Tools.Noop;
         this.shapes = shapes;
         this.gravity = args.gravity || new Vector_1.Vector(0, 0);
-        this.force = args.force || new Vector_1.Vector(0, 0);
         this.sf = args.sf || 0.5;
         this.df = args.df || 0.3;
         this.r = args.r || 0.2;
         this.av = args.av || 0;
         this.torque = args.torque || 0;
         this.v = args.v || new Vector_1.Vector(0, 0);
-        this.ComputeMass(args.density);
+        this.force = args.force || new Vector_1.Vector(0, 0);
+        this.density = args.density || 1.0;
+        this.z = args.z || 0;
+        this.cf = args.cf || 0.05;
+        this.ComputeMass(this.density);
     }
+    /**
+     * Get the radius of the unit.
+     */
+    GetRadius() {
+        if (!this.scale) {
+            throw new Error("Get radius failed, no size!");
+        }
+        return this.scale.Len() / 2;
+    }
+    GetRotation() {
+        return this.rotation;
+    }
+    GetOffset() {
+        return this.offset;
+    }
+    GetScale() {
+        return this.scale;
+    }
+    GetShapes() {
+        return this.shapes;
+    }
+    GetForce() {
+        return this.force;
+    }
+    GetTorque() {
+        return this.torque;
+    }
+    GetVelocity() {
+        return this.v;
+    }
+    GetAngularVelocity() {
+        return this.av;
+    }
+    GetZ() {
+        return this.z;
+    }
+    SetCellFriction(friction) {
+        this.cf = friction;
+    }
+    SetGravity(gravity) {
+        this.gravity = gravity;
+    }
+    SetZ(z) {
+        this.z = z;
+    }
+    AddForce(f) {
+        this.force = this.force.Add(f);
+    }
+    AddTorque(t) {
+        this.torque += t;
+    }
+    /**
+     * Go through each shape combination of this and the other body.
+     * @param other
+     * @param callback
+     */
     EveryShape(other, callback) {
         for (let s1 of this.shapes) {
             for (let s2 of other.shapes) {
@@ -33672,13 +33931,22 @@ class Body extends Exportable_1.Exportable {
         }
         return null;
     }
+    /**
+     * Add a new shape to this body.
+     * @param shape
+     */
     AddShape(shape) {
         this.shapes.push(shape);
     }
-    GetShapes() {
-        return this.shapes;
-    }
     Collide(other) {
+        if (this.GetZ() != other.GetZ()) {
+            return null;
+        }
+        const dist = this.offset.Dist(other.offset);
+        // Optimize, if unit is too far away, skip deeper collision detection
+        if (dist > this.GetRadius() + other.GetRadius()) {
+            return null;
+        }
         const contact = this.EveryShape(other, (s1, s2) => Overlap_1.Overlap.Test(s1, s2));
         if (contact) {
             contact.A = this;
@@ -33687,62 +33955,66 @@ class Body extends Exportable_1.Exportable {
         return contact;
     }
     SetVirtual(scale, rotation, offset) {
+        if (this.Validate && !this.Validate(scale || this.scale, Number.isFinite(rotation) ? rotation : this.rotation, offset || this.offset)) {
+            return;
+        }
         scale && (this.scale = scale);
         rotation && (this.rotation = rotation);
         offset && (this.offset = offset);
-        this.OnChange(scale, rotation, offset);
         this.shapes.forEach(s => s.SetVirtual(scale, rotation, offset));
     }
-    IntegrateForces(dt, cf = 0.85) {
+    /**
+     * Calculate angular velocity and velocity.
+     * @param dt
+     */
+    IntegrateForces(dt) {
         if (this.im == 0) {
             return;
         }
+        const cf = Math.pow(this.cf, dt);
         this.av = this.av * cf + this.torque * this.iI * (dt / 2);
-        this.v = this.v.Scale(cf).Add(this.force.Scale(this.im * dt));
+        this.v = this.v.Scale(cf).Add((this.force.Scale(this.im).Add(this.gravity).Scale(dt / 2)));
     }
+    /**
+     * Calculate the next rotation and offset from the angular velocity and velocity.
+     * @param dt
+     */
     IntegrateVelocity(dt) {
-        if (this.im == 0) {
+        if (this.im == 0 || (!this.av && !this.v.Len())) {
             return;
         }
         const nextOffset = this.offset.Add(this.v.Scale(dt));
         const nextRot = this.rotation + this.av * dt;
         this.SetVirtual(null, nextRot, nextOffset);
     }
-    AddForce(f) {
-        this.force = this.force.Add(f);
-    }
-    AddTorque(t) {
-        this.torque += t;
-    }
+    /**
+     * Apply impluse onto the body.
+     * @param impulse
+     * @param contactVector
+     */
     ApplyImpulse(impulse, contactVector) {
         this.v = this.v.Add(impulse.Scale(new Vector_1.Vector(this.im, this.im)));
         this.av += this.iI * Vector_1.Vector.Cross(contactVector, impulse);
     }
+    /**
+     * Clear the force and the torque of the body.
+     */
     ClearForces() {
         this.force = new Vector_1.Vector(0, 0);
         this.torque = 0;
     }
     /**
-     * Get the radius of the unit.
-     */
-    GetRadius() {
-        if (!this.scale) {
-            throw new Error("Get radius failed, no size!");
-        }
-        return this.scale / 2;
-    }
-    GetSize() {
-        return this.scale;
-    }
-    /**
      * Calculate centroid and moment of interia
      * @param density
      */
-    ComputeMass(density = 1) {
-        let c = new Vector_1.Vector(0, 0); // Centroid
+    ComputeMass(density) {
+        if (!this.shapes.length) {
+            return;
+        }
+        this.density = density;
+        let c = new Vector_1.Vector(0, 0);
         let area = 0;
-        let I = 0;
-        const inv3 = 1 / 3;
+        let inertia = 0;
         for (let shape of this.shapes) {
             if (shape instanceof Polygon_1.Polygon) {
                 for (let i1 = 0; i1 < shape.GetPoints().length; ++i1) {
@@ -33753,17 +34025,17 @@ class Body extends Exportable_1.Exportable {
                     const triangleArea = 0.5 * D;
                     area += triangleArea;
                     // Use area to weight the centroid average, not just vertex position
-                    c = c.Add(p1.Add(p2).Scale(triangleArea * inv3));
+                    c = c.Add(p1.Add(p2).Scale(triangleArea * (1 / 3)));
                     const intx2 = p1.X * p1.X + p2.X * p1.X + p2.X * p2.X;
                     const inty2 = p1.Y * p1.Y + p2.Y * p1.Y + p2.Y * p2.Y;
-                    I += (0.25 * inv3 * D) * (intx2 + inty2);
+                    inertia += (0.25 * (1 / 3) * D) * (intx2 + inty2);
                 }
             }
         }
         c = c.Scale(1.0 / area);
         this.m = density * area;
         this.im = (this.m) ? 1.0 / this.m : 0.0;
-        this.I = I * density;
+        this.I = inertia * density;
         this.iI = this.I ? 1.0 / this.I : 0.0;
     }
     /**
@@ -33869,33 +34141,74 @@ class Body extends Exportable_1.Exportable {
             b.ApplyImpulse(tangentImpulse, rb);
         }
     }
+    static CreateBoxBody(scale, rotation, offset, args = {}) {
+        const body = new Body([Polygon_1.Polygon.CreateBox(1)], args);
+        body.SetVirtual(scale, rotation, offset);
+        return body;
+    }
 }
 __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
     __metadata("design:type", Array)
 ], Body.prototype, "shapes", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible, (s, v) => s.SetVirtual(v, null, null)),
+    __metadata("design:type", Vector_1.Vector)
+], Body.prototype, "scale", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible, (s, v) => s.SetVirtual(null, v, null)),
+    __metadata("design:type", Number)
+], Body.prototype, "rotation", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible, (s, v) => s.SetVirtual(null, null, v)),
+    __metadata("design:type", Vector_1.Vector)
+], Body.prototype, "offset", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Vector_1.Vector)
+], Body.prototype, "gravity", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Vector_1.Vector)
+], Body.prototype, "force", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Vector_1.Vector)
+], Body.prototype, "v", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Number)
+], Body.prototype, "av", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Number)
+], Body.prototype, "torque", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Number)
+], Body.prototype, "sf", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Number)
+], Body.prototype, "df", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Hidden),
+    __metadata("design:type", Number)
+], Body.prototype, "cf", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Number)
+], Body.prototype, "r", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible, (s, v) => s.ComputeMass(v)),
+    __metadata("design:type", Number)
+], Body.prototype, "density", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Number)
+], Body.prototype, "z", void 0);
 exports.Body = Body;
-
-
-/***/ }),
-
-/***/ "./src/lib/Physics/CollisionError.ts":
-/*!*******************************************!*\
-  !*** ./src/lib/Physics/CollisionError.ts ***!
-  \*******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-class CollisionError extends Error {
-    constructor(bodies) {
-        super("Collision error!");
-        this.Bodies = bodies;
-    }
-}
-exports.CollisionError = CollisionError;
+Exportable_1.Exportable.Dependency(Body);
 
 
 /***/ }),
@@ -33936,12 +34249,12 @@ class Renderer {
         this.world = args.world;
         this.canvas = args.canvas;
         this.context = this.canvas.getContext("2d");
-        this.dotPerPoint = args.dotPerPoint || 30;
+        this.dotPerPoint = args.dotPerPoint || 25;
         this.debug = args.debug || false;
         this.debugColor = args.debugColor || "purple";
-        this.shadows = args.shadows || true;
-        this.shadowStep = args.shadowStep || 1 / 3;
-        this.shadowStepR = args.shadowStepR || 2;
+        this.disableShadows = args.disableShadows || false;
+        this.viewport = args.viewport || new Vector_1.Vector(6, 6);
+        this.center = args.center || new Vector_1.Vector(0, 0);
     }
     /**
      * Load textures for the world.
@@ -33949,9 +34262,9 @@ class Renderer {
     Load() {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                const elements = this.world.GetUnits();
+                const units = this.world.GetUnits();
                 let i = 0;
-                elements.ForEach((unit) => {
+                units.Some((unit) => {
                     if (!unit) {
                         i++;
                         return;
@@ -33965,14 +34278,14 @@ class Renderer {
                     texture.onerror = () => reject();
                     texture.onload = () => {
                         this.textures[path] = texture;
-                        if (++i == elements.GetLength()) {
+                        if (++i == units.GetLength()) {
                             resolve();
                         }
                     };
                     texture.src = path;
                     this.textures[path] = null;
                 });
-                if (!elements.GetLength()) {
+                if (!units.GetLength()) {
                     resolve();
                 }
             });
@@ -33988,175 +34301,219 @@ class Renderer {
      * Draw the given unit onto the canvas.
      * @param unit
      */
-    DrawElement(unit) {
-        if (!unit || !unit.GetPosition() || !unit.GetSize()) {
+    DrawUnit(unit) {
+        if (!unit || !unit.GetBody()) {
             return;
         }
-        const vector = unit.GetPosition();
-        const size = unit.GetSize();
+        const body = unit.GetBody();
+        const offset = body.GetOffset();
+        const scale = body.GetScale();
         const texture = this.textures[unit.GetTexture()];
-        const s = size.Scale(this.dotPerPoint);
-        const cx = vector.X * this.dotPerPoint;
-        const cy = vector.Y * this.dotPerPoint;
-        const x = cx - s.X / 2;
-        const y = cy - s.Y / 2;
+        const s = scale.Scale(this.dotPerPoint);
+        const c = (offset.Sub(this.center).Add(this.viewport.Scale(1 / 2))).Scale(this.dotPerPoint);
+        const p = c.Sub(s.Scale(1 / 2));
         const rot = (angle) => {
-            this.context.translate(cx, cy);
+            this.context.translate(c.X, c.Y);
             this.context.rotate(angle);
-            this.context.translate(-cx, -cy);
+            this.context.translate(-c.X, -c.Y);
         };
-        rot(unit.GetAngle());
+        rot(body.GetRotation());
         if (texture) {
-            this.context.drawImage(texture, x, y, s.X, s.Y);
+            this.context.drawImage(texture, p.X, p.Y, s.X, s.Y);
         }
         else {
             this.context.fillStyle = this.debugColor;
-            this.context.fillRect(x, y, s.X, s.Y);
+            this.context.fillRect(p.X, p.Y, s.X, s.Y);
         }
-        rot(-unit.GetAngle());
-        // Draw grid if debug mode is enabled
-        if (this.debug) {
-            this.DrawGrid(unit, this.debugColor);
-        }
+        rot(-unit.GetBody().GetRotation());
     }
     /**
      * Draw (debug) grid for an unit.
      * @param unit
      * @param color
      */
-    DrawGrid(unit, color) {
+    DrawDebugGrid(unit, color) {
         const shapes = unit.GetBody().GetShapes();
         let first = null;
         this.context.beginPath();
         for (let shape of shapes) {
             if (shape instanceof Polygon_1.Polygon) {
-                for (let point of shape.GetVirtual()) {
+                for (let base of shape.GetVirtual()) {
+                    const p = (base.Sub(this.center).Add(this.viewport.Scale(1 / 2))).Scale(this.dotPerPoint);
                     if (first) {
-                        this.context.lineTo(point.X * this.dotPerPoint, point.Y * this.dotPerPoint);
+                        this.context.lineTo(p.X, p.Y);
                     }
                     else {
-                        this.context.moveTo(point.X * this.dotPerPoint, point.Y * this.dotPerPoint);
-                        first = point;
+                        this.context.moveTo(p.X, p.Y);
+                        first = p;
                     }
                 }
             }
         }
-        first && this.context.lineTo(first.X * this.dotPerPoint, first.Y * this.dotPerPoint);
+        first && this.context.lineTo(first.X, first.Y);
         this.context.strokeStyle = color;
         this.context.stroke();
-    }
-    GenerateShadows(unit, stepD, stepR, set) {
-        if (!unit.GetLight()) {
-            return;
-        }
-        const dpp = this.dotPerPoint;
-        const size = this.world.GetSize();
-        const w = dpp * size.X;
-        const h = dpp * size.Y;
-        const testBody = new Body_1.Body([Polygon_1.Polygon.CreateBox(stepD)]);
-        for (let r = 0; r < 2 * Math.PI; r += stepR * (Math.PI / 180)) {
-            const origin = unit.GetPosition();
-            const step = Vector_1.Vector.ByRad(r).Scale(stepD);
-            for (let point = origin; point.Dist(origin) < unit.GetLight(); point = point.Add(step)) {
-                const startX = Math.floor(point.X * dpp);
-                const startY = Math.floor(point.Y * dpp);
-                if (startX >= w || startY >= h || startX < 0 || startY < 0) {
-                    break;
-                }
-                testBody.SetVirtual(1, 0, point);
-                let collision = false;
-                for (const unit of this.world.GetCells().GetList()) {
-                    // If the light ray hits a blocking cell, break the loop
-                    if (unit.IsBlocking() && testBody.Collide(unit.GetBody())) {
-                        collision = true;
-                        break;
-                    }
-                }
-                if (collision) {
-                    break;
-                }
-                const delta = Math.max(Math.floor(point.Dist(origin) * dpp), dpp) / 2;
-                for (let y = startY - delta; y < startY + delta; ++y) {
-                    for (let x = startX - delta; x < startX + delta; ++x) {
-                        if (x >= w || y >= h || x < 0 || y < 0) {
-                            continue;
-                        }
-                        const p = new Vector_1.Vector(Math.floor(x / dpp), Math.floor(y / dpp));
-                        const s = p.Dist(origin) / unit.GetLight();
-                        if (s >= 0 && s <= 1) {
-                            set(s, x, y);
-                        }
-                    }
-                }
-            }
-        }
     }
     /**
      * Update the canvas.
      */
-    Render(t = 0, dt = 1 / 60) {
-        const size = this.world.GetSize();
-        const w = this.dotPerPoint * size.X;
-        const h = this.dotPerPoint * size.Y;
-        this.canvas.width = w;
-        this.canvas.height = h;
-        this.canvas.style.width = w + "px";
-        this.canvas.style.height = h + "px";
+    Render() {
+        const fullView = this.world.GetSize().Scale(this.dotPerPoint);
+        const view = this.viewport.Scale(this.dotPerPoint);
+        const viewBody = Body_1.Body.CreateBoxBody(this.viewport, 0, this.center.Sub(this.viewport.Scale(1 / 2)));
+        this.canvas.width = view.X;
+        this.canvas.height = view.Y;
+        this.canvas.style.width = view.X + "px";
+        this.canvas.style.height = view.Y + "px";
         this.context.fillStyle = "black";
-        this.context.fillRect(0, 0, w, h);
-        // Init static shadow map
-        if (this.shadows && !this.shadowMap) {
-            this.shadowMap = new Array(w * h).fill(1);
-            this.world.GetCells().ForEach(unit => {
-                this.GenerateShadows(unit, this.shadowStep, this.shadowStepR, (light, x, y) => {
-                    const previous = this.shadowMap[x + y * w];
-                    // Final value is the most bright (most min) value
-                    this.shadowMap[x + y * w] = Math.min(light, previous);
-                });
-            });
-        }
+        this.context.fillRect(0, 0, view.X, view.Y);
         // Draw units in the order of their Z index
+        const levels = [];
+        const process = (unit) => {
+            const z = unit.GetBody().GetZ();
+            if (!levels.hasOwnProperty(z)) {
+                levels[z] = [];
+            }
+            levels[z].push(unit);
+        };
         this.world
-            .GetUnits()
-            .GetList()
-            .sort((a, b) => a.GetZ() - b.GetZ())
-            .forEach(unit => {
-            this.DrawElement(unit);
-        });
+            .GetCells()
+            .GetArray()
+            .forEach(process);
+        this.world
+            .GetActors()
+            .GetArray()
+            .forEach(process);
+        for (let level of levels) {
+            level.forEach(unit => this.DrawUnit(unit));
+        }
+        // Draw grid if debug mode is enabled
+        if (this.debug) {
+            this.world
+                .GetUnits()
+                .GetArray()
+                .forEach(unit => this.DrawDebugGrid(unit, this.debugColor));
+        }
         // Apply shadow map onto the picture
-        if (this.shadows) {
-            const imageData = this.context.getImageData(0, 0, w, h);
-            for (let y = 0; y < h; y++) {
-                for (let x = 0; x < w; x++) {
-                    imageData.data[(y * imageData.width + x) * 4 + 3] = (1 - this.shadowMap[x + y * w]) * 255;
+        if (!this.disableShadows) {
+            const imageData = this.context.getImageData(0, 0, view.X, view.Y);
+            for (let y = 0; y < view.X; y++) {
+                for (let x = 0; x < view.Y; x++) {
+                    const c = this.center.Scale(this.dotPerPoint).Sub(view.Scale(1 / 2));
+                    imageData.data[(y * view.Y + x) * 4 + 3] =
+                        (1 - this.world.GetShadow(x + c.X, y + c.Y, fullView.X, fullView.Y)) * 255;
                 }
             }
             this.context.putImageData(imageData, 0, 0);
         }
         if (!this.stop) {
-            window.requestAnimationFrame(() => this.Render(now, now - this.lastTick));
+            window.requestAnimationFrame(() => this.Render());
         }
         const now = +new Date;
         this.world.OnTick.Call((now - this.lastTick) / 1000);
         this.OnDraw.Call((now - this.lastTick) / 1000);
         this.lastTick = now;
     }
-    /**
-     * Start rendering.
-     */
+    SetCenter(center) {
+        this.center = center;
+    }
     Start() {
         this.lastTick = +new Date;
         this.stop = false;
         window.requestAnimationFrame(() => this.Render());
     }
-    /**
-     * Stop rendering.
-     */
     Stop() {
         this.stop = true;
     }
 }
 exports.Renderer = Renderer;
+
+
+/***/ }),
+
+/***/ "./src/lib/Test/NetTest.ts":
+/*!*********************************!*\
+  !*** ./src/lib/Test/NetTest.ts ***!
+  \*********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const World_1 = __webpack_require__(/*! ../World */ "./src/lib/World.ts");
+const FakeChannel_1 = __webpack_require__(/*! ../Net/Channel/FakeChannel */ "./src/lib/Net/Channel/FakeChannel.ts");
+const Client_1 = __webpack_require__(/*! ../Net/Client */ "./src/lib/Net/Client.ts");
+const Server_1 = __webpack_require__(/*! ../Net/Server */ "./src/lib/Net/Server.ts");
+const Host_1 = __webpack_require__(/*! ../Net/Host */ "./src/lib/Net/Host.ts");
+const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
+function TestNetSetup() {
+    return __awaiter(this, void 0, void 0, function* () {
+        Logger_1.Logger.Info(this, "Running TestNetSetup");
+        const delay = 1;
+        const size = 8;
+        // Create two worlds for each client
+        const worldA = new World_1.World();
+        const worldB = new World_1.World();
+        // Create 2 two-way channels
+        const channelA1 = new FakeChannel_1.FakeChannel(delay);
+        const channelA2 = new FakeChannel_1.FakeChannel(delay);
+        const channelB1 = new FakeChannel_1.FakeChannel(delay);
+        const channelB2 = new FakeChannel_1.FakeChannel(delay);
+        channelA1.SetOther(channelA2);
+        channelA2.SetOther(channelA1);
+        channelB1.SetOther(channelB2);
+        channelB2.SetOther(channelB1);
+        // Create two client objects
+        const clientA = new Client_1.Client(channelA1, worldA);
+        const clientB = new Client_1.Client(channelB1, worldB);
+        const world = World_1.World.CreateBox(size);
+        const server = new Server_1.Server(world);
+        // Create two host objects
+        const hostA = new Host_1.Host(channelA2, server);
+        const hostB = new Host_1.Host(channelB2, server);
+        return new Promise(resolve => {
+            let readyCount = 0;
+            clientA.OnPlayer = player => {
+                if (worldA.GetCells().GetLength() != size * size) {
+                    Logger_1.Logger.Warn(this, "TestNetSetup: worldA cells size mismatch", worldA);
+                    throw new Error("Assert failed");
+                }
+                if (worldA.GetActors().GetLength() != 2) {
+                    Logger_1.Logger.Warn(this, "TestNetSetup: worldA actors size mismatch", worldA);
+                    throw new Error("Assert failed");
+                }
+                Logger_1.Logger.Info(this, "Player 1 received successfully!");
+                ++readyCount == 2 && resolve();
+            };
+            clientB.OnPlayer = player => {
+                if (worldB.GetCells().GetLength() != size * size) {
+                    Logger_1.Logger.Warn(this, "TestNetSetup: worldB cells size mismatch", worldB);
+                    throw new Error("Assert failed");
+                }
+                if (worldB.GetActors().GetLength() != 2) {
+                    Logger_1.Logger.Warn(this, "TestNetSetup: worldB actors size mismatch", worldB);
+                    throw new Error("Assert failed");
+                }
+                Logger_1.Logger.Info(this, "Player 2 received successfully!");
+                ++readyCount == 2 && resolve();
+            };
+            server.Add(hostA);
+            server.Add(hostB);
+        });
+    });
+}
+exports.default = () => __awaiter(this, void 0, void 0, function* () {
+    yield TestNetSetup();
+});
 
 
 /***/ }),
@@ -34182,6 +34539,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const BaseActor_1 = __webpack_require__(/*! ./BaseActor */ "./src/lib/Unit/Actor/BaseActor.ts");
 const Exportable_1 = __webpack_require__(/*! ../../Exportable */ "./src/lib/Exportable.ts");
+const PlayerActor_1 = __webpack_require__(/*! ./PlayerActor */ "./src/lib/Unit/Actor/PlayerActor.ts");
+const Vector_1 = __webpack_require__(/*! ../../Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 class ArrowActor extends BaseActor_1.BaseActor {
     /**
      * @inheritDoc
@@ -34194,57 +34553,41 @@ class ArrowActor extends BaseActor_1.BaseActor {
      */
     InitPre(args = {}) {
         super.InitPre(args);
-        this.angle = args.angle;
-        this.damage = args.damage;
-        this.speed = args.speed;
+        this.damage = args.damage === undefined ? this.damage : args.damage;
     }
     /**
      * @inheritDoc
      */
-    OnTick() {
-        /*
-        super.OnTick();
-        
-        const facing = Vector.AngleToVector(this.GetAngle());
-        const success = this.SetPosition(this.GetPosition().Add(facing.Scale(this.speed)));
-
-        // If the arrow hit a wall, dispose it
-        if(!success)
-        {
+    InitPost(args = {}) {
+        super.InitPost(args);
+    }
+    /**
+     * @inheritDoc
+     */
+    OnTick(dt) {
+        super.OnTick(dt);
+        // If arrow stops moving, dispose it
+        if (this.GetBody().GetVelocity().Equal(new Vector_1.Vector) && this.GetBody().GetForce().Equal(new Vector_1.Vector)) {
             this.Dispose();
             return;
         }
-
-        const result = this.world.GetActors().FindCollisions(this);
-
-        let hit = false;
-
-        // Damage every touched living actor
-        for(const actor of result)
-        {
-            if(actor instanceof LivingActor)
-            {
+        const result = this.world.GetUnits().FindCollisions(this);
+        for (const actor of result) {
+            // Damage every touched player
+            if (actor instanceof PlayerActor_1.PlayerActor) {
                 actor.Damage(this.damage);
-                hit = true;
             }
         }
-
-        // If the arrow hit a living thing, dispose it
-        if(hit)
-        {
+        // If the arrow hit anything, dispose it
+        if (result.length) {
             this.Dispose();
         }
-        */
     }
 }
 __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
     __metadata("design:type", Number)
 ], ArrowActor.prototype, "damage", void 0);
-__decorate([
-    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
-    __metadata("design:type", Number)
-], ArrowActor.prototype, "speed", void 0);
 exports.ArrowActor = ArrowActor;
 Exportable_1.Exportable.Dependency(ArrowActor);
 
@@ -34262,51 +34605,34 @@ Exportable_1.Exportable.Dependency(ArrowActor);
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const Unit_1 = __webpack_require__(/*! ../Unit */ "./src/lib/Unit/Unit.ts");
-const CollisionError_1 = __webpack_require__(/*! ../../Physics/CollisionError */ "./src/lib/Physics/CollisionError.ts");
 class BaseActor extends Unit_1.Unit {
     /**
      * @inheritDoc
      */
     InitPre(args = {}) {
         super.InitPre(args);
-        this.blocking = args.blocking || true;
+        this.blocking = args.blocking === undefined ? this.blocking || true : args.blocking;
     }
     /**
-     * @inheritDoc
+     * Validate a positional change of the body.
+     * @param scale
+     * @param rotation
+     * @param offset
      */
-    SetPosition(position) {
-        return position &&
-            this.Move(position, this.angle) &&
-            super.SetPosition(position);
-    }
-    /**
-     * @inheritDoc
-     */
-    SetAngle(angle) {
-        return typeof angle === "number" &&
-            this.Move(this.position, angle) &&
-            super.SetAngle(angle);
-    }
-    Move(position, angle) {
-        // For clones, because they do not have a world
-        if (!this.world) {
+    ValidateBody(scale, rotation, offset) {
+        if (this.ignore || !this.world) {
             return true;
         }
-        const clone = this.Clone();
-        clone.SetAngle(angle);
-        clone.SetPosition(position);
-        const actors = this.world.GetActors().FindCollisions(clone);
-        if (actors.length) {
-            throw new CollisionError_1.CollisionError(actors.map(actor => actor.GetBody()));
-        }
+        const body = this.GetBody();
+        const newBody = body.Clone();
+        newBody.SetVirtual(scale, rotation, offset);
         // Get the currently covered cells and the next ones
-        const prev = this.position
-            ? this.world.GetCells().FindCollisions(this)
+        const prev = body.GetOffset()
+            ? this.world.GetCells().GetArray().filter(c => c.GetBody().Collide(body))
             : [];
-        const next = this.world.GetCells().FindCollisions(clone);
+        const next = this.world.GetCells().GetArray().filter(c => c.GetBody().Collide(newBody));
         if (!next.length) {
-            // Position is taken by a cell
-            throw new CollisionError_1.CollisionError([]);
+            return false;
         }
         // Remove intersection 
         const prevFiltered = prev.filter(v => !next.includes(v));
@@ -34322,137 +34648,13 @@ class BaseActor extends Unit_1.Unit {
         if (this.disposed || !value) {
             return;
         }
-        this.world.GetActors().Remove(this);
+        if (!this.ignore && this.world) {
+            this.world.GetActors().Remove(this);
+        }
         super.Dispose();
     }
 }
 exports.BaseActor = BaseActor;
-
-
-/***/ }),
-
-/***/ "./src/lib/Unit/Actor/LivingActor.ts":
-/*!*******************************************!*\
-  !*** ./src/lib/Unit/Actor/LivingActor.ts ***!
-  \*******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const BaseActor_1 = __webpack_require__(/*! ./BaseActor */ "./src/lib/Unit/Actor/BaseActor.ts");
-const Logger_1 = __webpack_require__(/*! ../../Util/Logger */ "./src/lib/Util/Logger.ts");
-const Exportable_1 = __webpack_require__(/*! ../../Exportable */ "./src/lib/Exportable.ts");
-const Vector_1 = __webpack_require__(/*! ../../Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
-class LivingActor extends BaseActor_1.BaseActor {
-    /**
-     * @inheritDoc
-     */
-    Init(args = {}) {
-        super.Init(args);
-    }
-    /**
-     * @inheritDoc
-     */
-    InitPre(args = {}) {
-        super.InitPre(args);
-        this.health = args.health;
-        this.damage = args.damage;
-        this.speed = args.speed;
-        this.rotSpeed = args.rotSpeed;
-    }
-    InitPost(args = {}) {
-        super.InitPost(args);
-    }
-    IsWalking() {
-        return !!this.walkJob;
-    }
-    IsRotating() {
-        return !!this.rotJob;
-    }
-    StartWalk(back) {
-        if (!this.speed) {
-            throw new Error("No speed!");
-        }
-        this.walkJob = this.world.OnTick.Add(dt => {
-            const angle = Vector_1.Vector.ByRad(this.GetAngle() + (back ? Math.PI : 0));
-            const body = this.GetBody();
-            body.AddForce(angle.Scale(this.speed * dt));
-        });
-    }
-    StopWalk() {
-        if (!this.speed) {
-            throw new Error("No speed!");
-        }
-        if (this.walkJob) {
-            this.world.OnTick.Remove(this.walkJob);
-            this.walkJob = null;
-        }
-    }
-    StartRot(left) {
-        if (!this.rotSpeed) {
-            throw new Error("No rot speed!");
-        }
-        this.rotJob = this.world.OnTick.Add(dt => {
-            const body = this.GetBody();
-            body.AddTorque((left ? -1 : 1) * this.rotSpeed * dt);
-        });
-    }
-    StopRot() {
-        if (!this.rotJob) {
-            throw new Error("No rot speed!");
-        }
-        if (this.rotJob) {
-            this.world.OnTick.Remove(this.rotJob);
-            this.rotJob = null;
-        }
-    }
-    /**
-     * Do damage to this actor.
-     * @param damage Amount of the damage.
-     */
-    Damage(damage) {
-        this.health -= damage;
-        Logger_1.Logger.Info(this, "Actor was damaged", damage, this);
-        if (this.health <= 0) {
-            this.Dispose();
-        }
-        this.world.OnUpdate.Call(this);
-    }
-    /**
-     * Get if the actor is alive.
-     */
-    IsAlive() {
-        return this.health > 0;
-    }
-}
-__decorate([
-    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
-    __metadata("design:type", Number)
-], LivingActor.prototype, "health", void 0);
-__decorate([
-    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
-    __metadata("design:type", Number)
-], LivingActor.prototype, "damage", void 0);
-__decorate([
-    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
-    __metadata("design:type", Number)
-], LivingActor.prototype, "speed", void 0);
-__decorate([
-    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
-    __metadata("design:type", Number)
-], LivingActor.prototype, "rotSpeed", void 0);
-exports.LivingActor = LivingActor;
 
 
 /***/ }),
@@ -34476,50 +34678,193 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const BaseActor_1 = __webpack_require__(/*! ./BaseActor */ "./src/lib/Unit/Actor/BaseActor.ts");
+const Logger_1 = __webpack_require__(/*! ../../Util/Logger */ "./src/lib/Util/Logger.ts");
+const Exportable_1 = __webpack_require__(/*! ../../Exportable */ "./src/lib/Exportable.ts");
 const Vector_1 = __webpack_require__(/*! ../../Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 const ArrowActor_1 = __webpack_require__(/*! ./ArrowActor */ "./src/lib/Unit/Actor/ArrowActor.ts");
-const LivingActor_1 = __webpack_require__(/*! ./LivingActor */ "./src/lib/Unit/Actor/LivingActor.ts");
-const Exportable_1 = __webpack_require__(/*! ../../Exportable */ "./src/lib/Exportable.ts");
+const Body_1 = __webpack_require__(/*! ../../Physics/Body */ "./src/lib/Physics/Body.ts");
 const SHOT_DELAY = 800;
-class PlayerActor extends LivingActor_1.LivingActor {
+class PlayerActor extends BaseActor_1.BaseActor {
     constructor() {
         super(...arguments);
         this.lastShot = +new Date(0);
+    }
+    /**
+     * @inheritDoc
+     */
+    Init(args = {}) {
+        super.Init(args);
+    }
+    /**
+     * @inheritDoc
+     */
+    InitPre(args = {}) {
+        super.InitPre(args);
+        this.health = args.health === undefined ? this.health : args.health;
+        this.speed = args.speed === undefined ? this.speed : args.speed;
+        this.rotSpeed = args.rotSpeed === undefined ? this.rotSpeed : args.rotSpeed;
+        this.arrow = args.arrow === undefined ? this.arrow : args.arrow;
+    }
+    IsWalking() {
+        return !!this.walkJob;
+    }
+    IsRotating() {
+        return !!this.rotJob;
+    }
+    /**
+     * Start walking in the direction of the current rotation.
+     * @param back Flip the direction
+     */
+    StartWalk(back) {
+        if (this.ignore) {
+            return;
+        }
+        if (!this.world) {
+            throw new Error("No world!");
+        }
+        if (!this.speed) {
+            throw new Error("No speed!");
+        }
+        this.walkJob = this.world.OnTick.Add(dt => {
+            const angle = Vector_1.Vector.ByRad(this.GetBody().GetRotation() + (back ? Math.PI : 0));
+            this.GetBody().AddForce(angle.Scale(this.speed * dt));
+        });
+    }
+    /**
+     * Stop walking.
+     */
+    StopWalk() {
+        if (this.ignore) {
+            return;
+        }
+        if (!this.world) {
+            throw new Error("No world!");
+        }
+        if (!this.speed) {
+            throw new Error("No speed!");
+        }
+        if (this.walkJob) {
+            this.world.OnTick.Remove(this.walkJob);
+            this.walkJob = null;
+        }
+    }
+    /**
+     * Start rotating (to the right by default).
+     * @param left Rotate to the left?
+     */
+    StartRot(left) {
+        if (this.ignore) {
+            return;
+        }
+        if (!this.world) {
+            throw new Error("No world!");
+        }
+        if (!this.rotSpeed) {
+            throw new Error("No rot speed!");
+        }
+        this.rotJob = this.world.OnTick.Add(dt => {
+            this.GetBody().AddTorque((left ? -1 : 1) * this.rotSpeed * dt);
+        });
+    }
+    /**
+     * Stop rotating.
+     */
+    StopRot() {
+        if (this.ignore) {
+            return;
+        }
+        if (!this.world) {
+            throw new Error("No world!");
+        }
+        if (!this.rotJob) {
+            throw new Error("No rot speed!");
+        }
+        if (this.rotJob) {
+            this.world.OnTick.Remove(this.rotJob);
+            this.rotJob = null;
+        }
     }
     /**
      * Shoot an arrow to the angle the player is facing.
      * @param id The id of the new arrow.
      */
     Shoot(id) {
+        if (this.ignore) {
+            return;
+        }
+        if (!this.world) {
+            throw new Error("No world!");
+        }
         const now = +new Date;
         if (this.lastShot + SHOT_DELAY > now) {
             throw new Error("Shot was too quick");
         }
-        const r = this.GetRadius();
-        const direction = Vector_1.Vector.ByRad(this.GetAngle());
-        const position = this.GetPosition().Add(direction.Scale(r));
-        const actor = new ArrowActor_1.ArrowActor;
-        actor.Init({
+        const body = this.GetBody();
+        const r = body.GetRadius();
+        const d = Vector_1.Vector.ByRad(body.GetRotation());
+        const p = body.GetOffset().Add(d.Scale(r));
+        // Clone the template arrow
+        const newArrow = this.arrow.Clone();
+        const facing = Vector_1.Vector.ByRad(body.GetRotation());
+        const force = facing.Scale(1500);
+        newArrow.Init({
             id: id,
-            position: position,
-            size: new Vector_1.Vector(0.1, 0.1),
-            texture: "res/stone.png",
-            angle: this.GetAngle(),
-            damage: this.damage,
-            speed: 0.075,
+            ignore: false,
             parent: this.parent,
-            world: this.world
+            world: this.world,
+            body: Body_1.Body.CreateBoxBody(
+            // Use the body scale of the template arrow
+            this.arrow.GetBody().GetScale(), body.GetRotation(), p, {
+                z: body.GetZ(),
+                force: force
+            })
         });
-        this.world.GetActors().Set(actor);
+        this.world.GetActors().Set(newArrow);
         this.lastShot = now;
+    }
+    /**
+     * Do damage to this actor.
+     * @param damage Amount of the damage.
+     */
+    Damage(damage) {
+        this.health -= damage;
+        Logger_1.Logger.Info(this, "Actor was damaged", damage, this);
+        if (this.health <= 0) {
+            this.Dispose();
+        }
+        if (!this.ignore && this.world) {
+            this.world.OnUpdate.Call(this);
+        }
+    }
+    /**
+     * Get if the actor is alive.
+     */
+    IsAlive() {
+        return this.health > 0;
     }
 }
 __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.Hidden),
     __metadata("design:type", Object)
 ], PlayerActor.prototype, "lastShot", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Number)
+], PlayerActor.prototype, "health", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Number)
+], PlayerActor.prototype, "speed", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Number)
+], PlayerActor.prototype, "rotSpeed", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", ArrowActor_1.ArrowActor)
+], PlayerActor.prototype, "arrow", void 0);
 exports.PlayerActor = PlayerActor;
-Exportable_1.Exportable.Dependency(PlayerActor);
 
 
 /***/ }),
@@ -34546,8 +34891,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Unit_1 = __webpack_require__(/*! ../Unit */ "./src/lib/Unit/Unit.ts");
 const Exportable_1 = __webpack_require__(/*! ../../Exportable */ "./src/lib/Exportable.ts");
 const Vector_1 = __webpack_require__(/*! ../../Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
-const Body_1 = __webpack_require__(/*! ../../Physics/Body */ "./src/lib/Physics/Body.ts");
-const Polygon_1 = __webpack_require__(/*! ../../Geometry/Polygon */ "./src/lib/Geometry/Polygon.ts");
 class BaseCell extends Unit_1.Unit {
     constructor() {
         super(...arguments);
@@ -34558,27 +34901,23 @@ class BaseCell extends Unit_1.Unit {
      */
     InitPre(args = {}) {
         super.InitPre(args);
-        this.cf = args.cf || 0.0001;
-    }
-    BodyFactory() {
-        return new Body_1.Body([
-            new Polygon_1.Polygon([
-                new Vector_1.Vector(-0.5, 0.5),
-                new Vector_1.Vector(0.5, 0.5),
-                new Vector_1.Vector(0.5, -0.5),
-                new Vector_1.Vector(-0.5, -0.5)
-            ])
-        ], {
-            density: Infinity
-        });
+        this.cf = args.cf === undefined ? this.cf || 0.10 : args.cf;
+        this.gravity = args.gravity === undefined ? this.gravity || new Vector_1.Vector(0, 0) : args.gravity;
     }
     /**
      * Enter into the cell with an actor.
      * @param actor
      */
     MoveHere(actor) {
-        if (!this.actors.includes(actor.GetId())) {
-            this.actors.push(actor.GetId());
+        if (this.actors.includes(actor.GetId())) {
+            return;
+        }
+        this.actors.push(actor.GetId());
+        const body = actor.GetBody();
+        // TODO: Issue: when multiply cells are hit, the last cell props will be set and not the max props.
+        body.SetCellFriction(this.cf);
+        body.SetGravity(this.gravity);
+        if (!this.ignore && this.world) {
             this.world.OnUpdate.Call(this);
         }
     }
@@ -34590,23 +34929,28 @@ class BaseCell extends Unit_1.Unit {
         const index = this.actors.indexOf(actor.GetId());
         if (index >= 0) {
             this.actors.splice(index, 1);
-            this.world.OnUpdate.Call(this);
+            if (!this.ignore && this.world) {
+                this.world.OnUpdate.Call(this);
+            }
         }
     }
     /**
      * @inheritDoc
      */
-    Dispose(value) {
+    Dispose(value = true) {
         if (this.disposed || !value) {
             return;
         }
-        this.world.GetCells().Remove(this);
+        if (!this.ignore && this.world) {
+            this.world.GetCells().Remove(this);
+        }
         super.Dispose();
     }
-    GetFriction() {
-        return this.cf;
-    }
 }
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Vector_1.Vector)
+], BaseCell.prototype, "gravity", void 0);
 __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
     __metadata("design:type", Number)
@@ -34616,10 +34960,10 @@ exports.BaseCell = BaseCell;
 
 /***/ }),
 
-/***/ "./src/lib/Unit/Cell/FireCell.ts":
-/*!***************************************!*\
-  !*** ./src/lib/Unit/Cell/FireCell.ts ***!
-  \***************************************/
+/***/ "./src/lib/Unit/Cell/DamageCell.ts":
+/*!*****************************************!*\
+  !*** ./src/lib/Unit/Cell/DamageCell.ts ***!
+  \*****************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -34636,9 +34980,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const BaseCell_1 = __webpack_require__(/*! ./BaseCell */ "./src/lib/Unit/Cell/BaseCell.ts");
-const LivingActor_1 = __webpack_require__(/*! ../Actor/LivingActor */ "./src/lib/Unit/Actor/LivingActor.ts");
+const PlayerActor_1 = __webpack_require__(/*! ../Actor/PlayerActor */ "./src/lib/Unit/Actor/PlayerActor.ts");
 const Exportable_1 = __webpack_require__(/*! ../../Exportable */ "./src/lib/Exportable.ts");
-class FireCell extends BaseCell_1.BaseCell {
+class DamageCell extends BaseCell_1.BaseCell {
     /**
      * @inheritDoc
      */
@@ -34650,7 +34994,7 @@ class FireCell extends BaseCell_1.BaseCell {
      */
     InitPre(args = {}) {
         super.InitPre(args);
-        this.damage = args.damage;
+        this.damage = args.damage === undefined ? this.damage : args.damage;
     }
     /**
      * @inheritDoc
@@ -34659,7 +35003,7 @@ class FireCell extends BaseCell_1.BaseCell {
         super.OnTick(dt);
         this.actors.forEach(id => {
             const actor = this.world.GetActors().Get(id);
-            if (actor instanceof LivingActor_1.LivingActor) {
+            if (actor instanceof PlayerActor_1.PlayerActor) {
                 actor.Damage(this.damage * dt);
             }
         });
@@ -34668,16 +35012,45 @@ class FireCell extends BaseCell_1.BaseCell {
 __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
     __metadata("design:type", Number)
-], FireCell.prototype, "damage", void 0);
-exports.FireCell = FireCell;
-Exportable_1.Exportable.Dependency(FireCell);
+], DamageCell.prototype, "damage", void 0);
+exports.DamageCell = DamageCell;
+Exportable_1.Exportable.Dependency(DamageCell);
 
 
 /***/ }),
 
-/***/ "./src/lib/Unit/Cell/GroundCell.ts":
+/***/ "./src/lib/Unit/Cell/KillCell.ts":
+/*!***************************************!*\
+  !*** ./src/lib/Unit/Cell/KillCell.ts ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const BaseCell_1 = __webpack_require__(/*! ./BaseCell */ "./src/lib/Unit/Cell/BaseCell.ts");
+const PlayerActor_1 = __webpack_require__(/*! ../Actor/PlayerActor */ "./src/lib/Unit/Actor/PlayerActor.ts");
+const Exportable_1 = __webpack_require__(/*! ../../Exportable */ "./src/lib/Exportable.ts");
+class KillCell extends BaseCell_1.BaseCell {
+    /**
+     * @inheritDoc
+     */
+    MoveHere(actor) {
+        if (actor instanceof PlayerActor_1.PlayerActor) {
+            actor.Dispose();
+        }
+    }
+}
+exports.KillCell = KillCell;
+Exportable_1.Exportable.Dependency(KillCell);
+
+
+/***/ }),
+
+/***/ "./src/lib/Unit/Cell/NormalCell.ts":
 /*!*****************************************!*\
-  !*** ./src/lib/Unit/Cell/GroundCell.ts ***!
+  !*** ./src/lib/Unit/Cell/NormalCell.ts ***!
   \*****************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
@@ -34687,93 +35060,10 @@ Exportable_1.Exportable.Dependency(FireCell);
 Object.defineProperty(exports, "__esModule", { value: true });
 const BaseCell_1 = __webpack_require__(/*! ./BaseCell */ "./src/lib/Unit/Cell/BaseCell.ts");
 const Exportable_1 = __webpack_require__(/*! ../../Exportable */ "./src/lib/Exportable.ts");
-class GroundCell extends BaseCell_1.BaseCell {
+class NormalCell extends BaseCell_1.BaseCell {
 }
-exports.GroundCell = GroundCell;
-Exportable_1.Exportable.Dependency(GroundCell);
-
-
-/***/ }),
-
-/***/ "./src/lib/Unit/Cell/LightCell.ts":
-/*!****************************************!*\
-  !*** ./src/lib/Unit/Cell/LightCell.ts ***!
-  \****************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const BaseCell_1 = __webpack_require__(/*! ./BaseCell */ "./src/lib/Unit/Cell/BaseCell.ts");
-const Exportable_1 = __webpack_require__(/*! ../../Exportable */ "./src/lib/Exportable.ts");
-class LightCell extends BaseCell_1.BaseCell {
-    /**
-     * @inheritDoc
-     */
-    InitPre(args = {}) {
-        super.InitPre(args);
-        this.light = args.light || 6;
-    }
-}
-exports.LightCell = LightCell;
-Exportable_1.Exportable.Dependency(LightCell);
-
-
-/***/ }),
-
-/***/ "./src/lib/Unit/Cell/StoneCell.ts":
-/*!****************************************!*\
-  !*** ./src/lib/Unit/Cell/StoneCell.ts ***!
-  \****************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const BaseCell_1 = __webpack_require__(/*! ./BaseCell */ "./src/lib/Unit/Cell/BaseCell.ts");
-const Exportable_1 = __webpack_require__(/*! ../../Exportable */ "./src/lib/Exportable.ts");
-class StoneCell extends BaseCell_1.BaseCell {
-    /**
-     * @inheritDoc
-     */
-    InitPre(args = {}) {
-        super.InitPre(args);
-        this.blocking = args.blocking || true;
-    }
-}
-exports.StoneCell = StoneCell;
-Exportable_1.Exportable.Dependency(StoneCell);
-
-
-/***/ }),
-
-/***/ "./src/lib/Unit/Cell/WaterCell.ts":
-/*!****************************************!*\
-  !*** ./src/lib/Unit/Cell/WaterCell.ts ***!
-  \****************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const BaseCell_1 = __webpack_require__(/*! ./BaseCell */ "./src/lib/Unit/Cell/BaseCell.ts");
-const LivingActor_1 = __webpack_require__(/*! ../Actor/LivingActor */ "./src/lib/Unit/Actor/LivingActor.ts");
-const Exportable_1 = __webpack_require__(/*! ../../Exportable */ "./src/lib/Exportable.ts");
-class WaterCell extends BaseCell_1.BaseCell {
-    /**
-     * @inheritDoc
-     */
-    MoveHere(actor) {
-        if (actor instanceof LivingActor_1.LivingActor) {
-            actor.Dispose();
-        }
-    }
-}
-exports.WaterCell = WaterCell;
-Exportable_1.Exportable.Dependency(WaterCell);
+exports.NormalCell = NormalCell;
+Exportable_1.Exportable.Dependency(NormalCell);
 
 
 /***/ }),
@@ -34797,13 +35087,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Vector_1 = __webpack_require__(/*! ../Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
 const Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 const World_1 = __webpack_require__(/*! ../World */ "./src/lib/World.ts");
 const Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
 const Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
 const Body_1 = __webpack_require__(/*! ../Physics/Body */ "./src/lib/Physics/Body.ts");
-const Polygon_1 = __webpack_require__(/*! ../Geometry/Polygon */ "./src/lib/Geometry/Polygon.ts");
 class Unit extends Exportable_1.Exportable {
     constructor() {
         super(...arguments);
@@ -34822,24 +35110,23 @@ class Unit extends Exportable_1.Exportable {
      * @param args
      */
     InitPre(args = {}) {
-        this.id = args.id || Tools_1.Tools.Unique();
-        this.world = args.world || World_1.World.Current;
-        this.parent = args.parent || (this.world && this.world.Origin);
-        this.size = args.size;
-        this.texture = args.texture;
-        this.angle = args.angle || 0;
-        this.blocking = args.blocking || false;
-        this.light = args.light || 0;
-        this.z = args.z || 0;
-        this.world && (this.tickEvent = this.world.OnTick.Add(dt => this.OnTick(dt)));
+        this.ignore = args.ignore === undefined ? this.ignore || false : args.ignore;
+        this.id = args.id === undefined ? this.id || Tools_1.Tools.Unique() : args.id;
+        this.world = args.world === undefined ? this.world || World_1.World.Current : args.world;
+        this.parent = args.parent === undefined ? this.parent || (this.world && this.world.Origin) : args.parent;
+        this.texture = args.texture === undefined ? this.texture : args.texture;
+        this.blocking = args.blocking === undefined ? this.blocking || false : args.blocking;
+        this.light = args.light === undefined ? this.light || 0 : args.light;
     }
     /**
      * For function setters.
      * @param args
      */
     InitPost(args = {}) {
-        this.SetPosition(args.position);
-        this.SetBody(args.body);
+        this.SetBody(args.body || this.body);
+        if (!this.ignore && this.world && !this.tickEvent) {
+            this.tickEvent = this.world.OnTick.Add(dt => this.OnTick(dt));
+        }
     }
     /**
      * Get the id of the unit.
@@ -34860,82 +35147,9 @@ class Unit extends Exportable_1.Exportable {
         return this.texture;
     }
     /**
-     * Get the radius of the unit.
-     */
-    GetRadius() {
-        if (!this.size) {
-            throw new Error("Get radius failed, no size!");
-        }
-        return Math.sqrt(Math.pow(this.size.X, 2) + Math.pow(this.size.Y, 2)) / 2;
-    }
-    GetSize() {
-        return this.size;
-    }
-    /**
-     * Get the position of the unit.
-     */
-    GetPosition() {
-        if (!this.position) {
-            throw new Error("Get position failed, no position!");
-        }
-        return this.position.Clone();
-    }
-    /**
-     * Set the position of the unit.
-     * @param position
-     */
-    SetPosition(position) {
-        if (position &&
-            this.position &&
-            this.position.Is(position) &&
-            position === this.position) {
-            return false;
-        }
-        this.position = position;
-        this.body && this.body.SetVirtual(null, null, position);
-        this.world && this.world.OnUpdate.Call(this);
-        return true;
-    }
-    /**
-     * Get the angle of the unit.
-     */
-    GetAngle() {
-        return this.angle;
-    }
-    /**
-     * Set the angle of the unit.
-     * @param angle Angle in deg
-     */
-    SetAngle(angle) {
-        if (typeof angle != "number") {
-            return false;
-        }
-        this.angle = angle;
-        this.body && this.body.SetVirtual(null, angle, null);
-        this.world && this.world.OnUpdate.Call(this);
-        return true;
-    }
-    BodyFactory() {
-        return new Body_1.Body([
-            new Polygon_1.Polygon([
-                new Vector_1.Vector(-0.5, 0.5),
-                new Vector_1.Vector(0.5, 0.5),
-                new Vector_1.Vector(0.5, -0.5),
-                new Vector_1.Vector(-0.5, -0.5)
-            ])
-        ]);
-    }
-    /**
      * Get the body of the unit.
      */
     GetBody() {
-        if (!this.size) {
-            return null;
-        }
-        // Default body
-        if (!this.body) {
-            this.SetBody(this.BodyFactory());
-        }
         return this.body;
     }
     /**
@@ -34948,17 +35162,18 @@ class Unit extends Exportable_1.Exportable {
             return;
         }
         this.body = body;
-        this.body.SetVirtual(Math.max(this.size.X, this.size.Y), this.angle, this.position);
-        this.body.OnChange = (scale, rotation, offset) => {
-            rotation && (this.angle = rotation);
-            offset && (this.position = offset);
+        this.body.Validate = (scale, rotation, offset) => {
+            if (!this.ignore && this.world) {
+                this.world.OnUpdate.Call(this);
+            }
+            return this.ValidateBody(scale, rotation, offset);
         };
+    }
+    ValidateBody(scale, rotation, offset) {
+        return true;
     }
     GetLight() {
         return this.light;
-    }
-    GetZ() {
-        return this.z;
     }
     IsBlocking() {
         return this.blocking;
@@ -34978,15 +35193,18 @@ class Unit extends Exportable_1.Exportable {
             return;
         }
         this.disposed = true;
-        this.world && this.world.OnTick.Remove(this.tickEvent);
-        Logger_1.Logger.Info(this, "Element was disposed!", this);
+        if (!this.ignore && this.world) {
+            this.world.OnTick.Remove(this.tickEvent);
+        }
+        Logger_1.Logger.Info(this, "Unit was disposed!", this);
     }
     /**
      * @inheritDoc
      */
     Import(input) {
-        this.Init();
+        this.InitPre();
         super.Import(input);
+        this.InitPost();
     }
     /**
      * Check if the unit collides with another.
@@ -34996,9 +35214,7 @@ class Unit extends Exportable_1.Exportable {
         if (unit == this || unit.GetId() == this.GetId()) {
             return null;
         }
-        const dist = this.GetPosition().Dist(unit.GetPosition());
-        // Optimize, if unit is too far away, skip deeper collision detection
-        if (dist > this.GetRadius() + unit.GetRadius()) {
+        if (!this.blocking || !unit.blocking) {
             return null;
         }
         return this.GetBody().Collide(unit.GetBody());
@@ -35016,10 +35232,18 @@ class Unit extends Exportable_1.Exportable {
         World_1.World.Current = current;
         return clone;
     }
+    /**
+     * Called by the map every tick
+     * @param dt The amount of time passed since the last tick
+     */
     OnTick(dt) {
         return;
     }
 }
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
+    __metadata("design:type", Boolean)
+], Unit.prototype, "ignore", void 0);
 __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.Hidden, (s, v) => s.Dispose(v)),
     __metadata("design:type", Boolean)
@@ -35033,21 +35257,9 @@ __decorate([
     __metadata("design:type", String)
 ], Unit.prototype, "parent", void 0);
 __decorate([
-    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
-    __metadata("design:type", Vector_1.Vector)
-], Unit.prototype, "size", void 0);
-__decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible, (s, v) => s.SetBody(v)),
     __metadata("design:type", Body_1.Body)
 ], Unit.prototype, "body", void 0);
-__decorate([
-    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible, (s, v) => s.SetPosition(v)),
-    __metadata("design:type", Vector_1.Vector)
-], Unit.prototype, "position", void 0);
-__decorate([
-    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible, (s, v) => s.SetAngle(v)),
-    __metadata("design:type", Number)
-], Unit.prototype, "angle", void 0);
 __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
     __metadata("design:type", String)
@@ -35060,11 +35272,129 @@ __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
     __metadata("design:type", Number)
 ], Unit.prototype, "light", void 0);
-__decorate([
-    Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
-    __metadata("design:type", Number)
-], Unit.prototype, "z", void 0);
 exports.Unit = Unit;
+
+
+/***/ }),
+
+/***/ "./src/lib/UnitList.ts":
+/*!*****************************!*\
+  !*** ./src/lib/UnitList.ts ***!
+  \*****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const Tools_1 = __webpack_require__(/*! ./Util/Tools */ "./src/lib/Util/Tools.ts");
+const Logger_1 = __webpack_require__(/*! ./Util/Logger */ "./src/lib/Util/Logger.ts");
+class UnitList {
+    /**
+     * Contstruct a new UnitList which wraps an unit array
+     * and adds some extra functions.
+     * @param units Array to wrap.
+     * @param updateEvent Called when there is an update (remove, set).
+     */
+    constructor(units, updateEvent) {
+        this.units = units;
+        this.updateEvent = updateEvent;
+    }
+    /**
+     * Get the length of the internal array.
+     */
+    GetLength() {
+        return this.units.length;
+    }
+    /**
+     * Go over the units of the array.
+     * @param callback
+     */
+    Some(callback) {
+        return this.units.some(callback);
+    }
+    /**
+     * Get unit by id.
+     * @param id
+     */
+    Get(id) {
+        return this.units.find(e => e && e.GetId() == id);
+    }
+    /**
+     * Get a unit(s) by vector.
+     * @param position
+     */
+    Find(position) {
+        return this.units.filter(e => e && e.GetBody().GetOffset().Is(position));
+    }
+    /**
+     * Get the nearest unit to the given coordinate.
+     * @param position
+     */
+    FindNearest(position) {
+        let result = null;
+        let min = Infinity;
+        this.units.forEach(e => {
+            const distance = e.GetBody().GetOffset().Dist(position);
+            if (distance < min) {
+                min = distance;
+                result = e;
+            }
+        });
+        return result;
+    }
+    /**
+     * Get units under a unit.
+     * @param unit
+     */
+    FindCollisions(unit) {
+        return this.units.filter(e => e.Collide(unit));
+    }
+    /**
+     * Add a new unit or overwrite an existing one (by id).
+     * @param unit
+     */
+    Set(unit) {
+        if (unit.IsDisposed()) {
+            this.Remove(unit);
+            return;
+        }
+        const old = this.Get(unit.GetId());
+        if (old) {
+            Tools_1.Tools.Extract(old, unit);
+            Logger_1.Logger.Info(this, "Unit was moded!", unit);
+        }
+        else {
+            this.units.push(unit);
+            Logger_1.Logger.Info(this, "Unit was added!", unit);
+        }
+        this.updateEvent.Call(unit);
+    }
+    /**
+     * Remove an unit from the list.
+     * @param unit
+     */
+    Remove(unit) {
+        const index = this.units.indexOf(unit);
+        if (index < 0) {
+            return false;
+        }
+        this.units.splice(index, 1);
+        if (!unit.IsDisposed()) {
+            unit.Dispose();
+        }
+        Logger_1.Logger.Info(this, "Unit was removed!", unit);
+        this.updateEvent.Call(unit);
+        return true;
+    }
+    /**
+     * Get the internal array.
+     */
+    GetArray() {
+        return this.units;
+    }
+}
+exports.UnitList = UnitList;
 
 
 /***/ }),
@@ -35141,13 +35471,14 @@ class Http {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise(resolve => {
                 let request = new XMLHttpRequest();
+                request.responseType = "arraybuffer";
                 request.open(method, url, true);
                 request.onreadystatechange = () => {
                     if (request.readyState != 4) {
                         return;
                     }
                     if (request.status == 200) {
-                        resolve(request.responseText);
+                        resolve(request.response);
                     }
                     else {
                         resolve(null);
@@ -35244,6 +35575,14 @@ var LogType;
     LogType[LogType["Warn"] = 1] = "Warn";
     LogType[LogType["Info"] = 2] = "Info";
 })(LogType = exports.LogType || (exports.LogType = {}));
+function StringLogType(type) {
+    switch (type) {
+        case LogType.Warn:
+            return "WARN";
+        case LogType.Info:
+            return "INFO";
+    }
+}
 class Logger {
     /**
      * Log a message.
@@ -35252,9 +35591,12 @@ class Logger {
      * @param args
      */
     static Log(self, type, ...args) {
-        const name = self.constructor.name;
+        if (typeof self == "string") {
+            return this.Log(null, type, self, args);
+        }
+        const name = self ? self.constructor.name : "";
         if (this.Type >= type && (!this.Filter || this.Filter === name)) {
-            console.log(`(${type}) [${name}] `, ...args);
+            console.log(`${type && StringLogType(type)} ${name && `[${name}] `}`, ...args);
         }
     }
     /**
@@ -35300,6 +35642,125 @@ class Ref {
     }
 }
 exports.Ref = Ref;
+
+
+/***/ }),
+
+/***/ "./src/lib/Util/ResourceManager.ts":
+/*!*****************************************!*\
+  !*** ./src/lib/Util/ResourceManager.ts ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const Tools_1 = __webpack_require__(/*! ./Tools */ "./src/lib/Util/Tools.ts");
+const MIME_TYPE = "application/robosave";
+// Use IndexedDB to store between sessions
+class ResourceManager {
+    /**
+     * Find the file by its hash
+     * @param hash
+     */
+    static ByHash(hash) {
+        return this.storage.find(r => r.Hash === hash);
+    }
+    /**
+     * Find the file by its ID
+     * @param uri
+     */
+    static ByUri(uri) {
+        return this.storage.find(r => r.Uri === uri);
+    }
+    /**
+     * Add file to the storage.
+     * @param uri ID of the file
+     * @param buffer
+     */
+    static Add(uri, buffer) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const existing = this.ByUri(uri) !== undefined;
+            if (existing) {
+                return null;
+            }
+            const hash = yield Tools_1.Tools.Sha256(buffer);
+            const resource = {
+                Hash: hash,
+                Buffer: buffer,
+                Uri: uri
+            };
+            this.storage.push(resource);
+            return resource;
+        });
+    }
+    /**
+     * Save the storage of the resource manager into a RoboLand resource buffer.
+     * @param buffer
+     */
+    static Save() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const meta = {
+                Items: this.storage.map(r => ({
+                    Uri: r.Uri,
+                    Length: r.Buffer.byteLength,
+                    Hash: r.Hash
+                }))
+            };
+            const head = JSON.stringify(meta);
+            const slices = [Tools_1.Tools.StringToBuffer(head), ...this.storage.map(r => r.Buffer)];
+            const temp = new Blob(slices);
+            const merged = yield new Response(temp).arrayBuffer();
+            return new Blob([Tools_1.Tools.ZLibDeflate(merged)], { type: MIME_TYPE });
+        });
+    }
+    /**
+     * Load a RoboLand resource buffer into the memory.
+     * @param buffer
+     */
+    static Load(buffer) {
+        const uncompressed = Tools_1.Tools.ZLibInflate(buffer);
+        const stringView = new Uint16Array(uncompressed.slice(0, uncompressed.byteLength * 2));
+        let endOfMeta = 0;
+        let scope = 0;
+        for (let i = 0; i < stringView.length; i++) {
+            if (stringView[i] === "{".charCodeAt(0)) {
+                scope++;
+            }
+            else if (stringView[i] === "}".charCodeAt(0)) {
+                scope--;
+                if (scope === 0) {
+                    endOfMeta = i + 1;
+                    break;
+                }
+            }
+        }
+        const rawMeta = uncompressed.slice(0, endOfMeta * 2);
+        const meta = JSON.parse(Tools_1.Tools.BufferToString(rawMeta));
+        let current = endOfMeta * 2;
+        for (let resource of meta.Items) {
+            const length = resource.Length;
+            const subBuffer = uncompressed.slice(current, current + length);
+            this.storage.push({
+                Buffer: subBuffer,
+                Uri: resource.Uri,
+                Hash: resource.Hash
+            });
+            current += length;
+        }
+    }
+}
+ResourceManager.storage = [];
+exports.ResourceManager = ResourceManager;
 
 
 /***/ }),
@@ -35654,7 +36115,35 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const pako = __webpack_require__(/*! pako */ "./node_modules/pako/index.js");
 class Tools {
+    /**
+     * Generate hash from a buffer.
+     * @param data
+     */
+    static Sha256(data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const hashBuffer = yield crypto.subtle.digest("SHA-256", data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+        });
+    }
+    /**
+     * Decompress data with ZLib.
+     * @param data
+     */
+    static ZLibInflate(data) {
+        const array = pako.inflate(data);
+        return array.buffer;
+    }
+    /**
+     * Compress data with ZLib.
+     * @param data
+     */
+    static ZLibDeflate(data) {
+        const array = pako.deflate(data);
+        return array.buffer;
+    }
     /**
      * Returns a random integer between min (included) and max (included).
      * @param min
@@ -35776,8 +36265,19 @@ class Tools {
     /**
      * A noop function.
      */
-    static Noop() {
-        return;
+    static Noop(...args) {
+        return true;
+    }
+    static BufferToString(buffer) {
+        return String.fromCharCode.apply(null, new Uint16Array(buffer));
+    }
+    static StringToBuffer(string) {
+        let buffer = new ArrayBuffer(string.length * 2); // 2 bytes for each char
+        let stringView = new Uint16Array(buffer);
+        for (let i = 0; i < string.length; i++) {
+            stringView[i] = string.charCodeAt(i);
+        }
+        return buffer;
     }
 }
 exports.Tools = Tools;
@@ -35805,16 +36305,22 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Vector_1 = __webpack_require__(/*! ./Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
+const BaseActor_1 = __webpack_require__(/*! ./Unit/Actor/BaseActor */ "./src/lib/Unit/Actor/BaseActor.ts");
 const Tools_1 = __webpack_require__(/*! ./Util/Tools */ "./src/lib/Util/Tools.ts");
-const ElementList_1 = __webpack_require__(/*! ./ElementList */ "./src/lib/ElementList.ts");
+const BaseCell_1 = __webpack_require__(/*! ./Unit/Cell/BaseCell */ "./src/lib/Unit/Cell/BaseCell.ts");
+const UnitList_1 = __webpack_require__(/*! ./UnitList */ "./src/lib/UnitList.ts");
 const Exportable_1 = __webpack_require__(/*! ./Exportable */ "./src/lib/Exportable.ts");
 const Event_1 = __webpack_require__(/*! ./Util/Event */ "./src/lib/Util/Event.ts");
 const Body_1 = __webpack_require__(/*! ./Physics/Body */ "./src/lib/Physics/Body.ts");
+const NormalCell_1 = __webpack_require__(/*! ./Unit/Cell/NormalCell */ "./src/lib/Unit/Cell/NormalCell.ts");
+const Polygon_1 = __webpack_require__(/*! ./Geometry/Polygon */ "./src/lib/Geometry/Polygon.ts");
 const COLLISION_ITERATIONS = 50;
+const SHADOW_DOT_PER_POINT = 10;
+const SHADOW_STEP = 1 / 4;
+const SHADOW_STEP_R = 1;
 class World extends Exportable_1.Exportable {
     constructor() {
         super(...arguments);
-        this.gravity = new Vector_1.Vector(0, 10.0);
         this.cells = [];
         this.actors = [];
         this.size = new Vector_1.Vector();
@@ -35839,71 +36345,187 @@ class World extends Exportable_1.Exportable {
         this.size = size.Clone();
         this.cells = [];
         this.actors = [];
-        this.OnTick.Add(dt => {
-            const contacts = [];
-            const units = this.GetUnits();
-            for (let i = 0; i < units.GetLength(); i++) {
-                const a = units.GetList()[i];
-                for (let j = i + 1; j < units.GetLength(); j++) {
-                    const b = units.GetList()[j];
-                    const collision = a.IsBlocking() && b.IsBlocking() && a.Collide(b);
-                    if (collision && collision.Points.length) {
-                        contacts.push(collision);
-                    }
-                }
-            }
-            // Integrate forces
-            units.ForEach(unit => unit.GetBody().IntegrateForces(dt));
-            // Solve collisions
-            for (let i = 0; i < COLLISION_ITERATIONS; i++) {
-                for (let contact of contacts) {
-                    Body_1.Body.ResolveCollision(contact, dt);
-                }
-            }
-            // Integrate velocities
-            units.ForEach(unit => unit.GetBody().IntegrateVelocity(dt));
-            // Correct positions
-            for (let contact of contacts) {
-                Body_1.Body.PositionalCorrection(contact, dt);
-            }
-            // Clear all forces
-            units.ForEach(unit => unit.GetBody().ClearForces());
-        });
+        // Generate a shadow map without tracing
+        this.GenerateShadowMap();
+        this.OnTick.Add(dt => this.Step(dt));
     }
-    /**
-     * Get the size of the world.
-     */
+    Add(unit) {
+        if (unit instanceof BaseCell_1.BaseCell) {
+            this.GetCells().Set(unit);
+            unit.world = this;
+            // Trace each unit when it is added
+            this.GenerateShadow(unit);
+        }
+        else if (unit instanceof BaseActor_1.BaseActor) {
+            this.GetActors().Set(unit);
+            unit.world = this;
+        }
+        else {
+            throw new Error("Bad object type for unit");
+        }
+    }
+    Step(dt) {
+        const contacts = [];
+        const units = this.GetUnits();
+        // Look for collisions
+        for (let i = 0; i < units.GetLength(); i++) {
+            const a = units.GetArray()[i];
+            for (let j = i + 1; j < units.GetLength(); j++) {
+                const b = units.GetArray()[j];
+                const collision = a.Collide(b);
+                if (collision && collision.Points.length) {
+                    contacts.push(collision);
+                }
+            }
+        }
+        // Integrate forces
+        units.Some(unit => unit.GetBody().IntegrateForces(dt));
+        // Solve collisions
+        for (let contact of contacts) {
+            Body_1.Body.ResolveCollision(contact, dt * COLLISION_ITERATIONS);
+        }
+        // Integrate velocities
+        units.Some(unit => unit.GetBody().IntegrateVelocity(dt));
+        // Correct positions
+        for (let contact of contacts) {
+            Body_1.Body.PositionalCorrection(contact, dt);
+        }
+        // Clear all forces
+        units.Some(unit => unit.GetBody().ClearForces());
+    }
     GetSize() {
         return this.size.Clone();
     }
     /**
-     * Get all elements of the world.
+     * Get all units of the world.
      */
     GetUnits() {
         const all = this.cells.concat(this.actors);
-        return new ElementList_1.ElementList(all, this.OnUpdate);
+        return new UnitList_1.UnitList(all, this.OnUpdate);
     }
     /**
      * Get the cells of the world.
      */
     GetCells() {
-        return new ElementList_1.ElementList(this.cells, this.OnUpdate);
+        return new UnitList_1.UnitList(this.cells, this.OnUpdate);
     }
     /**
      * Get the actors of the world.
      */
     GetActors() {
-        return new ElementList_1.ElementList(this.actors, this.OnUpdate);
+        return new UnitList_1.UnitList(this.actors, this.OnUpdate);
     }
     /**
      * @inheritDoc
      */
     Import(input) {
         World.Current = this;
-        return super.Import(input);
+        super.Import(input);
+        // Use generated shadow map if available
+        if (!this.shadowMap) {
+            this.GenerateShadowMap();
+        }
     }
-    GetGravity() {
-        return this.gravity;
+    /**
+     * @inheritDoc
+     */
+    Export(access) {
+        // Always generate new shadow map
+        this.GenerateShadowMap();
+        return super.Export(access);
+    }
+    /**
+     * Generate shadow map for the whole world.
+     */
+    GenerateShadowMap() {
+        const dpp = SHADOW_DOT_PER_POINT;
+        const size = this.GetSize();
+        const w = dpp * size.X;
+        const h = dpp * size.Y;
+        this.shadowMap = new Array(w * h).fill(1);
+        this.GetCells().Some(unit => this.GenerateShadow(unit));
+    }
+    /**
+     * Generate shadow for a unit by tracing light.
+     * @param unit Unit to trace from.
+     * @param stepD Step size to go in the direction of the unit.
+     * @param stepR Step size to go around the unit.
+     * @param set Shadow value for a position.
+     */
+    GenerateShadow(unit) {
+        if (!unit.GetLight()) {
+            return;
+        }
+        const dpp = SHADOW_DOT_PER_POINT;
+        const size = this.GetSize();
+        const w = dpp * size.X;
+        const h = dpp * size.Y;
+        const testBody = new Body_1.Body([Polygon_1.Polygon.CreateBox(SHADOW_STEP)]);
+        for (let r = 0; r < 2 * Math.PI; r += SHADOW_STEP_R * (Math.PI / 180)) {
+            const origin = unit.GetBody().GetOffset();
+            const step = Vector_1.Vector.ByRad(r).Scale(SHADOW_STEP);
+            for (let point = origin; point.Dist(origin) < unit.GetLight(); point = point.Add(step)) {
+                const cx = Math.floor(point.X * dpp);
+                const cy = Math.floor(point.Y * dpp);
+                if (cx >= w || cy >= h || cx < 0 || cy < 0) {
+                    break;
+                }
+                testBody.SetVirtual(new Vector_1.Vector(1, 1), 0, point);
+                let collision = false;
+                for (const u of this.GetCells().GetArray()) {
+                    if (u.GetId() == unit.GetId()) {
+                        continue;
+                    }
+                    // If the light ray hits a blocking cell, break the loop
+                    if (u.IsBlocking() && testBody.Collide(u.GetBody())) {
+                        collision = true;
+                        break;
+                    }
+                }
+                if (collision) {
+                    break;
+                }
+                for (let y = cy - dpp / 2; y < cy + dpp / 2; ++y) {
+                    for (let x = cx - dpp / 2; x < cx + dpp / 2; ++x) {
+                        if (x >= w || y >= h || x < 0 || y < 0) {
+                            continue;
+                        }
+                        const p = new Vector_1.Vector(x / dpp, y / dpp);
+                        const s = p.Dist(origin) / unit.GetLight();
+                        if (s >= 0 && s <= 1) {
+                            const previous = this.shadowMap[x + y * w];
+                            // Final value is the most bright (most min) value
+                            this.shadowMap[x + y * w] = Math.min(s, previous);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    GetShadow(x, y, w, h) {
+        if (!this.shadowMap) {
+            return 0;
+        }
+        const dpp = SHADOW_DOT_PER_POINT;
+        const size = this.GetSize();
+        const sw = dpp * size.X;
+        const sh = dpp * size.Y;
+        return this.shadowMap[Math.floor((x / w) * sw) + Math.floor((y / h) * sh) * sw];
+    }
+    static CreateBox(size) {
+        const world = new World;
+        world.Init(new Vector_1.Vector(size, size));
+        // Init world with size * size number of GroundCells
+        for (let i = 0; i < size * size; i++) {
+            const cell = new NormalCell_1.NormalCell();
+            cell.Init({
+                light: 1,
+                world: world,
+                body: Body_1.Body.CreateBoxBody(new Vector_1.Vector(1, 1), 0, new Vector_1.Vector(i % size, (i - (i % size)) / size))
+            });
+            world.Add(cell);
+        }
+        return world;
     }
 }
 World.Current = null;
@@ -35919,6 +36541,10 @@ __decorate([
     Exportable_1.Exportable.Register(Exportable_1.ExportType.Visible),
     __metadata("design:type", Vector_1.Vector)
 ], World.prototype, "size", void 0);
+__decorate([
+    Exportable_1.Exportable.Register(Exportable_1.ExportType.Hidden),
+    __metadata("design:type", Array)
+], World.prototype, "shadowMap", void 0);
 exports.World = World;
 Exportable_1.Exportable.Dependency(World);
 

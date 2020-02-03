@@ -10,10 +10,8 @@ import { Tools } from "./lib/Util/Tools";
 import { BaseActor } from "./lib/Unit/Actor/BaseActor";
 import { BaseCell } from "./lib/Unit/Cell/BaseCell";
 import { IDump } from "./lib/IDump";
-import { WaterCell } from "./lib/Unit/Cell/WaterCell";
-import { StoneCell } from "./lib/Unit/Cell/StoneCell";
-import { GroundCell } from "./lib/Unit/Cell/GroundCell";
-import { FireCell } from "./lib/Unit/Cell/FireCell";
+import { NormalCell } from "./lib/Unit/Cell/NormalCell";
+import { DamageCell } from "./lib/Unit/Cell/DamageCell";
 import { PlayerActor } from "./lib/Unit/Actor/PlayerActor";
 import { ArrowActor } from "./lib/Unit/Actor/ArrowActor";
 import { Body } from "./lib/Physics/Body";
@@ -71,10 +69,8 @@ export class Editor extends Shared<EditorProps, EditorState>
 
         this.RegisterElement(ArrowActor);
         this.RegisterElement(PlayerActor);
-        this.RegisterElement(FireCell);
-        this.RegisterElement(GroundCell);
-        this.RegisterElement(StoneCell);
-        this.RegisterElement(WaterCell);
+        this.RegisterElement(DamageCell);
+        this.RegisterElement(NormalCell);
     }
 
     private static CanvasP(canvas: HTMLCanvasElement, event: MouseEvent): Array<number>

@@ -223,7 +223,7 @@ export class Client extends MessageHandler
      */
     private ReceiveKick(): void
     {
-        Logger.Warn("Kicked from the server!");
+        Logger.Warn(this, "Kicked from the server!");
         this.channel.Close();
     }
 

@@ -3,7 +3,7 @@ import { BaseCell } from "./BaseCell";
 import { PlayerActor } from "../Actor/PlayerActor";
 import { Exportable } from "../../Exportable";
 
-export class WaterCell extends BaseCell
+export class KillCell extends BaseCell
 {
     /**
      * @inheritDoc
@@ -17,4 +17,4 @@ export class WaterCell extends BaseCell
     }
 }
 
-Exportable.Dependency(WaterCell);
+Exportable.Dependency(KillCell);

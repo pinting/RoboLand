@@ -26,8 +26,13 @@ export class Logger
      * @param type 
      * @param args 
      */
-    public static Log(self: Object, type: LogType, ...args: any[])
+    public static Log(self: Object, type: LogType, ...args: any[]): void
     {
+        if(typeof self == "string")
+        {
+            return this.Log(null, type, self, args);
+        }
+
         const name = self ? self.constructor.name : "";
 
         if(this.Type >= type && (!this.Filter || this.Filter === name))
@@ -41,7 +46,7 @@ export class Logger
      * @param self
      * @param args 
      */
-    public static Info(self: Object, ...args: any[])
+    public static Info(self: Object, ...args: any[]): void
     {
         this.Log(self, LogType.Info, ...args);
     }
@@ -51,7 +56,7 @@ export class Logger
      * @param self
      * @param args 
      */
-    public static Warn(self: Object, ...args: any[])
+    public static Warn(self: Object, ...args: any[]): void
     {
         this.Log(self, LogType.Warn, ...args);
     }

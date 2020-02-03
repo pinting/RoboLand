@@ -5,11 +5,11 @@ import { Exportable, ExportType } from "../Exportable";
 import { IDump } from "../IDump";
 import { Logger } from "../Util/Logger";
 import { Body } from "../Physics/Body";
-import { Polygon } from "../Geometry/Polygon";
 import { ICollision } from "../Physics/ICollision";
 
 export interface UnitArgs
 {
+    ignore?: boolean;
     id?: string;
     texture?: string;
     parent?: string;
@@ -25,7 +25,7 @@ export abstract class Unit extends Exportable
     protected tickEvent: number;
     
     @Exportable.Register(ExportType.Visible)
-    protected template: string;
+    protected ignore: boolean;
 
     @Exportable.Register(ExportType.Hidden, (s, v) => s.Dispose(v))
     protected disposed: boolean = false;
@@ -64,12 +64,13 @@ export abstract class Unit extends Exportable
      */
     protected InitPre(args: UnitArgs = {})
     {
-        this.id = args.id || Tools.Unique();
-        this.world = args.world || World.Current;
-        this.parent = args.parent || (this.world && this.world.Origin);
-        this.texture = args.texture;
-        this.blocking = args.blocking || false;
-        this.light = args.light || 0;
+        this.ignore = args.ignore === undefined ? this.ignore || false : args.ignore;
+        this.id = args.id === undefined ? this.id || Tools.Unique() : args.id;
+        this.world = args.world === undefined ? this.world || World.Current : args.world;
+        this.parent = args.parent === undefined ? this.parent || (this.world && this.world.Origin) : args.parent;
+        this.texture = args.texture === undefined ? this.texture : args.texture;
+        this.blocking = args.blocking === undefined ?  this.blocking || false : args.blocking;
+        this.light = args.light === undefined ? this.light || 0 : args.light;
     }
 
     /**
@@ -78,9 +79,12 @@ export abstract class Unit extends Exportable
      */
     protected InitPost(args: UnitArgs = {})
     {
-        this.SetBody(args.body);
+        this.SetBody(args.body || this.body);
         
-        this.world && (this.tickEvent = this.world.OnTick.Add(dt => this.OnTick(dt)));
+        if(!this.ignore && this.world && !this.tickEvent)
+        {
+            this.tickEvent = this.world.OnTick.Add(dt => this.OnTick(dt));
+        }
     }
 
     /**
@@ -130,7 +134,10 @@ export abstract class Unit extends Exportable
         this.body = body;
         this.body.Validate = (scale, rotation, offset) => 
         {
-            this.world.OnUpdate.Call(this);
+            if(!this.ignore && this.world)
+            {
+                this.world.OnUpdate.Call(this);
+            }
 
             return this.ValidateBody(scale, rotation, offset);
         }
@@ -172,7 +179,10 @@ export abstract class Unit extends Exportable
 
         this.disposed = true;
 
-        this.world && this.world.OnTick.Remove(this.tickEvent);
+        if(!this.ignore && this.world)
+        {
+            this.world.OnTick.Remove(this.tickEvent);
+        }
 
         Logger.Info(this, "Unit was disposed!", this);
     }

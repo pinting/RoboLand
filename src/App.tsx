@@ -4,7 +4,6 @@ import { Helper } from "./Helper";
 import { Debug } from "./Debug";
 import { Editor } from "./Editor";
 import { Constants } from "./Constants";
-import { Test } from "./Test";
 
 export class App extends React.Component
 {
@@ -27,8 +26,6 @@ export class App extends React.Component
                 return <Editor />;
             case Debug.Name:
                 return <Debug />;
-            case Test.Name:
-                return <Test />;
             case Game.Name:
             default:
                 return <Game />;

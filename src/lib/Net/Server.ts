@@ -5,11 +5,13 @@ import { Exportable } from "../Exportable";
 import { IDump } from "../IDump";
 import { Vector } from "../Geometry/Vector";
 import { Tools } from "../Util/Tools";
-import { GroundCell } from "../Unit/Cell/GroundCell";
+import { NormalCell } from "../Unit/Cell/NormalCell";
 import { BaseCell } from "../Unit/Cell/BaseCell";
 import { BaseActor } from "../Unit/Actor/BaseActor";
 import { Body } from "../Physics/Body";
 import { Unit } from "../Unit/Unit";
+import { ArrowActor } from "../Unit/Actor/ArrowActor";
+import { Logger } from "../Util/Logger";
 
 export class Server
 {
@@ -28,7 +30,7 @@ export class Server
         this.world = world;
 
         this.spawns = this.world.GetCells().GetArray()
-            .filter(c => c instanceof GroundCell)
+            .filter(c => c instanceof NormalCell)
             .sort((a, b) => Tools.Random(-100, 100))
             .map(c => c.GetBody());
         
@@ -63,9 +65,10 @@ export class Server
                 .filter(host => player.GetParent() != host.GetPlayer().GetParent())
                 .forEach(host => host.SendCommand(args));
         }
-        catch {
+        catch(e) {
             // Kick if we receive an exception
             host.SendKick();
+            Logger.Warn(this, e);
         }
     }
 
@@ -115,6 +118,13 @@ export class Server
                 0, 
                 spawn.GetOffset(), 
                 { z: spawn.GetZ() });
+            
+            const arrow = new ArrowActor();
+
+            arrow.Init({
+                ignore: true,
+                body: Body.CreateBoxBody(new Vector(0.1, 0.1), 0, new Vector(0, 0))
+            });
 
             player.Init({
                 id: playerTag,
@@ -122,10 +132,10 @@ export class Server
                 body: body,
                 texture: "res/player.png",
                 speed: 1500,
-                damage: 0.1,
                 health: 1,
                 rotSpeed: 200,
-                light: 6
+                light: 6,
+                arrow: arrow
             });
 
             break;

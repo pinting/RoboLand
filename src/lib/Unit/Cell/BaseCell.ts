@@ -26,8 +26,8 @@ export abstract class BaseCell extends Unit
     {
         super.InitPre(args);
         
-        this.cf = args.cf || 0.10;
-        this.gravity = args.gravity || new Vector(0, 0);
+        this.cf = args.cf === undefined ? this.cf || 0.10 : args.cf;
+        this.gravity = args.gravity === undefined ? this.gravity || new Vector(0, 0) : args.gravity;
     }
 
     /**
@@ -49,7 +49,10 @@ export abstract class BaseCell extends Unit
         body.SetCellFriction(this.cf);
         body.SetGravity(this.gravity);
 
-        this.world.OnUpdate.Call(this);
+        if(!this.ignore && this.world)
+        {
+            this.world.OnUpdate.Call(this);
+        }
     }
 
     /**
@@ -63,7 +66,11 @@ export abstract class BaseCell extends Unit
         if(index >= 0) 
         {
             this.actors.splice(index, 1);
-            this.world.OnUpdate.Call(this);
+                
+            if(!this.ignore && this.world)
+            {
+                this.world.OnUpdate.Call(this);
+            }
         }
     }
 
@@ -76,8 +83,11 @@ export abstract class BaseCell extends Unit
         {
             return;
         }
-
-        this.world && this.world.GetCells().Remove(this);
+        
+        if(!this.ignore && this.world)
+        {
+            this.world.GetCells().Remove(this);
+        }
 
         super.Dispose();
     }

@@ -16,12 +16,18 @@ export abstract class BaseActor extends Unit
     {
         super.InitPre(args);
         
-        this.blocking = typeof args.blocking === "boolean" ? args.blocking : true;
+        this.blocking = args.blocking === undefined ? this.blocking || true : args.blocking;
     }
 
+    /**
+     * Validate a positional change of the body.
+     * @param scale 
+     * @param rotation 
+     * @param offset 
+     */
     protected ValidateBody(scale: Vector, rotation: number, offset: Vector): boolean
     {
-        if(!this.world)
+        if(this.ignore || !this.world)
         {
             return true;
         }
@@ -63,7 +69,10 @@ export abstract class BaseActor extends Unit
             return;
         }
 
-        this.world && this.world.GetActors().Remove(this);
+        if(!this.ignore && this.world)
+        {
+            this.world.GetActors().Remove(this);
+        }
 
         super.Dispose();
     }
