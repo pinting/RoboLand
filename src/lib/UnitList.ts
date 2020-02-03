@@ -1,11 +1,11 @@
 import { Vector } from "./Geometry/Vector";
 import { Unit } from "./Unit/Unit";
-import { IReadOnlyElementList } from "./IReadOnlyElementList";
+import { IReadOnlyUnitList } from "./IReadOnlyUnitList";
 import { Tools } from "./Util/Tools";
 import { Event } from "./Util/Event";
 import { Logger } from "./Util/Logger";
 
-export class UnitList<U extends Unit> implements IReadOnlyElementList<U>
+export class UnitList<U extends Unit> implements IReadOnlyUnitList<U>
 {
     private units: U[];
     private updateEvent: Event<U>;
@@ -13,12 +13,12 @@ export class UnitList<U extends Unit> implements IReadOnlyElementList<U>
     /**
      * Contstruct a new UnitList which wraps an unit array
      * and adds some extra functions.
-     * @param elements Array to wrap.
+     * @param units Array to wrap.
      * @param updateEvent Called when there is an update (remove, set).
      */
-    public constructor(elements: U[], updateEvent: Event<U>)
+    public constructor(units: U[], updateEvent: Event<U>)
     {
-        this.units = elements;
+        this.units = units;
         this.updateEvent = updateEvent;
     }
 
@@ -31,10 +31,10 @@ export class UnitList<U extends Unit> implements IReadOnlyElementList<U>
     }
 
     /**
-     * Go over the elements of the array.
+     * Go over the units of the array.
      * @param callback 
      */
-    public Some(callback: (Element) => boolean | void)
+    public Some(callback: (Unit: U) => boolean | void)
     {
         return this.units.some(<any>callback);
     }
@@ -81,7 +81,7 @@ export class UnitList<U extends Unit> implements IReadOnlyElementList<U>
     }
 
     /**
-     * Get elements under a unit.
+     * Get units under a unit.
      * @param unit
      */
     public FindCollisions(unit: Unit): U[]

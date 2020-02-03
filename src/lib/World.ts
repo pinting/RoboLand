@@ -4,7 +4,7 @@ import { Tools } from "./Util/Tools";
 import { BaseCell } from "./Unit/Cell/BaseCell";
 import { Unit } from "./Unit/Unit";
 import { UnitList } from "./UnitList";
-import { IReadOnlyElementList } from "./IReadOnlyElementList";
+import { IReadOnlyUnitList } from "./IReadOnlyUnitList";
 import { Exportable, ExportType } from "./Exportable";
 import { Event } from "./Util/Event";
 import { IDump } from "./IDump";
@@ -75,7 +75,7 @@ export class World extends Exportable
             
             (unit as any).world = this;
 
-            // Trace each element when it is added
+            // Trace each unit when it is added
             this.GenerateShadow(unit);
         }
         else if(unit instanceof BaseActor)
@@ -140,9 +140,9 @@ export class World extends Exportable
     }
 
     /**
-     * Get all elements of the world.
+     * Get all units of the world.
      */
-    public GetUnits(): IReadOnlyElementList<Unit>
+    public GetUnits(): IReadOnlyUnitList<Unit>
     {
         const all = (<Unit[]>this.cells).concat(<Unit[]>this.actors);
         

@@ -50,8 +50,8 @@ export class Client extends MessageHandler
 
         switch(message.Type)
         {
-            case MessageType.Element:
-                this.ReceiveElement(message.Payload);
+            case MessageType.Unit:
+                this.ReceiveUnit(message.Payload);
                 break;
             case MessageType.Diff:
                 this.ReceiveDiff(message.Payload);
@@ -78,13 +78,13 @@ export class Client extends MessageHandler
      * Receive an unit.
      * @param dump
      */
-    private async ReceiveElement(dump: IDump): Promise<void>
+    private async ReceiveUnit(dump: IDump): Promise<void>
     {   
         World.Current = this.world;
 
         const unit: Unit = Exportable.Import(dump);
 
-        Logger.Info(this, "Element was received!", unit, dump);
+        Logger.Info(this, "Unit was received!", unit, dump);
 
         // Add unit to the world
         this.world.Add(unit);
@@ -112,11 +112,11 @@ export class Client extends MessageHandler
         }
 
         // Check if we already have it
-        const oldElement = this.world.GetUnits().Get(id);
+        const oldUnit = this.world.GetUnits().Get(id);
 
         // Return if we do not have an older version,
         // because we cannot receive a diff without a base
-        if(!oldElement)
+        if(!oldUnit)
         {
             Logger.Warn(this, "Received diff, but no base unit!");
             return;
@@ -125,23 +125,23 @@ export class Client extends MessageHandler
         World.Current = this.world;
 
         // If we have an older version, merge it
-        const merged = Exportable.Export(oldElement);
+        const merged = Exportable.Export(oldUnit);
 
         Exportable.Merge(merged, diff);
 
-        let newElement: Unit;
+        let newUnit: Unit;
 
         try 
         {
-            newElement = Exportable.Import(merged);
+            newUnit = Exportable.Import(merged);
         }
         catch
         {
             return;
         }
 
-        const newBody = newElement.GetBody();
-        const oldBody = oldElement.GetBody();
+        const newBody = newUnit.GetBody();
+        const oldBody = oldUnit.GetBody();
 
         // If the position or the rotation difference is under a limit, skip updating
         if(Exportable.IsMovementDiff(diff) && oldBody.GetOffset())
@@ -151,12 +151,12 @@ export class Client extends MessageHandler
 
             if(posDiff < MAX_POS_DIFF && rotDiff < MAX_ROT_DIFF)
             {
-                Logger.Info(this, "Element was optimized out", newElement);
+                Logger.Info(this, "Unit was optimized out", newUnit);
                 return;
             }
         }
 
-        return this.ReceiveElement(merged);
+        return this.ReceiveUnit(merged);
     }
 
     /**

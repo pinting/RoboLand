@@ -58,7 +58,7 @@ export class Host extends MessageHandler
     }
 
     /**
-     * Init world. Also deletes previously setted elements.
+     * Init world. Also deletes previously setted units.
      * @param size 
      */
     public async SendSize(size: Vector): Promise<void>
@@ -70,7 +70,7 @@ export class Host extends MessageHandler
      * Set an unit (a cell or an actor).
      * @param unit 
      */
-    public async SendElement(unit: Unit): Promise<void>
+    public async SendUnit(unit: Unit): Promise<void>
     {
         const dump = Exportable.Export(unit);
         const id = unit.GetId();
@@ -85,7 +85,7 @@ export class Host extends MessageHandler
 
         if(diff && this.lastTime[id] + SLEEP_TIME >= now && Exportable.IsMovementDiff(diff))
         {
-            Logger.Info(this, "Element was optimized out", unit);
+            Logger.Info(this, "Unit was optimized out", unit);
             return;
         }
 
@@ -104,12 +104,12 @@ export class Host extends MessageHandler
             return this.SendMessage(MessageType.Diff, diff);
         }
 
-        return this.SendMessage(MessageType.Element, dump);
+        return this.SendMessage(MessageType.Unit, dump);
     }
 
     /**
      * Set the active player actor for the client (the actor needs to be 
-     * already sent via SetElement).
+     * already sent via SetUnit).
      * @param player 
      */
     public async SendPlayer(player: PlayerActor): Promise<void>

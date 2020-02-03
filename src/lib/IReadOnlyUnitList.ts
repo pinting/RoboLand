@@ -1,6 +1,6 @@
 import { Vector } from "./Geometry/Vector";
 
-export interface IReadOnlyElementList<U>
+export interface IReadOnlyUnitList<U>
 {
     GetLength(): number;
     Some(callback: (e: U) => boolean | void): void;

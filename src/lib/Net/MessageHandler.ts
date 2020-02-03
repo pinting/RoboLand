@@ -51,7 +51,7 @@ export abstract class MessageHandler
 
                 this.SendReceived(message);
                 break;
-            case MessageType.Element:
+            case MessageType.Unit:
             case MessageType.Command:
             case MessageType.Player:
             case MessageType.Kick:

@@ -33,7 +33,7 @@ export class Server
             .map(c => c.GetBody());
         
         this.world.OnUpdate.Add(unit => this.hosts
-            .forEach(host => host.SendElement(unit)));
+            .forEach(host => host.SendUnit(unit)));
     }
 
     /**
@@ -144,13 +144,13 @@ export class Server
         // Set cells
         for(let cell of this.world.GetCells().GetArray())
         {
-            await host.SendElement(cell);
+            await host.SendUnit(cell);
         }
 
         // Set actors
         for(let actor of this.world.GetActors().GetArray())
         {
-            await host.SendElement(actor);
+            await host.SendUnit(actor);
         }
         
         // Subscribe to the OnCommand callback

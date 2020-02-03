@@ -2,7 +2,7 @@ export enum MessageType
 {
     // OUT
     Size = "Size",
-    Element = "Element",
+    Unit = "Unit",
     Diff = "Diff",
     Player = "Player",
     Kick = "Kick",

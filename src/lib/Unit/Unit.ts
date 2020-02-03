@@ -174,7 +174,7 @@ export abstract class Unit extends Exportable
 
         this.world && this.world.OnTick.Remove(this.tickEvent);
 
-        Logger.Info(this, "Element was disposed!", this);
+        Logger.Info(this, "Unit was disposed!", this);
     }
 
     /**

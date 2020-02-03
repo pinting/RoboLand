@@ -64,10 +64,10 @@ export class Renderer
     {
         return new Promise<void>((resolve, reject) => 
         {
-            const elements = this.world.GetUnits();
+            const units = this.world.GetUnits();
             let i = 0;
     
-            elements.Some((unit: Unit) =>
+            units.Some((unit: Unit) =>
             {
                 if(!unit)
                 {
@@ -90,7 +90,7 @@ export class Renderer
                 {
                     this.textures[path] = texture;
     
-                    if(++i == elements.GetLength()) 
+                    if(++i == units.GetLength()) 
                     {
                         resolve();
                     }
@@ -101,7 +101,7 @@ export class Renderer
                 this.textures[path] = null;
             });
 
-            if(!elements.GetLength())
+            if(!units.GetLength())
             {
                 resolve();
             }
@@ -120,7 +120,7 @@ export class Renderer
      * Draw the given unit onto the canvas.
      * @param unit
      */
-    private DrawElement(unit: Unit)
+    private DrawUnit(unit: Unit)
     {
         if(!unit || !unit.GetBody())
         {
@@ -240,7 +240,7 @@ export class Renderer
 
         for(let level of levels)
         {
-            level.forEach(unit => this.DrawElement(unit));
+            level.forEach(unit => this.DrawUnit(unit));
         }
         
         // Draw grid if debug mode is enabled
