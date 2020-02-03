@@ -30847,11 +30847,13 @@ class Debug extends Shared_1.Shared {
             try {
                 yield NetTest_1.default();
             }
-            catch (e) {
-                Logger_1.Logger.Warn(this, e);
+            catch (error) {
+                const e = error;
+                Logger_1.Logger.Warn(this, e.message);
+                alert(e.message);
             }
             finally {
-                Logger_1.Logger.Info(this, "Tests complete!");
+                alert("Tests complete!");
             }
         });
     }
