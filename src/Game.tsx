@@ -207,9 +207,7 @@ export class Game extends Shared<GameProps, GameState>
 
         const renderer = new Renderer({ 
             canvas: this.canvas, 
-            world: this.world,
-            debug: false,
-            disableShadows: true
+            world: this.world
         });
         const receiver = await this.CreateReceiver(renderer);
 

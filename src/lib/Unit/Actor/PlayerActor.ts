@@ -172,7 +172,6 @@ export class PlayerActor extends BaseActor
      */
     public Damage(damage: number): void
     {
-        debugger;
         this.health -= damage;
 
         Logger.Info(this, "Actor was damaged", damage, this);

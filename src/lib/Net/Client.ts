@@ -87,14 +87,7 @@ export class Client extends MessageHandler
         Logger.Info(this, "Element was received!", unit, dump);
 
         // Add unit to the world
-        if(unit instanceof BaseCell)
-        {
-            this.world.GetCells().Set(unit);
-        }
-        else if(unit instanceof BaseActor)
-        {
-            this.world.GetActors().Set(unit);
-        }
+        this.world.Add(unit);
 
         // Add to network cache
         this.last[unit.GetId()] = dump;

@@ -14,8 +14,8 @@ export interface RendererArgs
     debug?: boolean;
     debugColor?: string;
     disableShadows?: boolean;
-    shadowStep?: number;
-    shadowStepR?: number;
+    viewport?: Vector;
+    center?: Vector;
 }
 
 export class Renderer
@@ -28,13 +28,12 @@ export class Renderer
     private readonly debug: boolean;
     private readonly debugColor: string;
     private readonly disableShadows: boolean;
-    private readonly shadowStep: number;
-    private readonly shadowStepR: number;
 
     private textures: { [id: string]: HTMLImageElement } = {};
     private stop: boolean = false;
     private lastTick: number;
-    private shadowMap: number[];
+    private center: Vector;
+    private viewport: Vector;
 
     /**
      * Called upon redraw.
@@ -50,12 +49,12 @@ export class Renderer
         this.canvas = args.canvas;
         this.context = <CanvasRenderingContext2D>this.canvas.getContext("2d");
 
-        this.dotPerPoint = args.dotPerPoint || 30;
+        this.dotPerPoint = args.dotPerPoint || 25;
         this.debug = args.debug || false;
         this.debugColor = args.debugColor || "purple";
         this.disableShadows = args.disableShadows || false;
-        this.shadowStep = args.shadowStep || 1 / 3;
-        this.shadowStepR = args.shadowStepR || 2;
+        this.viewport = args.viewport || new Vector(6, 6);
+        this.center = args.center || new Vector(0, 0);
     }
 
     /**
@@ -128,40 +127,33 @@ export class Renderer
             return;
         }
         
-        const vector = unit.GetBody().GetOffset();
-        const scale = unit.GetBody().GetScale();
+        const body = unit.GetBody();
+        const offset = body.GetOffset();
+        const scale = body.GetScale();
         const texture = this.textures[unit.GetTexture()];
         
         const s = scale.Scale(this.dotPerPoint);
-        const cx = vector.X * this.dotPerPoint;
-        const cy = vector.Y * this.dotPerPoint;
-        const x = cx - s.X / 2;
-        const y = cy - s.Y / 2;
+        const c = (offset.Sub(this.center).Add(this.viewport.Scale(1 / 2))).Scale(this.dotPerPoint);
+        const p = c.Sub(s.Scale(1 / 2));
         
         const rot = (angle: number) =>
         {
-            this.context.translate(cx, cy);
+            this.context.translate(c.X, c.Y);
             this.context.rotate(angle);
-            this.context.translate(-cx, -cy);
+            this.context.translate(-c.X, -c.Y);
         }
 
-        rot(unit.GetBody().GetRotation());
+        rot(body.GetRotation());
     
         if(texture) {
-            this.context.drawImage(texture, x, y, s.X, s.Y);
+            this.context.drawImage(texture, p.X, p.Y, s.X, s.Y);
         }
         else {
             this.context.fillStyle = this.debugColor;
-            this.context.fillRect(x, y, s.X, s.Y);
+            this.context.fillRect(p.X, p.Y, s.X, s.Y);
         }
 
         rot(-unit.GetBody().GetRotation());
-        
-        // Draw grid if debug mode is enabled
-        if(this.debug)
-        {
-            this.DrawDebugGrid(unit, this.debugColor);
-        }
     }
 
     /**
@@ -180,105 +172,27 @@ export class Renderer
         {
             if (shape instanceof Polygon)
             {
-                for(let point of shape.GetVirtual())
+                for(let base of shape.GetVirtual())
                 {
+                    const p = (base.Sub(this.center).Add(this.viewport.Scale(1 / 2))).Scale(this.dotPerPoint);
+
                     if(first)
                     {
-                        this.context.lineTo(point.X * this.dotPerPoint, point.Y * this.dotPerPoint);
+                        this.context.lineTo(p.X, p.Y);
                     }
                     else
                     {
-                        this.context.moveTo(point.X * this.dotPerPoint, point.Y * this.dotPerPoint);
-                        first = point;
+                        this.context.moveTo(p.X, p.Y);
+                        first = p;
                     }
                 }
             }
         }
 
-        first && this.context.lineTo(first.X * this.dotPerPoint, first.Y * this.dotPerPoint);
+        first && this.context.lineTo(first.X, first.Y);
 
         this.context.strokeStyle = color;
         this.context.stroke();
-    }
-
-    /**
-     * Generate shadows tracing light.
-     * @param unit Unit to trace from.
-     * @param stepD Step size to go in the direction of the unit.
-     * @param stepR Step size to go around the unit.
-     * @param set Shadow value for a position.
-     */
-    private GenerateShadows(unit: Unit, stepD: number, stepR: number, set: (s: number, x: number, y: number) => void)
-    {
-        if(!unit.GetLight())
-        {
-            return;
-        }
-        
-        const dpp = this.dotPerPoint;
-        const size = this.world.GetSize();
-    
-        const w = dpp * size.X;
-        const h = dpp * size.Y;
-        
-        const testBody = new Body([Polygon.CreateBox(stepD)]);
-
-        for(let r = 0; r < 2 * Math.PI; r += stepR * (Math.PI / 180))
-        {
-            const origin = unit.GetBody().GetOffset();
-            const step = Vector.ByRad(r).Scale(stepD);
-
-            for(let point = origin; point.Dist(origin) < unit.GetLight(); point = point.Add(step))
-            {
-                const startX = Math.floor(point.X * dpp);
-                const startY = Math.floor(point.Y * dpp);
-                
-                if(startX >= w || startY >= h || startX < 0 || startY < 0)
-                {
-                    break;
-                }
-                
-                testBody.SetVirtual(new Vector(1, 1), 0, point);
-
-                let collision = false;
-
-                for(const unit of this.world.GetCells().GetArray())
-                {
-                    // If the light ray hits a blocking cell, break the loop
-                    if(unit.IsBlocking() && testBody.Collide(unit.GetBody()))
-                    {
-                        collision = true;
-                        break;
-                    }
-                }
-
-                if(collision)
-                {
-                    break;
-                }
-
-                const delta = Math.max(Math.floor(point.Dist(origin) * dpp), dpp) / 2;
-
-                for(let y = startY - delta; y < startY + delta; ++y)
-                {
-                    for(let x = startX - delta; x < startX + delta; ++x)
-                    {
-                        if(x >= w || y >= h || x < 0 || y < 0)
-                        { 
-                            continue;
-                        }
-
-                        const p = new Vector(Math.floor(x / dpp), Math.floor(y / dpp));
-                        const s = p.Dist(origin) / unit.GetLight();
-
-                        if(s >= 0 && s <= 1)
-                        {
-                            set(s, x, y);
-                        }
-                    }
-                }
-            }
-        }
     }
     
     /**
@@ -286,34 +200,18 @@ export class Renderer
      */
     private Render()
     {
-        const size = this.world.GetSize();
-    
-        const w = this.dotPerPoint * size.X;
-        const h = this.dotPerPoint * size.Y;
+        const fullView = this.world.GetSize().Scale(this.dotPerPoint);
+        const view = this.viewport.Scale(this.dotPerPoint);
+        
+        const viewBody = Body.CreateBoxBody(this.viewport, 0, this.center.Sub(this.viewport.Scale(1 / 2)));
 
-        this.canvas.width = w;
-        this.canvas.height = h;
-        this.canvas.style.width = w + "px";
-        this.canvas.style.height = h + "px";
+        this.canvas.width = view.X;
+        this.canvas.height = view.Y;
+        this.canvas.style.width = view.X + "px";
+        this.canvas.style.height = view.Y + "px";
 
         this.context.fillStyle = "black";
-        this.context.fillRect(0, 0, w, h);
-        
-        // Init static shadow map
-        if(!this.disableShadows && !this.shadowMap)
-        {
-            this.shadowMap = new Array(w * h).fill(1);
-            this.world.GetCells().Some(unit => 
-            {
-                this.GenerateShadows(unit, this.shadowStep, this.shadowStepR, (light, x, y) =>
-                {
-                    const previous = this.shadowMap[x + y * w];
-
-                    // Final value is the most bright (most min) value
-                    this.shadowMap[x + y * w] = Math.min(light, previous);
-                });
-            });
-        }
+        this.context.fillRect(0, 0, view.X, view.Y);
 
         // Draw units in the order of their Z index
         const levels: Unit[][] = [];
@@ -344,17 +242,29 @@ export class Renderer
         {
             level.forEach(unit => this.DrawElement(unit));
         }
+        
+        // Draw grid if debug mode is enabled
+        if(this.debug)
+        {
+            this.world
+                .GetUnits()
+                .GetArray()
+                .forEach(unit => this.DrawDebugGrid(unit, this.debugColor));
+        }
 
         // Apply shadow map onto the picture
         if(!this.disableShadows)
         {
-            const imageData = this.context.getImageData(0, 0, w, h);
+            const imageData = this.context.getImageData(0, 0, view.X, view.Y);
             
-            for(let y = 0; y < h; y++)
+            for(let y = 0; y < view.X; y++)
             {
-                for(let x = 0; x < w; x++)
+                for(let x = 0; x < view.Y; x++)
                 {
-                    imageData.data[(y * imageData.width + x) * 4 + 3] = (1 - this.shadowMap[x + y * w]) * 255;
+                    const c = this.center.Scale(this.dotPerPoint).Sub(view.Scale(1 / 2));
+
+                    imageData.data[(y * view.Y + x) * 4 + 3] = 
+                        (1 - this.world.GetShadow(x + c.X, y + c.Y, fullView.X, fullView.Y)) * 255;
                 }
             }
             
@@ -374,7 +284,12 @@ export class Renderer
         this.lastTick = now;
     }
 
-    public Start()
+    public SetCenter(center: Vector): void
+    {
+        this.center = center;
+    }
+
+    public Start(): void
     {
         this.lastTick = +new Date;
         this.stop = false;
@@ -382,7 +297,7 @@ export class Renderer
         window.requestAnimationFrame(() => this.Render());
     }
 
-    public Stop()
+    public Stop(): void
     {
         this.stop = true;
     }

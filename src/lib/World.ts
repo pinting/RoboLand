@@ -12,8 +12,13 @@ import { Body } from "./Physics/Body";
 import { ICollision } from "./Physics/ICollision";
 import { GroundCell } from "./Unit/Cell/GroundCell";
 import { StoneCell } from "./Unit/Cell/StoneCell";
+import { Polygon } from "./Geometry/Polygon";
+import { LightCell } from "./Unit/Cell/LightCell";
 
 const COLLISION_ITERATIONS = 50;
+const SHADOW_DOT_PER_POINT = 10;
+const SHADOW_STEP = 1 / 4;
+const SHADOW_STEP_R = 1;
 
 export class World extends Exportable
 {
@@ -27,6 +32,9 @@ export class World extends Exportable
 
     @Exportable.Register(ExportType.Visible)
     private size: Vector = new Vector();
+    
+    @Exportable.Register(ExportType.Hidden)
+    private shadowMap: number[];
 
     /**
      * Origin of the World.
@@ -53,6 +61,9 @@ export class World extends Exportable
         this.cells = [];
         this.actors = [];
 
+        // Generate a shadow map without tracing
+        this.GenerateShadowMap();
+
         this.OnTick.Add(dt => this.Step(dt));
     }
 
@@ -60,13 +71,16 @@ export class World extends Exportable
     {
         if(unit instanceof BaseCell)
         {
-            this.cells.push(unit);
+            this.GetCells().Set(unit);
             
             (unit as any).world = this;
+
+            // Trace each element when it is added
+            this.GenerateShadow(unit);
         }
         else if(unit instanceof BaseActor)
         {
-            this.actors.push(unit);
+            this.GetActors().Set(unit);
 
             (unit as any).world = this;
         }
@@ -102,12 +116,9 @@ export class World extends Exportable
         units.Some(unit => unit.GetBody().IntegrateForces(dt));
         
         // Solve collisions
-        for(let i = 0; i < COLLISION_ITERATIONS; i++)
+        for(let contact of contacts)
         {
-            for(let contact of contacts)
-            {
-                Body.ResolveCollision(contact, dt);
-            }
+            Body.ResolveCollision(contact, dt * COLLISION_ITERATIONS);
         }
 
         // Integrate velocities
@@ -157,11 +168,146 @@ export class World extends Exportable
     /**
      * @inheritDoc
      */
-    public Import(input: IDump[])
+    public Import(input: IDump[]): void
     {
         World.Current = this;
 
-        return super.Import(input);
+        super.Import(input);
+
+        // Use generated shadow map if available
+        if(!this.shadowMap)
+        {
+            this.GenerateShadowMap();
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public Export(access?: number): IDump[]
+    {
+        // Always generate new shadow map
+        this.GenerateShadowMap();
+
+        return super.Export(access);
+    }
+
+    /**
+     * Generate shadow map for the whole world.
+     */
+    public GenerateShadowMap()
+    {
+        const dpp = SHADOW_DOT_PER_POINT;
+        const size = this.GetSize();
+    
+        const w = dpp * size.X;
+        const h = dpp * size.Y;
+
+        this.shadowMap = new Array(w * h).fill(1);
+
+        this.GetCells().Some(unit => this.GenerateShadow(unit));
+    }
+
+    /**
+     * Generate shadow for a unit by tracing light.
+     * @param unit Unit to trace from.
+     * @param stepD Step size to go in the direction of the unit.
+     * @param stepR Step size to go around the unit.
+     * @param set Shadow value for a position.
+     */
+    private GenerateShadow(unit: Unit)
+    {
+        if(!unit.GetLight())
+        {
+            return;
+        }
+        
+        const dpp = SHADOW_DOT_PER_POINT;
+        const size = this.GetSize();
+    
+        const w = dpp * size.X;
+        const h = dpp * size.Y;
+        
+        const testBody = new Body([Polygon.CreateBox(SHADOW_STEP)]);
+
+        for(let r = 0; r < 2 * Math.PI; r += SHADOW_STEP_R * (Math.PI / 180))
+        {
+            const origin = unit.GetBody().GetOffset();
+            const step = Vector.ByRad(r).Scale(SHADOW_STEP);
+
+            for(let point = origin; point.Dist(origin) < unit.GetLight(); point = point.Add(step))
+            {
+                const cx = Math.floor(point.X * dpp);
+                const cy = Math.floor(point.Y * dpp);
+                
+                if(cx >= w || cy >= h || cx < 0 || cy < 0)
+                {
+                    break;
+                }
+                
+                testBody.SetVirtual(new Vector(1, 1), 0, point);
+
+                let collision = false;
+
+                for(const u of this.GetCells().GetArray())
+                {
+                    if(u.GetId() == unit.GetId())
+                    {
+                        continue;
+                    }
+
+                    // If the light ray hits a blocking cell, break the loop
+                    if(u.IsBlocking() && testBody.Collide(u.GetBody()))
+                    {
+                        collision = true;
+                        break;
+                    }
+                }
+
+                if(collision)
+                {
+                    break;
+                }
+
+                for(let y = cy - dpp / 2; y < cy + dpp / 2; ++y)
+                {
+                    for(let x = cx - dpp / 2; x < cx + dpp / 2; ++x)
+                    {
+                        if(x >= w || y >= h || x < 0 || y < 0)
+                        { 
+                            continue;
+                        }
+
+                        const p = new Vector(x / dpp, y / dpp);
+                        const s = p.Dist(origin) / unit.GetLight();
+
+                        if(s >= 0 && s <= 1)
+                        {
+                            const previous = this.shadowMap[x + y * w];
+            
+                            // Final value is the most bright (most min) value
+                            this.shadowMap[x + y * w] = Math.min(s, previous);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public GetShadow(x: number, y: number, w: number, h: number): number
+    {
+        if(!this.shadowMap)
+        {
+            return 0;
+        }
+
+        const dpp = SHADOW_DOT_PER_POINT;
+        const size = this.GetSize();
+    
+        const sw = dpp * size.X;
+        const sh = dpp * size.Y;
+
+        return this.shadowMap[Math.floor((x / w) * sw) + Math.floor((y / h) * sh) * sw];
     }
     
     public static CreateBox(size: number): World
@@ -176,36 +322,55 @@ export class World extends Exportable
             let args = {};
             let cell: BaseCell;
             
-            // TODO: Remove this, refactor this
-            if(i == 0)
+            if(i % (size - 1) == 0)
+            {
+                cell = new LightCell();
+
+                cell.Init({
+                    texture: "res/lamp.png",
+                    world: world,
+                    body: Body.CreateBoxBody(
+                        new Vector(1, 1), 
+                        0,
+                        new Vector(i % size, (i -  (i % size)) / size),
+                        { 
+                            z: 1,
+                            density: Infinity
+                        })
+                });
+            }
+            else if(i < size || i >= size * size - size)
             {
                 cell = new StoneCell();
-                args = {
+                cell.Init({
                     texture: "res/stone.png",
-                    light: 5
-                };
+                    world: world,
+                    body: Body.CreateBoxBody(
+                        new Vector(1, 1), 
+                        0,
+                        new Vector(i % size, (i -  (i % size)) / size),
+                        { 
+                            z: 0,
+                            density: Infinity
+                        })
+                });
             }
             else
             { 
                 cell = new GroundCell();
-                args = {
+                cell.Init({
                     texture: "res/ground.png",
-                    light: 5,
-                };
+                    world: world,
+                    body: Body.CreateBoxBody(
+                        new Vector(1, 1), 
+                        0,
+                        new Vector(i % size, (i -  (i % size)) / size),
+                        { 
+                            z: 0,
+                            density: Infinity
+                        })
+                });
             }
-
-            cell.Init({
-                ...args,
-                world: world,
-                body: Body.CreateBoxBody(
-                    new Vector(1, 1), 
-                    0,
-                    new Vector(i % size, (i -  (i % size)) / size),
-                    { 
-                        z: 0,
-                        density: Infinity
-                    })
-            });
 
             world.Add(cell);
         }

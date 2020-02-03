@@ -60,7 +60,7 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
             window.navigator.msSaveBlob(blob, name);
         }
         else {
-            var link = window.document.createElement("a");
+            const link = window.document.createElement("a");
 
             link.href = window.URL.createObjectURL(blob);
             link.download = name;

@@ -54,8 +54,7 @@ export class Debug extends Shared
         const renderer = new Renderer({ 
             canvas: this.canvasS,
             world: world, 
-            debug: true,
-            disableShadows: true
+            debug: true
         });
     
         await renderer.Load();
@@ -88,14 +87,13 @@ export class Debug extends Shared
         const rendererA = new Renderer({ 
             canvas: this.canvasA,
             world: worldA,
-            debug: true,
-            disableShadows: true
+            debug: true
         });
+
         const rendererB = new Renderer({
             canvas: this.canvasB,
             world: worldB,
-            debug: true,
-            disableShadows: true
+            debug: true
         });
         
         const channelA1 = new FakeChannel(delay);
@@ -111,7 +109,7 @@ export class Debug extends Shared
         const receiverA = new Client(channelA1, worldA)
         const receiverB = new Client(channelB1, worldB);
         
-        const world: World = World.CreateBox(6);
+        const world: World = World.CreateBox(16);
         const server = new Server(world);
         
         server.Add(new Host(channelA2, server));
@@ -131,8 +129,13 @@ export class Debug extends Shared
                 right: "ARROWRIGHT",
                 shoot: " "
             };
-    
-            rendererA.OnDraw.Add(() => this.SetupControl(player, keys));
+            
+            rendererB.OnDraw.Add(() => 
+            {
+                this.SetupControl(player, keys);
+                rendererB.SetCenter(player.GetBody().GetOffset());
+            });
+
             rendererA.Start();
         };
         
@@ -151,7 +154,12 @@ export class Debug extends Shared
                 shoot: "E"
             };
             
-            rendererB.OnDraw.Add(() => this.SetupControl(player, keys));
+            rendererB.OnDraw.Add(() => 
+            {
+                this.SetupControl(player, keys);
+                rendererA.SetCenter(player.GetBody().GetOffset());
+            });
+
             rendererB.Start();
         };
     
@@ -159,8 +167,11 @@ export class Debug extends Shared
         const rendererS = new Renderer({ 
             canvas: this.canvasS,
             world: world, 
-            debug: true,
-            disableShadows: true
+            debug: false,
+            disableShadows: true,
+            center: world.GetSize().Scale(1 / 2),
+            viewport: world.GetSize(),
+            dotPerPoint: 10
         });
     
         await rendererS.Load();
