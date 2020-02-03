@@ -6,12 +6,13 @@ export class Http
      * @param data 
      * @param method 
      */
-    private static async Ajax(url: string, data: string, method: string): Promise<string>
+    private static async Ajax(url: string, data: string, method: string): Promise<ArrayBuffer>
     {
-        return new Promise<string>(resolve => 
+        return new Promise<ArrayBuffer>(resolve => 
         {
             let request = new XMLHttpRequest();
 
+            request.responseType = "arraybuffer";
             request.open(method, url, true);
 
             request.onreadystatechange = () => 
@@ -23,7 +24,7 @@ export class Http
 
                 if (request.status == 200) 
                 {
-                    resolve(request.responseText);
+                    resolve(request.response);
                 }
                 else 
                 {
@@ -48,7 +49,7 @@ export class Http
      * @param url 
      * @param data
      */
-    public static async Post(url: string, data: string): Promise<string>
+    public static async Post(url: string, data: string): Promise<ArrayBuffer>
     {
         return await Http.Ajax(url, data, "POST");
     }
@@ -57,7 +58,7 @@ export class Http
      * Get request to the given URL.
      * @param url 
      */
-    public static async Get(url: string): Promise<string>
+    public static async Get(url: string): Promise<ArrayBuffer>
     {
         return await Http.Ajax(url, null, "GET");
     }

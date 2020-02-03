@@ -81,24 +81,12 @@ export class UnitList<U extends Unit> implements IReadOnlyElementList<U>
     }
 
     /**
-     * Get elements under an unit.
+     * Get elements under a unit.
      * @param unit
      */
     public FindCollisions(unit: Unit): U[]
     {
-        const result = [];
-        
-        this.units.forEach(e => 
-        {
-            if(e && e.GetId() != unit.GetId())
-            {
-                const collision = e.Collide(<U>unit);
-                
-                collision && result.push(e);
-            }
-        });
-
-        return result;
+        return this.units.filter(e => e.Collide(<U>unit));
     }
 
     /**

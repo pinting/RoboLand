@@ -1,5 +1,8 @@
 import { IDump } from "./IDump";
 import { Logger } from "./Util/Logger";
+import { Tools } from "./Util/Tools";
+import { Http } from "./Util/Http";
+import { ResourceManager } from "./Util/ResourceManager";
 
 const ExportMeta = Symbol("ExportMeta");
 const Dependencies: { [name: string]: any } = {};
@@ -23,6 +26,18 @@ export interface ExportDesc
 export abstract class Exportable
 {
     private [ExportMeta]: ExportDesc[];
+
+    /**
+     * These properties will not be moved to the base.
+     * By doing this, we can use the same base for multiply objects.
+     */
+    public static SaveFileExtract = ["offset", "scale", "rotation"];
+
+    /**
+     * Under this length limit, the exported JSON will not be splitted
+     * into multiply files.
+     */
+    public static SaveSplitLimit = 160;
 
     /**
      * Register a class with a name as a dependency.
@@ -210,6 +225,153 @@ export abstract class Exportable
 
         return instance;
     }
+    
+    /**
+     * Function that called when saving a dump is needed.
+     * @param json JSON of the dump 
+     * @param dump Dump object of the dump 
+     */
+    private static async SaveDump(json: string, dump: IDump): Promise<string>
+    {
+        const buffer = Tools.StringToBuffer(json);
+        const hash = await Tools.Sha256(buffer);
+        const existing = ResourceManager.ByHash(hash);
+
+        if(existing)
+        {
+            return existing.Uri;
+        }
+
+        let name = `${dump.Name ? `${dump.Name.toString().toLowerCase()}-` : ""}${dump.Class.toLowerCase()}`;
+        let c: number;
+
+        for(c = 0; await ResourceManager.Add(name + (c > 0 ? ("-" + c) : "") + ".dump", buffer) === null; c++);
+
+        name = name + (c > 0 ? ("-" + c) : "") + ".dump";
+
+        return name;
+    }
+
+    /**
+     * Save an exportable as small resources.
+     * @param dump 
+     */
+    public static async Save(dump: IDump): Promise<void>
+    {
+        const extract = (dump: IDump) =>
+        {
+            const toRemove = [];
+
+            for(let index in dump.Payload as IDump[])
+            {
+                const e = dump.Payload[index];
+
+                if(Exportable.SaveFileExtract.includes(e.Name))
+                {
+                    toRemove.unshift([e, index]);
+                }
+            }
+            
+            toRemove.forEach(e => (dump.Payload as IDump[]).splice(e[1], 1));
+
+            return toRemove.map(e => e[0]);
+        }
+
+        const process = async (dump: IDump): Promise<IDump> =>
+        {
+            if(["string", "number", "boolean"].includes(dump.Class))
+            {
+                return dump;
+            }
+
+            if(!dump.Payload || !dump.Payload.length)
+            {
+                return dump;
+            }
+            
+            let newPayload: IDump[] = [];
+
+            for(let subDump of dump.Payload as IDump[])
+            {
+                newPayload.push(await process(subDump));
+            }
+
+            const newDump: IDump = { ...dump, Payload: newPayload };
+            const extracted = extract(newDump);
+            const json = JSON.stringify(newDump);
+
+            if(json.length < Exportable.SaveSplitLimit)
+            {
+                return newDump;
+            }
+            
+            const fileName = await Exportable.SaveDump(json, newDump);
+
+            return {
+                Name: dump.Name,
+                Class: dump.Class,
+                Payload: [
+                    ...extracted
+                ],
+                Base: fileName
+            };
+        }
+
+        await process(dump);
+    }
+
+    /**
+     * Resolve split up dump by putting together the pieces.
+     * @param dump Dump to resolve.
+     * @returns Resolved new dump.
+     */
+    public static Resolve(dump: IDump): IDump
+    {
+        if(!dump)
+        {
+            return;
+        }
+
+        let result = { ...dump };
+
+        if(dump.Base)
+        {
+            const resource = ResourceManager.ByUri(dump.Base);
+
+            if(resource)
+            {
+                const baseDump = JSON.parse(Tools.BufferToString(resource.Buffer)) as IDump;
+                
+                if(baseDump && baseDump.Class === dump.Class)
+                {
+                    result = {
+                        ...result,
+                        Base: undefined,
+                        Payload: [
+                            ...(baseDump && baseDump.Payload && baseDump.Payload.length ? baseDump.Payload : []),
+                            ...(dump && dump.Payload && dump.Payload.length ? dump.Payload : []),
+                        ]
+                    };
+                }
+            }
+        }
+
+        if(["string", "number", "boolean"].includes(result.Class))
+        {
+            return result;
+        }
+
+        if(result.Payload && result.Payload.length)
+        {
+            for(let i in result.Payload)
+            {
+                result.Payload[i] = Exportable.Resolve(result.Payload[i]);
+            }
+        }
+
+        return result;
+    }
+    
 
     /**
      * Return the difference from source to target (properties of source).
@@ -285,5 +447,51 @@ export abstract class Exportable
             dump.Payload.forEach((dump: IDump) => props[dump.Name] = dump);
 
         return props;
+    }
+
+    /**
+     * Return true if only the 
+     * @param diff
+     */
+    // TODO: Fix this
+    public static IsMovementDiff(diff: IDump): boolean
+    {
+        const props = Exportable.ToDict(diff);
+
+        // Delete ID if it exists, because we do not need it
+        if(props.id)
+        {
+            delete props.id;
+        }
+
+        // No diff
+        if(Object.keys(props).length == 0)
+        {
+            return true;
+        }
+
+        // Only position diff
+        if(Object.keys(props).length === 1 &&
+            props.hasOwnProperty("offset"))
+        {
+            return true;
+        }
+
+        // Only angle diff
+        if(Object.keys(props).length === 1 &&
+            props.hasOwnProperty("rotation"))
+        {
+            return true;
+        }
+
+        // Only position and angle diff
+        if(Object.keys(props).length === 2 &&
+            props.hasOwnProperty("offset") &&
+            props.hasOwnProperty("rotation"))
+        {
+            return true;
+        }
+
+        return false;
     }
 }

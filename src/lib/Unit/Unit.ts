@@ -171,6 +171,7 @@ export abstract class Unit extends Exportable
         }
 
         this.disposed = true;
+
         this.world && this.world.OnTick.Remove(this.tickEvent);
 
         Logger.Info(this, "Element was disposed!", this);
@@ -193,6 +194,11 @@ export abstract class Unit extends Exportable
     public Collide(unit: Unit): ICollision
     {
         if(unit == this || unit.GetId() == this.GetId())
+        {
+            return null;
+        }
+
+        if(!this.blocking || !unit.blocking)
         {
             return null;
         }

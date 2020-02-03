@@ -26,7 +26,7 @@ export abstract class BaseCell extends Unit
     {
         super.InitPre(args);
         
-        this.cf = args.cf || 0.85;
+        this.cf = args.cf || 0.10;
         this.gravity = args.gravity || new Vector(0, 0);
     }
 
@@ -70,22 +70,15 @@ export abstract class BaseCell extends Unit
     /**
      * @inheritDoc
      */
-    public Dispose(value)
+    public Dispose(value: boolean = true)
     {
         if(this.disposed || !value)
         {
             return;
         }
 
-        this.world.GetCells().Remove(this);
-        super.Dispose();
-    }
+        this.world && this.world.GetCells().Remove(this);
 
-    /**
-     * Get the friction of the surface of the cell.
-     */
-    public GetFriction(): number
-    {
-        return this.cf;
+        super.Dispose();
     }
 }

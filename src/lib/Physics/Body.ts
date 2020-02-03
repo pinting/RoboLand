@@ -87,16 +87,16 @@ export class Body extends Exportable
         this.shapes = shapes;
 
         this.gravity = args.gravity || new Vector(0, 0);
-        this.force = args.force || new Vector(0, 0);
         this.sf = args.sf || 0.5;
         this.df = args.df || 0.3;
         this.r = args.r || 0.2;
         this.av = args.av || 0;
         this.torque = args.torque || 0;
         this.v = args.v || new Vector(0, 0);
+        this.force = args.force || new Vector(0, 0);
         this.density = args.density || 1.0;
         this.z = args.z || 0;
-        this.cf = args.cf || 0.85;
+        this.cf = args.cf || 0.05;
 
         this.ComputeMass(this.density);
     }
@@ -132,6 +132,26 @@ export class Body extends Exportable
     public GetShapes() 
     {
         return this.shapes;
+    }
+
+    public GetForce(): Vector
+    {
+        return this.force;
+    }
+
+    public GetTorque(): number
+    {
+        return this.torque;
+    }
+    
+    public GetVelocity(): Vector
+    {
+        return this.v;
+    }
+    
+    public GetAngularVelocity(): number
+    {
+        return this.av;
     }
     
     public GetZ(): number
@@ -249,8 +269,10 @@ export class Body extends Exportable
             return;
         }
 
-        this.av = this.av * this.cf + this.torque * this.iI * (dt / 2);
-        this.v = this.v.Scale(this.cf).Add((this.force.Scale(this.im).Add(this.gravity).Scale(dt / 2)));
+        const cf = Math.pow(this.cf, dt);
+
+        this.av = this.av * cf + this.torque * this.iI * (dt / 2);
+        this.v = this.v.Scale(cf).Add((this.force.Scale(this.im).Add(this.gravity).Scale(dt / 2)));
     }
 
     /**

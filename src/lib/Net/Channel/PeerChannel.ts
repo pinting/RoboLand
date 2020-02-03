@@ -1,7 +1,6 @@
 import * as webrtc from "webrtc-adapter"
 import { IChannel } from "./IChannel";
 import { Tools } from "../../Util/Tools";
-import * as pako from "pako";
 import { Logger } from "../../Util/Logger";
 
 export class PeerChannel implements IChannel
@@ -138,7 +137,7 @@ export class PeerChannel implements IChannel
     {
         if(event && event.data)
         {
-            const uncompressed = pako.inflate(event.data, { to: "string" });
+            const uncompressed = Tools.BufferToString(Tools.ZLibInflate(event.data));
 
             this.OnMessage(uncompressed);
         }
@@ -152,7 +151,7 @@ export class PeerChannel implements IChannel
     {
         if(this.IsOpen())
         {
-            const compressed: string = pako.deflate(message, { to: "string" });
+            const compressed = Tools.ZLibDeflate(Tools.StringToBuffer(message));
 
             this.dataChannel.send(compressed);
         }

@@ -67,51 +67,6 @@ export class Host extends MessageHandler
     }
 
     /**
-     * Return true if only the position or the angle is different.
-     * @param diff
-     */
-    public static IsMovementDiff(diff: IDump): boolean
-    {
-        const props = Exportable.ToDict(diff);
-
-        // Delete ID if it exists, because we do not need it
-        if(props.id)
-        {
-            delete props.id;
-        }
-
-        // No diff
-        if(Object.keys(props).length == 0)
-        {
-            return true;
-        }
-
-        // Only position diff
-        if(Object.keys(props).length === 1 &&
-            props.hasOwnProperty("position"))
-        {
-            return true;
-        }
-
-        // Only angle diff
-        if(Object.keys(props).length === 1 &&
-            props.hasOwnProperty("angle"))
-        {
-            return true;
-        }
-
-        // Only position and angle diff
-        if(Object.keys(props).length === 2 &&
-            props.hasOwnProperty("position") &&
-            props.hasOwnProperty("angle"))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Set an unit (a cell or an actor).
      * @param unit 
      */
@@ -128,7 +83,7 @@ export class Host extends MessageHandler
             diff = Exportable.Diff(dump, this.last[id]);
         }
 
-        if(diff && this.lastTime[id] + SLEEP_TIME >= now && Host.IsMovementDiff(diff))
+        if(diff && this.lastTime[id] + SLEEP_TIME >= now && Exportable.IsMovementDiff(diff))
         {
             Logger.Info(this, "Element was optimized out", unit);
             return;

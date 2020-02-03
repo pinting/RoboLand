@@ -1,5 +1,41 @@
+import * as pako from "pako";
+
 export class Tools
 {
+    /**
+     * Generate hash from a buffer.
+     * @param data 
+     */
+    public static async Sha256(data: ArrayBuffer): Promise<string>
+    {
+        const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+
+        return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    /**
+     * Decompress data with ZLib.
+     * @param data 
+     */
+    public static ZLibInflate(data: ArrayBuffer): ArrayBuffer
+    {
+        const array = pako.inflate(data) as Uint8Array;
+
+        return array.buffer as ArrayBuffer;
+    }
+
+    /**
+     * Compress data with ZLib.
+     * @param data 
+     */
+    public static ZLibDeflate(data: ArrayBuffer): ArrayBuffer
+    {
+        const array = pako.deflate(data) as Uint8Array;
+
+        return array.buffer as ArrayBuffer;
+    }
+
     /**
      * Returns a random integer between min (included) and max (included).
      * @param min 
@@ -167,4 +203,22 @@ export class Tools
     {
         return true;
     }
+
+    public static BufferToString(buffer: ArrayBuffer): string 
+    {
+        return String.fromCharCode.apply(null, new Uint16Array(buffer));
+    }
+
+    public static StringToBuffer(string: string): ArrayBuffer 
+    {
+        let buffer = new ArrayBuffer(string.length * 2); // 2 bytes for each char
+        let stringView = new Uint16Array(buffer);
+
+        for (let i = 0; i < string.length; i++) 
+        {
+            stringView[i] = string.charCodeAt(i);
+        }
+
+        return buffer;
+      }
 }

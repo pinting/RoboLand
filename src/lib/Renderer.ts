@@ -257,7 +257,7 @@ export class Renderer
                     break;
                 }
 
-                const delta = Math.max(Math.floor(point.Dist(origin) * dpp), dpp) / 2
+                const delta = Math.max(Math.floor(point.Dist(origin) * dpp), dpp) / 2;
 
                 for(let y = startY - delta; y < startY + delta; ++y)
                 {

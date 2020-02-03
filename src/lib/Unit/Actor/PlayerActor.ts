@@ -135,25 +135,31 @@ export class PlayerActor extends BaseActor
             throw new Error("Shot was too quick");
         }
 
-        const r = this.GetBody().GetRadius();
-        const d = Vector.ByRad(this.GetBody().GetRotation());
-        const p = this.GetBody().GetOffset().Add(d.Scale(r));
+        const body = this.GetBody();
+
+        const r = body.GetRadius();
+        const d = Vector.ByRad(body.GetRotation());
+        const p = body.GetOffset().Add(d.Scale(r));
 
         const actor = new ArrowActor;
+        const facing = Vector.ByRad(body.GetRotation());
+        const force = facing.Scale(1500);
 
         actor.Init({
             id: id,
             texture: "res/stone.png",
             damage: this.damage,
-            speed: 0.075,
             parent: this.parent,
             world: this.world,
-            blocking: false,
             body: Body.CreateBoxBody(
                 new Vector(0.1, 0.1),
-                this.GetBody().GetRotation(),
+                body.GetRotation(),
                 p,
-                { z: this.GetBody().GetZ() })
+                {
+                    z: body.GetZ(),
+                    force: force,
+                    density: 3
+                })
         });
 
         this.world.GetActors().Set(actor);
@@ -166,6 +172,7 @@ export class PlayerActor extends BaseActor
      */
     public Damage(damage: number): void
     {
+        debugger;
         this.health -= damage;
 
         Logger.Info(this, "Actor was damaged", damage, this);

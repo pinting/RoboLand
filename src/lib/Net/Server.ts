@@ -9,11 +9,12 @@ import { GroundCell } from "../Unit/Cell/GroundCell";
 import { BaseCell } from "../Unit/Cell/BaseCell";
 import { BaseActor } from "../Unit/Actor/BaseActor";
 import { Body } from "../Physics/Body";
+import { Unit } from "../Unit/Unit";
 
 export class Server
 {
     private readonly world: World;
-    private readonly spawns: BaseCell[];
+    private readonly spawns: Body[];
     private readonly hosts: Host[] = [];
 
     /**
@@ -28,7 +29,8 @@ export class Server
 
         this.spawns = this.world.GetCells().GetArray()
             .filter(c => c instanceof GroundCell)
-            .sort((a, b) => Tools.Random(-100, 100));
+            .sort((a, b) => Tools.Random(-100, 100))
+            .map(c => c.GetBody());
         
         this.world.OnUpdate.Add(unit => this.hosts
             .forEach(host => host.SendElement(unit)));
@@ -101,7 +103,7 @@ export class Server
 
         for(let spawn of this.spawns)
         {
-            actors = this.world.GetActors().FindCollisions(spawn);
+            actors = this.world.GetActors().GetArray().filter(u => u.GetBody().Collide(spawn));
 
             if(actors.length)
             {
@@ -111,8 +113,8 @@ export class Server
             const body = Body.CreateBoxBody(
                 new Vector(1, 1), 
                 0, 
-                spawn.GetBody().GetOffset(), 
-                { z: spawn.GetBody().GetZ() });
+                spawn.GetOffset(), 
+                { z: spawn.GetZ() });
 
             player.Init({
                 id: playerTag,

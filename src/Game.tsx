@@ -15,6 +15,8 @@ import { Shared } from "./Shared";
 import { Constants } from "./Constants";
 import { PlayerActor } from "./lib/Unit/Actor/PlayerActor";
 import { Vector } from "./lib/Geometry/Vector";
+import { ResourceManager } from "./lib/Util/ResourceManager";
+import { IDump } from "./lib/IDump";
 
 /**
  * Type of the connect format.
@@ -164,8 +166,15 @@ export class Game extends Shared<GameProps, GameState>
         }
 
         // Create server world, load it, create server
-        const raw = JSON.parse(await Http.Get("res/world.json"));
-        const serverWorld = Exportable.Import(raw);
+        const buffer = await Http.Get("res/sample.roboland");
+        
+        ResourceManager.Load(buffer);
+
+        const rootResource = ResourceManager.ByUri("world.dump");
+        const rootDump = JSON.parse(Tools.BufferToString(rootResource.Buffer)) as IDump;
+        const dump = Exportable.Resolve(rootDump);
+
+        const serverWorld = Exportable.Import(dump);
 
         this.server = new Server(serverWorld);
 
@@ -199,7 +208,8 @@ export class Game extends Shared<GameProps, GameState>
         const renderer = new Renderer({ 
             canvas: this.canvas, 
             world: this.world,
-            debug: false
+            debug: false,
+            disableShadows: true
         });
         const receiver = await this.CreateReceiver(renderer);
 

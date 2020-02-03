@@ -1,22 +1,17 @@
 import { BaseActor, BaseActorArgs } from "./BaseActor";
 import { Exportable, ExportType } from "../../Exportable";
-import { UnitArgs } from "../Unit";
-import { Vector } from "../../Geometry/Vector";
 import { PlayerActor } from "./PlayerActor";
+import { Vector } from "../../Geometry/Vector";
 
 export interface ArrowActorArgs extends BaseActorArgs
 {
     damage?: number;
-    speed?: number;
 }
 
 export class ArrowActor extends BaseActor
 {
     @Exportable.Register(ExportType.Visible)
     protected damage: number;
-
-    @Exportable.Register(ExportType.Visible)
-    protected speed: number;
 
     /**
      * @inheritDoc
@@ -34,7 +29,6 @@ export class ArrowActor extends BaseActor
         super.InitPre(args);
         
         this.damage = args.damage;
-        this.speed = args.speed;
     }
 
     /**
@@ -43,12 +37,6 @@ export class ArrowActor extends BaseActor
     protected InitPost(args: ArrowActorArgs = {})
     {
         super.InitPost(args);
-        
-        const facing = Vector.ByRad(this.GetBody().GetRotation());
-        const force = facing.Scale(-1 * this.speed);
-
-        this.GetBody().AddForce(force);
-        console.log(this.GetBody(), force);
     }
 
     /**
@@ -57,28 +45,30 @@ export class ArrowActor extends BaseActor
     protected OnTick(dt: number): void
     {
         super.OnTick(dt);
+
+        // If arrow stops moving, dispose it
+        if(this.GetBody().GetVelocity().Equal(new Vector) && this.GetBody().GetForce().Equal(new Vector))
+        {
+            this.Dispose();
+            return;
+        }
         
-        /*
         const result = this.world.GetUnits().FindCollisions(this);
 
-        let hit = false;
-
-        // Damage every touched living actor
         for(const actor of result)
         {
+            // Damage every touched player
             if(actor instanceof PlayerActor)
             {
                 actor.Damage(this.damage);
-                hit = true;
             }
         }
 
-        // If the arrow hit a living thing, dispose it
-        if(hit)
+        // If the arrow hit anything, dispose it
+        if(result.length)
         {
             this.Dispose();
         }
-        */
     }
 }
 

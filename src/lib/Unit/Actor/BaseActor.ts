@@ -27,16 +27,16 @@ export abstract class BaseActor extends Unit
         }
 
         const body = this.GetBody();
-        const clone = <BaseActor>this.Clone();
-
-        clone.SetBody(Body.CreateBoxBody(scale, rotation, offset, { z: body.GetZ() }));
+        const newBody = <Body>body.Clone();
+        
+        newBody.SetVirtual(scale, rotation, offset);
 
         // Get the currently covered cells and the next ones
         const prev = body.GetOffset()
-            ? this.world.GetCells().FindCollisions(this)
+            ? this.world.GetCells().GetArray().filter(c => c.GetBody().Collide(body))
             : [];
         
-        const next = this.world.GetCells().FindCollisions(clone);
+        const next = this.world.GetCells().GetArray().filter(c => c.GetBody().Collide(newBody));
 
         if(!next.length)
         {
@@ -63,7 +63,8 @@ export abstract class BaseActor extends Unit
             return;
         }
 
-        this.world.GetActors().Remove(this);
+        this.world && this.world.GetActors().Remove(this);
+
         super.Dispose();
     }
 }

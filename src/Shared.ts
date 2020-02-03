@@ -15,6 +15,9 @@ import { LightCell } from "./lib/Unit/Cell/LightCell";
 import { Polygon } from "./lib/Geometry/Polygon";
 import { Body } from "./lib/Physics/Body";
 import { Matrix } from "./lib/Geometry/Matrix";
+import { Logger } from "./lib/Util/Logger";
+import { IDump } from "./lib/IDump";
+import { ResourceManager } from "./lib/Util/ResourceManager";
 
 // Dependency classes as a dependency
 Exportable.Dependency(ArrowActor);
@@ -44,7 +47,28 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
     constructor(props) 
     {
         super(props);
+
         Keyboard.Init();
+    }
+
+    public SaveWorkspace()
+    {
+        const blob = ResourceManager.Save();
+
+        if(window.navigator.msSaveOrOpenBlob)
+        {
+            window.navigator.msSaveBlob(blob, name);
+        }
+        else {
+            var link = window.document.createElement("a");
+
+            link.href = window.URL.createObjectURL(blob);
+            link.download = name;
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     }
 
     /**

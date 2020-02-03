@@ -61,10 +61,14 @@ export class World extends Exportable
         if(unit instanceof BaseCell)
         {
             this.cells.push(unit);
+            
+            (unit as any).world = this;
         }
         else if(unit instanceof BaseActor)
         {
             this.actors.push(unit);
+
+            (unit as any).world = this;
         }
         else
         {
@@ -85,7 +89,7 @@ export class World extends Exportable
             for(let j = i + 1; j < units.GetLength(); j++)
             {
                 const b: Unit = units.GetArray()[j];
-                const collision = a.IsBlocking() && b.IsBlocking() && a.Collide(b);
+                const collision = a.Collide(b);
 
                 if(collision && collision.Points.length)
                 {
@@ -160,7 +164,7 @@ export class World extends Exportable
         return super.Import(input);
     }
     
-    public static CreateBox(size: number, texture: string = null): World
+    public static CreateBox(size: number): World
     {
         const world = new World;
 
@@ -177,14 +181,16 @@ export class World extends Exportable
             {
                 cell = new StoneCell();
                 args = {
-                    texture: "res/stone.png"
+                    texture: "res/stone.png",
+                    light: 5
                 };
             }
             else
             { 
                 cell = new GroundCell();
                 args = {
-                    texture: "res/ground.png"
+                    texture: "res/ground.png",
+                    light: 5,
                 };
             }
 
@@ -195,7 +201,10 @@ export class World extends Exportable
                     new Vector(1, 1), 
                     0,
                     new Vector(i % size, (i -  (i % size)) / size),
-                    { z: 0 })
+                    { 
+                        z: 0,
+                        density: Infinity
+                    })
             });
 
             world.Add(cell);

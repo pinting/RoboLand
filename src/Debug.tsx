@@ -18,6 +18,7 @@ import { Logger, LogType } from "./lib/Util/Logger";
 import { SimplexNoise } from "./lib/Util/SimplexNoise";
 import { Shared } from "./Shared";
 import { Tools } from "./lib/Util/Tools";
+import { ResourceManager } from "./lib/Util/ResourceManager";
 import { Constants } from "./Constants";
 import { Polygon } from "./lib/Geometry/Polygon";
 import { Body } from "./lib/Physics/Body";
@@ -32,30 +33,49 @@ export class Debug extends Shared
     private canvasB: HTMLCanvasElement;
     private canvasS: HTMLCanvasElement;
 
-    /**
-     * Create 2 clients and 1 server and render everthing onto the 3 canvases.
-     */
-    public async Main()
+    public async OnePlayer()
     {
-        // For debug
-        Tools.Extract(window, {
-            World,
-            Tools,
-            Exportable,
-            Vector,
-            Matrix,
-            GroundCell,
-            PlayerActor,
-            StoneCell,
-            Logger,
-            SimplexNoise,
-            Polygon,
-            Body
+        const world = World.CreateBox(16);
+
+        const player = new PlayerActor();
+
+        player.Init({
+            body: Body.CreateBoxBody(new Vector(1, 1), 0, new Vector(2, 2)),
+            texture: "res/player.png",
+            speed: 1500,
+            damage: 0.1,
+            health: 1,
+            rotSpeed: 200
         });
 
-        Logger.Type = LogType.Warn;
-        Keyboard.Init();
+        world.Add(player);
+    
+        // Render the server
+        const renderer = new Renderer({ 
+            canvas: this.canvasS,
+            world: world, 
+            debug: true,
+            disableShadows: true
+        });
+    
+        await renderer.Load();
+            
+        const keys = 
+        {
+            up: "ARROWUP", 
+            left: "ARROWLEFT", 
+            down: "ARROWDOWN", 
+            right: "ARROWRIGHT",
+            shoot: " "
+        };
 
+        renderer.OnDraw.Add(() => this.SetupControl(player, keys));
+        renderer.Start();
+
+    }
+
+    public async TwoPlayer()
+    {
         const delay = Constants.DebugDelay;
 
         const worldA: World = new World();
@@ -153,6 +173,35 @@ export class Debug extends Shared
             worldB: worldB,
             worldS: world
         });
+    }
+
+    /**
+     * Create 2 clients and 1 server and render everthing onto the 3 canvases.
+     */
+    public async Main()
+    {
+        // For debug
+        Tools.Extract(window, {
+            World,
+            Tools,
+            Exportable,
+            Vector,
+            Matrix,
+            GroundCell,
+            PlayerActor,
+            StoneCell,
+            Logger,
+            SimplexNoise,
+            ResourceManager,
+            Polygon,
+            Body,
+            Http
+        });
+
+        Logger.Type = LogType.Warn;
+        Keyboard.Init();
+
+        this.TwoPlayer();
     }
 
     /**
