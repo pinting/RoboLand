@@ -1,56 +1,43 @@
 import * as React from "react";
-import "./Shared.css";
-import { PlayerActor } from "./lib/Unit/Actor/PlayerActor";
-import { Vector } from "./lib/Geometry/Vector";
-import { Keyboard } from "./lib/Util/Keyboard";
-import { Tools } from "./lib/Util/Tools";
-import { Exportable } from "./lib/Exportable";
-import { World } from "./lib/World";
-import { KillCell } from "./lib/Unit/Cell/KillCell";
-import { NormalCell } from "./lib/Unit/Cell/NormalCell";
-import { DamageCell } from "./lib/Unit/Cell/DamageCell";
-import { ArrowActor } from "./lib/Unit/Actor/ArrowActor";
-import { Polygon } from "./lib/Geometry/Polygon";
-import { Body } from "./lib/Physics/Body";
-import { Matrix } from "./lib/Geometry/Matrix";
-import { ResourceManager } from "./lib/Util/ResourceManager";
-import { BaseCell } from "./lib/Unit/Cell/BaseCell";
+import { PlayerActor } from "../lib/Unit/Actor/PlayerActor";
+import { Vector } from "../lib/Geometry/Vector";
+import { Keyboard } from "../lib/Util/Keyboard";
+import { Tools } from "../lib/Util/Tools";
+import { Exportable } from "../lib/Exportable";
+import { World } from "../lib/World";
+import { KillCell } from "../lib/Unit/Cell/KillCell";
+import { NormalCell } from "../lib/Unit/Cell/NormalCell";
+import { DamageCell } from "../lib/Unit/Cell/DamageCell";
+import { ArrowActor } from "../lib/Unit/Actor/ArrowActor";
+import { Polygon } from "../lib/Geometry/Polygon";
+import { Body } from "../lib/Physics/Body";
+import { Matrix } from "../lib/Geometry/Matrix";
+import { ResourceManager } from "../lib/Util/ResourceManager";
+import { BaseCell } from "../lib/Unit/Cell/BaseCell";
 
-// Dependency classes as a dependency
-Exportable.Dependency(ArrowActor);
-Exportable.Dependency(PlayerActor);
-Exportable.Dependency(DamageCell);
-Exportable.Dependency(NormalCell);
-Exportable.Dependency(KillCell);
-Exportable.Dependency(World);
-Exportable.Dependency(Vector);
-Exportable.Dependency(Matrix);
-Exportable.Dependency(Polygon);
-Exportable.Dependency(Body);
-
-const SHOT_DELAY = 1000;
-
-export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
+export class Shared
 {
-    protected nextShoot = +new Date(0);
-
     /**
-     * The consturtor of the Shared unit - which is abstract, so
-     * cannot be constructed on its own.
-     * @param props
+     * Import the inner modules of the engine.
      */
-    constructor(props) 
+    public static RegisterDependencies()
     {
-        super(props);
-
-        Keyboard.Init();
+        Exportable.Dependency(ArrowActor);
+        Exportable.Dependency(PlayerActor);
+        Exportable.Dependency(DamageCell);
+        Exportable.Dependency(NormalCell);
+        Exportable.Dependency(KillCell);
+        Exportable.Dependency(World);
+        Exportable.Dependency(Vector);
+        Exportable.Dependency(Matrix);
+        Exportable.Dependency(Polygon);
+        Exportable.Dependency(Body);
     }
-
     /**
      * Create a sample world.
      * @param size 
      */
-    public CreateSampleWorld(size: number): World
+    public static CreateSampleWorld(size: number): World
     {
         const world = new World;
 
@@ -78,8 +65,11 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
                             density: Infinity
                         })
                 });
+                
+                world.Add(cell);
             }
-            else if(i < size || i > size * size - size)
+            
+            if(i < size || i >= size * size - size)
             {
                 // Stone
                 cell = new NormalCell();
@@ -123,7 +113,7 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
     /**
      * Save all loaded resources as a file.
      */
-    public SaveWorkspace()
+    public static SaveWorkspace()
     {
         const blob = ResourceManager.Save();
 
@@ -144,7 +134,7 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
     }
 
     /**
-     * Game cycle
+     * Should be used inside the main loop
      * @param player 
      * @param data.up
      * @param data.left
@@ -152,7 +142,7 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
      * @param data.right
      * @param data.shoot
      */
-    protected SetupControl(player: PlayerActor, { up, left, down, right, shoot })
+    public static SetupControl(player: PlayerActor, { up, left, down, right, shoot })
     {
         if(!player)
         {
@@ -207,10 +197,9 @@ export abstract class Shared<P = {}, S = {}> extends React.PureComponent<P, S>
             player.StopWalk();
         }
 
-        if(Keyboard.Keys[shoot] && this.nextShoot <= +new Date)
+        if(Keyboard.Keys[shoot])
         {
             player.Shoot(Tools.Unique());
-            this.nextShoot = +new Date + SHOT_DELAY;
         }
     }
 }

@@ -138,7 +138,7 @@ export class SimplexNoise
         // For the 2D case, the simplex shape is an equilateral triangle.
         // Determine which simplex we are in.
 
-        // Offsets for second (middle) corner of simplex in (i, j) vectors
+        // positions for second (middle) corner of simplex in (i, j) vectors
         let i1: number;
         let j1: number; 
 
@@ -159,9 +159,9 @@ export class SimplexNoise
         // a step of (0, 1) in (i, j) means a step of (-c, 1 - c) in (X, Y), where
         // c = (3 - sqrt(3)) / 6
 
-        let x1: number = x0 - i1 + SimplexNoise.G2; // Offsets for middle corner in (X, Y) unskewed vectors
+        let x1: number = x0 - i1 + SimplexNoise.G2; // positions for middle corner in (X, Y) unskewed vectors
         let y1: number = y0 - j1 + SimplexNoise.G2;
-        let x2: number = x0 - 1.0 + 2.0 * SimplexNoise.G2; // Offsets for last corner in (X, Y) unskewed vectors
+        let x2: number = x0 - 1.0 + 2.0 * SimplexNoise.G2; // positions for last corner in (X, Y) unskewed vectors
         let y2: number = y0 - 1.0 + 2.0 * SimplexNoise.G2;
 
         // Work out the hashed gradient indices of the three simplex corners
@@ -245,12 +245,12 @@ export class SimplexNoise
         // For the 3D case, the simplex shape is a slightly irregular tetrahedron.
         // Determine which simplex we are in.
 
-        // Offsets for second corner of simplex in (i, j, k) vectors
+        // positions for second corner of simplex in (i, j, k) vectors
         let i1: number;
         let j1: number;
         let k1: number;
 
-        // Offsets for third corner of simplex in (i, j, k) vectors
+        // positions for third corner of simplex in (i, j, k) vectors
         let i2: number;
         let j2: number;
         let k2: number;
@@ -283,13 +283,13 @@ export class SimplexNoise
         // a step of (0, 1, 0) in (i, j, k) means a step of (-c, 1-c, -c) in (X, Y, Z), and
         // a step of (0, 0, 1) in (i, j, k) means a step of (-c, -c, 1-c) in (X, Y, Z), where
         // c = 1 / 6.
-        let x1 = x0 - i1 + SimplexNoise.G3; // Offsets for second corner in (X, Y, Z) vectors
+        let x1 = x0 - i1 + SimplexNoise.G3; // positions for second corner in (X, Y, Z) vectors
         let y1 = y0 - j1 + SimplexNoise.G3;
         let z1 = z0 - k1 + SimplexNoise.G3;
-        let x2 = x0 - i2 + 2.0 * SimplexNoise.G3; // Offsets for third corner in (X, Y, Z) vectors
+        let x2 = x0 - i2 + 2.0 * SimplexNoise.G3; // positions for third corner in (X, Y, Z) vectors
         let y2 = y0 - j2 + 2.0 * SimplexNoise.G3;
         let z2 = z0 - k2 + 2.0 * SimplexNoise.G3;
-        let x3 = x0 - 1.0 + 3.0 * SimplexNoise.G3; // Offsets for last corner in (X, Y, Z) vectors
+        let x3 = x0 - 1.0 + 3.0 * SimplexNoise.G3; // positions for last corner in (X, Y, Z) vectors
         let y3 = y0 - 1.0 + 3.0 * SimplexNoise.G3;
         let z3 = z0 - 1.0 + 3.0 * SimplexNoise.G3;
 

@@ -1,22 +1,19 @@
 import * as React from "react";
-import "./Game.css";
-import { World } from "./lib/World";
-import { Server } from './lib/Net/Server';
-import { Renderer } from "./lib/Renderer";
-import { Host } from "./lib/Net/Host";
-import { FakeChannel } from "./lib/Net/Channel/FakeChannel";
-import { Client } from "./lib/Net/Client";
-import { PeerChannel } from "./lib/Net/Channel/PeerChannel";
-import { Exportable } from "./lib/Exportable";
-import { Http } from "./lib/Util/Http";
-import { Tools } from "./lib/Util/Tools";
-import { Helper } from "./Helper";
+import Cristal from "react-cristal";
+import * as Bootstrap from "reactstrap";
+
+import { World } from "../lib/World";
+import { Server } from '../lib/Net/Server';
+import { Renderer } from "../lib/Renderer";
+import { Host } from "../lib/Net/Host";
+import { FakeChannel } from "../lib/Net/Channel/FakeChannel";
+import { Client } from "../lib/Net/Client";
+import { PeerChannel } from "../lib/Net/Channel/PeerChannel";
+import { Tools } from "../lib/Util/Tools";
+import { Helper } from "../Helper";
 import { Shared } from "./Shared";
-import { Constants } from "./Constants";
-import { PlayerActor } from "./lib/Unit/Actor/PlayerActor";
-import { Vector } from "./lib/Geometry/Vector";
-import { ResourceManager } from "./lib/Util/ResourceManager";
-import { IDump } from "./lib/IDump";
+import { Keyboard } from "../lib/Util/Keyboard";
+import { Params } from "../Params";
 
 /**
  * Type of the connect format.
@@ -37,25 +34,17 @@ interface ConnectFormat
     Payload: string;
 }
 
-/**
- * Props of the Game view.
- */
 interface GameProps {
     // Empty
 }
 
-/**
- * State of the Game view.
- */
 interface GameState {
     message: string;
     showAdd: boolean;
 }
 
-export class Game extends Shared<GameProps, GameState>
+export class Game extends React.PureComponent<GameProps, GameState>
 {
-    public static Name = "game";
-
     private canvas: HTMLCanvasElement;
 
     private tabId: string = Tools.Unique();
@@ -70,6 +59,9 @@ export class Game extends Shared<GameProps, GameState>
     constructor(props) 
     {
         super(props);
+        
+        Keyboard.Init();
+        Shared.RegisterDependencies();
     
         this.state = {
             message: "",
@@ -81,25 +73,24 @@ export class Game extends Shared<GameProps, GameState>
      * Construct a new URL from ConnectFormat.
      * @param format 
      */
-    private static CreateUrl(format: ConnectFormat)
+    private static createUrl(format: ConnectFormat)
     {
         return location.origin + 
             location.pathname + 
             "#" + 
             Helper.CreateHash({
-                [Constants.Params.View]: Game.Name,
-                [Constants.Params.Connect]: btoa(JSON.stringify(format))
+                [Params.Connect]: btoa(JSON.stringify(format))
             });
     };
 
     /**
      * Read the connect parameter of the location hash.
      */
-    private static ReadConnect(): ConnectFormat
+    private static readConnect(): ConnectFormat
     {
         try 
         {
-            const connect = Helper.GetParam(Constants.Params.Connect);
+            const connect = Helper.GetParam(Params.Connect);
 
             return JSON.parse(atob(connect));
         }
@@ -116,7 +107,7 @@ export class Game extends Shared<GameProps, GameState>
     /**
      * Create an offer.
      */
-    private async ClickAdd(): Promise<void>
+    private async clickAdd(): Promise<void>
     {
         if(!this.server)
         {
@@ -125,7 +116,7 @@ export class Game extends Shared<GameProps, GameState>
 
         const channel = new PeerChannel();
         const offer = await channel.Offer();
-        const url = Game.CreateUrl({
+        const url = Game.createUrl({
             Tab: this.tabId,
             Type: ConnectType.Offer,
             Payload: offer
@@ -158,14 +149,14 @@ export class Game extends Shared<GameProps, GameState>
     /**
      * Create receiver (and server).
      */
-    private async CreateReceiver(renderer: Renderer): Promise<Client>
+    private async createReceiver(renderer: Renderer): Promise<Client>
     {
         if(this.channel && !this.channel.IsOfferor())
         {
             return new Client(this.channel, this.world);
         }
 
-    /*
+        /*
         // Create server world, load it, create server
         const buffer = await Http.Get("res/sample.roboland");
         
@@ -177,7 +168,7 @@ export class Game extends Shared<GameProps, GameState>
         const serverWorld = Exportable.Import(dump);
         */
 
-        const serverWorld = this.CreateSampleWorld(16);
+        const serverWorld = Shared.CreateSampleWorld(16);
 
         this.server = new Server(serverWorld);
 
@@ -204,14 +195,14 @@ export class Game extends Shared<GameProps, GameState>
     /**
      * Start the game.
      */
-    private async Start()
+    private async start()
     {
         const renderer = new Renderer({ 
             canvas: this.canvas, 
             world: this.world
         });
         
-        const receiver = await this.CreateReceiver(renderer);
+        const receiver = await this.createReceiver(renderer);
 
         receiver.OnPlayer = async player =>
         {
@@ -230,8 +221,8 @@ export class Game extends Shared<GameProps, GameState>
 
             renderer.OnDraw.Add(() => 
             {
-                this.SetupControl(player, keys);
-                renderer.SetCenter(player.GetBody().GetOffset());
+                Shared.SetupControl(player, keys);
+                renderer.SetCenter(player.GetBody().GetPosition());
             });
 
             renderer.Start();
@@ -241,18 +232,18 @@ export class Game extends Shared<GameProps, GameState>
     /**
      * Determinate by the connect parameter if this is a host or a client.
      */
-    private async Main(): Promise<void>
+    private async main(): Promise<void>
     {
-        const connect = Game.ReadConnect();
+        const connect = Game.readConnect();
 
         // If it is an offer, create an answer and wait for an open channel.
         if(connect.Type == ConnectType.Offer)
         {
             this.channel = new PeerChannel();
-            this.channel.OnOpen = () => this.Start();
+            this.channel.OnOpen = () => this.start();
 
             const answer = await this.channel.Answer(connect.Payload);
-            const url = Game.CreateUrl({
+            const url = Game.createUrl({
                 Tab: connect.Tab,
                 Type: ConnectType.Answer,
                 Payload: answer
@@ -272,7 +263,7 @@ export class Game extends Shared<GameProps, GameState>
         // If no connect is present, start the game
         else
         {
-            this.Start();
+            this.start();
         }
     }
 
@@ -281,7 +272,7 @@ export class Game extends Shared<GameProps, GameState>
      */
     public componentDidMount(): void
     {
-        this.Main();
+        this.main();
     }
 
     /**
@@ -289,16 +280,48 @@ export class Game extends Shared<GameProps, GameState>
      */
     public render(): JSX.Element
     {
+        const canvasHolderStyle: React.CSSProperties = {
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)"
+        };
+
+        const bottomRightStyle: React.CSSProperties = {
+            position: "fixed",
+            bottom: 0,
+            right: 0
+        };
+
+        const messageStyle: React.CSSProperties = {
+            position: "fixed",
+            bottom: "25px",
+            left: 0,
+            width: "100%",
+            textAlign: "center"
+        };
+
+        const addButtonStyle: React.CSSProperties = {
+            margin: "20px",
+            width: "50px",
+            height: "50px",
+            borderRadius: "50px"
+        };
+
         return (
             <div>
-                <div className="game-center">
-                    <canvas ref={c => this.canvas = c}></canvas>
+                <div style={canvasHolderStyle}>
+                    <canvas style={{ background: "black" }} ref={c => this.canvas = c}></canvas>
                 </div>
-                <div className="game-corner">
+                <div style={bottomRightStyle}>
                     {this.state.showAdd && 
-                        <button onClick={this.ClickAdd.bind(this)}>Add</button>}
+                        <button
+                            style={addButtonStyle}
+                            onClick={this.clickAdd.bind(this)}>
+                                Add
+                        </button>}
                 </div>
-                <div className="game-message">
+                <div style={messageStyle}>
                     {this.state.message}
                 </div>
             </div>

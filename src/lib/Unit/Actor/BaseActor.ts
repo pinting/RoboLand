@@ -23,9 +23,9 @@ export abstract class BaseActor extends Unit
      * Validate a positional change of the body.
      * @param scale 
      * @param rotation 
-     * @param offset 
+     * @param position 
      */
-    protected ValidateBody(scale: Vector, rotation: number, offset: Vector): boolean
+    protected ValidateBody(scale: Vector, rotation: number, position: Vector): boolean
     {
         if(this.ignore || !this.world)
         {
@@ -35,10 +35,10 @@ export abstract class BaseActor extends Unit
         const body = this.GetBody();
         const newBody = <Body>body.Clone();
         
-        newBody.SetVirtual(scale, rotation, offset);
+        newBody.SetVirtual(scale, rotation, position);
 
         // Get the currently covered cells and the next ones
-        const prev = body.GetOffset()
+        const prev = body.GetPosition()
             ? this.world.GetCells().GetArray().filter(c => c.GetBody().Collide(body))
             : [];
         

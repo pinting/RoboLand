@@ -49,11 +49,7 @@ export class Helper
     {
         location.hash = this.CreateHash(dict);
     }
-
-    /**
-     * Copy to clipboard.
-     * @param text 
-     */
+    
     public static async SetClipboard(text: string): Promise<boolean> 
     {
         const fallback = async (text) => 

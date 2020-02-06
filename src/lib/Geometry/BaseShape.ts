@@ -9,7 +9,7 @@ export abstract class BaseShape extends Exportable
     protected points: Vector[];
 
     @Exportable.Register(ExportType.Visible)
-    protected offset: Vector = new Vector(0, 0);
+    protected position: Vector = new Vector(0, 0);
     
     @Exportable.Register(ExportType.Visible)
     protected rotation: number = 0;
@@ -31,7 +31,7 @@ export abstract class BaseShape extends Exportable
 
     /**
      * Get virtual points.
-     * Virtual equals the base points scaled, rotated and increased by an offset.
+     * Virtual equals the base points scaled, rotated and increased by an position.
      */
     public GetVirtual(): Vector[]
     {
@@ -40,17 +40,17 @@ export abstract class BaseShape extends Exportable
             this.virtual = this.points.map(p => p
                 .Scale(this.scale)
                 .Rotate(this.rotation)
-                .Add(this.offset));
+                .Add(this.position));
         }
 
         return this.virtual;
     }
     
-    public SetVirtual(scale?: Vector, rotation?: number, offset?: Vector): void
+    public SetVirtual(scale?: Vector, rotation?: number, position?: Vector): void
     {
         scale && (this.scale = scale);
         rotation && (this.rotation = rotation);
-        offset && (this.offset = offset);
+        position && (this.position = position);
 
         this.virtual = null;
     }

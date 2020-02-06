@@ -31,7 +31,7 @@ export abstract class Exportable
      * These properties will not be moved to the base.
      * By doing this, we can use the same base for multiply objects.
      */
-    public static SaveFileExtract = ["offset", "scale", "rotation"];
+    public static SaveFileExtract = ["position", "scale", "rotation"];
 
     /**
      * Under this length limit, the exported JSON will not be splitted
@@ -472,7 +472,7 @@ export abstract class Exportable
 
         // Only position diff
         if(Object.keys(props).length === 1 &&
-            props.hasOwnProperty("offset"))
+            props.hasOwnProperty("position"))
         {
             return true;
         }
@@ -486,7 +486,7 @@ export abstract class Exportable
 
         // Only position and angle diff
         if(Object.keys(props).length === 2 &&
-            props.hasOwnProperty("offset") &&
+            props.hasOwnProperty("position") &&
             props.hasOwnProperty("rotation"))
         {
             return true;

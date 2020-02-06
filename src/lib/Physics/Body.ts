@@ -34,7 +34,7 @@ export class Body extends Exportable
     protected rotation: number = 0;
     
     @Exportable.Register(ExportType.Visible, (s, v) => s.SetVirtual(null, null, v))
-    protected offset: Vector = new Vector(0, 0);
+    protected position: Vector = new Vector(0, 0);
 
     @Exportable.Register(ExportType.Visible)
     protected gravity: Vector; // Gravity
@@ -74,7 +74,7 @@ export class Body extends Exportable
     protected m: number;  // Mass
     protected im: number; // Inverse mass
 
-    public Validate: (scale: Vector, rotation: number, offset: Vector) => boolean;
+    public Validate: (scale: Vector, rotation: number, position: Vector) => boolean;
 
     /**
      * Construct a new body with the given shapes.
@@ -119,9 +119,9 @@ export class Body extends Exportable
         return this.rotation;
     }
 
-    public GetOffset(): Vector
+    public GetPosition(): Vector
     {
-        return this.offset;
+        return this.position;
     }
 
     public GetScale(): Vector
@@ -223,7 +223,7 @@ export class Body extends Exportable
             return null;
         }
 
-        const dist = this.offset.Dist(other.offset);
+        const dist = this.position.Dist(other.position);
 
         // Optimize, if unit is too far away, skip deeper collision detection
         if(dist > this.GetRadius() + other.GetRadius())
@@ -242,20 +242,20 @@ export class Body extends Exportable
         return contact;
     }
 
-    public SetVirtual(scale?: Vector, rotation?: number, offset?: Vector): void
+    public SetVirtual(scale?: Vector, rotation?: number, position?: Vector): void
     {
         if(this.Validate && !this.Validate(scale || this.scale,
             Number.isFinite(rotation) ? rotation : this.rotation,
-            offset || this.offset))
+            position || this.position))
         {
             return;
         }
 
         scale && (this.scale = scale);
         rotation && (this.rotation = rotation);
-        offset && (this.offset = offset);
+        position && (this.position = position);
 
-        this.shapes.forEach(s => s.SetVirtual(scale, rotation, offset));
+        this.shapes.forEach(s => s.SetVirtual(scale, rotation, position));
     }
 
     /**
@@ -276,7 +276,7 @@ export class Body extends Exportable
     }
 
     /**
-     * Calculate the next rotation and offset from the angular velocity and velocity.
+     * Calculate the next rotation and position from the angular velocity and velocity.
      * @param dt 
      */
     public IntegrateVelocity(dt: number)
@@ -286,10 +286,10 @@ export class Body extends Exportable
             return;
         }
 
-        const nextOffset = this.offset.Add(this.v.Scale(dt));
+        const nextposition = this.position.Add(this.v.Scale(dt));
         const nextRot = this.rotation + this.av * dt;
 
-        this.SetVirtual(null, nextRot, nextOffset);
+        this.SetVirtual(null, nextRot, nextposition);
     }
 
     /**
@@ -377,8 +377,8 @@ export class Body extends Exportable
 
         const correction = c.Normal.Scale((Math.max(c.Penetration - kSlop, 0) / (a.im + b.im)) * percent);
 
-        a.offset = a.offset.Add(correction.Scale(a.im));
-        b.offset = b.offset.Add(correction.Scale(b.im));
+        a.position = a.position.Add(correction.Scale(a.im));
+        b.position = b.position.Add(correction.Scale(b.im));
     }
     
     /**
@@ -407,8 +407,8 @@ export class Body extends Exportable
 
         for(let i = 0; i < c.Points.length; i++)
         {
-            const ra = c.Points[i].Sub(a.offset);
-            const rb = c.Points[i].Sub(b.offset);
+            const ra = c.Points[i].Sub(a.position);
+            const rb = c.Points[i].Sub(b.position);
 
             const ca = Vector.Cross(a.av, ra) as Vector;
             const cb = Vector.Cross(b.av, rb) as Vector;
@@ -427,8 +427,8 @@ export class Body extends Exportable
         for(let i = 0; i < c.Points.length; i++)
         {
             // Calculate radii from COM to contact
-            const ra = c.Points[i].Sub(a.offset);
-            const rb = c.Points[i].Sub(b.offset);
+            const ra = c.Points[i].Sub(a.position);
+            const rb = c.Points[i].Sub(b.position);
 
             // Relative velocity
             let cb = Vector.Cross(b.av, rb) as Vector;
@@ -508,11 +508,11 @@ export class Body extends Exportable
         }
     }
     
-    public static CreateBoxBody(scale: Vector, rotation: number, offset: Vector, args: BodyArgs = {}): Body
+    public static CreateBoxBody(scale: Vector, rotation: number, position: Vector, args: BodyArgs = {}): Body
     {
         const body = new Body([Polygon.CreateBox(1)], args);
 
-        body.SetVirtual(scale, rotation, offset);
+        body.SetVirtual(scale, rotation, position);
 
         return body;
     }

@@ -116,7 +116,7 @@ export class Server
             const body = Body.CreateBoxBody(
                 new Vector(1, 1), 
                 0, 
-                spawn.GetOffset(), 
+                spawn.GetPosition(), 
                 { z: spawn.GetZ() });
             
             const arrow = new ArrowActor();

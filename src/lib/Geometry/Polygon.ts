@@ -147,7 +147,7 @@ export class Polygon extends BaseShape
             // B's model space
             let v = this.GetPoints()[i];
 
-            v = au.ScaleByVector(v).Add(this.offset).Sub(other.offset);
+            v = au.ScaleByVector(v).Add(this.position).Sub(other.position);
             v = buT.ScaleByVector(v);
 
             // Compute penetration distance (in B's model space)

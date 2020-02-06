@@ -14,23 +14,57 @@ export interface ISaveItem
     Hash: string;
 }
 
-export interface IResource
+export class Resource
 {
-    Buffer: ArrayBuffer;
-    Uri: string;
-    Hash: string;
+    public Buffer: ArrayBuffer;
+    public Uri: string;
+    public Hash: string;
+    
+    private blob: Blob;
+    private url: string;
+
+    constructor(uri: string, hash: string, buffer: ArrayBuffer)
+    {
+        this.Uri = uri;
+        this.Hash = hash;
+        this.Buffer = buffer;
+    }
+
+    /**
+     * Get an URL to the resource.
+     */
+    public GetUrl(): string
+    {
+        if(this.url)
+        {
+            return this.url;
+        }
+
+        if(Tools.BufferToString(this.Buffer.slice(1, 4)) == "PNG")
+        {
+            this.blob = new Blob([this.Buffer], { type: "image/png" });
+        }
+        else
+        {
+            this.blob = new Blob([this.Buffer]);
+        }
+
+        this.url = URL.createObjectURL(this.blob);
+
+        return this.url;
+    }
 }
 
 // Use IndexedDB to store between sessions
 export class ResourceManager
 {
-    private static storage: IResource[] = [];
+    private static storage: Resource[] = [];
     
     /**
      * Find the file by its hash
      * @param hash 
      */
-    public static ByHash(hash: string): IResource
+    public static ByHash(hash: string): Resource
     {
         return this.storage.find(r => r.Hash === hash);
     }
@@ -39,7 +73,7 @@ export class ResourceManager
      * Find the file by its ID
      * @param uri 
      */
-    public static ByUri(uri: string): IResource
+    public static ByUri(uri: string): Resource
     {
         return this.storage.find(r => r.Uri === uri);
     }
@@ -49,7 +83,7 @@ export class ResourceManager
      * @param uri ID of the file
      * @param buffer 
      */
-    public static async Add(uri: string, buffer: ArrayBuffer): Promise<IResource>
+    public static async Add(uri: string, buffer: ArrayBuffer): Promise<Resource>
     {
         const existing = this.ByUri(uri) !== undefined;
 
@@ -59,11 +93,7 @@ export class ResourceManager
         }
 
         const hash = await Tools.Sha256(buffer);
-        const resource = {
-            Hash: hash,
-            Buffer: buffer,
-            Uri: uri
-        };
+        const resource = new Resource(uri, hash, buffer);
 
         this.storage.push(resource);
 
@@ -133,11 +163,7 @@ export class ResourceManager
             const length = resource.Length;
             const subBuffer = uncompressed.slice(current, current + length);
 
-            this.storage.push({
-                Buffer: subBuffer,
-                Uri: resource.Uri,
-                Hash: resource.Hash
-            });
+            this.storage.push(new Resource(resource.Uri, resource.Hash, subBuffer));
 
             current += length;
         }

@@ -204,7 +204,7 @@ export class PlayerActor extends BaseActor
 
         const r = body.GetRadius();
         const d = Vector.ByRad(body.GetRotation());
-        const p = body.GetOffset().Add(d.Scale(r));
+        const p = body.GetPosition().Add(d.Scale(r));
 
         // Clone the template arrow
         const newArrow = this.arrow.Clone() as ArrowActor;

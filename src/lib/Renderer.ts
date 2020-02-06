@@ -3,7 +3,6 @@ import { Unit } from "./Unit/Unit";
 import { Event } from "./Util/Event";
 import { Vector } from "./Geometry/Vector";
 import { Polygon } from "./Geometry/Polygon";
-import { Body } from "./Physics/Body";
 
 export interface RendererArgs
 {
@@ -16,6 +15,8 @@ export interface RendererArgs
     disableShadows?: boolean;
     viewport?: Vector;
     center?: Vector;
+    noTick?: boolean;
+    selectedZ?: number;
 }
 
 export class Renderer
@@ -34,6 +35,9 @@ export class Renderer
     private lastTick: number;
     private center: Vector;
     private viewport: Vector;
+    private noTick: boolean;
+    private selectedZ: number;
+    private selectedUnit: Unit;
 
     /**
      * Called upon redraw.
@@ -55,6 +59,8 @@ export class Renderer
         this.disableShadows = args.disableShadows || false;
         this.viewport = args.viewport || new Vector(6, 6);
         this.center = args.center || new Vector(0, 0);
+        this.noTick = args.noTick || false;
+        this.selectedZ = args.selectedZ || undefined;
     }
 
     /**
@@ -111,9 +117,17 @@ export class Renderer
     /**
      * Find a Vector under a pixel point.
      */
-    public Find(x: number, y: number): Vector
+    public FindVector(x: number, y: number): Vector
     {
-        return new Vector(x / this.dotPerPoint, y / this.dotPerPoint);
+        const view = this.viewport.Scale(this.dotPerPoint);
+
+        let dx = this.dotPerPoint;
+        let dy = this.dotPerPoint;
+        
+        dx *= this.canvas.clientWidth / view.X;
+        dy *= this.canvas.clientHeight / view.Y;
+
+        return new Vector(x / dx, y / dy);
     }
 
     /**
@@ -128,13 +142,13 @@ export class Renderer
         }
         
         const body = unit.GetBody();
-        const offset = body.GetOffset();
+        const position = body.GetPosition();
         const scale = body.GetScale();
         const texture = this.textures[unit.GetTexture()];
         
         const s = scale.Scale(this.dotPerPoint);
-        const c = (offset.Sub(this.center).Add(this.viewport.Scale(1 / 2))).Scale(this.dotPerPoint);
-        const p = c.Sub(s.Scale(1 / 2));
+        const c = (position.Sub(this.center).Add(this.viewport.Scale(0.5))).Scale(this.dotPerPoint);
+        const p = c.Sub(s.Scale(0.5));
         
         const rot = (angle: number) =>
         {
@@ -157,11 +171,11 @@ export class Renderer
     }
 
     /**
-     * Draw (debug) grid for an unit.
+     * Draw grid for an unit.
      * @param unit 
      * @param color 
      */
-    private DrawDebugGrid(unit: Unit, color: string)
+    private DrawGrid(unit: Unit, color: string)
     {
         const shapes = unit.GetBody().GetShapes();
         let first = null;
@@ -174,7 +188,7 @@ export class Renderer
             {
                 for(let base of shape.GetVirtual())
                 {
-                    const p = (base.Sub(this.center).Add(this.viewport.Scale(1 / 2))).Scale(this.dotPerPoint);
+                    const p = (base.Sub(this.center).Add(this.viewport.Scale(0.5))).Scale(this.dotPerPoint);
 
                     if(first)
                     {
@@ -202,13 +216,9 @@ export class Renderer
     {
         const fullView = this.world.GetSize().Scale(this.dotPerPoint);
         const view = this.viewport.Scale(this.dotPerPoint);
-        
-        const viewBody = Body.CreateBoxBody(this.viewport, 0, this.center.Sub(this.viewport.Scale(1 / 2)));
 
         this.canvas.width = view.X;
         this.canvas.height = view.Y;
-        this.canvas.style.width = view.X + "px";
-        this.canvas.style.height = view.Y + "px";
 
         this.context.fillStyle = "black";
         this.context.fillRect(0, 0, view.X, view.Y);
@@ -219,6 +229,11 @@ export class Renderer
         const process = (unit: Unit) =>
         {
             const z = unit.GetBody().GetZ();
+            
+            if(typeof this.selectedZ == "number" && this.selectedZ != z)
+            {
+                return;
+            }
                 
             if(!levels.hasOwnProperty(z))
             {
@@ -240,7 +255,7 @@ export class Renderer
 
         for(let level of levels)
         {
-            level.forEach(unit => this.DrawUnit(unit));
+            level && level.forEach(unit => this.DrawUnit(unit));
         }
         
         // Draw grid if debug mode is enabled
@@ -249,7 +264,12 @@ export class Renderer
             this.world
                 .GetUnits()
                 .GetArray()
-                .forEach(unit => this.DrawDebugGrid(unit, this.debugColor));
+                .forEach(unit => this.DrawGrid(unit, this.debugColor));
+        }
+
+        if(this.selectedUnit)
+        {
+            this.DrawGrid(this.selectedUnit, this.debugColor);
         }
 
         // Apply shadow map onto the picture
@@ -261,7 +281,7 @@ export class Renderer
             {
                 for(let x = 0; x < view.Y; x++)
                 {
-                    const c = this.center.Scale(this.dotPerPoint).Sub(view.Scale(1 / 2));
+                    const c = this.center.Scale(this.dotPerPoint).Sub(view.Scale(0.5));
 
                     imageData.data[(y * view.Y + x) * 4 + 3] = 
                         (1 - this.world.GetShadow(x + c.X, y + c.Y, fullView.X, fullView.Y)) * 255;
@@ -278,7 +298,11 @@ export class Renderer
 
         const now = +new Date;
 
-        this.world.OnTick.Call((now - this.lastTick) / 1000);
+        if(!this.noTick)
+        {
+            this.world.OnTick.Call((now - this.lastTick) / 1000);
+        }
+
         this.OnDraw.Call((now - this.lastTick) / 1000);
 
         this.lastTick = now;
@@ -300,5 +324,21 @@ export class Renderer
     public Stop(): void
     {
         this.stop = true;
+    }
+
+    /**
+     * Only the selected Z index will be rendered.
+     */
+    public SetSelectedZ(z: number)
+    {
+        this.selectedZ = z;
+    }
+
+    /**
+     * The selected unit will have a border around it.
+     */
+    public SetSelectedUnit(unit: Unit)
+    {
+        this.selectedUnit = unit;
     }
 }

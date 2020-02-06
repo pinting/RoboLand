@@ -21,19 +21,25 @@
   "dependencies": {
     "@types/react": "16.7.x",
     "@types/react-dom": "16.0.x",
+    "@types/reactstrap": "8.4.x",
+    "bootstrap-css": "4.0.0-alpha.5",
+    "classnames": "2.2.x",
     "pako": "1.0.x",
     "react": "16.6.x",
+    "react-cristal": "0.0.12",
     "react-dom": "16.6.x",
+    "reactstrap": "8.4.x",
+    "styled-components": "3.3.x",
     "webrtc-adapter": "6.3.x"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "^5.1.1",
+    "copy-webpack-plugin": "5.1.x",
     "css-loader": "2.0.x",
     "style-loader": "0.23.x",
     "ts-loader": "5.2.x",
     "typescript": "2.9.x",
-    "webpack": "^4.41.5",
-    "webpack-cli": "^3.1.2",
+    "webpack": "4.41.x",
+    "webpack-cli": "3.1.x",
     "webpack-dev-server": "3.1.x"
   }
 }

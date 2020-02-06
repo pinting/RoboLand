@@ -16,7 +16,7 @@ import { Polygon } from "./Geometry/Polygon";
 const COLLISION_ITERATIONS = 50;
 const SHADOW_DOT_PER_POINT = 10;
 const SHADOW_STEP = 1 / 4;
-const SHADOW_STEP_R = 1;
+const SHADOW_STEP_R = 2;
 
 export class World extends Exportable
 {
@@ -230,7 +230,7 @@ export class World extends Exportable
 
         for(let r = 0; r < 2 * Math.PI; r += SHADOW_STEP_R * (Math.PI / 180))
         {
-            const origin = unit.GetBody().GetOffset();
+            const origin = unit.GetBody().GetPosition();
             const step = Vector.ByRad(r).Scale(SHADOW_STEP);
 
             for(let point = origin; point.Dist(origin) < unit.GetLight(); point = point.Add(step))

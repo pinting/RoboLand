@@ -54,7 +54,7 @@ export class UnitList<U extends Unit> implements IReadOnlyUnitList<U>
      */ 
     public Find(position: Vector): U[]
     {
-        return this.units.filter(e => e && e.GetBody().GetOffset().Is(position));
+        return this.units.filter(e => e && e.GetBody().GetPosition().Is(position));
     }
 
     /**
@@ -68,7 +68,7 @@ export class UnitList<U extends Unit> implements IReadOnlyUnitList<U>
 
         this.units.forEach(e => 
         {
-            const distance = e.GetBody().GetOffset().Dist(position);
+            const distance = e.GetBody().GetPosition().Dist(position);
 
             if(distance < min) 
             {

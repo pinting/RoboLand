@@ -144,9 +144,9 @@ export class Client extends MessageHandler
         const oldBody = oldUnit.GetBody();
 
         // If the position or the rotation difference is under a limit, skip updating
-        if(Exportable.IsMovementDiff(diff) && oldBody.GetOffset())
+        if(Exportable.IsMovementDiff(diff) && oldBody.GetPosition())
         {
-            const posDiff = newBody.GetOffset().Dist(oldBody.GetOffset());
+            const posDiff = newBody.GetPosition().Dist(oldBody.GetPosition());
             const rotDiff = Math.abs(newBody.GetRotation() - oldBody.GetRotation());
 
             if(posDiff < MAX_POS_DIFF && rotDiff < MAX_ROT_DIFF)

@@ -24,7 +24,7 @@ export abstract class Unit extends Exportable
     protected world: World;
     protected tickEvent: number;
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.Hidden)
     protected ignore: boolean;
 
     @Exportable.Register(ExportType.Hidden, (s, v) => s.Dispose(v))
@@ -132,18 +132,18 @@ export abstract class Unit extends Exportable
         }
 
         this.body = body;
-        this.body.Validate = (scale, rotation, offset) => 
+        this.body.Validate = (scale, rotation, position) => 
         {
             if(!this.ignore && this.world)
             {
                 this.world.OnUpdate.Call(this);
             }
 
-            return this.ValidateBody(scale, rotation, offset);
+            return this.ValidateBody(scale, rotation, position);
         }
     }
 
-    protected ValidateBody(scale: Vector, rotation: Number, offset: Vector): boolean
+    protected ValidateBody(scale: Vector, rotation: Number, position: Vector): boolean
     {
         return true;
     }
