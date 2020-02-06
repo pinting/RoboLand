@@ -17,20 +17,21 @@ import { DamageCell } from "../lib/Unit/Cell/DamageCell";
 import { PlayerActor } from "../lib/Unit/Actor/PlayerActor";
 import { ArrowActor } from "../lib/Unit/Actor/ArrowActor";
 import { Body } from "../lib/Physics/Body";
+import { ResourceManager } from "../lib/Util/ResourceManager";
 
-interface WorldEditorProps {
+interface ViewProps {
     onClose: () => void;
     onEditor: (dump: IDump) => Promise<IDump>;
 }
 
-interface WorldEditorState {
+interface ViewState {
     selected: IDump;
     loaded: string[];
 }
 
 const DRAG_WAIT = 300;
 
-export class WorldEditor extends React.PureComponent<WorldEditorProps, WorldEditorState>
+export class WorldView extends React.PureComponent<ViewProps, ViewState>
 {
     private canvas: HTMLCanvasElement;
     private renderer: Renderer;
@@ -55,10 +56,6 @@ export class WorldEditor extends React.PureComponent<WorldEditorProps, WorldEdit
             selected: null,
             loaded: []
         };
-
-        this.world = Shared.CreateSampleWorld(10);
-
-        this.createRenderer();
 
         this.registerUnit(ArrowActor);
         this.registerUnit(PlayerActor);
@@ -131,6 +128,11 @@ export class WorldEditor extends React.PureComponent<WorldEditorProps, WorldEdit
 
         await this.createRenderer();
     }
+
+    private async save()
+    {
+        Exportable.Save(Exportable.Export(this.world, null, ExportType.Visible));
+    }
     
     private async addUnit()
     {
@@ -175,7 +177,7 @@ export class WorldEditor extends React.PureComponent<WorldEditorProps, WorldEdit
             return;
         }
 
-        const p = WorldEditor.CanvasP(this.canvas, event);
+        const p = WorldView.CanvasP(this.canvas, event);
 
         const vector = this.renderer.FindVector(p[0], p[1]);
         const unit = this.world.GetUnits().FindNearest(vector);
@@ -245,7 +247,7 @@ export class WorldEditor extends React.PureComponent<WorldEditorProps, WorldEdit
             return;
         }
 
-        const p = WorldEditor.CanvasP(this.canvas, event);
+        const p = WorldView.CanvasP(this.canvas, event);
         const newOffset = this.renderer.FindVector(p[0], p[1]);
 
         if(this.input.selectedUnit)
@@ -274,9 +276,17 @@ export class WorldEditor extends React.PureComponent<WorldEditorProps, WorldEdit
     
     private async init(): Promise<void>
     {
-        this.world = Shared.CreateSampleWorld(10);
+        const rootResource = ResourceManager.ByUri(Shared.DEFAULT_WORLD_URI);
 
-        this.createRenderer();
+        if(rootResource)
+        {
+            const rootDump = JSON.parse(Tools.BufferToString(rootResource.Buffer)) as IDump;
+            const dump = Exportable.Resolve(rootDump);
+    
+            this.world = Exportable.Import(dump);
+
+            this.createRenderer();
+        }
     }
 
     public componentDidMount(): void
@@ -330,14 +340,9 @@ export class WorldEditor extends React.PureComponent<WorldEditorProps, WorldEdit
                             <Bootstrap.Button 
                                 block
                                 style={{ margin: "10% 0 0 0" }}
+                                onClick={this.save.bind(this)}
                                 color="primary">
                                     Save
-                            </Bootstrap.Button>
-                            <Bootstrap.Button 
-                                block
-                                color="danger"
-                                style={{ margin: 0 }}>
-                                    Delete
                             </Bootstrap.Button>
                             <Bootstrap.Input 
                                 style={{ margin: "10% 0 0 0" }}

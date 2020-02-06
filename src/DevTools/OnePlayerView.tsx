@@ -21,38 +21,21 @@ import { Keyboard } from "../lib/Util/Keyboard";
 import { NormalCell } from "../lib/Unit/Cell/NormalCell";
 import { IDump } from "../lib/IDump";
 
-interface OnePlayerDebugProps {
+interface ViewProps {
     onClose: () => void;
     world?: IDump;
 }
 
-interface OnePlayerDebugState {
+interface ViewState {
 
 }
 
-export class OnePlayerDebug extends React.PureComponent<OnePlayerDebugProps, OnePlayerDebugState>
+export class OnePlayerView extends React.PureComponent<ViewProps, ViewState>
 {
     private canvas: HTMLCanvasElement;
     
     public async init(): Promise<void>
     {
-        // For debug
-        Tools.Extract(window, {
-            World,
-            Tools,
-            Exportable,
-            Vector,
-            Matrix,
-            NormalCell,
-            PlayerActor,
-            Logger,
-            SimplexNoise,
-            ResourceManager,
-            Polygon,
-            Body,
-            Http
-        });
-
         Logger.Type = LogType.Warn;
         Keyboard.Init();
 

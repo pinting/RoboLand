@@ -17,17 +17,17 @@ import { Http } from "../lib/Util/Http";
 import { Exportable } from "../lib/Exportable";
 import { NormalCell } from "../lib/Unit/Cell/NormalCell";
 
-interface RunTestsProps {
+interface ViewProps {
     onClose: () => void;
 }
 
-interface RunTestsState {
+interface ViewState {
     errors: string[];
 }
 
-export class RunTests extends React.PureComponent<RunTestsProps, RunTestsState>
+export class TestsView extends React.PureComponent<ViewProps, ViewState>
 {
-    public constructor(props: RunTestsProps)
+    public constructor(props: ViewProps)
     {
         super(props);
 

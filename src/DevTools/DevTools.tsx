@@ -3,13 +3,27 @@ import * as Bootstrap from "reactstrap";
 import Cristal from "react-cristal";
 
 import { Shared } from "../Game/Shared";
-import { WorldEditor } from "./WorldEditor";
+import { WorldView } from "./WorldView";
 import { Tools } from "../lib/Util/Tools";
 import { DumpEditor } from "./Dump/DumpEditor";
 import { IDump } from "../lib/IDump";
-import { OnePlayerDebug } from "./OnePlayerDebug";
-import { TwoPlayerDebug } from "./TwoPlayerDebug";
-import { RunTests } from "./RunTests";
+import { OnePlayerView } from "./OnePlayerView";
+import { TwoPlayerView } from "./TwoPlayerView";
+import { TestsView } from "./TestsView";
+import { ResourceView } from "./ResourceView";
+import { Helper } from "../Helper";
+import { World } from "../lib/World";
+import { ResourceManager } from "../lib/Util/ResourceManager";
+import { SimplexNoise } from "../lib/Util/SimplexNoise";
+import { Http } from "../lib/Util/Http";
+import { Body } from "../lib/Physics/Body";
+import { Polygon } from "../lib/Geometry/Polygon";
+import { Vector } from "../lib/Geometry/Vector";
+import { Matrix } from "../lib/Geometry/Matrix";
+import { Exportable } from "../lib/Exportable";
+import { PlayerActor } from "../lib/Unit/Actor/PlayerActor";
+import { NormalCell } from "../lib/Unit/Cell/NormalCell";
+import { Logger } from "../lib/Util/Logger";
 
 interface DevToolsProps {
 
@@ -26,6 +40,23 @@ export class DevTools extends React.PureComponent<DevToolsProps, DevToolsState>
         super(props);
 
         Shared.RegisterDependencies();
+        
+        // For debug
+        Tools.Extract(window, {
+            World,
+            Tools,
+            Exportable,
+            Vector,
+            Matrix,
+            NormalCell,
+            PlayerActor,
+            Logger,
+            SimplexNoise,
+            ResourceManager,
+            Polygon,
+            Body,
+            Http
+        });
     
         this.state = {
             views: []
@@ -68,7 +99,21 @@ export class DevTools extends React.PureComponent<DevToolsProps, DevToolsState>
         const id = Tools.Unique();
 
         this.addView(
-            <WorldEditor 
+            <WorldView 
+                key={id}
+                onEditor={this.createDumpEditor.bind(this)}
+                onClose={(() => this.setState({
+                    views: this.state.views.filter(e => e.key !== id)
+                }))} />
+        );
+    }
+    
+    public createResourceBrowser(): void
+    {
+        const id = Tools.Unique();
+
+        this.addView(
+            <ResourceView 
                 key={id}
                 onEditor={this.createDumpEditor.bind(this)}
                 onClose={(() => this.setState({
@@ -82,7 +127,7 @@ export class DevTools extends React.PureComponent<DevToolsProps, DevToolsState>
         const id = Tools.Unique();
 
         this.addView(
-            <OnePlayerDebug 
+            <OnePlayerView 
                 key={id}
                 onClose={(() => this.setState({
                     views: this.state.views.filter(e => e.key !== id)
@@ -95,7 +140,7 @@ export class DevTools extends React.PureComponent<DevToolsProps, DevToolsState>
         const id = Tools.Unique();
 
         this.addView(
-            <TwoPlayerDebug 
+            <TwoPlayerView 
                 key={id}
                 onClose={(() => this.setState({
                     views: this.state.views.filter(e => e.key !== id)
@@ -108,7 +153,7 @@ export class DevTools extends React.PureComponent<DevToolsProps, DevToolsState>
         const id = Tools.Unique();
 
         this.addView(
-            <RunTests 
+            <TestsView 
                 key={id}
                 onClose={(() => this.setState({
                     views: this.state.views.filter(e => e.key !== id)
@@ -124,8 +169,17 @@ export class DevTools extends React.PureComponent<DevToolsProps, DevToolsState>
                 <div style={{ textAlign: "center" }}>
                     <Bootstrap.ButtonGroup>
                         <Bootstrap.Button
+                            color="primary"
+                        onClick={() => Helper.Save()}>
+                                Export
+                        </Bootstrap.Button>
+                        <Bootstrap.Button
                             onClick={() => this.createWorldEditor()}>
                                 World Editor
+                        </Bootstrap.Button>
+                        <Bootstrap.Button
+                            onClick={() => this.createResourceBrowser()}>
+                                Resource Manager
                         </Bootstrap.Button>
                         <Bootstrap.Button
                             onClick={() => this.createOnePlayerDebug()}>
@@ -137,7 +191,7 @@ export class DevTools extends React.PureComponent<DevToolsProps, DevToolsState>
                         </Bootstrap.Button>
                         <Bootstrap.Button
                             onClick={() => this.createRunTests()}>
-                                Run Tests
+                                Tests
                         </Bootstrap.Button>
                     </Bootstrap.ButtonGroup>
                 </div>

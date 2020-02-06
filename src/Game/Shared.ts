@@ -18,6 +18,11 @@ import { BaseCell } from "../lib/Unit/Cell/BaseCell";
 export class Shared
 {
     /**
+     * Execution starts here.
+     */
+    public static DEFAULT_WORLD_URI = "world.json";
+
+    /**
      * Import the inner modules of the engine.
      */
     public static RegisterDependencies()
@@ -108,29 +113,6 @@ export class Shared
         }
 
         return world;
-    }
-
-    /**
-     * Save all loaded resources as a file.
-     */
-    public static SaveWorkspace()
-    {
-        const blob = ResourceManager.Save();
-
-        if(window.navigator.msSaveOrOpenBlob)
-        {
-            window.navigator.msSaveBlob(blob, name);
-        }
-        else {
-            const link = window.document.createElement("a");
-
-            link.href = window.URL.createObjectURL(blob);
-            link.download = name;
-
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
     }
 
     /**

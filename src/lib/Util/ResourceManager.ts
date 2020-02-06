@@ -1,6 +1,8 @@
 import { Tools } from "./Tools";
+import { Event } from "./Event";
 
-const MIME_TYPE = "application/robosave";
+export const MIME_TYPE = "application/robosave";
+export const FILE_EXT = "roboland";
 
 export interface ISaveMeta
 {
@@ -12,6 +14,12 @@ export interface ISaveItem
     Length: number;
     Uri: string;
     Hash: string;
+}
+
+export interface BufferMeta
+{
+    Extension: string;
+    Mime: string;
 }
 
 export class Resource
@@ -40,7 +48,44 @@ export class Resource
             return this.url;
         }
 
-        if(Tools.BufferToString(this.Buffer.slice(1, 4)) == "PNG")
+        this.Save();
+
+        this.url = URL.createObjectURL(this.blob);
+
+        return this.url;
+    }
+
+    /**
+     * Try to figure out the MIME data of the buffer.
+     * @param buffer 
+     */
+    public static GetMeta(buffer: ArrayBuffer): BufferMeta
+    {
+        const head = Tools.BufferToString(buffer.slice(0, 16));
+
+        if(head.slice(1, 5) == "PNG")
+        {
+            return { Extension: "png", Mime: "image/png" };
+        }
+        else if(head.slice(0, 1) == "{")
+        {
+            return { Extension: "json", Mime: "application/json" };
+        }
+
+        return { Extension: "", Mime: "application/octet-stream" };
+    }
+
+    /**
+     * Create a blob object.
+     */
+    public Save(): Blob
+    {
+        if(this.blob)
+        {
+            return this.blob;
+        }
+
+        if(Resource.GetMeta(this.Buffer))
         {
             this.blob = new Blob([this.Buffer], { type: "image/png" });
         }
@@ -48,17 +93,28 @@ export class Resource
         {
             this.blob = new Blob([this.Buffer]);
         }
-
-        this.url = URL.createObjectURL(this.blob);
-
-        return this.url;
+        
+        return this.blob;
     }
 }
 
-// Use IndexedDB to store between sessions
+// TODO: Use IndexedDB to store between sessions
 export class ResourceManager
 {
     private static storage: Resource[] = [];
+
+    /**
+     * Called when the storage changes.
+     */
+    public static OnChange = new Event<void>();
+
+    /**
+     * Get the list of resources.
+     */
+    public static GetList(): Resource[]
+    {
+        return this.storage;
+    }
     
     /**
      * Find the file by its hash
@@ -83,7 +139,7 @@ export class ResourceManager
      * @param uri ID of the file
      * @param buffer 
      */
-    public static async Add(uri: string, buffer: ArrayBuffer): Promise<Resource>
+    public static async RawAdd(uri: string, buffer: ArrayBuffer): Promise<Resource>
     {
         const existing = this.ByUri(uri) !== undefined;
 
@@ -96,8 +152,50 @@ export class ResourceManager
         const resource = new Resource(uri, hash, buffer);
 
         this.storage.push(resource);
+        this.OnChange.Call();
 
         return resource;
+    }
+
+    /**
+     * 
+     * @param name An URI will be generated from this
+     * @param buffer 
+     */
+    public static async Add(name: string, buffer: ArrayBuffer): Promise<string>
+    {
+        let uri: string;
+
+        for(let c = 0;; c++)
+        {
+            const meta = Resource.GetMeta(buffer);
+
+            uri = name + (c > 0 ? ("-" + c) : "") + "." + meta.Extension;
+
+            if(await ResourceManager.RawAdd(uri, buffer))
+            {
+                break;
+            }
+        }
+
+        return uri;
+    }
+    
+    /**
+     * Remove file from the storage.
+     * @param uri 
+     */
+    public static Remove(uri: string): void
+    {
+        const index = this.storage.findIndex(r => r.Uri == uri);
+
+        if(index >= 0)
+        {
+            return;
+        }
+        
+        this.storage.splice(index, 1);
+        this.OnChange.Call();
     }
 
     /**
@@ -167,5 +265,13 @@ export class ResourceManager
 
             current += length;
         }
+    }
+
+    /**
+     * Generate a file name for the bundle.
+     */
+    public static GenerateName()
+    {
+        return Tools.Unique() + "." + FILE_EXT;
     }
 }

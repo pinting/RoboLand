@@ -231,8 +231,9 @@ export abstract class Exportable
      * @param json JSON of the dump 
      * @param dump Dump object of the dump 
      */
-    private static async SaveDump(json: string, dump: IDump): Promise<string>
+    private static async SaveDump(dump: IDump): Promise<string>
     {
+        const json = JSON.stringify(dump, null, 4);
         const buffer = Tools.StringToBuffer(json);
         const hash = await Tools.Sha256(buffer);
         const existing = ResourceManager.ByHash(hash);
@@ -242,14 +243,10 @@ export abstract class Exportable
             return existing.Uri;
         }
 
-        let name = `${dump.Name ? `${dump.Name.toString().toLowerCase()}-` : ""}${dump.Class.toLowerCase()}`;
-        let c: number;
+        const name = `${dump.Name ? `${dump.Name.toString().toLowerCase()}-` : ""}${dump.Class.toLowerCase()}`;
+        const finalName = await ResourceManager.Add(name, buffer);
 
-        for(c = 0; await ResourceManager.Add(name + (c > 0 ? ("-" + c) : "") + ".dump", buffer) === null; c++);
-
-        name = name + (c > 0 ? ("-" + c) : "") + ".dump";
-
-        return name;
+        return finalName;
     }
 
     /**
@@ -298,14 +295,13 @@ export abstract class Exportable
 
             const newDump: IDump = { ...dump, Payload: newPayload };
             const extracted = extract(newDump);
-            const json = JSON.stringify(newDump);
 
-            if(json.length < Exportable.SaveSplitLimit)
+            if(!dump.Base)
             {
                 return newDump;
             }
             
-            const fileName = await Exportable.SaveDump(json, newDump);
+            const fileName = await Exportable.SaveDump(newDump);
 
             return {
                 Name: dump.Name,
@@ -317,7 +313,7 @@ export abstract class Exportable
             };
         }
 
-        await process(dump);
+        await Exportable.SaveDump(await process(dump));
     }
 
     /**
@@ -346,10 +342,9 @@ export abstract class Exportable
                 {
                     result = {
                         ...result,
-                        Base: undefined,
                         Payload: [
-                            ...(baseDump && baseDump.Payload && baseDump.Payload.length ? baseDump.Payload : []),
-                            ...(dump && dump.Payload && dump.Payload.length ? dump.Payload : []),
+                            ...(baseDump.Payload && baseDump.Payload.length ? baseDump.Payload : []),
+                            ...(dump.Payload && dump.Payload.length ? dump.Payload : []),
                         ]
                     };
                 }

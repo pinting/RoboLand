@@ -1,7 +1,44 @@
+import { Resource, ResourceManager } from "./lib/Util/ResourceManager";
+import { Tools } from "./lib/Util/Tools";
+
 declare var navigator: { clipboard: any } & Navigator;
 
 export class Helper
 {
+    /**
+     * Save all loaded resources or a single resource as a file.
+     */
+    public static async Save(resource?: Resource)
+    {
+        let blob: Blob;
+
+        if(resource)
+        {
+            blob = resource.Save();
+        }
+        else
+        {
+            blob = await ResourceManager.Save();
+        }
+
+        const name = (resource && resource.Uri) || ResourceManager.GenerateName();
+
+        if(window.navigator.msSaveOrOpenBlob)
+        {
+            window.navigator.msSaveBlob(blob, name);
+        }
+        else {
+            const link = window.document.createElement("a");
+
+            link.href = window.URL.createObjectURL(blob);
+            link.download = name;
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+
     /**
      * Parse the hash part of the URL.
      */

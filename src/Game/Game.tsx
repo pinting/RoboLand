@@ -14,6 +14,10 @@ import { Helper } from "../Helper";
 import { Shared } from "./Shared";
 import { Keyboard } from "../lib/Util/Keyboard";
 import { Params } from "../Params";
+import { ResourceManager } from "../lib/Util/ResourceManager";
+import { Exportable } from "../lib/Exportable";
+import { IDump } from "../lib/IDump";
+import { Http } from "../lib/Util/Http";
 
 /**
  * Type of the connect format.
@@ -156,19 +160,15 @@ export class Game extends React.PureComponent<GameProps, GameState>
             return new Client(this.channel, this.world);
         }
 
-        /*
-        // Create server world, load it, create server
+        // Load resources
         const buffer = await Http.Get("res/sample.roboland");
         
         ResourceManager.Load(buffer);
 
-        const rootResource = ResourceManager.ByUri("world.dump");
+        const rootResource = ResourceManager.ByUri(Shared.DEFAULT_WORLD_URI);
         const rootDump = JSON.parse(Tools.BufferToString(rootResource.Buffer)) as IDump;
         const dump = Exportable.Resolve(rootDump);
         const serverWorld = Exportable.Import(dump);
-        */
-
-        const serverWorld = Shared.CreateSampleWorld(16);
 
         this.server = new Server(serverWorld);
 

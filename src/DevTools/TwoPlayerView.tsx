@@ -23,16 +23,16 @@ import { Keyboard } from "../lib/Util/Keyboard";
 import { NormalCell } from "../lib/Unit/Cell/NormalCell";
 import { IDump } from "../lib/IDump";
 
-interface TwoPlayerDebugProps {
+interface ViewProps {
     world?: IDump;
     onClose: () => void;
 }
 
-interface TwoPlayerDebugState {
+interface ViewState {
 
 }
 
-export class TwoPlayerDebug extends React.PureComponent<TwoPlayerDebugProps, TwoPlayerDebugState>
+export class TwoPlayerView extends React.PureComponent<ViewProps, ViewState>
 {
     private canvasA: HTMLCanvasElement;
     private canvasB: HTMLCanvasElement;
@@ -43,23 +43,6 @@ export class TwoPlayerDebug extends React.PureComponent<TwoPlayerDebugProps, Two
      */
     public async init()
     {
-        // For debug
-        Tools.Extract(window, {
-            World,
-            Tools,
-            Exportable,
-            Vector,
-            Matrix,
-            NormalCell,
-            PlayerActor,
-            Logger,
-            SimplexNoise,
-            ResourceManager,
-            Polygon,
-            Body,
-            Http
-        });
-
         Logger.Type = LogType.Warn;
         Keyboard.Init();
         
