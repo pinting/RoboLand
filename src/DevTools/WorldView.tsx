@@ -349,10 +349,12 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
                                 placeholder="Width" 
                                 style={{ margin: "10% 0 0 0" }}
                                 min={MIN_SIZE}
+                                defaultValue={MIN_SIZE.toString()}
                                 onChange={e => this.input.newWorldSize.X = parseFloat(e.target.value)} />
                             <Bootstrap.Input 
                                 type="number" 
                                 min={MIN_SIZE}
+                                defaultValue={MIN_SIZE.toString()}
                                 placeholder="Height" 
                                 onChange={e => this.input.newWorldSize.Y = parseFloat(e.target.value)} />
                             <Bootstrap.Button
