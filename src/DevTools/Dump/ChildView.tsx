@@ -75,7 +75,7 @@ export class ChildView extends React.PureComponent<ChildViewProps, ChildViewStat
                             <Bootstrap.Input 
                                 onChange={e => this.input = e.target.value}
                                 type={this.getInputType() as any} 
-                                value={this.props.dump.Payload.toString()} />
+                                value={this.props.dump.Payload && this.props.dump.Payload.toString()} />
                         </td>
                         <td style={{ width: "5%" }}>
                             <Bootstrap.Button

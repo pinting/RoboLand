@@ -4,11 +4,15 @@ import * as Bootstrap from "reactstrap";
 import { IDump } from "../../lib/IDump";
 import { ChildView } from "./ChildView";
 
+// The tree should never reach this
+const MAX_DEPTH = 100;
+
 interface TreeViewProps
 {
     dump: IDump;
     save: (dump: IDump) => void;
     head?: boolean;
+    depth?: number;
 }
 
 interface TreeViewState 
@@ -39,6 +43,7 @@ export abstract class TreeView extends React.PureComponent<TreeViewProps, TreeVi
                     save={(dump) => save(dump)}></ChildView>;
             default:
                 return <TreeView
+                    depth={(this.props.depth || 0) + 1}
                     dump={dump} 
                     save={(dump) => save(dump)}></TreeView>;
         }
@@ -86,7 +91,7 @@ export abstract class TreeView extends React.PureComponent<TreeViewProps, TreeVi
 
     public render(): JSX.Element
     {
-        if(!this.props.dump)
+        if(!this.props.dump || (this.props.depth || 0) > MAX_DEPTH)
         {
             return null;
         }

@@ -40,16 +40,15 @@ export class OnePlayerView extends React.PureComponent<ViewProps, ViewState>
         Keyboard.Init();
 
         // Load or create the world
+        const rootResource = ResourceManager.ByUri(Shared.DEFAULT_WORLD_URI);
         let world: World;
 
-        if(this.props.world)
+        if(rootResource)
         {
-            const newWorld = Exportable.Import(this.props.world);
-
-            if(newWorld && newWorld instanceof World)
-            {
-                world = newWorld;
-            }
+            const rootDump = JSON.parse(Tools.BufferToString(rootResource.Buffer)) as IDump;
+            const dump = Exportable.Resolve(rootDump);
+    
+            world = Exportable.Import(dump);
         }
 
         if(!world)

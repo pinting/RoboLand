@@ -163,7 +163,7 @@ export class Game extends React.PureComponent<GameProps, GameState>
         // Load resources
         const buffer = await Http.Get("res/sample.roboland");
         
-        ResourceManager.Load(buffer);
+        await ResourceManager.Load(buffer);
 
         const rootResource = ResourceManager.ByUri(Shared.DEFAULT_WORLD_URI);
         const rootDump = JSON.parse(Tools.BufferToString(rootResource.Buffer)) as IDump;

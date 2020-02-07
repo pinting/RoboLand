@@ -37,7 +37,7 @@ export abstract class Exportable
      * Under this length limit, the exported JSON will not be splitted
      * into multiply files.
      */
-    public static SaveSplitLimit = 160;
+    public static SaveSplitLimit = Infinity;
 
     /**
      * Register a class with a name as a dependency.
@@ -295,8 +295,9 @@ export abstract class Exportable
 
             const newDump: IDump = { ...dump, Payload: newPayload };
             const extracted = extract(newDump);
+            const json = JSON.stringify(newDump);
 
-            if(!dump.Base)
+            if(!dump.Base && json.length < Exportable.SaveSplitLimit)
             {
                 return newDump;
             }

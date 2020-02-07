@@ -30,6 +30,7 @@ interface ViewState {
 }
 
 const DRAG_WAIT = 300;
+const MIN_SIZE = 8;
 
 export class WorldView extends React.PureComponent<ViewProps, ViewState>
 {
@@ -42,7 +43,7 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
     private world: World;
 
     private input = {
-        newWorldSize: new Vector,
+        newWorldSize: new Vector(MIN_SIZE, MIN_SIZE),
         newElementVector: new Vector,
         newElementName: null,
         selectedUnit: null
@@ -63,13 +64,13 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
         this.registerUnit(NormalCell);
     }
 
-    private static CanvasP(canvas: HTMLCanvasElement, event: MouseEvent): Array<number>
+    private static CanvasP(canvas: HTMLCanvasElement, event: MouseEvent): Vector
     {
         const rect = canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
 
-        return [x, y];
+        return new Vector(x, y);
     }
 
     private registerUnit(classObj: any, name?: string)
@@ -133,62 +134,22 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
     {
         Exportable.Save(Exportable.Export(this.world, null, ExportType.Visible));
     }
-    
-    private async addUnit()
+
+    private async optimize()
     {
-        if(!this.world || !this.input.newElementVector || !this.input.newElementName)
-        {
-            return;
-        }
-        
-        const unit = Exportable.FromName(this.input.newElementName);
-
-        // If created object is not an unit, return
-        if(!(unit instanceof Unit))
-        {
-            return;
-        }
-
-        unit.Init({
-            body: Body.CreateBoxBody(new Vector(1, 1), 0, this.input.newElementVector.Clone()),
-            texture: ""
-        });
-
-        if(unit instanceof BaseActor)
-        {
-            this.world.GetActors().Set(unit);
-        }
-        else if(unit instanceof BaseCell)
-        {
-            this.world.GetCells().Set(unit);
-        }
-
-        await this.renderer.Load();
+        Exportable.SaveSplitLimit = 160;
+        await Exportable.Save(Exportable.Export(this.world, null, ExportType.Visible));
+        Exportable.SaveSplitLimit = Infinity;
     }
 
-    /**
-     * Handles the on click event on the canvas.
-     * @param event
-     */
-    private async onClick(event: MouseEvent): Promise<void>
+    private async edit()
     {
-        if(!this.world || !this.renderer)
-        {
-            return;
-        }
-
-        const p = WorldView.CanvasP(this.canvas, event);
-
-        const vector = this.renderer.FindVector(p[0], p[1]);
-        const unit = this.world.GetUnits().FindNearest(vector);
+        const unit = this.input.selectedUnit;
 
         if(!unit)
         {
             return;
         }
-        
-        this.input.selectedUnit = unit;
-        this.renderer.SetSelectedUnit(unit);
 
         const dump = Exportable.Export(unit, null, ExportType.Visible);
 
@@ -234,6 +195,63 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
             // Rejected when closed
         }
     }
+    
+    private async addUnit()
+    {
+        if(!this.world || !this.input.newElementVector || !this.input.newElementName)
+        {
+            return;
+        }
+        
+        const unit = Exportable.FromName(this.input.newElementName);
+
+        // If created object is not an unit, return
+        if(!(unit instanceof Unit))
+        {
+            return;
+        }
+
+        unit.Init({
+            body: Body.CreateBoxBody(new Vector(1, 1), 0, this.input.newElementVector.Clone()),
+            texture: ""
+        });
+
+        if(unit instanceof BaseActor)
+        {
+            this.world.GetActors().Set(unit);
+        }
+        else if(unit instanceof BaseCell)
+        {
+            this.world.GetCells().Set(unit);
+        }
+
+        await this.renderer.Load();
+    }
+
+    /**
+     * Handles the on click event on the canvas.
+     * @param event
+     */
+    private async onClick(event: MouseEvent): Promise<void>
+    {
+        if(!this.world || !this.renderer)
+        {
+            return;
+        }
+
+        const p = WorldView.CanvasP(this.canvas, event);
+        const vector = this.renderer.FindVector(p.X, p.Y);
+        const unit = this.world.GetUnits().FindNearest(vector);
+
+        if(!unit)
+        {
+            return;
+        }
+        
+        this.input.selectedUnit = unit;
+
+        this.renderer.SetSelectedUnit(unit);
+    }
 
     /**
      * Handles the on drag event on the canvas.
@@ -248,7 +266,7 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
         }
 
         const p = WorldView.CanvasP(this.canvas, event);
-        const newOffset = this.renderer.FindVector(p[0], p[1]);
+        const newOffset = this.renderer.FindVector(p.X, p.Y);
 
         if(this.input.selectedUnit)
         {
@@ -313,36 +331,41 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
                 <tbody>
                     <tr>
                         <td>
-                            <Bootstrap.Input 
+                            <Bootstrap.Button 
                                 block
+                                style={{ margin: 0 }}
+                                onClick={this.edit.bind(this)}
+                                color="primary">
+                                    Edit Selected
+                            </Bootstrap.Button>
+                            <Bootstrap.Input
+                                style={{ margin: "10% 0 0 0" }}
+                                type="number" 
+                                placeholder="Selected Z" 
+                                min="0"
+                                onChange={e => this.selectZ(parseFloat(e.target.value))} />
+                            <Bootstrap.Input 
                                 type="number" 
                                 placeholder="Width" 
-                                min="4"
+                                style={{ margin: "10% 0 0 0" }}
+                                min={MIN_SIZE}
                                 onChange={e => this.input.newWorldSize.X = parseFloat(e.target.value)} />
                             <Bootstrap.Input 
-                                block
                                 type="number" 
-                                min="4"
+                                min={MIN_SIZE}
                                 placeholder="Height" 
                                 onChange={e => this.input.newWorldSize.Y = parseFloat(e.target.value)} />
                             <Bootstrap.Button
                                 block
                                 style={{ margin: 0 }}
                                 onClick={this.createWorld.bind(this)}>
-                                    New
+                                    Generate Empty
                             </Bootstrap.Button>
                             <Bootstrap.Button
                                 block
                                 style={{ margin: 0 }}
                                 onClick={this.createSampleWorld.bind(this)}>
-                                New Generated
-                            </Bootstrap.Button>
-                            <Bootstrap.Button 
-                                block
-                                style={{ margin: "10% 0 0 0" }}
-                                onClick={this.save.bind(this)}
-                                color="primary">
-                                    Save
+                                    Generate Sample
                             </Bootstrap.Button>
                             <Bootstrap.Input 
                                 style={{ margin: "10% 0 0 0" }}
@@ -364,13 +387,19 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
                                 onClick={this.addUnit.bind(this)}>
                                     Add
                             </Bootstrap.Button>
-                            <Bootstrap.Input
+                            <Bootstrap.Button 
                                 block
                                 style={{ margin: "10% 0 0 0" }}
-                                type="number" 
-                                placeholder="Selected Z" 
-                                min="0"
-                                onChange={e => this.selectZ(parseFloat(e.target.value))} />
+                                onClick={this.save.bind(this)}>
+                                    Save
+                            </Bootstrap.Button>
+                            <Bootstrap.Button 
+                                block
+                                style={{ margin: 0 }}
+                                onClick={this.optimize.bind(this)}
+                                color="success">
+                                    Save Optimized
+                            </Bootstrap.Button>
                         </td>
                         <td>
                             <canvas
@@ -394,7 +423,7 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
             <Cristal 
                 onClose={() => this.props.onClose()}
                 title="World Editor"
-                initialSize={{width: 700, height: 550}}
+                initialSize={{width: 700, height: 620}}
                 isResizable={true}
                 initialPosition="top-center">
                     {this.renderInner()}

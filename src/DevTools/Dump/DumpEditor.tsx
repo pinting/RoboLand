@@ -1,5 +1,6 @@
 import * as React from "react";
 import Cristal from "react-cristal";
+import classnames from "classnames";
 import * as Bootstrap from "reactstrap";
 
 import { Shared } from "../../Game/Shared";
@@ -29,17 +30,51 @@ export class DumpEditor extends React.PureComponent<DumpEditorProps, DumpEditorS
         };
     }
 
+    private updateDraft(dump: string | IDump)
+    {
+        if(typeof dump != "string")
+        {
+            this.draft = dump;
+            return;
+        }
+
+        try
+        {
+            this.draft = JSON.parse(dump);
+        }
+        catch(e)
+        {
+            // Silent
+        }
+    }
+
     public renderInner(): JSX.Element
     {
         return (
             <div>
+                <Bootstrap.Nav tabs>
+                    <Bootstrap.NavItem>
+                        <Bootstrap.NavLink
+                            className={classnames({ active: this.state.editMode === 1 })}
+                            onClick={() => this.setState({ editMode: 1 })}>
+                                Simple
+                        </Bootstrap.NavLink>
+                    </Bootstrap.NavItem>
+                    <Bootstrap.NavItem>
+                        <Bootstrap.NavLink
+                            className={classnames({ active: this.state.editMode === 2 })}
+                            onClick={() => this.setState({ editMode: 2 })}>
+                                Code
+                        </Bootstrap.NavLink>
+                    </Bootstrap.NavItem>
+                </Bootstrap.Nav>
                 <Bootstrap.TabContent activeTab={this.state.editMode.toString()}>
                     <Bootstrap.TabPane tabId="1">
-                        <div style={{ overflowY: "scroll", height: 400 }}>
+                        <div style={{ overflowY: "scroll", height: 430 }}>
                             <TreeView 
                                 head={true}
                                 dump={this.props.dump}
-                                save={dump => this.draft = dump} />
+                                save={dump => this.updateDraft(dump)} />
                         </div>
                     </Bootstrap.TabPane>
                     <Bootstrap.TabPane tabId="2">
@@ -47,25 +82,25 @@ export class DumpEditor extends React.PureComponent<DumpEditorProps, DumpEditorS
                             value={JSON.stringify(this.props.dump, null, 4)}
                             style={{
                                 width: "100%",
-                                height: 400,
+                                height: 430,
                                 fontFamily: "monospace",
                                 fontSize: 12,
                                 border: "1px solid lightgray",
                                 borderRadius: 5
                             }}
-                            onChange={v => this.draft = JSON.parse(v.target.value)}>
+                            onChange={v => this.updateDraft(v.target.value)}>
                         </textarea>
                     </Bootstrap.TabPane>
                 </Bootstrap.TabContent>
                 <Bootstrap.Button 
-                    block
-                    color="primary"
+                    color="success"
+                    style={{ margin: 0, width: "50%" }}
                     onClick={() => this.props.onSave(this.draft)}>
                         Save
                 </Bootstrap.Button>
                 <Bootstrap.Button 
-                    block
                     color="danger"
+                    style={{ margin: 0, width: "50%" }}
                     onClick={() => this.props.onSave(null)}>
                         Delete
                 </Bootstrap.Button>
@@ -79,7 +114,7 @@ export class DumpEditor extends React.PureComponent<DumpEditorProps, DumpEditorS
             <Cristal 
                 onClose={() => this.props.onClose()}
                 title="Dump Editor"
-                initialSize={{width: 700, height: 550}}
+                initialSize={{width: 700, height: 560}}
                 isResizable={true}
                 initialPosition="top-center">
                     {this.renderInner()}

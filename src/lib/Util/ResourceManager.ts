@@ -31,13 +31,6 @@ export class Resource
     private blob: Blob;
     private url: string;
 
-    constructor(uri: string, hash: string, buffer: ArrayBuffer)
-    {
-        this.Uri = uri;
-        this.Hash = hash;
-        this.Buffer = buffer;
-    }
-
     /**
      * Get an URL to the resource.
      */
@@ -96,6 +89,19 @@ export class Resource
         
         return this.blob;
     }
+
+    public async Init(uri: string, buffer: ArrayBuffer): Promise<void>
+    {
+        this.Uri = uri;
+
+        this.SetBuffer(buffer);
+    }
+
+    public async SetBuffer(buffer: ArrayBuffer): Promise<void>
+    {
+        this.Buffer = buffer;
+        this.Hash = await Tools.Sha256(buffer);
+    }
 }
 
 // TODO: Use IndexedDB to store between sessions
@@ -148,8 +154,9 @@ export class ResourceManager
             return null;
         }
 
-        const hash = await Tools.Sha256(buffer);
-        const resource = new Resource(uri, hash, buffer);
+        const resource = new Resource();
+
+        await resource.Init(uri, buffer);
 
         this.storage.push(resource);
         this.OnChange.Call();
@@ -189,7 +196,7 @@ export class ResourceManager
     {
         const index = this.storage.findIndex(r => r.Uri == uri);
 
-        if(index >= 0)
+        if(index < 0)
         {
             return;
         }
@@ -225,7 +232,7 @@ export class ResourceManager
      * Load a RoboLand resource buffer into the memory. 
      * @param buffer 
      */
-    public static Load(buffer: ArrayBuffer): void
+    public static async Load(buffer: ArrayBuffer): Promise<void>
     {
         const uncompressed = Tools.ZLibInflate(buffer);
         const stringView = new Uint16Array(uncompressed.slice(0, uncompressed.byteLength * 2));
@@ -256,12 +263,16 @@ export class ResourceManager
 
         let current = endOfMeta * 2;
 
-        for (let resource of meta.Items)
+        for (let item of meta.Items)
         {
-            const length = resource.Length;
+            const length = item.Length;
             const subBuffer = uncompressed.slice(current, current + length);
 
-            this.storage.push(new Resource(resource.Uri, resource.Hash, subBuffer));
+            const resource = new Resource();
+
+            await resource.Init(resource.Uri, subBuffer);
+
+            this.storage.push(resource);
 
             current += length;
         }

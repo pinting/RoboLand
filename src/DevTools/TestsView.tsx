@@ -100,7 +100,7 @@ export class TestsView extends React.PureComponent<ViewProps, ViewState>
         return (
             <Cristal 
                 onClose={() => this.props.onClose()}
-                title="Run Tests"
+                title="Tests"
                 initialSize={{width: 500, height: 500}}
                 isResizable={true}
                 initialPosition="top-center">

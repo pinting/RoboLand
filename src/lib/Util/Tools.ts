@@ -206,7 +206,15 @@ export class Tools
 
     public static BufferToString(buffer: ArrayBuffer): string 
     {
-        return String.fromCharCode.apply(null, new Uint16Array(buffer));
+        const stringView = new Uint16Array(buffer);
+        let result = "";
+
+        for (let i = 0; i < stringView.byteLength / 2; i++) 
+        {
+            result += String.fromCharCode(stringView[i]);
+        }
+
+        return result;
     }
 
     public static StringToBuffer(string: string): ArrayBuffer 

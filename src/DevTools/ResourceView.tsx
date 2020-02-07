@@ -5,6 +5,7 @@ import Cristal from "react-cristal";
 import { ResourceManager, Resource } from "../lib/Util/ResourceManager";
 import { IDump } from "../lib/IDump";
 import { Helper } from "../Helper";
+import { Tools } from "../lib/Util/Tools";
 
 interface ViewProps {
     onClose: () => void;
@@ -32,7 +33,49 @@ export class ResourceView extends React.PureComponent<ViewProps, ViewState>
             this.setState({
                 resources: ResourceManager.GetList()
             });
+
+            this.forceUpdate();
         });
+    }
+
+    public async edit(resource: Resource): Promise<void>
+    {
+        let dump: IDump;
+
+        try {
+            const raw = Tools.BufferToString(resource.Buffer);
+            
+            dump = JSON.parse(raw);
+        }
+        catch(e)
+        {
+            // Not a JSON
+            return;
+        }
+
+        let newDump: IDump;
+        
+        try 
+        {
+            newDump = await this.props.onEditor(dump);
+        }
+        catch(e)
+        {
+            // Editor was closed
+            return;
+        }
+
+        if(newDump)
+        {
+            const newRaw = JSON.stringify(newDump);
+            const newBuffer = Tools.StringToBuffer(newRaw);
+    
+            await resource.SetBuffer(newBuffer);
+        }
+        else
+        {
+            ResourceManager.Remove(resource.Uri);
+        }
     }
 
     public componentWillUnmount() 
@@ -43,13 +86,19 @@ export class ResourceView extends React.PureComponent<ViewProps, ViewState>
     public renderInner(): JSX.Element
     {
         return (
-            <div>
+            <div style={{ overflowY: "scroll", height: 450 }}>
                 <Bootstrap.Table size="100%">
                     <tbody>
                         {this.state.resources.map(r => 
                             <tr key={r.Uri}>
                                 <td style={{ width: "80%" }}>
                                     {r.Uri}
+                                </td>
+                                <td style={{ width: "10%" }}>
+                                    <Bootstrap.Button
+                                        onClick={() => this.edit(r)}>
+                                            Edit
+                                    </Bootstrap.Button>
                                 </td>
                                 <td style={{ width: "10%" }}>
                                     <Bootstrap.Button
