@@ -8,21 +8,16 @@ import { PlayerActor } from "../lib/Unit/Actor/PlayerActor";
 import { ArrowActor } from "../lib/Unit/Actor/ArrowActor";
 import { Body } from "../lib/Physics/Body";
 import { Vector } from "../lib/Geometry/Vector";
-import { Polygon } from "../lib/Geometry/Polygon";
-import { Matrix } from "../lib/Geometry/Matrix";
-import { Renderer } from "../lib/Renderer";
 import { World } from "../lib/World";
 import { Tools } from "../lib/Util/Tools";
 import { ResourceManager } from "../lib/Util/ResourceManager";
-import { SimplexNoise } from "../lib/Util/SimplexNoise";
-import { Http } from "../lib/Util/Http";
 import { Exportable } from "../lib/Exportable";
 import { Keyboard } from "../lib/Util/Keyboard";
-import { NormalCell } from "../lib/Unit/Cell/NormalCell";
 import { IDump } from "../lib/IDump";
+import { Renderer } from "../lib/Renderer";
 
 interface ViewProps {
-    onClose: () => void;
+    close: () => void;
     world?: IDump;
 }
 
@@ -30,11 +25,12 @@ interface ViewState {
 
 }
 
-export class OnePlayerView extends React.PureComponent<ViewProps, ViewState>
+export class OnePlayerDebug extends React.PureComponent<ViewProps, ViewState>
 {
     private canvas: HTMLCanvasElement;
+    private renderer: Renderer;
     
-    public async init(): Promise<void>
+    private async init(): Promise<void>
     {
         Logger.Type = LogType.Warn;
         Keyboard.Init();
@@ -49,11 +45,6 @@ export class OnePlayerView extends React.PureComponent<ViewProps, ViewState>
             const dump = Exportable.Resolve(rootDump);
     
             world = Exportable.Import(dump);
-        }
-
-        if(!world)
-        {
-            world = Shared.CreateSampleWorld(16);
         }
 
         // Add player
@@ -77,14 +68,14 @@ export class OnePlayerView extends React.PureComponent<ViewProps, ViewState>
         world.Add(player);
     
         // Render the server
-        const renderer = new Renderer({
+        this.renderer = new Renderer({
             canvas: this.canvas,
             world: world, 
             debug: true,
             viewport: new Vector(10, 10)
         });
     
-        await renderer.Load();
+        await this.renderer.Load();
             
         const keys = 
         {
@@ -95,13 +86,13 @@ export class OnePlayerView extends React.PureComponent<ViewProps, ViewState>
             shoot: " "
         };
 
-        renderer.OnDraw.Add(() => 
+        this.renderer.OnDraw.Add(() => 
         {
             Shared.SetupControl(player, keys);
-            renderer.SetCenter(player.GetBody().GetPosition());
+            this.renderer.SetCenter(player.GetBody().GetPosition());
         });
 
-        renderer.Start();
+        this.renderer.Start();
     }
 
     public componentDidMount(): void
@@ -109,7 +100,12 @@ export class OnePlayerView extends React.PureComponent<ViewProps, ViewState>
         this.init();
     }
 
-    public renderInner(): JSX.Element
+    public componentWillUnmount(): void
+    {
+        this.renderer.Stop();
+    }
+
+    private renderInner(): JSX.Element
     {
         return <canvas style={{ width: "100%", background: "black" }} ref={c => this.canvas = c} />;
     }
@@ -118,7 +114,7 @@ export class OnePlayerView extends React.PureComponent<ViewProps, ViewState>
     {
         return (
             <Cristal 
-                onClose={() => this.props.onClose()}
+                onClose={() => this.props.close()}
                 title="One Player Debug"
                 initialSize={{width: 500, height: 500}}
                 isResizable={true}

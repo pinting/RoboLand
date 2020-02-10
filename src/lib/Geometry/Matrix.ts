@@ -3,16 +3,16 @@ import { Exportable, ExportType } from "../Exportable";
 
 export class Matrix extends Exportable
 {
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected m00: number;
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected m01: number;
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected m10: number;
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected m11: number;
 
     public constructor(m00 = 0, m01 = 0, m10 = 0, m11 = 0)

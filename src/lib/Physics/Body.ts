@@ -24,49 +24,49 @@ export interface BodyArgs
 
 export class Body extends Exportable
 {
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected shapes: BaseShape[] = [];
 
-    @Exportable.Register(ExportType.Visible, (s, v) => s.SetVirtual(v, null, null))
+    @Exportable.Register(ExportType.NetDisk, (s, v) => s.SetVirtual(v, null, null))
     protected scale: Vector = new Vector(1, 1);
     
-    @Exportable.Register(ExportType.Visible, (s, v) => s.SetVirtual(null, v, null))
+    @Exportable.Register(ExportType.NetDisk, (s, v) => s.SetVirtual(null, v, null))
     protected rotation: number = 0;
     
-    @Exportable.Register(ExportType.Visible, (s, v) => s.SetVirtual(null, null, v))
+    @Exportable.Register(ExportType.NetDisk, (s, v) => s.SetVirtual(null, null, v))
     protected position: Vector = new Vector(0, 0);
 
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected gravity: Vector; // Gravity
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected force: Vector; // Force
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected v: Vector; // Velocity
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected av: number; // Angular velocity
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected torque: number; // Torque
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected sf: number; // Static friction
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected df: number; // Dynamic friction
     
-    @Exportable.Register(ExportType.Hidden)
+    @Exportable.Register(ExportType.NetDisk)
     protected cf: number; // Cell friction
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected r: number; // Restitution
 
-    @Exportable.Register(ExportType.Visible, (s, v) => s.ComputeMass(v))
+    @Exportable.Register(ExportType.NetDisk, (s, v) => s.ComputeMass(v))
     protected density: number; // Mass density
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected z: number; // Z-Index
     
     protected I: number;  // Moment of inertia

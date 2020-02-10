@@ -24,28 +24,28 @@ export abstract class Unit extends Exportable
     protected world: World;
     protected tickEvent: number;
     
-    @Exportable.Register(ExportType.Hidden)
+    @Exportable.Register(ExportType.Net)
     protected ignore: boolean;
 
-    @Exportable.Register(ExportType.Hidden, (s, v) => s.Dispose(v))
+    @Exportable.Register(ExportType.Net, (s, v) => s.Dispose(v))
     protected disposed: boolean = false;
     
-    @Exportable.Register(ExportType.Hidden)
+    @Exportable.Register(ExportType.Net)
     protected id: string;
 
-    @Exportable.Register(ExportType.Hidden)
+    @Exportable.Register(ExportType.Net)
     protected parent: string; // ID of the parent unit
 
-    @Exportable.Register(ExportType.Visible, (s, v) => s.SetBody(v))
+    @Exportable.Register(ExportType.NetDisk, (s, v) => s.SetBody(v))
     protected body: Body;
 
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected texture: string;
 
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected blocking: boolean;
 
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected light: number;
 
     /**

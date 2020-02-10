@@ -9,11 +9,15 @@ const Dependencies: { [name: string]: any } = {};
 
 export enum ExportType
 {
-    // Everything (e.g. for networking)
-    Hidden = 0,
+    /**
+     * NETWORK only
+     */
+    Net = 0,
 
-    // More restircted (e.g. for a world editor)
-    Visible = 1
+    /**
+     * NETWORK and DISK
+     */
+    NetDisk = 1
 }
 
 export interface ExportDesc
@@ -154,10 +158,17 @@ export abstract class Exportable
         // Export native types (string, number or boolean)
         if(["string", "number", "boolean"].includes(typeof object))
         {
+            let payload = object;
+
+            if(typeof object === "number")
+            {
+                payload = object.toString();
+            }
+
             return {
                 Name: name,
                 Class: typeof object,
-                Payload: object
+                Payload: payload
             };
         }
 
@@ -215,6 +226,11 @@ export abstract class Exportable
         // Import native types
         if(["string", "number", "boolean"].includes(dump.Class))
         {
+            if(dump.Class === "number")
+            {
+                return parseFloat(dump.Payload);
+            }
+
             return dump.Payload;
         }
 
@@ -227,11 +243,11 @@ export abstract class Exportable
     }
     
     /**
-     * Function that called when saving a dump is needed.
+     * Save dump as a resource.
      * @param json JSON of the dump 
      * @param dump Dump object of the dump 
      */
-    private static async SaveDump(dump: IDump): Promise<string>
+    private static async SaveDump(dump: IDump, overwrite: boolean): Promise<string>
     {
         const json = JSON.stringify(dump, null, 4);
         const buffer = Tools.StringToBuffer(json);
@@ -243,17 +259,26 @@ export abstract class Exportable
             return existing.Uri;
         }
 
-        const name = `${dump.Name ? `${dump.Name.toString().toLowerCase()}-` : ""}${dump.Class.toLowerCase()}`;
-        const finalName = await ResourceManager.Add(name, buffer);
+        let name = `${dump.Name ? `${dump.Name.toString().toLowerCase()}-` : ""}${dump.Class.toLowerCase()}`;
 
-        return finalName;
+        if(overwrite)
+        {
+            await ResourceManager.RawAdd(name, buffer);
+        }
+        else
+        {
+            name = await ResourceManager.Add(name, buffer);
+        }
+
+        return name;
     }
 
     /**
      * Save an exportable as small resources.
      * @param dump 
+     * @param overwrite
      */
-    public static async Save(dump: IDump): Promise<void>
+    public static async Save(dump: IDump, overwrite: boolean = false): Promise<void>
     {
         const extract = (dump: IDump) =>
         {
@@ -302,7 +327,7 @@ export abstract class Exportable
                 return newDump;
             }
             
-            const fileName = await Exportable.SaveDump(newDump);
+            const fileName = await Exportable.SaveDump(newDump, overwrite);
 
             return {
                 Name: dump.Name,
@@ -314,7 +339,7 @@ export abstract class Exportable
             };
         }
 
-        await Exportable.SaveDump(await process(dump));
+        await Exportable.SaveDump(await process(dump), overwrite);
     }
 
     /**

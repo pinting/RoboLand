@@ -5,13 +5,12 @@ import { Exportable } from "../Exportable";
 import { IDump } from "../IDump";
 import { Vector } from "../Geometry/Vector";
 import { Tools } from "../Util/Tools";
-import { NormalCell } from "../Unit/Cell/NormalCell";
-import { BaseCell } from "../Unit/Cell/BaseCell";
 import { BaseActor } from "../Unit/Actor/BaseActor";
 import { Body } from "../Physics/Body";
-import { Unit } from "../Unit/Unit";
 import { ArrowActor } from "../Unit/Actor/ArrowActor";
 import { Logger } from "../Util/Logger";
+
+const SPAWN_Z = 0;
 
 export class Server
 {
@@ -30,7 +29,7 @@ export class Server
         this.world = world;
 
         this.spawns = this.world.GetCells().GetArray()
-            .filter(c => c instanceof NormalCell)
+            .filter(c => !c.IsBlocking() && c.GetBody().GetZ() == SPAWN_Z)
             .sort((a, b) => Tools.Random(-100, 100))
             .map(c => c.GetBody());
         

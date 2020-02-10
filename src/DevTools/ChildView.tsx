@@ -1,11 +1,13 @@
 import * as React from "react";
 import * as Bootstrap from "reactstrap";
 
-import { IDump } from "../../lib/IDump";
+import { IDump } from "../lib/IDump";
+import { Resource } from "../lib/Util/ResourceManager";
 
 interface ChildViewProps {
     dump: IDump;
     save: (dump: IDump) => void;
+    find: (current?: string) => Promise<Resource>;
 }
 
 interface ChildViewState {
@@ -14,9 +16,7 @@ interface ChildViewState {
 
 export class ChildView extends React.PureComponent<ChildViewProps, ChildViewState>
 {
-    private input: string;
-
-    public getInputType(): string
+    private getInputType(): string
     {
         switch(this.props.dump.Class)
         {
@@ -29,35 +29,32 @@ export class ChildView extends React.PureComponent<ChildViewProps, ChildViewStat
         }
     }
 
-    public format(data: string): string | boolean | number
+    private format(data: string): string | boolean | number
     {
         switch(this.props.dump.Class)
         {
             case "boolean":
                 return data == "true";
             case "number":
-                return parseFloat(data as string);
+                return data; // Because of Infinity, strings are need to be used
             case "string":
                 return data;
         }
     }
 
-    public save(data: string)
+    private save(data: string)
     {
         this.props.save({
             ...this.props.dump,
             Payload: this.format(data)
         });
     }
-
-    public remove()
-    {
-        this.props.save(null);
-    }
     
     public render(): JSX.Element
     {
-        if(!this.props.dump)
+        const dump = this.props.dump;
+
+        if(!dump)
         {
             return null;
         }
@@ -68,20 +65,20 @@ export class ChildView extends React.PureComponent<ChildViewProps, ChildViewStat
                     <tr>
                         <td style={{ width: "40%" }}>
                             <Bootstrap.Label>
-                                {this.props.dump.Name} ({this.props.dump.Class})
+                                {dump.Name} ({dump.Class}) {dump.Base && <i>+ {dump.Base}</i>}
                             </Bootstrap.Label>
                         </td>
-                        <td style={{ width: "55%" }}>
+                        <td style={{ width: "60%" }}>
                             <Bootstrap.Input 
-                                onChange={e => this.input = e.target.value}
+                                onChange={e => this.save(e.target.value)}
                                 type={this.getInputType() as any} 
-                                defaultValue={this.props.dump.Payload && this.props.dump.Payload.toString()} />
+                                defaultValue={dump.Payload && dump.Payload.toString()} />
                         </td>
                         <td style={{ width: "5%" }}>
-                            <Bootstrap.Button
-                                onClick={() => this.save(this.input)}>
-                                Save
-                            </Bootstrap.Button>
+                            <Bootstrap.Input 
+                                onChange={e => this.save(e.target.value)}
+                                type={this.getInputType() as any} 
+                                defaultValue={dump.Payload && dump.Payload.toString()} />
                         </td>
                     </tr>
                 </tbody>

@@ -22,16 +22,16 @@ export class World extends Exportable
 {
     public static Current: World = null;
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     private cells: Array<BaseCell> = [];
 
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     private actors: Array<BaseActor> = [];
 
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     private size: Vector = new Vector();
     
-    @Exportable.Register(ExportType.Hidden)
+    @Exportable.Register(ExportType.Net)
     private shadowMap: number[];
 
     /**
@@ -170,6 +170,8 @@ export class World extends Exportable
     {
         World.Current = this;
 
+        this.OnTick.Add(dt => this.Step(dt));
+        
         super.Import(input);
 
         // Use generated shadow map if available

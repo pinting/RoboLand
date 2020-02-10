@@ -5,10 +5,10 @@ export class Vector extends Exportable
 {
     public static EPSILON = 0.0001;
 
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     public X: number;
 
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     public Y: number;
     
     constructor(x: number = 0, y: number = 0)

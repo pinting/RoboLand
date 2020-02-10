@@ -1,19 +1,18 @@
 import * as React from "react";
 import * as Bootstrap from "reactstrap";
-import Cristal from "react-cristal";
 
 import { Shared } from "../Game/Shared";
-import { WorldView } from "./WorldView";
+import { WorldEditor } from "./WorldEditor";
 import { Tools } from "../lib/Util/Tools";
-import { DumpEditor } from "./Dump/DumpEditor";
+import { DumpEditor } from "./DumpEditor";
 import { IDump } from "../lib/IDump";
-import { OnePlayerView } from "./OnePlayerView";
-import { TwoPlayerView } from "./TwoPlayerView";
-import { TestsView } from "./TestsView";
-import { ResourceView } from "./ResourceView";
+import { OnePlayerDebug } from "./OnePlayerDebug";
+import { TwoPlayerDebug } from "./TwoPlayerDebug";
+import { TestRunner } from "./TestRunner";
+import { ResourceBrowser } from "./ResourceBrowser";
 import { Helper } from "../Helper";
 import { World } from "../lib/World";
-import { ResourceManager } from "../lib/Util/ResourceManager";
+import { ResourceManager, Resource } from "../lib/Util/ResourceManager";
 import { SimplexNoise } from "../lib/Util/SimplexNoise";
 import { Http } from "../lib/Util/Http";
 import { Body } from "../lib/Physics/Body";
@@ -25,17 +24,17 @@ import { PlayerActor } from "../lib/Unit/Actor/PlayerActor";
 import { NormalCell } from "../lib/Unit/Cell/NormalCell";
 import { Logger } from "../lib/Util/Logger";
 
-interface DevToolsProps {
+interface ViewProps {
 
 }
 
-interface DevToolsState {
-    views: JSX.Element[];
+interface ViewState {
+    windows: JSX.Element[];
 }
 
-export class DevTools extends React.PureComponent<DevToolsProps, DevToolsState>
+export class DevTools extends React.PureComponent<ViewProps, ViewState>
 {
-    constructor(props) 
+    constructor(props: ViewProps) 
     {
         super(props);
 
@@ -59,105 +58,143 @@ export class DevTools extends React.PureComponent<DevToolsProps, DevToolsState>
         });
     
         this.state = {
-            views: []
+            windows: []
         };
     }
 
-    public async addView(view: JSX.Element)
+    private async init(): Promise<void>
+    {
+        const buffer = await Http.Get("res/sample.roboland");
+        
+        await ResourceManager.Load(buffer);
+    }
+
+    public componentDidMount(): void
+    {
+        this.init();
+    }
+
+    private async addWindow(view: JSX.Element)
     {
         this.setState({
-            views: [
+            windows: [
                 view,
-                ...this.state.views
+                ...this.state.windows
             ]
         });
     }
+
+    private closeWindow(id: string)
+    {
+        this.setState({
+            windows: this.state.windows.filter(e => e.key !== id)
+        });
+    }
     
-    public async createDumpEditor(dump: IDump): Promise<IDump>
+    private async createResourceFinder(current?: string): Promise<Resource>
+    {
+        return new Promise<Resource>((resolve, reject) =>
+        {
+            const id = Tools.Unique();
+
+            this.addWindow(
+                <ResourceBrowser 
+                    key={id} 
+                    current={current}
+                    edit={this.createDumpEditor.bind(this)}
+                    select={resource => 
+                    {
+                        this.closeWindow(id);
+                        resolve(resource);
+                    }}
+                    close={(() =>
+                    {
+                        this.closeWindow(id);
+                        reject();
+                    })} />
+            );
+        });
+    }
+    
+    private async createDumpEditor(dump: IDump): Promise<IDump>
     {
         return new Promise<IDump>((resolve, reject) =>
         {
             const id = Tools.Unique();
 
-            this.addView(
+            this.addWindow(
                 <DumpEditor 
                     key={id} 
                     dump={dump}
-                    onSave={newDump => resolve(newDump)}
-                    onClose={(() => {
+                    find={this.createResourceFinder.bind(this)}
+                    save={newDump => 
+                    {
+                        this.closeWindow(id);
+                        resolve(newDump);
+                    }}
+                    close={(() =>
+                    {
+                        this.closeWindow(id);
                         reject();
-                        this.setState({
-                            views: this.state.views.filter(e => e.key !== id)
-                        });
                     })} />
             );
         });
     }
 
-    public createWorldEditor(): void
+    private createWorldEditor(): void
     {
         const id = Tools.Unique();
 
-        this.addView(
-            <WorldView 
+        this.addWindow(
+            <WorldEditor 
                 key={id}
-                onEditor={this.createDumpEditor.bind(this)}
-                onClose={(() => this.setState({
-                    views: this.state.views.filter(e => e.key !== id)
-                }))} />
+                edit={this.createDumpEditor.bind(this)}
+                close={() => this.closeWindow(id)} />
         );
     }
     
-    public createResourceBrowser(): void
+    private createResourceBrowser(): void
     {
         const id = Tools.Unique();
 
-        this.addView(
-            <ResourceView 
+        this.addWindow(
+            <ResourceBrowser 
                 key={id}
-                onEditor={this.createDumpEditor.bind(this)}
-                onClose={(() => this.setState({
-                    views: this.state.views.filter(e => e.key !== id)
-                }))} />
+                edit={this.createDumpEditor.bind(this)}
+                close={() => this.closeWindow(id)} />
         );
     }
     
-    public createOnePlayerDebug(): void
+    private createOnePlayerDebug(): void
     {
         const id = Tools.Unique();
 
-        this.addView(
-            <OnePlayerView 
+        this.addWindow(
+            <OnePlayerDebug 
                 key={id}
-                onClose={(() => this.setState({
-                    views: this.state.views.filter(e => e.key !== id)
-                }))} />
+                close={() => this.closeWindow(id)} />
         );
     }
     
-    public createTwoPlayerDebug(): void
+    private createTwoPlayerDebug(): void
     {
         const id = Tools.Unique();
 
-        this.addView(
-            <TwoPlayerView 
+        this.addWindow(
+            <TwoPlayerDebug 
                 key={id}
-                onClose={(() => this.setState({
-                    views: this.state.views.filter(e => e.key !== id)
-                }))} />
+                close={() => this.closeWindow(id)} />
         );
     }
     
-    public createRunTests(): void
+    private createTestRunner(): void
     {
         const id = Tools.Unique();
 
-        this.addView(
-            <TestsView 
+        this.addWindow(
+            <TestRunner 
                 key={id}
-                onClose={(() => this.setState({
-                    views: this.state.views.filter(e => e.key !== id)
-                }))} />
+                close={() => this.closeWindow(id)} />
         );
     }
 
@@ -165,7 +202,7 @@ export class DevTools extends React.PureComponent<DevToolsProps, DevToolsState>
     {
         return (
             <div>
-                {this.state.views}
+                {this.state.windows}
                 <div style={{ textAlign: "center" }}>
                     <Bootstrap.ButtonGroup>
                         <Bootstrap.Button
@@ -179,7 +216,7 @@ export class DevTools extends React.PureComponent<DevToolsProps, DevToolsState>
                         </Bootstrap.Button>
                         <Bootstrap.Button
                             onClick={() => this.createResourceBrowser()}>
-                                Resource Manager
+                                Resource Browser
                         </Bootstrap.Button>
                         <Bootstrap.Button
                             onClick={() => this.createOnePlayerDebug()}>
@@ -190,8 +227,8 @@ export class DevTools extends React.PureComponent<DevToolsProps, DevToolsState>
                                 Two Player Debug
                         </Bootstrap.Button>
                         <Bootstrap.Button
-                            onClick={() => this.createRunTests()}>
-                                Tests
+                            onClick={() => this.createTestRunner()}>
+                                Test Runner
                         </Bootstrap.Button>
                     </Bootstrap.ButtonGroup>
                 </div>

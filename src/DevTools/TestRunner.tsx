@@ -18,14 +18,14 @@ import { Exportable } from "../lib/Exportable";
 import { NormalCell } from "../lib/Unit/Cell/NormalCell";
 
 interface ViewProps {
-    onClose: () => void;
+    close: () => void;
 }
 
 interface ViewState {
     errors: string[];
 }
 
-export class TestsView extends React.PureComponent<ViewProps, ViewState>
+export class TestRunner extends React.PureComponent<ViewProps, ViewState>
 {
     public constructor(props: ViewProps)
     {
@@ -36,7 +36,7 @@ export class TestsView extends React.PureComponent<ViewProps, ViewState>
         };
     }
 
-    public async init(): Promise<void>
+    private async init(): Promise<void>
     {
         // For debug
         Tools.Extract(window, {
@@ -81,7 +81,7 @@ export class TestsView extends React.PureComponent<ViewProps, ViewState>
         this.init();
     }
     
-    public renderInner(): JSX.Element
+    private renderInner(): JSX.Element
     {
         return (
             <div>
@@ -99,8 +99,8 @@ export class TestsView extends React.PureComponent<ViewProps, ViewState>
     {
         return (
             <Cristal 
-                onClose={() => this.props.onClose()}
-                title="Tests"
+                onClose={() => this.props.close()}
+                title="Test Runner"
                 initialSize={{width: 500, height: 500}}
                 isResizable={true}
                 initialPosition="top-center">

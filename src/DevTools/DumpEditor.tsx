@@ -3,30 +3,32 @@ import Cristal from "react-cristal";
 import classnames from "classnames";
 import * as Bootstrap from "reactstrap";
 
-import { Shared } from "../../Game/Shared";
-import { IDump } from "../../lib/IDump";
+import { IDump } from "../lib/IDump";
 import { TreeView } from "./TreeView";
+import { Resource } from "../lib/Util/ResourceManager";
 
-interface DumpEditorProps {
+interface ViewProps {
     dump: IDump;
-    onClose: () => void;
-    onSave: (dump: IDump) => void;
+    close: () => void;
+    save: (dump: IDump) => void;
+    find: (current?: string) => Promise<Resource>
 }
 
-interface DumpEditorState {
-    editMode: number;
-}
-
-export class DumpEditor extends React.PureComponent<DumpEditorProps, DumpEditorState>
+interface ViewState
 {
-    private draft: IDump;
-    
+    editMode: number;
+    draft: IDump;
+}
+
+export class DumpEditor extends React.PureComponent<ViewProps, ViewState>
+{
     constructor(props)
     {
         super(props);
 
         this.state = {
-            editMode: 1
+            editMode: 1,
+            draft: this.props.dump
         };
     }
 
@@ -34,13 +36,13 @@ export class DumpEditor extends React.PureComponent<DumpEditorProps, DumpEditorS
     {
         if(typeof dump != "string")
         {
-            this.draft = dump;
+            this.setState({ draft: dump });
             return;
         }
 
         try
         {
-            this.draft = JSON.parse(dump);
+            this.setState({ draft: JSON.parse(dump) });
         }
         catch(e)
         {
@@ -48,7 +50,7 @@ export class DumpEditor extends React.PureComponent<DumpEditorProps, DumpEditorS
         }
     }
 
-    public renderInner(): JSX.Element
+    private renderInner(): JSX.Element
     {
         return (
             <div>
@@ -73,13 +75,14 @@ export class DumpEditor extends React.PureComponent<DumpEditorProps, DumpEditorS
                         <div style={{ overflowY: "scroll", height: 430 }}>
                             <TreeView 
                                 head={true}
-                                dump={this.props.dump}
+                                dump={this.state.draft}
+                                find={current => this.props.find(current)}
                                 save={dump => this.updateDraft(dump)} />
                         </div>
                     </Bootstrap.TabPane>
                     <Bootstrap.TabPane tabId="2">
                         <textarea
-                            value={JSON.stringify(this.props.dump, null, 4)}
+                            value={JSON.stringify(this.state.draft, null, 4)}
                             style={{
                                 width: "100%",
                                 height: 430,
@@ -95,13 +98,13 @@ export class DumpEditor extends React.PureComponent<DumpEditorProps, DumpEditorS
                 <Bootstrap.Button 
                     color="success"
                     style={{ margin: 0, width: "50%" }}
-                    onClick={() => this.props.onSave(this.draft)}>
+                    onClick={() => this.props.save(this.state.draft)}>
                         Save
                 </Bootstrap.Button>
                 <Bootstrap.Button 
                     color="danger"
                     style={{ margin: 0, width: "50%" }}
-                    onClick={() => this.props.onSave(null)}>
+                    onClick={() => this.props.save(null)}>
                         Delete
                 </Bootstrap.Button>
             </div>
@@ -112,7 +115,7 @@ export class DumpEditor extends React.PureComponent<DumpEditorProps, DumpEditorS
     {
         return (
             <Cristal 
-                onClose={() => this.props.onClose()}
+                onClose={() => this.props.close()}
                 title="Dump Editor"
                 initialSize={{width: 700, height: 560}}
                 isResizable={true}

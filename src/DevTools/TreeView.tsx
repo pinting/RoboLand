@@ -1,33 +1,35 @@
 import * as React from "react";
 import * as Bootstrap from "reactstrap";
 
-import { IDump } from "../../lib/IDump";
+import { IDump } from "../lib/IDump";
 import { ChildView } from "./ChildView";
+import { Resource } from "../lib/Util/ResourceManager";
 
 // The tree should never reach this
 const MAX_DEPTH = 100;
 
-interface TreeViewProps
+interface ViewProps
 {
     dump: IDump;
     save: (dump: IDump) => void;
+    find: (current?: string) => Promise<Resource>;
     head?: boolean;
     depth?: number;
 }
 
-interface TreeViewState 
+interface ViewState 
 {
     isOpen: boolean;
 }
 
-export abstract class TreeView extends React.PureComponent<TreeViewProps, TreeViewState>
+export abstract class TreeView extends React.PureComponent<ViewProps, ViewState>
 {
-    constructor(props: TreeViewProps) 
+    constructor(props: ViewProps) 
     {
         super(props);
 
         this.state = {
-            isOpen: false
+            isOpen: !!this.props.head
         };
     }
 
@@ -40,16 +42,18 @@ export abstract class TreeView extends React.PureComponent<TreeViewProps, TreeVi
             case "boolean":
                 return <ChildView 
                     dump={dump} 
+                    find={current => this.props.find(current)}
                     save={(dump) => save(dump)}></ChildView>;
             default:
                 return <TreeView
                     depth={(this.props.depth || 0) + 1}
                     dump={dump} 
+                    find={current => this.props.find(current)}
                     save={(dump) => save(dump)}></TreeView>;
         }
     }
 
-    public saveChildDump(dump: IDump, index: number): void
+    private saveChildDump(dump: IDump, index: number): void
     {
         const payload = this.props.dump.Payload as IDump[];
 
@@ -73,12 +77,31 @@ export abstract class TreeView extends React.PureComponent<TreeViewProps, TreeVi
         this.props.save(newDump);
     }
 
-    public Remove()
+    private saveBase(base: string): void
     {
-        this.props.save(null);
+        const newDump = {
+            ...this.props.dump,
+            Base: base
+        };
+
+        this.props.save(newDump);
     }
 
-    public renderItems(): JSX.Element
+    private async updateBase(): Promise<void>
+    {
+        try
+        {
+            const newBase = await this.props.find(this.props.dump.Base);
+    
+            this.saveBase(newBase && newBase.Uri);
+        }
+        catch(e)
+        {
+            // Window was closed
+        }
+    }
+
+    private renderItems(): JSX.Element
     {
         return (
             <div>
@@ -91,19 +114,16 @@ export abstract class TreeView extends React.PureComponent<TreeViewProps, TreeVi
 
     public render(): JSX.Element
     {
-        if(!this.props.dump || (this.props.depth || 0) > MAX_DEPTH)
+        const dump = this.props.dump;
+
+        if(!dump || (this.props.depth || 0) > MAX_DEPTH)
         {
             return null;
         }
 
-        if(!this.props.dump.Payload || !this.props.dump.Payload.length)
+        if(!dump.Payload)
         {
-            return this.renderDump(this.props.dump, (dump) => this.props.save(dump));
-        }
-
-        if(this.props.head)
-        {
-            return this.renderItems();
+            return this.renderDump(dump, (dump) => this.props.save(dump));
         }
 
         return (
@@ -111,12 +131,18 @@ export abstract class TreeView extends React.PureComponent<TreeViewProps, TreeVi
                 <Bootstrap.Table size="100%">
                     <tbody>
                         <tr>
-                            <td style={{ width: "100%" }}>
+                            <td style={{ width: "95%" }}>
                                 <Bootstrap.Button
-                                    style={{ width: "100%", textAlign: "left" }}
+                                    style={{ width: "95%", textAlign: "left" }}
                                     color={this.state.isOpen ? "primary" : "secondary"} 
                                     onClick={() => this.setState({isOpen: !this.state.isOpen})}>
-                                        {this.props.dump.Name} ({this.props.dump.Class})
+                                        {dump.Name} ({dump.Class}) {dump.Base && <i>+ {dump.Base}</i>}
+                                </Bootstrap.Button>
+                            </td>
+                            <td style={{ width: "5%" }}>
+                                <Bootstrap.Button
+                                    onClick={() => this.updateBase()}>
+                                    Base
                                 </Bootstrap.Button>
                             </td>
                         </tr>

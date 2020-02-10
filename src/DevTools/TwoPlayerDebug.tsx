@@ -3,11 +3,6 @@ import Cristal from "react-cristal";
 
 import { Logger, LogType } from "../lib/Util/Logger";
 import { Shared } from "../Game/Shared";
-import { PlayerActor } from "../lib/Unit/Actor/PlayerActor";
-import { Body } from "../lib/Physics/Body";
-import { Vector } from "../lib/Geometry/Vector";
-import { Polygon } from "../lib/Geometry/Polygon";
-import { Matrix } from "../lib/Geometry/Matrix";
 import { Renderer } from "../lib/Renderer";
 import { World } from "../lib/World";
 import { FakeChannel } from "../lib/Net/Channel/FakeChannel";
@@ -16,32 +11,32 @@ import { Server } from "../lib/Net/Server";
 import { Host } from "../lib/Net/Host";
 import { Tools } from "../lib/Util/Tools";
 import { ResourceManager } from "../lib/Util/ResourceManager";
-import { SimplexNoise } from "../lib/Util/SimplexNoise";
-import { Http } from "../lib/Util/Http";
 import { Exportable } from "../lib/Exportable";
 import { Keyboard } from "../lib/Util/Keyboard";
-import { NormalCell } from "../lib/Unit/Cell/NormalCell";
 import { IDump } from "../lib/IDump";
 
 interface ViewProps {
     world?: IDump;
-    onClose: () => void;
+    close: () => void;
 }
 
 interface ViewState {
 
 }
 
-export class TwoPlayerView extends React.PureComponent<ViewProps, ViewState>
+export class TwoPlayerDebug extends React.PureComponent<ViewProps, ViewState>
 {
     private canvasA: HTMLCanvasElement;
     private canvasB: HTMLCanvasElement;
     private canvasS: HTMLCanvasElement;
 
+    private rendererA: Renderer;
+    private rendererB: Renderer;
+
     /**
      * Create 2 clients and 1 server and render everthing onto the 3 canvases.
      */
-    public async init()
+    protected async init()
     {
         Logger.Type = LogType.Warn;
         Keyboard.Init();
@@ -55,13 +50,13 @@ export class TwoPlayerView extends React.PureComponent<ViewProps, ViewState>
         worldA["_Name"] = "worldA";
         worldB["_Name"] = "worldB";
         
-        const rendererA = new Renderer({ 
+        this.rendererA = new Renderer({ 
             canvas: this.canvasA,
             world: worldA,
             debug: true
         });
 
-        const rendererB = new Renderer({
+        this.rendererB = new Renderer({
             canvas: this.canvasB,
             world: worldB,
             debug: true
@@ -91,11 +86,6 @@ export class TwoPlayerView extends React.PureComponent<ViewProps, ViewState>
             world = Exportable.Import(dump);
         }
 
-        if(!world)
-        {
-            world = Shared.CreateSampleWorld(16);
-        }
-
         const server = new Server(world);
         
         server.Add(new Host(channelA2, server));
@@ -105,7 +95,7 @@ export class TwoPlayerView extends React.PureComponent<ViewProps, ViewState>
         {
             worldA.Origin = player.GetId();
     
-            await rendererA.Load();
+            await this.rendererA.Load();
             
             const keys = 
             {
@@ -116,20 +106,20 @@ export class TwoPlayerView extends React.PureComponent<ViewProps, ViewState>
                 shoot: " "
             };
             
-            rendererB.OnDraw.Add(() => 
+            this.rendererB.OnDraw.Add(() => 
             {
                 Shared.SetupControl(player, keys);
-                rendererB.SetCenter(player.GetBody().GetPosition());
+                this.rendererB.SetCenter(player.GetBody().GetPosition());
             });
 
-            rendererA.Start();
+            this.rendererA.Start();
         };
         
         receiverB.OnPlayer = async player =>
         {
             worldB.Origin = player.GetId();
     
-            await rendererB.Load();
+            await this.rendererB.Load();
     
             const keys = 
             {
@@ -140,13 +130,13 @@ export class TwoPlayerView extends React.PureComponent<ViewProps, ViewState>
                 shoot: "E"
             };
             
-            rendererB.OnDraw.Add(() => 
+            this.rendererB.OnDraw.Add(() => 
             {
                 Shared.SetupControl(player, keys);
-                rendererA.SetCenter(player.GetBody().GetPosition());
+                this.rendererA.SetCenter(player.GetBody().GetPosition());
             });
 
-            rendererB.Start();
+            this.rendererB.Start();
         };
     
         // Render the server
@@ -172,6 +162,12 @@ export class TwoPlayerView extends React.PureComponent<ViewProps, ViewState>
         });
     }
 
+    public componentWillUnmount(): void
+    {
+        this.rendererA.Stop();
+        this.rendererB.Stop();
+    }
+
     public componentDidMount(): void
     {
         this.init();
@@ -192,7 +188,7 @@ export class TwoPlayerView extends React.PureComponent<ViewProps, ViewState>
     {
         return (
             <Cristal 
-                onClose={() => this.props.onClose()}
+                onClose={() => this.props.close()}
                 title="Two Player Debug"
                 initialSize={{width: 700, height: 300}}
                 isResizable={true}

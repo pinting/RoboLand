@@ -20,8 +20,8 @@ import { Body } from "../lib/Physics/Body";
 import { ResourceManager } from "../lib/Util/ResourceManager";
 
 interface ViewProps {
-    onClose: () => void;
-    onEditor: (dump: IDump) => Promise<IDump>;
+    close: () => void;
+    edit: (dump: IDump) => Promise<IDump>;
 }
 
 interface ViewState {
@@ -29,10 +29,11 @@ interface ViewState {
     loaded: string[];
 }
 
+const GENERATE_MAX_LENGTH = 256;
 const DRAG_WAIT = 300;
 const MIN_SIZE = 8;
 
-export class WorldView extends React.PureComponent<ViewProps, ViewState>
+export class WorldEditor extends React.PureComponent<ViewProps, ViewState>
 {
     private canvas: HTMLCanvasElement;
     private renderer: Renderer;
@@ -64,7 +65,7 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
         this.registerUnit(NormalCell);
     }
 
-    private static CanvasP(canvas: HTMLCanvasElement, event: MouseEvent): Vector
+    private findClick(canvas: HTMLCanvasElement, event: MouseEvent): Vector
     {
         const rect = canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
@@ -73,7 +74,7 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
         return new Vector(x, y);
     }
 
-    private registerUnit(classObj: any, name?: string)
+    private registerUnit(classObj: any, name?: string): void
     {
         const item = classObj.name || name;
 
@@ -82,7 +83,7 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
         Exportable.Dependency(classObj, name);
     }
 
-    private async createRenderer()
+    private async createRenderer(): Promise<void>
     {
         this.renderer = new Renderer({
             dotPerPoint: 64,
@@ -105,7 +106,7 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
         this.renderer.SetSelectedZ(Number.isNaN(z) ? undefined : z);
     }
 
-    private async createWorld()
+    private async createWorld(): Promise<void>
     {
         if(!this.input.newWorldSize)
         {
@@ -118,31 +119,20 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
         await this.createRenderer();
     }
 
-    private async createSampleWorld()
+    private async saveWorld()
     {
-        if(!this.input.newWorldSize)
-        {
-            return;
-        }
+        // Set a char limit per JSON file, so the export algorithm split
+        // the World into multiply files
+        Exportable.SaveSplitLimit = GENERATE_MAX_LENGTH;
 
-        this.world = World.Current = Shared.CreateSampleWorld(this.input.newWorldSize.X || this.input.newWorldSize.Y);
+        await Exportable.Save(Exportable.Export(this.world, null, ExportType.NetDisk), true);
 
-        await this.createRenderer();
-    }
-
-    private async save()
-    {
-        Exportable.Save(Exportable.Export(this.world, null, ExportType.Visible));
-    }
-
-    private async optimize()
-    {
-        Exportable.SaveSplitLimit = 160;
-        await Exportable.Save(Exportable.Export(this.world, null, ExportType.Visible));
         Exportable.SaveSplitLimit = Infinity;
+
+        await this.init();
     }
 
-    private async edit()
+    private async editSelected(): Promise<void>
     {
         const unit = this.input.selectedUnit;
 
@@ -151,11 +141,11 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
             return;
         }
 
-        const dump = Exportable.Export(unit, null, ExportType.Visible);
+        const dump = Exportable.Export(unit, null, ExportType.NetDisk);
 
         try 
         {
-            const newDump = await this.props.onEditor(dump);
+            const newDump = await this.props.edit(dump);
             
             if(unit instanceof BaseCell)
             {
@@ -196,7 +186,7 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
         }
     }
     
-    private async addUnit()
+    private async addUnit(): Promise<void>
     {
         if(!this.world || !this.input.newElementVector || !this.input.newElementName)
         {
@@ -239,8 +229,8 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
             return;
         }
 
-        const p = WorldView.CanvasP(this.canvas, event);
-        const vector = this.renderer.FindVector(p.X, p.Y);
+        const click = this.findClick(this.canvas, event);
+        const vector = this.renderer.FindVector(click.X, click.Y);
         const unit = this.world.GetUnits().FindNearest(vector);
 
         if(!unit)
@@ -265,8 +255,8 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
             return;
         }
 
-        const p = WorldView.CanvasP(this.canvas, event);
-        const newOffset = this.renderer.FindVector(p.X, p.Y);
+        const click = this.findClick(this.canvas, event);
+        const newOffset = this.renderer.FindVector(click.X, click.Y);
 
         if(this.input.selectedUnit)
         {
@@ -334,7 +324,7 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
                             <Bootstrap.Button 
                                 block
                                 style={{ margin: 0 }}
-                                onClick={this.edit.bind(this)}
+                                onClick={this.editSelected.bind(this)}
                                 color="primary">
                                     Edit Selected
                             </Bootstrap.Button>
@@ -363,12 +353,6 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
                                 onClick={this.createWorld.bind(this)}>
                                     Generate Empty
                             </Bootstrap.Button>
-                            <Bootstrap.Button
-                                block
-                                style={{ margin: 0 }}
-                                onClick={this.createSampleWorld.bind(this)}>
-                                    Generate Sample
-                            </Bootstrap.Button>
                             <Bootstrap.Input 
                                 style={{ margin: "10% 0 0 0" }}
                                 type="number" 
@@ -392,15 +376,9 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
                             <Bootstrap.Button 
                                 block
                                 style={{ margin: "10% 0 0 0" }}
-                                onClick={this.save.bind(this)}>
-                                    Save
-                            </Bootstrap.Button>
-                            <Bootstrap.Button 
-                                block
-                                style={{ margin: 0 }}
-                                onClick={this.optimize.bind(this)}
+                                onClick={this.saveWorld.bind(this)}
                                 color="success">
-                                    Save Optimized
+                                    Save <i>(experimental)</i>
                             </Bootstrap.Button>
                         </td>
                         <td>
@@ -423,9 +401,9 @@ export class WorldView extends React.PureComponent<ViewProps, ViewState>
     {
         return (
             <Cristal 
-                onClose={() => this.props.onClose()}
+                onClose={() => this.props.close()}
                 title="World Editor"
-                initialSize={{width: 700, height: 620}}
+                initialSize={{width: 700, height: 520}}
                 isResizable={true}
                 initialPosition="top-center">
                     {this.renderInner()}

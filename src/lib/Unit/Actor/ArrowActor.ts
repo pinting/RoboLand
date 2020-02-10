@@ -10,7 +10,7 @@ export interface ArrowActorArgs extends BaseActorArgs
 
 export class ArrowActor extends BaseActor
 {
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected damage: number;
 
     /**

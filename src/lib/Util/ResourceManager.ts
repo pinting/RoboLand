@@ -145,13 +145,15 @@ export class ResourceManager
      * @param uri ID of the file
      * @param buffer 
      */
-    public static async RawAdd(uri: string, buffer: ArrayBuffer): Promise<Resource>
+    public static async RawAdd(name: string, buffer: ArrayBuffer): Promise<Resource>
     {
+        const meta = Resource.GetMeta(buffer);
+        const uri = name + "." + meta.Extension;
         const existing = this.ByUri(uri) !== undefined;
 
         if(existing)
         {
-            return null;
+            this.Remove(uri);
         }
 
         const resource = new Resource();
@@ -175,12 +177,11 @@ export class ResourceManager
 
         for(let c = 0;; c++)
         {
-            const meta = Resource.GetMeta(buffer);
+            uri = name + (c > 0 ? ("-" + c) : "")
 
-            uri = name + (c > 0 ? ("-" + c) : "") + "." + meta.Extension;
-
-            if(await ResourceManager.RawAdd(uri, buffer))
+            if(this.ByUri(uri) === undefined)
             {
+                await ResourceManager.RawAdd(uri, buffer);
                 break;
             }
         }
@@ -270,7 +271,7 @@ export class ResourceManager
 
             const resource = new Resource();
 
-            await resource.Init(resource.Uri, subBuffer);
+            await resource.Init(item.Uri, subBuffer);
 
             this.storage.push(resource);
 

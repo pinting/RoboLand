@@ -18,19 +18,19 @@ export interface PlayerActorArgs extends BaseActorArgs
 
 export class PlayerActor extends BaseActor
 {
-    @Exportable.Register(ExportType.Hidden)
+    @Exportable.Register(ExportType.Net)
     protected lastShot = +new Date(0);
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected health: number;
 
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected speed: number;
 
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected rotSpeed: number;
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected arrow: ArrowActor;
 
     private walkJob: number;

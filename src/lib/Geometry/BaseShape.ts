@@ -5,16 +5,16 @@ export abstract class BaseShape extends Exportable
 {
     private virtual: Vector[];
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected points: Vector[];
 
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected position: Vector = new Vector(0, 0);
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected rotation: number = 0;
     
-    @Exportable.Register(ExportType.Visible)
+    @Exportable.Register(ExportType.NetDisk)
     protected scale: Vector = new Vector(1, 1);
 
     public constructor(points: Vector[])
