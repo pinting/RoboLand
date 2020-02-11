@@ -166,7 +166,7 @@ export class Game extends React.PureComponent<GameProps, GameState>
         await ResourceManager.Load(buffer);
 
         const rootResource = ResourceManager.ByUri(Shared.DEFAULT_WORLD_URI);
-        const rootDump = JSON.parse(Tools.BufferToString(rootResource.Buffer)) as IDump;
+        const rootDump = JSON.parse(Tools.BufferToUTF16(rootResource.Buffer)) as IDump;
         const dump = Exportable.Resolve(rootDump);
         const serverWorld = Exportable.Import(dump);
 

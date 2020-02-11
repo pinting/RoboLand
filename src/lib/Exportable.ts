@@ -250,7 +250,7 @@ export abstract class Exportable
     private static async SaveDump(dump: IDump, overwrite: boolean): Promise<string>
     {
         const json = JSON.stringify(dump, null, 4);
-        const buffer = Tools.StringToBuffer(json);
+        const buffer = Tools.UTF16ToBuffer(json);
         const hash = await Tools.Sha256(buffer);
         const existing = ResourceManager.ByHash(hash);
 
@@ -332,10 +332,10 @@ export abstract class Exportable
             return {
                 Name: dump.Name,
                 Class: dump.Class,
+                Base: fileName,
                 Payload: [
                     ...extracted
-                ],
-                Base: fileName
+                ]
             };
         }
 
@@ -362,7 +362,7 @@ export abstract class Exportable
 
             if(resource)
             {
-                const baseDump = JSON.parse(Tools.BufferToString(resource.Buffer)) as IDump;
+                const baseDump = JSON.parse(Tools.BufferToUTF16(resource.Buffer)) as IDump;
                 
                 if(baseDump && baseDump.Class === dump.Class)
                 {

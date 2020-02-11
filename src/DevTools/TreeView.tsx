@@ -3,7 +3,7 @@ import * as Bootstrap from "reactstrap";
 
 import { IDump } from "../lib/IDump";
 import { ChildView } from "./ChildView";
-import { Resource } from "../lib/Util/ResourceManager";
+import { Resource } from "../lib/RoboPack";
 
 // The tree should never reach this
 const MAX_DEPTH = 100;

@@ -1,108 +1,5 @@
-import { Tools } from "./Tools";
 import { Event } from "./Event";
-
-export const MIME_TYPE = "application/robosave";
-export const FILE_EXT = "roboland";
-
-export interface ISaveMeta
-{
-    Items: ISaveItem[]; 
-}
-
-export interface ISaveItem
-{
-    Length: number;
-    Uri: string;
-    Hash: string;
-}
-
-export interface BufferMeta
-{
-    Extension: string;
-    Mime: string;
-}
-
-export class Resource
-{
-    public Buffer: ArrayBuffer;
-    public Uri: string;
-    public Hash: string;
-    
-    private blob: Blob;
-    private url: string;
-
-    /**
-     * Get an URL to the resource.
-     */
-    public GetUrl(): string
-    {
-        if(this.url)
-        {
-            return this.url;
-        }
-
-        this.Save();
-
-        this.url = URL.createObjectURL(this.blob);
-
-        return this.url;
-    }
-
-    /**
-     * Try to figure out the MIME data of the buffer.
-     * @param buffer 
-     */
-    public static GetMeta(buffer: ArrayBuffer): BufferMeta
-    {
-        const head = Tools.BufferToString(buffer.slice(0, 16));
-
-        if(head.slice(1, 5) == "PNG")
-        {
-            return { Extension: "png", Mime: "image/png" };
-        }
-        else if(head.slice(0, 1) == "{")
-        {
-            return { Extension: "json", Mime: "application/json" };
-        }
-
-        return { Extension: "", Mime: "application/octet-stream" };
-    }
-
-    /**
-     * Create a blob object.
-     */
-    public Save(): Blob
-    {
-        if(this.blob)
-        {
-            return this.blob;
-        }
-
-        if(Resource.GetMeta(this.Buffer))
-        {
-            this.blob = new Blob([this.Buffer], { type: "image/png" });
-        }
-        else
-        {
-            this.blob = new Blob([this.Buffer]);
-        }
-        
-        return this.blob;
-    }
-
-    public async Init(uri: string, buffer: ArrayBuffer): Promise<void>
-    {
-        this.Uri = uri;
-
-        this.SetBuffer(buffer);
-    }
-
-    public async SetBuffer(buffer: ArrayBuffer): Promise<void>
-    {
-        this.Buffer = buffer;
-        this.Hash = await Tools.Sha256(buffer);
-    }
-}
+import { RoboPack, Resource } from "../RoboPack";
 
 // TODO: Use IndexedDB to store between sessions
 export class ResourceManager
@@ -147,8 +44,19 @@ export class ResourceManager
      */
     public static async RawAdd(name: string, buffer: ArrayBuffer): Promise<Resource>
     {
-        const meta = Resource.GetMeta(buffer);
-        const uri = name + "." + meta.Extension;
+        let uri: string;
+
+        if(!name.includes("."))
+        {
+            const meta = Resource.GetMeta(buffer);
+
+            uri = name + "." + meta.Extension;
+        }
+        else
+        {
+            uri = name;
+        }
+
         const existing = this.ByUri(uri) !== undefined;
 
         if(existing)
@@ -201,7 +109,8 @@ export class ResourceManager
         {
             return;
         }
-        
+
+        this.storage[index].Destroy();
         this.storage.splice(index, 1);
         this.OnChange.Call();
     }
@@ -212,21 +121,9 @@ export class ResourceManager
      */
     public static async Save(): Promise<Blob>
     {
-        const meta: ISaveMeta = {
-            Items: this.storage.map(r => ({
-                Uri: r.Uri,
-                Length: r.Buffer.byteLength,
-                Hash: r.Hash
-            }))
-        };
+        const buffer = await RoboPack.Pack(this.storage);
 
-        const head = JSON.stringify(meta);
-        const slices = [Tools.StringToBuffer(head), ...this.storage.map(r => r.Buffer)];
-
-        const temp = new Blob(slices);
-        const merged = await new Response(temp).arrayBuffer();
-
-        return new Blob([Tools.ZLibDeflate(merged)], { type: MIME_TYPE });
+        return new Blob([buffer], { type: "application/octet-stream" });
     }
 
     /**
@@ -235,55 +132,13 @@ export class ResourceManager
      */
     public static async Load(buffer: ArrayBuffer): Promise<void>
     {
-        const uncompressed = Tools.ZLibInflate(buffer);
-        const stringView = new Uint16Array(uncompressed.slice(0, uncompressed.byteLength * 2));
-
-        let endOfMeta = 0;
-        let scope = 0;
-
-        for (let i = 0; i < stringView.length; i++) 
-        {
-            if(stringView[i] === "{".charCodeAt(0))
-            {
-                scope++;
-            }
-            else if(stringView[i] === "}".charCodeAt(0))
-            {
-                scope--;
-
-                if(scope === 0)
-                {
-                    endOfMeta = i + 1;
-                    break;
-                }
-            }
-        }
-
-        const rawMeta = uncompressed.slice(0, endOfMeta * 2);
-        const meta = JSON.parse(Tools.BufferToString(rawMeta)) as ISaveMeta;
-
-        let current = endOfMeta * 2;
-
-        for (let item of meta.Items)
-        {
-            const length = item.Length;
-            const subBuffer = uncompressed.slice(current, current + length);
-
-            const resource = new Resource();
-
-            await resource.Init(item.Uri, subBuffer);
-
-            this.storage.push(resource);
-
-            current += length;
-        }
+        this.storage = await RoboPack.Unpack(buffer);
     }
 
-    /**
-     * Generate a file name for the bundle.
-     */
-    public static GenerateName()
+    public static Clear(): void
     {
-        return Tools.Unique() + "." + FILE_EXT;
+        ResourceManager.storage = [];
+
+        this.OnChange.Call();
     }
 }

@@ -12,7 +12,7 @@ import { TestRunner } from "./TestRunner";
 import { ResourceBrowser } from "./ResourceBrowser";
 import { Helper } from "../Helper";
 import { World } from "../lib/World";
-import { ResourceManager, Resource } from "../lib/Util/ResourceManager";
+import { ResourceManager } from "../lib/Util/ResourceManager";
 import { SimplexNoise } from "../lib/Util/SimplexNoise";
 import { Http } from "../lib/Util/Http";
 import { Body } from "../lib/Physics/Body";
@@ -23,17 +23,22 @@ import { Exportable } from "../lib/Exportable";
 import { PlayerActor } from "../lib/Unit/Actor/PlayerActor";
 import { NormalCell } from "../lib/Unit/Cell/NormalCell";
 import { Logger } from "../lib/Util/Logger";
+import { Resource } from "../lib/RoboPack";
 
-interface ViewProps {
+interface ViewProps
+{
 
 }
 
-interface ViewState {
+interface ViewState
+{
     windows: JSX.Element[];
 }
 
 export class DevTools extends React.PureComponent<ViewProps, ViewState>
 {
+    private importButton: HTMLInputElement;
+
     constructor(props: ViewProps) 
     {
         super(props);
@@ -72,6 +77,24 @@ export class DevTools extends React.PureComponent<ViewProps, ViewState>
     public componentDidMount(): void
     {
         this.init();
+    }
+
+    private async readFileList(list: FileList): Promise<void>
+    {
+        for(var i = 0; i < list.length; i++)
+        {
+            const file = list[i];
+            const reader = new FileReader();
+
+            reader.onload = () =>
+            {
+                const buffer = reader.result as ArrayBuffer;
+
+                ResourceManager.Load(buffer);
+            }
+
+            reader.readAsArrayBuffer(file);
+        }
     }
 
     private async addWindow(view: JSX.Element)
@@ -207,8 +230,15 @@ export class DevTools extends React.PureComponent<ViewProps, ViewState>
                     <Bootstrap.ButtonGroup>
                         <Bootstrap.Button
                             color="primary"
-                        onClick={() => Helper.Save()}>
-                                Export
+                            onClick={e => this.importButton && this.importButton.click()}>
+                                Import
+                                <input 
+                                    multiple
+                                    ref={r => this.importButton = r}
+                                    style={{ display: "none" }}
+                                    type="file" 
+                                    accept=".roboland"
+                                    onChange={e => this.readFileList(e.target.files)} />
                         </Bootstrap.Button>
                         <Bootstrap.Button
                             onClick={() => this.createWorldEditor()}>
@@ -229,6 +259,11 @@ export class DevTools extends React.PureComponent<ViewProps, ViewState>
                         <Bootstrap.Button
                             onClick={() => this.createTestRunner()}>
                                 Test Runner
+                        </Bootstrap.Button>
+                        <Bootstrap.Button
+                            color="primary"
+                            onClick={() => Helper.Save()}>
+                                Export
                         </Bootstrap.Button>
                     </Bootstrap.ButtonGroup>
                 </div>

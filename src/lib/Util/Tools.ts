@@ -8,6 +8,26 @@ export class Tools
      */
     public static async Sha256(data: ArrayBuffer): Promise<string>
     {
+        // For NodeJS compatibility
+        if(typeof window === "undefined")
+        {
+            return new Promise<string>(resolve =>
+            {
+                const crypto = require("crypto");
+                const hash = crypto.createHash("sha256");
+    
+                hash.on("readable", () =>
+                {
+                    const data = hash.read();
+
+                    if (data) 
+                    {
+                        resolve(data.toString("hex"))
+                    }
+                });
+            });
+        }
+
         const hashBuffer = await crypto.subtle.digest("SHA-256", data);
         const hashArray = Array.from(new Uint8Array(hashBuffer));
 
@@ -204,7 +224,20 @@ export class Tools
         return true;
     }
 
-    public static BufferToString(buffer: ArrayBuffer): string 
+    public static UTF8ToUTF16(buffer: ArrayBuffer): string 
+    {
+        const stringView = new Uint8Array(buffer);
+        let result = "";
+
+        for (let i = 0; i < stringView.byteLength; i++) 
+        {
+            result += String.fromCharCode(stringView[i]);
+        }
+
+        return result;
+    }
+
+    public static BufferToUTF16(buffer: ArrayBuffer): string 
     {
         const stringView = new Uint16Array(buffer);
         let result = "";
@@ -217,7 +250,7 @@ export class Tools
         return result;
     }
 
-    public static StringToBuffer(string: string): ArrayBuffer 
+    public static UTF16ToBuffer(string: string): ArrayBuffer 
     {
         let buffer = new ArrayBuffer(string.length * 2); // 2 bytes for each char
         let stringView = new Uint16Array(buffer);
@@ -228,5 +261,27 @@ export class Tools
         }
 
         return buffer;
-      }
+    }
+
+    public static MergeBuffers(slices: ArrayBuffer[]): ArrayBuffer
+    {
+        let sumLength = 0;
+
+        for(let buffer of slices)
+        {
+            sumLength += buffer.byteLength;
+        }
+        
+        const merged = new Uint8Array(sumLength);
+        let i = 0;
+
+        for(let buffer of slices)
+        {
+            merged.set(new Uint8Array(buffer), i)
+
+            i += buffer.byteLength;
+        }
+
+        return merged.buffer;
+    }
 }

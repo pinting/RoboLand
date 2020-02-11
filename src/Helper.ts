@@ -1,5 +1,6 @@
-import { Resource, ResourceManager } from "./lib/Util/ResourceManager";
+import { ResourceManager } from "./lib/Util/ResourceManager";
 import { Tools } from "./lib/Util/Tools";
+import { Resource, RoboPack } from "./lib/RoboPack";
 
 declare var navigator: { clipboard: any } & Navigator;
 
@@ -21,7 +22,7 @@ export class Helper
             blob = await ResourceManager.Save();
         }
 
-        const name = (resource && resource.Uri) || ResourceManager.GenerateName();
+        const name = (resource && resource.Uri) || RoboPack.GenerateName();
 
         if(window.navigator.msSaveOrOpenBlob)
         {

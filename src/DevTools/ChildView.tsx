@@ -2,15 +2,17 @@ import * as React from "react";
 import * as Bootstrap from "reactstrap";
 
 import { IDump } from "../lib/IDump";
-import { Resource } from "../lib/Util/ResourceManager";
+import { Resource } from "../lib/RoboPack";
 
-interface ChildViewProps {
+interface ChildViewProps
+{
     dump: IDump;
     save: (dump: IDump) => void;
     find: (current?: string) => Promise<Resource>;
 }
 
-interface ChildViewState {
+interface ChildViewState
+{
 
 }    
 

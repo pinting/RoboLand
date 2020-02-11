@@ -2,25 +2,29 @@ import * as React from "react";
 import * as Bootstrap from "reactstrap";
 import Cristal from "react-cristal";
 
-import { ResourceManager, Resource } from "../lib/Util/ResourceManager";
+import { ResourceManager } from "../lib/Util/ResourceManager";
 import { IDump } from "../lib/IDump";
 import { Helper } from "../Helper";
 import { Tools } from "../lib/Util/Tools";
+import { Resource } from "../lib/RoboPack";
 
-interface ViewProps {
+interface ViewProps
+{
     close: () => void;
     edit: (dump: IDump) => Promise<IDump>;
     select?: (resource: Resource) => void;
     current?: string;
 }
 
-interface ViewState {
+interface ViewState
+{
     resources: Resource[];
 }
 
 export class ResourceBrowser extends React.PureComponent<ViewProps, ViewState>
 {
     private onChangeEvent: number;
+    private uploadButton: HTMLInputElement;
 
     public constructor(props: ViewProps)
     {
@@ -40,12 +44,35 @@ export class ResourceBrowser extends React.PureComponent<ViewProps, ViewState>
         });
     }
 
-    private async edit(resource: Resource): Promise<void>
+    private async readFileList(list: FileList): Promise<void>
+    {
+        for(var i = 0; i < list.length; i++)
+        {
+            const file = list[i];
+            const reader = new FileReader();
+
+            reader.onload = () =>
+            {
+                const buffer = reader.result as ArrayBuffer;
+                const meta = Resource.GetMeta(buffer);
+
+                // Only allow parsed types
+                if(meta.Extension)
+                {
+                    ResourceManager.Add(file.name, buffer);
+                }
+            }
+
+            reader.readAsArrayBuffer(file);
+        }
+    }
+
+    private async editResource(resource: Resource): Promise<void>
     {
         let dump: IDump;
 
         try {
-            const raw = Tools.BufferToString(resource.Buffer);
+            const raw = Tools.BufferToUTF16(resource.Buffer);
             
             dump = JSON.parse(raw);
         }
@@ -70,7 +97,7 @@ export class ResourceBrowser extends React.PureComponent<ViewProps, ViewState>
         if(newDump)
         {
             const newRaw = JSON.stringify(newDump);
-            const newBuffer = Tools.StringToBuffer(newRaw);
+            const newBuffer = Tools.UTF16ToBuffer(newRaw);
     
             await resource.SetBuffer(newBuffer);
         }
@@ -78,6 +105,11 @@ export class ResourceBrowser extends React.PureComponent<ViewProps, ViewState>
         {
             ResourceManager.Remove(resource.Uri);
         }
+    }
+
+    private deleteAll(): void
+    {
+        ResourceManager.Clear();
     }
 
     private renderResource(resource: Resource, background = "white"): JSX.Element
@@ -89,7 +121,7 @@ export class ResourceBrowser extends React.PureComponent<ViewProps, ViewState>
                 </td>
                 <td style={{ width: "10%" }}>
                     <Bootstrap.Button
-                        onClick={() => this.edit(resource)}>
+                        onClick={() => this.editResource(resource)}>
                             Edit
                     </Bootstrap.Button>
                 </td>
@@ -126,6 +158,25 @@ export class ResourceBrowser extends React.PureComponent<ViewProps, ViewState>
 
         return (
             <div style={{ overflowY: "scroll", height: 450 }}>
+                <Bootstrap.Button
+                    color="primary"
+                    style={{ margin: 0, width: "50%" }}
+                    onClick={e => this.uploadButton && this.uploadButton.click()}>
+                        Add resource
+                        <input 
+                            multiple
+                            ref={r => this.uploadButton = r}
+                            style={{ display: "none" }}
+                            type="file" 
+                            accept="application/json,image/png"
+                            onChange={e => this.readFileList(e.target.files)} />
+                </Bootstrap.Button>
+                <Bootstrap.Button
+                    color="danger"
+                    style={{ margin: 0, width: "50%" }}
+                    onClick={e => this.deleteAll()}>
+                    Delete all resources
+                </Bootstrap.Button>
                 <Bootstrap.Table size="100%">
                     <tbody>
                         {current && this.renderResource(current, "lightgray")}

@@ -3,6 +3,8 @@ import { Unit } from "./Unit/Unit";
 import { Event } from "./Util/Event";
 import { Vector } from "./Geometry/Vector";
 import { Polygon } from "./Geometry/Polygon";
+import { ResourceManager } from "./Util/ResourceManager";
+import { Resource } from "./RoboPack";
 
 export interface RendererArgs
 {
@@ -64,26 +66,28 @@ export class Renderer
     }
 
     /**
-     * Load textures for the world.
+     * Load textures from the resources.
      */
     public async Load(): Promise<void>
     {
         return new Promise<void>((resolve, reject) => 
         {
-            const units = this.world.GetUnits();
+            const textures = ResourceManager.GetList().filter(r => 
+                Resource.GetMeta(r.Buffer).Mime === "image/png");
+            
             let i = 0;
     
-            units.Some((unit: Unit) =>
+            for(let resource of textures)
             {
-                if(!unit)
+                if(!resource)
                 {
                     i++;
                     return;
                 }
-    
-                const path = unit.GetTexture();
 
-                if(!path || this.textures[path] !== undefined)
+                const uri = resource.Uri;
+
+                if(this.textures[uri] !== undefined)
                 {
                     i++;
                     return;
@@ -94,20 +98,21 @@ export class Renderer
                 texture.onerror = () => reject();
                 texture.onload = () => 
                 {
-                    this.textures[path] = texture;
+                    this.textures[uri] = texture;
     
-                    if(++i == units.GetLength()) 
+                    if(++i == textures.length) 
                     {
                         resolve();
                     }
                 };
+
             
-                texture.src = path;
+                texture.src = resource.GetUrl();
 
-                this.textures[path] = null;
-            });
+                this.textures[uri] = null;
+            }
 
-            if(!units.GetLength())
+            if(!textures.length)
             {
                 resolve();
             }

@@ -5,8 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server",
-    "build": "webpack --build",
+    "build": "tsc && webpack --build",
     "watch": "webpack --watch"
+  },
+  "bin": {
+    "robopack": "./dist/cli/robopack.js"
   },
   "repository": {
     "type": "git",
@@ -19,9 +22,6 @@
   },
   "homepage": "https://github.com/pinting/RoboLand#readme",
   "dependencies": {
-    "@types/react": "16.7.x",
-    "@types/react-dom": "16.0.x",
-    "@types/reactstrap": "8.4.x",
     "bootstrap-css": "4.0.0-alpha.5",
     "classnames": "2.2.x",
     "pako": "1.0.x",
@@ -33,11 +33,15 @@
     "webrtc-adapter": "6.3.x"
   },
   "devDependencies": {
+    "@types/react": "16.7.x",
+    "@types/react-dom": "16.0.x",
+    "@types/reactstrap": "8.4.x",
+    "@types/node": "13.7.x",
     "copy-webpack-plugin": "5.1.x",
     "css-loader": "2.0.x",
     "style-loader": "0.23.x",
     "ts-loader": "5.2.x",
-    "typescript": "2.9.x",
+    "typescript": "3.7.5",
     "webpack": "4.41.x",
     "webpack-cli": "3.1.x",
     "webpack-dev-server": "3.1.x"

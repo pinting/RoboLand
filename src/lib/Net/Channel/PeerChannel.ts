@@ -137,7 +137,7 @@ export class PeerChannel implements IChannel
     {
         if(event && event.data)
         {
-            const uncompressed = Tools.BufferToString(Tools.ZLibInflate(event.data));
+            const uncompressed = Tools.BufferToUTF16(Tools.ZLibInflate(event.data));
 
             this.OnMessage(uncompressed);
         }
@@ -151,7 +151,7 @@ export class PeerChannel implements IChannel
     {
         if(this.IsOpen())
         {
-            const compressed = Tools.ZLibDeflate(Tools.StringToBuffer(message));
+            const compressed = Tools.ZLibDeflate(Tools.UTF16ToBuffer(message));
 
             this.dataChannel.send(compressed);
         }

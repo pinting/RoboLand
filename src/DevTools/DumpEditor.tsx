@@ -5,9 +5,10 @@ import * as Bootstrap from "reactstrap";
 
 import { IDump } from "../lib/IDump";
 import { TreeView } from "./TreeView";
-import { Resource } from "../lib/Util/ResourceManager";
+import { Resource } from "../lib/RoboPack";
 
-interface ViewProps {
+interface ViewProps
+{
     dump: IDump;
     close: () => void;
     save: (dump: IDump) => void;

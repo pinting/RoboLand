@@ -17,11 +17,13 @@ import { Http } from "../lib/Util/Http";
 import { Exportable } from "../lib/Exportable";
 import { NormalCell } from "../lib/Unit/Cell/NormalCell";
 
-interface ViewProps {
+interface ViewProps
+{
     close: () => void;
 }
 
-interface ViewState {
+interface ViewState
+{
     errors: string[];
 }
 

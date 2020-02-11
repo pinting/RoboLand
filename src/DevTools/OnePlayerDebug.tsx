@@ -16,12 +16,14 @@ import { Keyboard } from "../lib/Util/Keyboard";
 import { IDump } from "../lib/IDump";
 import { Renderer } from "../lib/Renderer";
 
-interface ViewProps {
+interface ViewProps
+{
     close: () => void;
     world?: IDump;
 }
 
-interface ViewState {
+interface ViewState
+{
 
 }
 
@@ -41,7 +43,7 @@ export class OnePlayerDebug extends React.PureComponent<ViewProps, ViewState>
 
         if(rootResource)
         {
-            const rootDump = JSON.parse(Tools.BufferToString(rootResource.Buffer)) as IDump;
+            const rootDump = JSON.parse(Tools.BufferToUTF16(rootResource.Buffer)) as IDump;
             const dump = Exportable.Resolve(rootDump);
     
             world = Exportable.Import(dump);

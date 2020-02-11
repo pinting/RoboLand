@@ -19,12 +19,14 @@ import { ArrowActor } from "../lib/Unit/Actor/ArrowActor";
 import { Body } from "../lib/Physics/Body";
 import { ResourceManager } from "../lib/Util/ResourceManager";
 
-interface ViewProps {
+interface ViewProps
+{
     close: () => void;
     edit: (dump: IDump) => Promise<IDump>;
 }
 
-interface ViewState {
+interface ViewState
+{
     selected: IDump;
     loaded: string[];
 }
@@ -288,7 +290,7 @@ export class WorldEditor extends React.PureComponent<ViewProps, ViewState>
 
         if(rootResource)
         {
-            const rootDump = JSON.parse(Tools.BufferToString(rootResource.Buffer)) as IDump;
+            const rootDump = JSON.parse(Tools.BufferToUTF16(rootResource.Buffer)) as IDump;
             const dump = Exportable.Resolve(rootDump);
     
             this.world = Exportable.Import(dump);
