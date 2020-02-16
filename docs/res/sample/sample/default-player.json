@@ -1,0 +1,69 @@
+            "Class": "number",
+                            "Payload": 0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Name": "texture",
+            "Class": "string",
+            "Payload": "player.png"
+        },
+        {
+            "Base": "default-arrow.json",
+            "Name": "baseArrow"
+        },
+        {
+            "Name": "blocking",
+            "Class": "boolean",
+            "Payload": true
+        },
+        {
+            "Name": "light",
+            "Class": "number",
+            "Payload": "6"
+        },
+        {
+            "Name": "speed",
+            "Class": "number",
+            "Payload": "1500"
+        },
+        {
+            "Name": "lastShot",
+            "Class": "number",
+            "Payload": "0"
+        },
+        {
+            "Name": "health",
+            "Class": "number",
+            "Payload": "1"
+        },
+        {
+            "Name": "rotSpeed",
+            "Class": "number",
+            "Payload": "200"
+        }
+    ]
+}﻿{
+    "Class": "Array",
+    "Payload": [
+        {
+            "Name": "0",
+            "Class": "Polygon",
+            "Payload": [
+                {
+                    "Name": "points",
+                    "Class": "Array",
+                    "Payload": [
+                        {
+                            "Name": "0",
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 0.5
+                                },
+                                {
+       

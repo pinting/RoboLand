@@ -1,10 +1,8 @@
-import { IDump } from "./IDump";
 import { Logger } from "./Util/Logger";
 import { Tools } from "./Util/Tools";
-import { Http } from "./Util/Http";
-import { ResourceManager } from "./Util/ResourceManager";
+import { Dump } from "./Dump";
 
-const ExportMeta = Symbol("ExportMeta");
+const ExportMetaKey = Symbol("ExportMeta");
 const Dependencies: { [name: string]: any } = {};
 
 export enum ExportType
@@ -20,29 +18,49 @@ export enum ExportType
     NetDisk = 1
 }
 
-export interface ExportDesc
+export interface ExportProperty
 {
     Access: number;
     Name: string;
     Callback?: (s: any, v: any) => void;
 }
 
+export interface ExportableArgs
+{
+    id?: string;
+}
+
 export abstract class Exportable
 {
-    private [ExportMeta]: ExportDesc[];
+    @Exportable.Register(ExportType.Net)
+    protected id: string = Tools.Unique();
+
+    private [ExportMetaKey]: ExportProperty[];
+    
+    public Init(args: ExportableArgs = {})
+    {
+        this.InitPre(args);
+        this.InitPost(args);
+    }
 
     /**
-     * These properties will not be moved to the base.
-     * By doing this, we can use the same base for multiply objects.
+     * For direct assignments. This will be called first!
+     * @param args 
      */
-    public static SaveFileExtract = ["position", "scale", "rotation"];
+    protected InitPre(args: ExportableArgs = {})
+    {
+        this.id = args.id === undefined ? this.id : args.id;
+    }
 
     /**
-     * Under this length limit, the exported JSON will not be splitted
-     * into multiply files.
+     * For function setters.
+     * @param args 
      */
-    public static SaveSplitLimit = Infinity;
-
+    protected InitPost(args: ExportableArgs = {})
+    {
+        // Leave for child classes to implement
+    }
+    
     /**
      * Register a class with a name as a dependency.
      * @param classObj 
@@ -54,7 +72,7 @@ export abstract class Exportable
     }
 
     /**
-     * Decorator to register a name as exportable.
+     * Decorator to register a property as something to export.
      * @param access Set the access level.
      * @param cb Used to set the property insted of the default way.
      */
@@ -65,12 +83,12 @@ export abstract class Exportable
             // We should not use hasOwnProperty
             // because only one ExportMeta should
             // exists on a prototype chain
-            if(!target[ExportMeta])
+            if(!target[ExportMetaKey])
             {
-                target[ExportMeta] = [];
+                target[ExportMetaKey] = [];
             }
 
-            target[ExportMeta].push({
+            target[ExportMetaKey].push({
                 Access: access,
                 Name: name,
                 Callback: cb
@@ -102,14 +120,14 @@ export abstract class Exportable
     }
 
     /**
-     * Self export to IDump.
+     * Self export to Dump.
      * @param access
      */
-    public Export(access: number = 0): IDump[]
+    public Export(access: number = 0): Dump[]
     {
-        const result: IDump[] = [];
+        const result: Dump[] = [];
 
-        for (let desc of this[ExportMeta])
+        for (let desc of this[ExportMetaKey])
         {   
             if(desc.Access < access) 
             {
@@ -128,12 +146,12 @@ export abstract class Exportable
     }
 
     /**
-     * Export an object to IDump (standalone).
+     * Export an object to Dump (standalone).
      * @param object
      * @param access
      * @param name Name to export with.
      */
-    public static Export(object: any, name: string = null, access: number = 0): IDump
+    public static Export(object: any, name: string = null, access: number = 0): Dump
     {
         // Export each unit of an array
         if(object instanceof Array)
@@ -176,14 +194,16 @@ export abstract class Exportable
     }
 
     /**
-     * Self import an IDump.
+     * Self import an Dump.
      * @param dumps 
      */
-    public Import(dumps: IDump[]): void
+    public Import(dumps: Dump[]): void
     {
+        this.InitPre();
+
         for (let dump of dumps)
         {
-            const desc = this[ExportMeta].find(i => i.Name == dump.Name);
+            const desc = this[ExportMetaKey].find(i => i.Name == dump.Name);
 
             // Only allow importing registered props
             if(!desc)
@@ -209,13 +229,15 @@ export abstract class Exportable
                 this[dump.Name] = imported;
             }
         }
+
+        this.InitPost();
     }
 
     /**
-     * Import an IDump (standalone).
+     * Import an Dump (standalone).
      * @param dump 
      */
-    public static Import(dump: IDump): any
+    public static Import(dump: Dump): any
     {
         // Import array
         if(dump.Class == "Array")
@@ -240,279 +262,5 @@ export abstract class Exportable
         instance && instance.Import(dump.Payload);
 
         return instance;
-    }
-    
-    /**
-     * Save dump as a resource.
-     * @param json JSON of the dump 
-     * @param dump Dump object of the dump 
-     */
-    private static async SaveDump(dump: IDump, overwrite: boolean): Promise<string>
-    {
-        const json = JSON.stringify(dump, null, 4);
-        const buffer = Tools.UTF16ToBuffer(json);
-        const hash = await Tools.Sha256(buffer);
-        const existing = ResourceManager.ByHash(hash);
-
-        if(existing)
-        {
-            return existing.Uri;
-        }
-
-        let name = `${dump.Name ? `${dump.Name.toString().toLowerCase()}-` : ""}${dump.Class.toLowerCase()}`;
-
-        if(overwrite)
-        {
-            await ResourceManager.RawAdd(name, buffer);
-        }
-        else
-        {
-            name = await ResourceManager.Add(name, buffer);
-        }
-
-        return name;
-    }
-
-    /**
-     * Save an exportable as small resources.
-     * @param dump 
-     * @param overwrite
-     */
-    public static async Save(dump: IDump, overwrite: boolean = false): Promise<void>
-    {
-        const extract = (dump: IDump) =>
-        {
-            const toRemove = [];
-
-            for(let index in dump.Payload as IDump[])
-            {
-                const e = dump.Payload[index];
-
-                if(Exportable.SaveFileExtract.includes(e.Name))
-                {
-                    toRemove.unshift([e, index]);
-                }
-            }
-            
-            toRemove.forEach(e => (dump.Payload as IDump[]).splice(e[1], 1));
-
-            return toRemove.map(e => e[0]);
-        }
-
-        const process = async (dump: IDump): Promise<IDump> =>
-        {
-            if(["string", "number", "boolean"].includes(dump.Class))
-            {
-                return dump;
-            }
-
-            if(!dump.Payload || !dump.Payload.length)
-            {
-                return dump;
-            }
-            
-            let newPayload: IDump[] = [];
-
-            for(let subDump of dump.Payload as IDump[])
-            {
-                newPayload.push(await process(subDump));
-            }
-
-            const newDump: IDump = { ...dump, Payload: newPayload };
-            const extracted = extract(newDump);
-            const json = JSON.stringify(newDump);
-
-            if(!dump.Base && json.length < Exportable.SaveSplitLimit)
-            {
-                return newDump;
-            }
-            
-            const fileName = await Exportable.SaveDump(newDump, overwrite);
-
-            return {
-                Name: dump.Name,
-                Class: dump.Class,
-                Base: fileName,
-                Payload: [
-                    ...extracted
-                ]
-            };
-        }
-
-        await Exportable.SaveDump(await process(dump), overwrite);
-    }
-
-    /**
-     * Resolve split up dump by putting together the pieces.
-     * @param dump Dump to resolve.
-     * @returns Resolved new dump.
-     */
-    public static Resolve(dump: IDump): IDump
-    {
-        if(!dump)
-        {
-            return;
-        }
-
-        let result = { ...dump };
-
-        if(dump.Base)
-        {
-            const resource = ResourceManager.ByUri(dump.Base);
-
-            if(resource)
-            {
-                const baseDump = JSON.parse(Tools.BufferToUTF16(resource.Buffer)) as IDump;
-                
-                if(baseDump && baseDump.Class === dump.Class)
-                {
-                    result = {
-                        ...result,
-                        Payload: [
-                            ...(baseDump.Payload && baseDump.Payload.length ? baseDump.Payload : []),
-                            ...(dump.Payload && dump.Payload.length ? dump.Payload : []),
-                        ]
-                    };
-                }
-            }
-        }
-
-        if(["string", "number", "boolean"].includes(result.Class))
-        {
-            return result;
-        }
-
-        if(result.Payload && result.Payload.length)
-        {
-            for(let i in result.Payload)
-            {
-                result.Payload[i] = Exportable.Resolve(result.Payload[i]);
-            }
-        }
-
-        return result;
-    }
-    
-
-    /**
-     * Return the difference from source to target (properties of source).
-     * @param source 
-     * @param target 
-     * @param depth Depth limit.
-     */
-    public static Diff(source: IDump, target: IDump, depth = 3): IDump
-    {
-        if(!depth || 
-            !source || 
-            !target || 
-            !source.Class || 
-            source.Class != target.Class || 
-            source.Name != target.Name)
-        {
-            return null;
-        }
-
-        switch(source.Class)
-        {
-            case "number":
-            case "string":
-            case "boolean":
-                return source.Payload != target.Payload ? source : null;
-            default:
-                const diff: IDump[] = source.Payload.filter((se: IDump) => 
-                    target.Payload.find((te: IDump) => 
-                        Exportable.Diff(se, te, depth - 1)));
-
-                return diff.length == 0 ? null : {
-                    Name: source.Name,
-                    Class: source.Class,
-                    Payload: diff
-                };
-        }
-    }
-
-    /**
-     * Shallow merge two dumps. Only the top layer 
-     * gonna be merged!
-     * @param target Other gonna be merged here.
-     * @param other 
-     */
-    public static Merge(target: IDump, other: IDump): void
-    {
-        if(!target || !target.Payload || !target.Payload.length)
-        {
-            return;
-        }
-
-        const otherProps = this.ToDict(other)
-        
-        target.Payload.forEach((prop: IDump, i: number) => 
-        {
-            if(otherProps.hasOwnProperty(prop.Name))
-            {
-                target.Payload[i] = otherProps[prop.Name];
-            }
-        });
-    }
-
-    /**
-     * Shallow convert an IDump to dictionary.
-     * Top class property gonna be lost!
-     * @param obj 
-     */
-    public static ToDict(dump: IDump): { [id: string]: IDump }
-    {
-        const props = {};
-
-        dump && dump.Payload && dump.Payload.length && 
-            dump.Payload.forEach((dump: IDump) => props[dump.Name] = dump);
-
-        return props;
-    }
-
-    /**
-     * Return true if only the 
-     * @param diff
-     */
-    // TODO: Fix this
-    public static IsMovementDiff(diff: IDump): boolean
-    {
-        const props = Exportable.ToDict(diff);
-
-        // Delete ID if it exists, because we do not need it
-        if(props.id)
-        {
-            delete props.id;
-        }
-
-        // No diff
-        if(Object.keys(props).length == 0)
-        {
-            return true;
-        }
-
-        // Only position diff
-        if(Object.keys(props).length === 1 &&
-            props.hasOwnProperty("position"))
-        {
-            return true;
-        }
-
-        // Only angle diff
-        if(Object.keys(props).length === 1 &&
-            props.hasOwnProperty("rotation"))
-        {
-            return true;
-        }
-
-        // Only position and angle diff
-        if(Object.keys(props).length === 2 &&
-            props.hasOwnProperty("position") &&
-            props.hasOwnProperty("rotation"))
-        {
-            return true;
-        }
-
-        return false;
     }
 }

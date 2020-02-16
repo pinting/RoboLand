@@ -3,22 +3,22 @@ import Cristal from "react-cristal";
 import classnames from "classnames";
 import * as Bootstrap from "reactstrap";
 
-import { IDump } from "../lib/IDump";
 import { TreeView } from "./TreeView";
 import { Resource } from "../lib/RoboPack";
+import { Dump } from "../lib/Dump";
 
 interface ViewProps
 {
-    dump: IDump;
+    dump: Dump;
     close: () => void;
-    save: (dump: IDump) => void;
+    save: (dump: Dump) => void;
     find: (current?: string) => Promise<Resource>
 }
 
 interface ViewState
 {
     editMode: number;
-    draft: IDump;
+    draft: Dump;
 }
 
 export class DumpEditor extends React.PureComponent<ViewProps, ViewState>
@@ -33,7 +33,7 @@ export class DumpEditor extends React.PureComponent<ViewProps, ViewState>
         };
     }
 
-    private updateDraft(dump: string | IDump)
+    private updateDraft(dump: string | Dump)
     {
         if(typeof dump != "string")
         {

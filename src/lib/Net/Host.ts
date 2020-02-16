@@ -5,11 +5,11 @@ import { Exportable } from "../Exportable";
 import { MessageType } from "./MessageType";
 import { Vector } from "../Geometry/Vector";
 import { Unit } from "../Unit/Unit";
-import { IDump } from "../IDump";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
 import { Server } from "./Server";
 import { Logger } from "../Util/Logger";
+import { Dump } from "../Dump";
 
 const SLEEP_TIME = 1000;
 
@@ -17,7 +17,7 @@ export class Host extends MessageHandler
 {
     private server: Server;
     private player: PlayerActor;
-    private last: { [id: string]: IDump } = {};
+    private last: { [id: string]: Dump } = {};
     private lastTime: { [id: string]: number } = {};
     
     /**
@@ -76,14 +76,14 @@ export class Host extends MessageHandler
         const id = unit.GetId();
         const now = +new Date;
         
-        let diff: IDump = null;
+        let diff: Dump = null;
 
         if(this.lastTime.hasOwnProperty(id) && this.last.hasOwnProperty(id))
         {
-            diff = Exportable.Diff(dump, this.last[id]);
+            diff = Dump.Diff(dump, this.last[id]);
         }
 
-        if(diff && this.lastTime[id] + SLEEP_TIME >= now && Exportable.IsMovementDiff(diff))
+        if(diff && this.lastTime[id] + SLEEP_TIME >= now && Dump.IsMovementDiff(diff))
         {
             Logger.Info(this, "Unit was optimized out", unit);
             return;
@@ -95,7 +95,7 @@ export class Host extends MessageHandler
         if(diff)
         {
             // Hack ID into it
-            diff.Payload.push(<IDump>{
+            diff.Payload.push(<Dump>{
                 Name: "id",
                 Class: "string",
                 Payload: id
@@ -157,5 +157,5 @@ export class Host extends MessageHandler
      * Executed when the Connection receives a COMMAND from the client.
      * @param command
      */
-    public OnCommand: (command: IDump) => void = Tools.Noop;
+    public OnCommand: (command: Dump) => void = Tools.Noop;
 }

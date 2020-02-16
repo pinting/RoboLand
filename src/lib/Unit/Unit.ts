@@ -1,16 +1,13 @@
 import { Vector } from "../Geometry/Vector";
-import { Tools } from "../Util/Tools";
 import { World } from "../World";
-import { Exportable, ExportType } from "../Exportable";
-import { IDump } from "../IDump";
+import { Exportable, ExportType, ExportableArgs } from "../Exportable";
 import { Logger } from "../Util/Logger";
 import { Body } from "../Physics/Body";
 import { ICollision } from "../Physics/ICollision";
 
-export interface UnitArgs
+export interface UnitArgs extends ExportableArgs
 {
     ignore?: boolean;
-    id?: string;
     texture?: string;
     parent?: string;
     world?: World;
@@ -21,20 +18,17 @@ export interface UnitArgs
 
 export abstract class Unit extends Exportable
 {
-    protected world: World;
+    protected world: World = World.Current;
     protected tickEvent: number;
     
-    @Exportable.Register(ExportType.Net)
+    @Exportable.Register(ExportType.NetDisk)
     protected ignore: boolean;
 
     @Exportable.Register(ExportType.Net, (s, v) => s.Dispose(v))
     protected disposed: boolean = false;
-    
-    @Exportable.Register(ExportType.Net)
-    protected id: string;
 
     @Exportable.Register(ExportType.Net)
-    protected parent: string; // ID of the parent unit
+    protected parent: string = this.world && this.world.Origin; // ID of the parent unit
 
     @Exportable.Register(ExportType.NetDisk, (s, v) => s.SetBody(v))
     protected body: Body;
@@ -43,40 +37,28 @@ export abstract class Unit extends Exportable
     protected texture: string;
 
     @Exportable.Register(ExportType.NetDisk)
-    protected blocking: boolean;
+    protected blocking: boolean = false;
 
     @Exportable.Register(ExportType.NetDisk)
-    protected light: number;
+    protected light: number = 0;
 
-    /**
-     * Construct a new unit with the given init args.
-     * @param args
-     */
     public Init(args: UnitArgs = {})
     {
         this.InitPre(args);
         this.InitPost(args);
     }
 
-    /**
-     * For direct assignments. This will be called first!
-     * @param args 
-     */
     protected InitPre(args: UnitArgs = {})
     {
         this.ignore = args.ignore === undefined ? this.ignore || false : args.ignore;
-        this.id = args.id === undefined ? this.id || Tools.Unique() : args.id;
-        this.world = args.world === undefined ? this.world || World.Current : args.world;
+        this.id = args.id === undefined ? this.id : args.id;
+        this.world = args.world === undefined ? this.world : args.world;
         this.parent = args.parent === undefined ? this.parent || (this.world && this.world.Origin) : args.parent;
         this.texture = args.texture === undefined ? this.texture : args.texture;
-        this.blocking = args.blocking === undefined ?  this.blocking || false : args.blocking;
-        this.light = args.light === undefined ? this.light || 0 : args.light;
+        this.blocking = args.blocking === undefined ?  this.blocking : args.blocking;
+        this.light = args.light === undefined ? this.light : args.light;
     }
-
-    /**
-     * For function setters.
-     * @param args 
-     */
+    
     protected InitPost(args: UnitArgs = {})
     {
         this.SetBody(args.body || this.body);
@@ -188,16 +170,6 @@ export abstract class Unit extends Exportable
     }
 
     /**
-     * @inheritDoc
-     */
-    public Import(input: IDump[]): void
-    {
-        this.InitPre();
-        super.Import(input);
-        this.InitPost();
-    }
-
-    /**
      * Check if the unit collides with another.
      * @param unit 
      */
@@ -222,15 +194,16 @@ export abstract class Unit extends Exportable
     public Clone(): Unit
     {
         const current = World.Current;
-        let clone: Unit;
 
         // Clones should have a world,
         // it could cause circular invocation 
         World.Current = null;
-        clone = <Unit>super.Clone();
+        
+        const clone = super.Clone();
+
         World.Current = current;
 
-        return clone;
+        return clone as Unit;
     }
     
     /**

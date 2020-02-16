@@ -224,40 +224,27 @@ export class Tools
         return true;
     }
 
-    public static UTF8ToUTF16(buffer: ArrayBuffer): string 
+    public static ANSIToUTF16(buffer: ArrayBuffer): string 
     {
-        const stringView = new Uint8Array(buffer);
+        const view = new Uint8Array(buffer);
         let result = "";
 
-        for (let i = 0; i < stringView.byteLength; i++) 
+        for (let i = 0; i < view.byteLength; i++) 
         {
-            result += String.fromCharCode(stringView[i]);
+            result += String.fromCharCode(view[i]);
         }
 
         return result;
     }
 
-    public static BufferToUTF16(buffer: ArrayBuffer): string 
+    public static UTF16ToANSI(string: string): ArrayBuffer 
     {
-        const stringView = new Uint16Array(buffer);
-        let result = "";
-
-        for (let i = 0; i < stringView.byteLength / 2; i++) 
-        {
-            result += String.fromCharCode(stringView[i]);
-        }
-
-        return result;
-    }
-
-    public static UTF16ToBuffer(string: string): ArrayBuffer 
-    {
-        let buffer = new ArrayBuffer(string.length * 2); // 2 bytes for each char
-        let stringView = new Uint16Array(buffer);
+        let buffer = new ArrayBuffer(string.length);
+        let view = new Uint8Array(buffer);
 
         for (let i = 0; i < string.length; i++) 
         {
-            stringView[i] = string.charCodeAt(i);
+            view[i] = string.charCodeAt(i);
         }
 
         return buffer;

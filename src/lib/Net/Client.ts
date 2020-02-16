@@ -2,16 +2,14 @@ import { IChannel } from "./Channel/IChannel";
 import { MessageType } from "./MessageType";
 import { World } from "../World";
 import { Exportable } from "../Exportable";
-import { BaseCell } from "../Unit/Cell/BaseCell";
-import { BaseActor } from "../Unit/Actor/BaseActor";
 import { PlayerActor } from "../Unit/Actor/PlayerActor";
 import { Tools } from "../Util/Tools";
-import { IDump } from "../IDump";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
 import { Logger } from "../Util/Logger";
 import { Unit } from "../Unit/Unit";
 import { Host } from "./Host";
+import { Dump } from "../Dump";
 
 const MAX_POS_DIFF = 0.5;
 const MAX_ROT_DIFF = Math.PI / 4;
@@ -21,7 +19,7 @@ export class Client extends MessageHandler
 {
     private world: World;
     private player: PlayerActor;
-    private last: { [id: string]: IDump } = {};
+    private last: { [id: string]: Dump } = {};
 
     /**
      * Construct a new client which communicates with a connection.
@@ -78,7 +76,7 @@ export class Client extends MessageHandler
      * Receive an unit.
      * @param dump
      */
-    private async ReceiveUnit(dump: IDump): Promise<void>
+    private async ReceiveUnit(dump: Dump): Promise<void>
     {   
         World.Current = this.world;
 
@@ -97,13 +95,13 @@ export class Client extends MessageHandler
      * Receive an diff of an unit.
      * @param diff
      */
-    private async ReceiveDiff(diff: IDump): Promise<void>
+    private async ReceiveDiff(diff: Dump): Promise<void>
     {
         Logger.Info(this, "Diff was received!", diff);
 
         // Hack out ID from the dump
         const id = diff && diff.Payload && diff.Payload.length && 
-            diff.Payload.find((prop: IDump) => prop.Name == "id").Payload;
+            diff.Payload.find((prop: Dump) => prop.Name == "id").Payload;
 
         if(!id)
         {
@@ -127,7 +125,7 @@ export class Client extends MessageHandler
         // If we have an older version, merge it
         const merged = Exportable.Export(oldUnit);
 
-        Exportable.Merge(merged, diff);
+        Dump.Merge(merged, diff);
 
         let newUnit: Unit;
 
@@ -144,7 +142,7 @@ export class Client extends MessageHandler
         const oldBody = oldUnit.GetBody();
 
         // If the position or the rotation difference is under a limit, skip updating
-        if(Exportable.IsMovementDiff(diff) && oldBody.GetPosition())
+        if(Dump.IsMovementDiff(diff) && oldBody.GetPosition())
         {
             const posDiff = newBody.GetPosition().Dist(oldBody.GetPosition());
             const rotDiff = Math.abs(newBody.GetRotation() - oldBody.GetRotation());
@@ -184,7 +182,7 @@ export class Client extends MessageHandler
      * Receive the size of the world.
      * @param size 
      */
-    private ReceiveSize(dump: IDump): void
+    private ReceiveSize(dump: Dump): void
     {
         this.world.Init(Exportable.Import(dump));
     }
@@ -193,7 +191,7 @@ export class Client extends MessageHandler
      * Receive a command from another player.
      * @param command 
      */
-    private ReceiveCommand(command: IDump): void
+    private ReceiveCommand(command: Dump): void
     {
         if(!this.player)
         {

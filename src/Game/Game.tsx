@@ -16,8 +16,8 @@ import { Keyboard } from "../lib/Util/Keyboard";
 import { Params } from "../Params";
 import { ResourceManager } from "../lib/Util/ResourceManager";
 import { Exportable } from "../lib/Exportable";
-import { IDump } from "../lib/IDump";
 import { Http } from "../lib/Util/Http";
+import { Dump } from "../lib/Dump";
 
 /**
  * Type of the connect format.
@@ -166,8 +166,8 @@ export class Game extends React.PureComponent<GameProps, GameState>
         await ResourceManager.Load(buffer);
 
         const rootResource = ResourceManager.ByUri(Shared.DEFAULT_WORLD_URI);
-        const rootDump = JSON.parse(Tools.BufferToUTF16(rootResource.Buffer)) as IDump;
-        const dump = Exportable.Resolve(rootDump);
+        const rootDump = JSON.parse(Tools.ANSIToUTF16(rootResource.Buffer)) as Dump;
+        const dump = Dump.Resolve(rootDump);
         const serverWorld = Exportable.Import(dump);
 
         this.server = new Server(serverWorld);

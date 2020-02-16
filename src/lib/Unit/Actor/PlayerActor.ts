@@ -3,8 +3,6 @@ import { Logger } from "../../Util/Logger";
 import { Exportable, ExportType } from "../../Exportable";
 import { Vector } from "../../Geometry/Vector";
 import { ArrowActor } from "./ArrowActor";
-import { Body } from "../../Physics/Body";
-import { IDump } from "../../IDump";
 
 const SHOT_DELAY = 800;
 
@@ -13,7 +11,7 @@ export interface PlayerActorArgs extends BaseActorArgs
     health?: number;
     speed?: number;
     rotSpeed?: number;
-    arrow?: ArrowActor;
+    baseArrow?: ArrowActor;
 }
 
 export class PlayerActor extends BaseActor
@@ -31,7 +29,7 @@ export class PlayerActor extends BaseActor
     protected rotSpeed: number;
     
     @Exportable.Register(ExportType.NetDisk)
-    protected arrow: ArrowActor;
+    protected baseArrow: ArrowActor;
 
     private walkJob: number;
     private rotJob: number;
@@ -54,7 +52,7 @@ export class PlayerActor extends BaseActor
         this.health = args.health === undefined ? this.health : args.health;
         this.speed = args.speed === undefined ? this.speed : args.speed;
         this.rotSpeed = args.rotSpeed === undefined ? this.rotSpeed : args.rotSpeed;
-        this.arrow = args.arrow === undefined ? this.arrow : args.arrow;
+        this.baseArrow = args.baseArrow === undefined ? this.baseArrow : args.baseArrow;
     }
 
     public IsWalking(): boolean
@@ -202,32 +200,30 @@ export class PlayerActor extends BaseActor
 
         const body = this.GetBody();
 
-        const r = body.GetRadius();
-        const d = Vector.ByRad(body.GetRotation());
-        const p = body.GetPosition().Add(d.Scale(r));
-
         // Clone the template arrow
-        const newArrow = this.arrow.Clone() as ArrowActor;
-        const facing = Vector.ByRad(body.GetRotation());
-        const force = facing.Scale(1500);
+        const newArrow = this.baseArrow.Clone() as ArrowActor;
 
-        newArrow.Init({
-            id: id,
-            ignore: false,
-            parent: this.parent,
-            world: this.world,
-            body: Body.CreateBoxBody(
-                // Use the body scale of the template arrow
-                this.arrow.GetBody().GetScale(),
-                body.GetRotation(),
-                p,
-                {
-                    z: body.GetZ(),
-                    force: force
-                })
+        // Calculate the direction and the value of the force
+        const facing = Vector.ByRad(body.GetRotation());
+        const force = facing.Scale(newArrow.GetSpeed());
+
+        // Add the new values to the body of the new arrow
+        newArrow.GetBody().Init({
+            z: body.GetZ(),
+            force: force
         });
 
+        // Add the world to arrow
+        newArrow.Init({
+            id: id,
+            ignore: false, // IMPORTANT
+            parent: this.parent,
+            world: this.world
+        });
+
+        // Add arrow to the world
         this.world.GetActors().Set(newArrow);
+
         this.lastShot = now;
     }
 

@@ -1,0 +1,104 @@
+             },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": "0"
+                                }
+                            ]
+                        },
+                        {
+                            "Name": "scale",
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": "8"
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": "8"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Base": "lamp.json",
+            "Name": "1",
+            "Payload": [
+                {
+                    "Base": "lamp-body.json",
+                    "Name": "body",
+                    "Payload": [
+                        {
+                            "Name": "position",
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": "2"
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": "2"
+                                }
+                            ]
+                        },
+                        {
+                            "Name": "scale",
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": "1"
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": "1"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}﻿ {
+    "Name": null,
+    "Class": "World",
+    "Payload": [
+        {
+            "Base": "world-cells.json"
+        },
+        {
+            "Name": "actors",
+            "Class": "Array",
+            "Payload": []
+        },
+        {
+            "Name": "size",
+            "Class": "Vector",
+            "Payload": [
+                {
+                    "Name": "X",
+                    "Class": "number",
+                    "Payload": 8
+                },
+                {
+                    "Name": "Y",
+                    "Class": "number",
+                    "Payload": 8
+                }
+            ]
+        },
+        {
+            "Name": "basePlayer",
+       

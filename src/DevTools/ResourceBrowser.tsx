@@ -3,15 +3,15 @@ import * as Bootstrap from "reactstrap";
 import Cristal from "react-cristal";
 
 import { ResourceManager } from "../lib/Util/ResourceManager";
-import { IDump } from "../lib/IDump";
 import { Helper } from "../Helper";
 import { Tools } from "../lib/Util/Tools";
 import { Resource } from "../lib/RoboPack";
+import { Dump } from "../lib/Dump";
 
 interface ViewProps
 {
     close: () => void;
-    edit: (dump: IDump) => Promise<IDump>;
+    edit: (dump: Dump) => Promise<Dump>;
     select?: (resource: Resource) => void;
     current?: string;
 }
@@ -69,10 +69,10 @@ export class ResourceBrowser extends React.PureComponent<ViewProps, ViewState>
 
     private async editResource(resource: Resource): Promise<void>
     {
-        let dump: IDump;
+        let dump: Dump;
 
         try {
-            const raw = Tools.BufferToUTF16(resource.Buffer);
+            const raw = Tools.ANSIToUTF16(resource.Buffer);
             
             dump = JSON.parse(raw);
         }
@@ -82,7 +82,7 @@ export class ResourceBrowser extends React.PureComponent<ViewProps, ViewState>
             return;
         }
 
-        let newDump: IDump;
+        let newDump: Dump;
         
         try 
         {
@@ -97,7 +97,7 @@ export class ResourceBrowser extends React.PureComponent<ViewProps, ViewState>
         if(newDump)
         {
             const newRaw = JSON.stringify(newDump);
-            const newBuffer = Tools.UTF16ToBuffer(newRaw);
+            const newBuffer = Tools.UTF16ToANSI(newRaw);
     
             await resource.SetBuffer(newBuffer);
         }

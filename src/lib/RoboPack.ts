@@ -52,7 +52,7 @@ export class Resource
      */
     public static GetMeta(buffer: ArrayBuffer): BufferMeta
     {
-        const head = Tools.UTF8ToUTF16(buffer.slice(0, 16));
+        const head = Tools.ANSIToUTF16(buffer.slice(0, 16));
 
         if(head.slice(1, 5).includes("PNG"))
         {
@@ -121,7 +121,7 @@ export class RoboPack
         };
 
         const head = JSON.stringify(meta);
-        const slices = [Tools.UTF16ToBuffer(head), ...resources.map(r => r.Buffer)];
+        const slices = [Tools.UTF16ToANSI(head), ...resources.map(r => r.Buffer)];
         const merged = Tools.MergeBuffers(slices);
         
         return Tools.ZLibDeflate(merged);
@@ -130,18 +130,18 @@ export class RoboPack
     public static async Unpack(buffer: ArrayBuffer): Promise<Resource[]>
     {
         const uncompressed = Tools.ZLibInflate(buffer);
-        const stringView = new Uint16Array(uncompressed.slice(0, uncompressed.byteLength * 2));
+        const view = new Uint8Array(uncompressed);
 
         let endOfMeta = 0;
         let scope = 0;
 
-        for (let i = 0; i < stringView.length; i++) 
+        for (let i = 0; i < view.length; i++) 
         {
-            if(stringView[i] === "{".charCodeAt(0))
+            if(view[i] === "{".charCodeAt(0))
             {
                 scope++;
             }
-            else if(stringView[i] === "}".charCodeAt(0))
+            else if(view[i] === "}".charCodeAt(0))
             {
                 scope--;
 
@@ -154,10 +154,10 @@ export class RoboPack
         }
 
         const result = [] as Resource[];
-        const rawMeta = uncompressed.slice(0, endOfMeta * 2);
-        const meta = JSON.parse(Tools.BufferToUTF16(rawMeta)) as IFileMeta;
+        const rawMeta = uncompressed.slice(0, endOfMeta);
+        const meta = JSON.parse(Tools.ANSIToUTF16(rawMeta)) as IFileMeta;
 
-        let current = endOfMeta * 2;
+        let current = endOfMeta;
 
         for (let item of meta.Items)
         {

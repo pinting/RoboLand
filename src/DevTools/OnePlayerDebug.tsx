@@ -5,21 +5,19 @@ import Cristal from "react-cristal";
 import { Logger, LogType } from "../lib/Util/Logger";
 import { Shared } from "../Game/Shared";
 import { PlayerActor } from "../lib/Unit/Actor/PlayerActor";
-import { ArrowActor } from "../lib/Unit/Actor/ArrowActor";
-import { Body } from "../lib/Physics/Body";
 import { Vector } from "../lib/Geometry/Vector";
 import { World } from "../lib/World";
 import { Tools } from "../lib/Util/Tools";
 import { ResourceManager } from "../lib/Util/ResourceManager";
 import { Exportable } from "../lib/Exportable";
 import { Keyboard } from "../lib/Util/Keyboard";
-import { IDump } from "../lib/IDump";
 import { Renderer } from "../lib/Renderer";
+import { Dump } from "../lib/Dump";
 
 interface ViewProps
 {
     close: () => void;
-    world?: IDump;
+    world?: Dump;
 }
 
 interface ViewState
@@ -41,30 +39,23 @@ export class OnePlayerDebug extends React.PureComponent<ViewProps, ViewState>
         const rootResource = ResourceManager.ByUri(Shared.DEFAULT_WORLD_URI);
         let world: World;
 
-        if(rootResource)
+        if(!rootResource)
         {
-            const rootDump = JSON.parse(Tools.BufferToUTF16(rootResource.Buffer)) as IDump;
-            const dump = Exportable.Resolve(rootDump);
-    
-            world = Exportable.Import(dump);
+            Logger.Warn("Default root resource is not available", Shared.DEFAULT_WORLD_URI);
+            return;
         }
 
-        // Add player
-        const player = new PlayerActor();
-        const arrow = new ArrowActor();
+        const raw = Tools.ANSIToUTF16(rootResource.Buffer);
+        const rootDump = JSON.parse(raw) as Dump;
+        const dump = Dump.Resolve(rootDump);
 
-        arrow.Init({
-            ignore: true,
-            body: Body.CreateBoxBody(new Vector(0.1, 0.1), 0, new Vector(0, 0))
-        });
+        world = Exportable.Import(dump);
+
+        // Add player
+        const player = world.GetBasePlayer().Clone() as PlayerActor;
 
         player.Init({
-            body: Body.CreateBoxBody(new Vector(1, 1), 0, new Vector(2, 2)),
-            texture: "res/player.png",
-            speed: 1500,
-            health: 1,
-            rotSpeed: 200,
-            arrow: arrow
+            ignore: false // IMPORTANT
         });
 
         world.Add(player);
@@ -74,7 +65,8 @@ export class OnePlayerDebug extends React.PureComponent<ViewProps, ViewState>
             canvas: this.canvas,
             world: world, 
             debug: true,
-            viewport: new Vector(10, 10)
+            viewport: new Vector(10, 10),
+            disableShadows: true
         });
     
         await this.renderer.Load();

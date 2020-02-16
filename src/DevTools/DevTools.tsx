@@ -5,7 +5,6 @@ import { Shared } from "../Game/Shared";
 import { WorldEditor } from "./WorldEditor";
 import { Tools } from "../lib/Util/Tools";
 import { DumpEditor } from "./DumpEditor";
-import { IDump } from "../lib/IDump";
 import { OnePlayerDebug } from "./OnePlayerDebug";
 import { TwoPlayerDebug } from "./TwoPlayerDebug";
 import { TestRunner } from "./TestRunner";
@@ -21,9 +20,13 @@ import { Vector } from "../lib/Geometry/Vector";
 import { Matrix } from "../lib/Geometry/Matrix";
 import { Exportable } from "../lib/Exportable";
 import { PlayerActor } from "../lib/Unit/Actor/PlayerActor";
+import { ArrowActor } from "../lib/Unit/Actor/ArrowActor";
 import { NormalCell } from "../lib/Unit/Cell/NormalCell";
+import { DamageCell } from "../lib/Unit/Cell/DamageCell";
+import { KillCell } from "../lib/Unit/Cell/KillCell";
 import { Logger } from "../lib/Util/Logger";
 import { Resource } from "../lib/RoboPack";
+import { Dump } from "../lib/Dump";
 
 interface ViewProps
 {
@@ -53,7 +56,10 @@ export class DevTools extends React.PureComponent<ViewProps, ViewState>
             Vector,
             Matrix,
             NormalCell,
+            DamageCell,
+            KillCell,
             PlayerActor,
+            ArrowActor,
             Logger,
             SimplexNoise,
             ResourceManager,
@@ -139,9 +145,9 @@ export class DevTools extends React.PureComponent<ViewProps, ViewState>
         });
     }
     
-    private async createDumpEditor(dump: IDump): Promise<IDump>
+    private async createDumpEditor(dump: Dump): Promise<Dump>
     {
-        return new Promise<IDump>((resolve, reject) =>
+        return new Promise<Dump>((resolve, reject) =>
         {
             const id = Tools.Unique();
 

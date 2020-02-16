@@ -2,13 +2,11 @@ import { World } from "../World";
 import { PlayerActor } from "../Unit/Actor/PlayerActor";
 import { Host } from "./Host";
 import { Exportable } from "../Exportable";
-import { IDump } from "../IDump";
-import { Vector } from "../Geometry/Vector";
 import { Tools } from "../Util/Tools";
 import { BaseActor } from "../Unit/Actor/BaseActor";
 import { Body } from "../Physics/Body";
-import { ArrowActor } from "../Unit/Actor/ArrowActor";
 import { Logger } from "../Util/Logger";
+import { Dump } from "../Dump";
 
 const SPAWN_Z = 0;
 
@@ -42,7 +40,7 @@ export class Server
      * @param host
      * @param command
      */
-    private OnCommand(host: Host, command: IDump)
+    private OnCommand(host: Host, command: Dump)
     {
         const args = Exportable.Import(command);
         const player = host.GetPlayer();
@@ -99,7 +97,7 @@ export class Server
         World.Current = this.world;
 
         const playerTag = Tools.Unique();
-        const player = new PlayerActor;
+        const basePlayer = this.world.GetBasePlayer();
 
         let actors: BaseActor[];
 
@@ -112,29 +110,17 @@ export class Server
                 continue;
             }
 
-            const body = Body.CreateBoxBody(
-                new Vector(1, 1), 
-                0, 
-                spawn.GetPosition(), 
-                { z: spawn.GetZ() });
-            
-            const arrow = new ArrowActor();
+            const player = basePlayer.Clone() as PlayerActor;
 
-            arrow.Init({
-                ignore: true,
-                body: Body.CreateBoxBody(new Vector(0.1, 0.1), 0, new Vector(0, 0))
+            player.GetBody().Init({
+                z: spawn.GetZ(),
+                position: spawn.GetPosition()
             });
 
             player.Init({
                 id: playerTag,
                 parent: playerTag,
-                body: body,
-                texture: "res/player.png",
-                speed: 1500,
-                health: 1,
-                rotSpeed: 200,
-                light: 6,
-                arrow: arrow
+                ignore: false // IMPORTANT, to set this to ignore
             });
 
             break;
@@ -145,7 +131,7 @@ export class Server
             throw new Error("Not enough space for new player!");
         }
 
-        this.world.GetActors().Set(player);
+        this.world.GetActors().Set(basePlayer);
 
         // Set size
         await host.SendSize(this.world.GetSize());
@@ -166,7 +152,7 @@ export class Server
         host.OnCommand = command => this.OnCommand(host, command);
         
         // Set player
-        await host.SendPlayer(player);
+        await host.SendPlayer(basePlayer);
 
         // Add host to the internal host list
         this.hosts.push(host);

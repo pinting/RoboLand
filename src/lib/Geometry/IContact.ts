@@ -1,5 +1,4 @@
 import { Vector } from "./Vector";
-import { Body } from "../Physics/Body";
 
 export interface IContact
 {

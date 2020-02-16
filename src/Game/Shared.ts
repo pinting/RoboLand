@@ -1,4 +1,3 @@
-import * as React from "react";
 import { PlayerActor } from "../lib/Unit/Actor/PlayerActor";
 import { Vector } from "../lib/Geometry/Vector";
 import { Keyboard } from "../lib/Util/Keyboard";
@@ -12,7 +11,6 @@ import { ArrowActor } from "../lib/Unit/Actor/ArrowActor";
 import { Polygon } from "../lib/Geometry/Polygon";
 import { Body } from "../lib/Physics/Body";
 import { Matrix } from "../lib/Geometry/Matrix";
-import { ResourceManager } from "../lib/Util/ResourceManager";
 import { BaseCell } from "../lib/Unit/Cell/BaseCell";
 
 export class Shared
@@ -46,7 +44,7 @@ export class Shared
     {
         const world = new World;
 
-        world.Init(new Vector(size, size));
+        world.Init({ size: new Vector(size, size) });
 
         // Init world with size x size number of GroundCells
         for(let i = 0; i < size * size; i++)

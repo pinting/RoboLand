@@ -11,23 +11,23 @@ import { Unit } from "../lib/Unit/Unit";
 import { Tools } from "../lib/Util/Tools";
 import { BaseActor } from "../lib/Unit/Actor/BaseActor";
 import { BaseCell } from "../lib/Unit/Cell/BaseCell";
-import { IDump } from "../lib/IDump";
 import { NormalCell } from "../lib/Unit/Cell/NormalCell";
 import { DamageCell } from "../lib/Unit/Cell/DamageCell";
 import { PlayerActor } from "../lib/Unit/Actor/PlayerActor";
 import { ArrowActor } from "../lib/Unit/Actor/ArrowActor";
 import { Body } from "../lib/Physics/Body";
 import { ResourceManager } from "../lib/Util/ResourceManager";
+import { Dump } from "../lib/Dump";
 
 interface ViewProps
 {
     close: () => void;
-    edit: (dump: IDump) => Promise<IDump>;
+    edit: (dump: Dump) => Promise<Dump>;
 }
 
 interface ViewState
 {
-    selected: IDump;
+    selected: Dump;
     loaded: string[];
 }
 
@@ -116,20 +116,16 @@ export class WorldEditor extends React.PureComponent<ViewProps, ViewState>
         }
 
         this.world = World.Current = new World();
-        this.world.Init(this.input.newWorldSize);
+        this.world.Init({ size: this.input.newWorldSize });
 
         await this.createRenderer();
     }
 
     private async saveWorld()
     {
-        // Set a char limit per JSON file, so the export algorithm split
-        // the World into multiply files
-        Exportable.SaveSplitLimit = GENERATE_MAX_LENGTH;
+        const dump = Exportable.Export(this.world, null, ExportType.NetDisk);
 
-        await Exportable.Save(Exportable.Export(this.world, null, ExportType.NetDisk), true);
-
-        Exportable.SaveSplitLimit = Infinity;
+        await Dump.Save(dump, true);
 
         await this.init();
     }
@@ -290,8 +286,9 @@ export class WorldEditor extends React.PureComponent<ViewProps, ViewState>
 
         if(rootResource)
         {
-            const rootDump = JSON.parse(Tools.BufferToUTF16(rootResource.Buffer)) as IDump;
-            const dump = Exportable.Resolve(rootDump);
+            const raw = Tools.ANSIToUTF16(rootResource.Buffer);
+            const rootDump = JSON.parse(raw) as Dump;
+            const dump = Dump.Resolve(rootDump);
     
             this.world = Exportable.Import(dump);
 
@@ -380,7 +377,7 @@ export class WorldEditor extends React.PureComponent<ViewProps, ViewState>
                                 style={{ margin: "10% 0 0 0" }}
                                 onClick={this.saveWorld.bind(this)}
                                 color="success">
-                                    Save <i>(experimental)</i>
+                                    Save
                             </Bootstrap.Button>
                         </td>
                         <td>

@@ -1,0 +1,113 @@
+﻿{
+    "Class": "Body",
+    "Payload": [
+        {
+            "Base": "default-shape.json",
+            "Name": "shapes"
+        },
+        {
+            "Name": "rotation",
+            "Class": "number",
+            "Payload": 0
+        },
+        {
+            "Name": "scale",
+            "Class": "Vector",
+            "Payload": [
+                {
+                    "Name": "X",
+                    "Class": "number",
+                    "Payload": 1
+                },
+                {
+                    "Name": "Y",
+                    "Class": "number",
+                    "Payload": 1
+                }
+            ]
+        },
+        {
+            "Name": "gravity",
+            "Class": "Vector",
+            "Payload": [
+                {
+                    "Name": "X",
+                    "Class": "number",
+                    "Payload": 0
+                },
+                {
+                    "Name": "Y",
+                    "Class": "number",
+                    "Payload": 0
+                }
+            ]
+        },
+        {
+            "Name": "force",
+            "Class": "Vector",
+            "Payload": [
+                {
+                    "Name": "X",
+                    "Class": "number",
+                    "Payload": 0
+                },
+                {
+                    "Name": "Y",
+                    "Class": "number",
+                    "Payload": 0
+                }
+            ]
+        },
+        {
+            "Name": "v",
+            "Class": "Vector",
+            "Payload": [
+                {
+                    "Name": "X",
+                    "Class": "number",
+                    "Payload": 0
+                },
+                {
+                    "Name": "Y",
+                    "Class": "number",
+                    "Payload": 0
+                }
+            ]
+        },
+        {
+            "Name": "av",
+            "Class": "number",
+            "Payload": 0
+        },
+        {
+            "Name": "torque",
+            "Class": "number",
+            "Payload": 0
+        },
+        {
+            "Name": "sf",
+            "Class": "number",
+            "Payload": 0.5
+        },
+        {
+            "Name": "df",
+            "Class": "number",
+            "Payload": 0.3
+        },
+        {
+            "Name": "r",
+            "Class": "number",
+            "Payload": 0.2
+        },
+        {
+            "Name": "density",
+            "Class": "number",
+            "Payload": "Infinity"
+        },
+        {
+            "Name": "z",
+            "Class": "number",
+            "Payload": 1
+        }
+    ]
+}

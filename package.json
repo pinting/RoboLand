@@ -1,7 +1,7 @@
 {
   "name": "roboland",
-  "version": "0.1.0",
-  "description": "Educational game for kids",
+  "version": "0.2.0",
+  "description": "Educational game",
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server",
@@ -9,7 +9,7 @@
     "watch": "webpack --watch"
   },
   "bin": {
-    "robopack": "./dist/cli/robopack.js"
+    "roboland": "./dist/cli/roboland.js"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,7 @@
   "dependencies": {
     "bootstrap-css": "4.0.0-alpha.5",
     "classnames": "2.2.x",
-    "pako": "1.0.x",
+    "pako": "^1.0.11",
     "react": "16.6.x",
     "react-cristal": "0.0.12",
     "react-dom": "16.6.x",
@@ -33,10 +33,10 @@
     "webrtc-adapter": "6.3.x"
   },
   "devDependencies": {
-    "@types/react": "16.7.x",
+    "@types/node": "13.7.x",
+    "@types/react": "^16.7.22",
     "@types/react-dom": "16.0.x",
     "@types/reactstrap": "8.4.x",
-    "@types/node": "13.7.x",
     "copy-webpack-plugin": "5.1.x",
     "css-loader": "2.0.x",
     "style-loader": "0.23.x",
@@ -44,6 +44,6 @@
     "typescript": "3.7.5",
     "webpack": "4.41.x",
     "webpack-cli": "3.1.x",
-    "webpack-dev-server": "3.1.x"
+    "webpack-dev-server": "^3.1.14"
   }
 }

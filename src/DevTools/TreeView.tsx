@@ -1,17 +1,17 @@
 import * as React from "react";
 import * as Bootstrap from "reactstrap";
 
-import { IDump } from "../lib/IDump";
 import { ChildView } from "./ChildView";
 import { Resource } from "../lib/RoboPack";
+import { Dump } from "../lib/Dump";
 
 // The tree should never reach this
 const MAX_DEPTH = 100;
 
 interface ViewProps
 {
-    dump: IDump;
-    save: (dump: IDump) => void;
+    dump: Dump;
+    save: (dump: Dump) => void;
     find: (current?: string) => Promise<Resource>;
     head?: boolean;
     depth?: number;
@@ -33,7 +33,7 @@ export abstract class TreeView extends React.PureComponent<ViewProps, ViewState>
         };
     }
 
-    private renderDump(dump: IDump, save: (dump: IDump) => void)
+    private renderDump(dump: Dump, save: (dump: Dump) => void)
     {
         switch(dump.Class)
         {
@@ -53,9 +53,9 @@ export abstract class TreeView extends React.PureComponent<ViewProps, ViewState>
         }
     }
 
-    private saveChildDump(dump: IDump, index: number): void
+    private saveChildDump(dump: Dump, index: number): void
     {
-        const payload = this.props.dump.Payload as IDump[];
+        const payload = this.props.dump.Payload as Dump[];
 
         let newPayload = payload.map((e, i) => 
         {
@@ -105,7 +105,7 @@ export abstract class TreeView extends React.PureComponent<ViewProps, ViewState>
     {
         return (
             <div>
-                {this.props.dump.Payload.map((dump: IDump, index: number) =>
+                {this.props.dump.Payload.map((dump: Dump, index: number) =>
                     <div key={dump.Name + dump.Class}>{this.renderDump(dump, (dump) =>
                         this.saveChildDump(dump, index))}</div>)}
             </div>

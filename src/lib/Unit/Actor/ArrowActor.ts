@@ -6,12 +6,16 @@ import { Vector } from "../../Geometry/Vector";
 export interface ArrowActorArgs extends BaseActorArgs
 {
     damage?: number;
+    speed?: number;
 }
 
 export class ArrowActor extends BaseActor
 {
     @Exportable.Register(ExportType.NetDisk)
     protected damage: number;
+    
+    @Exportable.Register(ExportType.NetDisk)
+    protected speed: number;
 
     /**
      * @inheritDoc
@@ -28,7 +32,8 @@ export class ArrowActor extends BaseActor
     {
         super.InitPre(args);
         
-        this.damage = args.damage === undefined ? this.damage : args.damage;
+        this.damage = args.damage === undefined ? this.damage || 0 : args.damage;
+        this.speed = args.speed === undefined ? this.speed || 0 : args.speed;
     }
 
     /**
@@ -69,6 +74,11 @@ export class ArrowActor extends BaseActor
         {
             this.Dispose();
         }
+    }
+
+    public GetSpeed(): number
+    {
+        return this.speed;
     }
 }
 

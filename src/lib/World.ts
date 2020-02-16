@@ -3,24 +3,32 @@ import { BaseActor } from "./Unit/Actor/BaseActor";
 import { Tools } from "./Util/Tools";
 import { BaseCell } from "./Unit/Cell/BaseCell";
 import { Unit } from "./Unit/Unit";
-import { UnitList } from "./UnitList";
-import { IReadOnlyUnitList } from "./IReadOnlyUnitList";
-import { Exportable, ExportType } from "./Exportable";
+import { UnitList, IReadOnlyUnitList } from "./UnitList";
+import { Exportable, ExportType, ExportableArgs } from "./Exportable";
 import { Event } from "./Util/Event";
-import { IDump } from "./IDump";
 import { Body } from "./Physics/Body";
 import { ICollision } from "./Physics/ICollision";
 import { NormalCell } from "./Unit/Cell/NormalCell";
 import { Polygon } from "./Geometry/Polygon";
+import { PlayerActor } from "./Unit/Actor/PlayerActor";
+import { Dump } from "./Dump";
 
 const COLLISION_ITERATIONS = 50;
 const SHADOW_DOT_PER_POINT = 10;
 const SHADOW_STEP = 1 / 4;
 const SHADOW_STEP_R = 2;
 
+export interface WorldArgs extends ExportableArgs
+{
+    size?: Vector;
+}
+
 export class World extends Exportable
 {
     public static Current: World = null;
+
+    @Exportable.Register(ExportType.NetDisk)
+    private basePlayer: PlayerActor = null;
     
     @Exportable.Register(ExportType.NetDisk)
     private cells: Array<BaseCell> = [];
@@ -49,15 +57,23 @@ export class World extends Exportable
      */
     public OnTick: Event<number> = new Event<number>();
 
-    /**
-     * Init a world with null cells.
-     * @param size
-     */
-    public Init(size: Vector): void
+    public Init(args: WorldArgs = {}): void
     {
-        this.size = size.Clone();
+        super.Init(args);
+    }
+
+    public InitPre(args: WorldArgs = {}): void
+    {
+        super.InitPre(args);
+
+        this.size = args.size;
         this.cells = [];
         this.actors = [];
+    }
+
+    public InitPost(args: WorldArgs): void
+    {
+        super.InitPost(args);
 
         // Generate a shadow map without tracing
         this.GenerateShadowMap();
@@ -166,7 +182,7 @@ export class World extends Exportable
     /**
      * @inheritDoc
      */
-    public Import(input: IDump[]): void
+    public Import(input: Dump[]): void
     {
         World.Current = this;
 
@@ -184,7 +200,7 @@ export class World extends Exportable
     /**
      * @inheritDoc
      */
-    public Export(access?: number): IDump[]
+    public Export(access?: number): Dump[]
     {
         // Always generate new shadow map
         this.GenerateShadowMap();
@@ -228,7 +244,9 @@ export class World extends Exportable
         const w = dpp * size.X;
         const h = dpp * size.Y;
         
-        const testBody = new Body([Polygon.CreateBox(SHADOW_STEP)]);
+        const testBody = new Body();
+
+        testBody.Init({ shapes: [Polygon.CreateBox(SHADOW_STEP)] });
 
         for(let r = 0; r < 2 * Math.PI; r += SHADOW_STEP_R * (Math.PI / 180))
         {
@@ -309,12 +327,22 @@ export class World extends Exportable
 
         return this.shadowMap[Math.floor((x / w) * sw) + Math.floor((y / h) * sh) * sw];
     }
+
+    public GetBasePlayer(): PlayerActor
+    {
+        if(!this.basePlayer)
+        {
+            throw new Error("No player base is defined in this world!");
+        }
+
+        return this.basePlayer;
+    }
     
     public static CreateBox(size: number): World
     {
         const world = new World;
 
-        world.Init(new Vector(size, size));
+        world.Init({ size: new Vector(size, size) });
 
         // Init world with size * size number of GroundCells
         for(let i = 0; i < size * size; i++)

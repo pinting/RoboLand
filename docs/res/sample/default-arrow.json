@@ -1,0 +1,68 @@
+﻿{
+    "Class": "ArrowActor",
+    "Payload": [
+        {
+            "Name": "ignore",
+            "Class": "boolean",
+            "Payload": true
+        },
+        {
+            "Base": "default-body.json",
+            "Name": "body",
+            "Payload": [
+                {
+                    "Name": "scale",
+                    "Class": "Vector",
+                    "Payload": [
+                        {
+                            "Name": "X",
+                            "Class": "number",
+                            "Payload": "0.1"
+                        },
+                        {
+                            "Name": "Y",
+                            "Class": "number",
+                            "Payload": "0.1"
+                        }
+                    ]
+                },
+                {
+                    "Name": "rotation",
+                    "Class": "number",
+                    "Payload": "0"
+                },
+                {
+                    "Name": "position",
+                    "Class": "Vector",
+                    "Payload": [
+                        {
+                            "Name": "X",
+                            "Class": "number",
+                            "Payload": "0"
+                        },
+                        {
+                            "Name": "Y",
+                            "Class": "number",
+                            "Payload": "0"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Name": "blocking",
+            "Class": "boolean",
+            "Payload": true
+        },
+        {
+            "Name": "damage",
+            "Class": "number",
+            "Payload": "0.1"
+        },
+        {
+            "Name": "speed",
+            "Class": "number",
+            "Payload": "1500"
+        }
+    ]
+}

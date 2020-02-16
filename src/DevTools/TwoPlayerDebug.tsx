@@ -13,11 +13,11 @@ import { Tools } from "../lib/Util/Tools";
 import { ResourceManager } from "../lib/Util/ResourceManager";
 import { Exportable } from "../lib/Exportable";
 import { Keyboard } from "../lib/Util/Keyboard";
-import { IDump } from "../lib/IDump";
+import { Dump } from "../lib/Dump";
 
 interface ViewProps 
 {
-    world?: IDump;
+    world?: Dump;
     close: () => void;
 }
 
@@ -80,13 +80,17 @@ export class TwoPlayerDebug extends React.PureComponent<ViewProps, ViewState>
         const rootResource = ResourceManager.ByUri(Shared.DEFAULT_WORLD_URI);
         let world: World;
 
-        if(rootResource)
+        if(!rootResource)
         {
-            const rootDump = JSON.parse(Tools.BufferToUTF16(rootResource.Buffer)) as IDump;
-            const dump = Exportable.Resolve(rootDump);
-    
-            world = Exportable.Import(dump);
+            Logger.Warn("Default root resource is not available", Shared.DEFAULT_WORLD_URI);
+            return;
         }
+        
+        const raw = Tools.ANSIToUTF16(rootResource.Buffer);
+        const rootDump = JSON.parse(raw) as Dump;
+        const dump = Dump.Resolve(rootDump);
+
+        world = Exportable.Import(dump);
 
         const server = new Server(world);
         

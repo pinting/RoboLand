@@ -1,9 +1,19 @@
 import { Vector } from "./Geometry/Vector";
 import { Unit } from "./Unit/Unit";
-import { IReadOnlyUnitList } from "./IReadOnlyUnitList";
 import { Tools } from "./Util/Tools";
 import { Event } from "./Util/Event";
 import { Logger } from "./Util/Logger";
+
+export interface IReadOnlyUnitList<U>
+{
+    GetLength(): number;
+    Some(callback: (e: U) => boolean | void): void;
+    Get(id: string): U;
+    Find(position: Vector): U[];
+    FindNearest(position: Vector): U;
+    FindCollisions(unit: U): U[];
+    GetArray(): U[];
+}
 
 export class UnitList<U extends Unit> implements IReadOnlyUnitList<U>
 {

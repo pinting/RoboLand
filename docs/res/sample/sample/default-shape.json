@@ -1,0 +1,90 @@
+                             "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": -0.5
+                                }
+                            ]
+                        },
+                        {
+                            "Name": "1",
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": 0.5
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 0.5
+                                }
+                            ]
+                        },
+                        {
+                            "Name": "2",
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": -0.5
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": 0.5
+                                }
+                            ]
+                        },
+                        {
+                            "Name": "3",
+                            "Class": "Vector",
+                            "Payload": [
+                                {
+                                    "Name": "X",
+                                    "Class": "number",
+                                    "Payload": -0.5
+                                },
+                                {
+                                    "Name": "Y",
+                                    "Class": "number",
+                                    "Payload": -0.5
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}﻿{
+    "Base": "default-body.json"
+}﻿{
+    "Class": "NormalCell",
+    "Payload": [
+        {
+            "Base": "grass-body.json",
+            "Name": "body"
+        },
+        {
+            "Name": "texture",
+            "Class": "string",
+            "Payload": "grass.png"
+        },
+        {
+            "Name": "blocking",
+            "Class": "boolean",
+            "Payload": false
+        },
+        {
+            "Name": "light",
+            "Class": "number",
+            "Payload": 0
+        },
+        {
+            "Name": "gravity",
+            "Class": "Vector",
+            "Payload": [
+                {
+                    "Name": "X",
+                    "Cl

@@ -1,14 +1,17 @@
 import { Vector } from "../Geometry/Vector";
-import { Exportable, ExportType } from "../Exportable";
+import { Exportable, ExportType, ExportableArgs } from "../Exportable";
 import { IContact } from "../Geometry/IContact";
 import { BaseShape } from "../Geometry/BaseShape";
 import { Overlap } from "../Geometry/Overlap";
 import { Polygon } from "../Geometry/Polygon";
-import { Tools } from "../Util/Tools";
 import { ICollision } from "./ICollision";
 
-export interface BodyArgs
+export interface BodyArgs extends ExportableArgs
 {
+    shapes?: BaseShape[];
+    position?: Vector;
+    scale?: Vector;
+    rotation?: number;
     density?: number; // Mass density
     gravity?: Vector; // Gravity
     force?: Vector; // Force
@@ -37,37 +40,37 @@ export class Body extends Exportable
     protected position: Vector = new Vector(0, 0);
 
     @Exportable.Register(ExportType.NetDisk)
-    protected gravity: Vector; // Gravity
+    protected gravity: Vector = new Vector(0, 0); // Gravity
     
     @Exportable.Register(ExportType.NetDisk)
-    protected force: Vector; // Force
+    protected force: Vector = new Vector(0, 0); // Force
     
     @Exportable.Register(ExportType.NetDisk)
-    protected v: Vector; // Velocity
+    protected v: Vector = new Vector(0, 0); // Velocity
     
     @Exportable.Register(ExportType.NetDisk)
-    protected av: number; // Angular velocity
+    protected av: number = 0; // Angular velocity
     
     @Exportable.Register(ExportType.NetDisk)
-    protected torque: number; // Torque
+    protected torque: number = 0; // Torque
     
     @Exportable.Register(ExportType.NetDisk)
-    protected sf: number; // Static friction
+    protected sf: number = 0.5; // Static friction
     
     @Exportable.Register(ExportType.NetDisk)
-    protected df: number; // Dynamic friction
+    protected df: number = 0.3; // Dynamic friction
     
     @Exportable.Register(ExportType.NetDisk)
-    protected cf: number; // Cell friction
+    protected cf: number = 0.05; // Cell friction
     
     @Exportable.Register(ExportType.NetDisk)
-    protected r: number; // Restitution
+    protected r: number = 0.2; // Restitution
 
     @Exportable.Register(ExportType.NetDisk, (s, v) => s.ComputeMass(v))
-    protected density: number; // Mass density
+    protected density: number = 1; // Mass density
     
     @Exportable.Register(ExportType.NetDisk)
-    protected z: number; // Z-Index
+    protected z: number = 0; // Z-Index
     
     protected I: number;  // Moment of inertia
     protected iI: number; // Inverse inertia
@@ -76,29 +79,35 @@ export class Body extends Exportable
 
     public Validate: (scale: Vector, rotation: number, position: Vector) => boolean;
 
-    /**
-     * Construct a new body with the given shapes.
-     * @param shapes Can be empty.
-     */
-    constructor(shapes: BaseShape[] = [], args: BodyArgs = {}) 
+    public Init(args: BodyArgs = {})
     {
-        super();
+        super.Init(args);
+    }
+    
+    public InitPre(args: BodyArgs = {})
+    {
+        super.InitPre(args);
 
-        this.shapes = shapes;
+        this.shapes = args.shapes === undefined ? this.shapes || [] : args.shapes;
+        this.gravity = args.gravity === undefined ? this.gravity : args.gravity;
+        this.sf = args.sf === undefined ? this.sf : args.sf;
+        this.df = args.df === undefined ? this.df : args.df;
+        this.r = args.sf === undefined ? this.r : args.r;
+        this.av = args.av === undefined ? this.av : args.av;
+        this.torque = args.torque === undefined ? this.torque : args.torque;
+        this.v = args.v === undefined ? this.v : args.v;
+        this.force = args.force === undefined ? this.force : args.force;
+        this.density = args.density === undefined ? this.density : args.density;
+        this.z = args.z === undefined ? this.z : args.z;
+        this.cf = args.cf === undefined ? this.cf : args.cf;
+    }
 
-        this.gravity = args.gravity || new Vector(0, 0);
-        this.sf = args.sf || 0.5;
-        this.df = args.df || 0.3;
-        this.r = args.r || 0.2;
-        this.av = args.av || 0;
-        this.torque = args.torque || 0;
-        this.v = args.v || new Vector(0, 0);
-        this.force = args.force || new Vector(0, 0);
-        this.density = args.density || 1.0;
-        this.z = args.z || 0;
-        this.cf = args.cf || 0.05;
+    public InitPost(args: BodyArgs = {})
+    {
+        super.InitPost(args);
 
         this.ComputeMass(this.density);
+        this.SetVirtual(args.scale, args.rotation, args.position);
     }
 
     /**
@@ -161,6 +170,11 @@ export class Body extends Exportable
 
     public SetCellFriction(friction: number): void
     {
+        if(typeof friction != "number" || Number.isNaN(friction))
+        {
+            throw new Error("Friction is NaN.");
+        }
+
         this.cf = friction;
     }
 
@@ -171,16 +185,31 @@ export class Body extends Exportable
 
     public SetZ(z: number): void
     {
+        if(typeof z != "number" || Number.isNaN(z))
+        {
+            throw new Error("Z is NaN.");
+        }
+
         this.z = z;
     }
 
     public AddForce(f: Vector)
     {
+        if(!Number.isFinite(f.X) || !Number.isFinite(f.Y))
+        {
+            throw new Error("Force is not finite.");
+        }
+
         this.force = this.force.Add(f);
     }
     
     public AddTorque(t: number)
     {
+        if(!Number.isFinite(t))
+        {
+            throw new Error("Torque is not finite.");
+        }
+
         this.torque += t;
     }
 
@@ -510,8 +539,9 @@ export class Body extends Exportable
     
     public static CreateBoxBody(scale: Vector, rotation: number, position: Vector, args: BodyArgs = {}): Body
     {
-        const body = new Body([Polygon.CreateBox(1)], args);
-
+        const body = new Body();
+        
+        body.Init({ ...args, shapes: [Polygon.CreateBox(1)] });
         body.SetVirtual(scale, rotation, position);
 
         return body;
