@@ -4,7 +4,6 @@
     "Payload": [
         {
             "Base": "grass.json",
-            "Name": "0",
             "Payload": [
                 {
                     "Base": "grass-body.json",
@@ -48,7 +47,6 @@
         },
         {
             "Base": "lamp.json",
-            "Name": "1",
             "Payload": [
                 {
                     "Base": "lamp-body.json",

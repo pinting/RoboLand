@@ -7,7 +7,6 @@ import { Logger } from "./Util/Logger";
 export interface IReadOnlyUnitList<U>
 {
     GetLength(): number;
-    Some(callback: (e: U) => boolean | void): void;
     Get(id: string): U;
     Find(position: Vector): U[];
     FindNearest(position: Vector): U;
@@ -41,15 +40,6 @@ export class UnitList<U extends Unit> implements IReadOnlyUnitList<U>
     }
 
     /**
-     * Go over the units of the array.
-     * @param callback 
-     */
-    public Some(callback: (Unit: U) => boolean | void)
-    {
-        return this.units.some(<any>callback);
-    }
-
-    /**
      * Get unit by id.
      * @param id 
      */
@@ -59,7 +49,7 @@ export class UnitList<U extends Unit> implements IReadOnlyUnitList<U>
     }
 
     /**
-     * Get a unit(s) by vector.
+     * Get units by their position.
      * @param position 
      */ 
     public Find(position: Vector): U[]

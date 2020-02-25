@@ -24,7 +24,12 @@ export abstract class BaseShape extends Exportable
         this.points = points;
     }
 
-    public GetPoints()
+    public GetLength(): number
+    {
+        return this.points.length;
+    }
+
+    public GetPoints(): Vector[]
     {
         return this.points;
     }

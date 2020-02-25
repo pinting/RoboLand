@@ -103,7 +103,7 @@ export abstract class Unit extends Exportable
 
     /**
      * Set the body and generate the virtual body.
-     * VirtualBody = Body.Rotate(Angle).Add(Position)
+     * VirtualBody = Body.Scale(Size).Rotate(Angle).Add(Position)
      * @param body 
      */
     public SetBody(body?: Body): void

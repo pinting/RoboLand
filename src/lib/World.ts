@@ -13,7 +13,7 @@ import { Polygon } from "./Geometry/Polygon";
 import { PlayerActor } from "./Unit/Actor/PlayerActor";
 import { Dump } from "./Dump";
 
-const COLLISION_ITERATIONS = 50;
+const COLLISION_ITERATIONS = 10;
 const SHADOW_DOT_PER_POINT = 10;
 const SHADOW_STEP = 1 / 4;
 const SHADOW_STEP_R = 2;
@@ -127,7 +127,7 @@ export class World extends Exportable
         }
 
         // Integrate forces
-        units.Some(unit => unit.GetBody().IntegrateForces(dt));
+        units.GetArray().forEach(unit => unit.GetBody().IntegrateForces(dt));
         
         // Solve collisions
         for(let contact of contacts)
@@ -136,7 +136,7 @@ export class World extends Exportable
         }
 
         // Integrate velocities
-        units.Some(unit => unit.GetBody().IntegrateVelocity(dt));
+        units.GetArray().forEach(unit => unit.GetBody().IntegrateVelocity(dt));
 
         // Correct positions
         for(let contact of contacts)
@@ -145,7 +145,7 @@ export class World extends Exportable
         }
         
         // Clear all forces
-        units.Some(unit => unit.GetBody().ClearForces());
+        units.GetArray().forEach(unit => unit.GetBody().ClearForces());
     }
 
     public GetSize(): Vector
@@ -221,7 +221,7 @@ export class World extends Exportable
 
         this.shadowMap = new Array(w * h).fill(1);
 
-        this.GetCells().Some(unit => this.GenerateShadow(unit));
+        this.GetCells().GetArray().forEach(unit => this.GenerateShadow(unit));
     }
 
     /**
@@ -352,7 +352,7 @@ export class World extends Exportable
             cell.Init({
                 light: 1,
                 world: world,
-                body: Body.CreateBoxBody(
+                body: Body.CreateBox(
                     new Vector(1, 1), 
                     0,
                     new Vector(i % size, (i - (i % size)) / size))

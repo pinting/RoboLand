@@ -47,7 +47,7 @@ export class DumpEditor extends React.PureComponent<ViewProps, ViewState>
         }
         catch(e)
         {
-            // Silent
+            // Silent, JSON parse error
         }
     }
 

@@ -1,30 +1,32 @@
 import { Polygon } from "./Polygon";
-import { Ref } from "../Util/Ref";
 import { Vector } from "./Vector";
 import { IContact } from "./IContact";
 import { BaseShape } from "./BaseShape";
 
+/**
+ * Based on ImpulseEngine by Randy Gaul
+ */
 export class Overlap
 {
-    private static Clip(n: Vector, c: number, face: Vector[]): number
+    private static Clip(n: Vector, c: number, face: { V1: Vector, V2: Vector }): number
     {
         let sp = 0;
         let out = [];
 
         // Retrieve distances from each endpoint to the line
         // d = ax + by - c
-        const d1 = n.Dot(face[0]) - c;
-        const d2 = n.Dot(face[1]) - c;
+        const d1 = n.Dot(face.V1) - c;
+        const d2 = n.Dot(face.V2) - c;
 
         // If negative (behind plane) clip
         if(d1 <= 0.0) 
         {
-            out[sp++] = face[0];
+            out[sp++] = face.V1;
         }
 
         if(d2 <= 0.0)
         {
-            out[sp++] = face[1];
+            out[sp++] = face.V2;
         }
 
         // If the points are on different sides of the plane
@@ -33,14 +35,14 @@ export class Overlap
             // Push interesection point
             const alpha = d1 / (d1 - d2);
 
-            out[sp] = face[0].Add(face[1].Sub(face[0]).Scale(alpha));
+            out[sp] = face.V1.Add(face.V2.Sub(face.V1).Scale(alpha));
 
             ++sp;
         }
 
         // Assign our new converted values
-        face[0] = out[0];
-        face[1] = out[1];
+        face.V1 = out[0];
+        face.V2 = out[1];
 
         return sp;
     }
@@ -48,8 +50,7 @@ export class Overlap
     public static PolygonPolygon(a: Polygon, b: Polygon): IContact
     {
         // Check for a separating axis with A's face planes
-        const faceA = new Ref<number>();
-        const penetrationA = a.FindAxisLeastPenetration(faceA, b);
+        const { BestIndex: faceA, BestDistance: penetrationA } = a.FindAxisLeastPenetration(b);
 
         if(penetrationA >= 0)
         {
@@ -57,8 +58,7 @@ export class Overlap
         }
 
         // Check for a separating axis with B's face planes
-        const faceB = new Ref<number>();
-        const penetrationB = b.FindAxisLeastPenetration(faceB, a);
+        const { BestIndex: faceB, BestDistance: penetrationB } = b.FindAxisLeastPenetration(a);
 
         if(penetrationB >= 0)
         {
@@ -76,14 +76,14 @@ export class Overlap
         {
             ref = a;
             inc = b;
-            refIndex = faceA.Get();
+            refIndex = faceA;
             flip = false;
         }
         else
         {
             ref = b;
             inc = a;
-            refIndex = faceB.Get();
+            refIndex = faceB;
             flip = true;
         }
 
@@ -108,7 +108,7 @@ export class Overlap
         // Setup reference face points
         let v1 = ref.GetVirtual()[refIndex]
 
-        refIndex = refIndex + 1 >= ref.GetVirtual().length ? 0 : refIndex + 1;
+        refIndex = refIndex + 1 >= ref.GetLength() ? 0 : refIndex + 1;
 
         let v2 = ref.GetVirtual()[refIndex];
 
@@ -139,17 +139,17 @@ export class Overlap
 
         // Flip
         const normal = flip ? refFaceNormal.Neg() : refFaceNormal;
-
         const contacts: Vector[] = [];
+
         let penetration = 0;
 
         // Keep points behind reference face
         let cp = 0; // Clipped points behind reference face
-        let separation = refFaceNormal.Dot(incidentFace[0]) - refC;
+        let separation = refFaceNormal.Dot(incidentFace.V1) - refC;
 
         if (separation <= 0.0)
         {
-            contacts[cp] = incidentFace[0];
+            contacts[cp] = incidentFace.V1;
             penetration = -separation;
             cp++;
         }
@@ -158,12 +158,11 @@ export class Overlap
             penetration = 0;
         }
 
-        separation = refFaceNormal.Dot(incidentFace[1]) - refC;
+        separation = refFaceNormal.Dot(incidentFace.V2) - refC;
 
         if (separation <= 0.0)
         {
-            contacts[cp] = incidentFace[1];
-
+            contacts[cp] = incidentFace.V2;
             penetration += -separation;
             cp++;
 

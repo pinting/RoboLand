@@ -164,7 +164,7 @@ export class TwoPlayerDebug extends React.PureComponent<ViewProps, ViewState>
         Tools.Extract(window, {
             worldA: worldA,
             worldB: worldB,
-            worldS: world
+            world: world
         });
     }
 

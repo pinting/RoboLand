@@ -25,18 +25,21 @@ export interface BodyArgs extends ExportableArgs
     z?: number; // Z-Index
 }
 
+const PENETRATION_ALLOWANCE = 0.01; // Penetration allowance
+const PENETRATION_CORRECT = 0.01; // Penetration percentage to correct
+
 export class Body extends Exportable
 {
     @Exportable.Register(ExportType.NetDisk)
     protected shapes: BaseShape[] = [];
 
-    @Exportable.Register(ExportType.NetDisk, (s, v) => s.SetVirtual(v, null, null))
+    @Exportable.Register(ExportType.NetDisk)
     protected scale: Vector = new Vector(1, 1);
     
-    @Exportable.Register(ExportType.NetDisk, (s, v) => s.SetVirtual(null, v, null))
+    @Exportable.Register(ExportType.NetDisk)
     protected rotation: number = 0;
     
-    @Exportable.Register(ExportType.NetDisk, (s, v) => s.SetVirtual(null, null, v))
+    @Exportable.Register(ExportType.NetDisk)
     protected position: Vector = new Vector(0, 0);
 
     @Exportable.Register(ExportType.NetDisk)
@@ -66,7 +69,7 @@ export class Body extends Exportable
     @Exportable.Register(ExportType.NetDisk)
     protected r: number = 0.2; // Restitution
 
-    @Exportable.Register(ExportType.NetDisk, (s, v) => s.ComputeMass(v))
+    @Exportable.Register(ExportType.NetDisk)
     protected density: number = 1; // Mass density
     
     @Exportable.Register(ExportType.NetDisk)
@@ -77,6 +80,12 @@ export class Body extends Exportable
     protected m: number;  // Mass
     protected im: number; // Inverse mass
 
+    /**
+     * Validate if the underlaying "world" will accept the move.
+     * @param scale The new scale.
+     * @param rotation The new rotation.
+     * @param position The new position.
+     */
     public Validate: (scale: Vector, rotation: number, position: Vector) => boolean;
 
     public Init(args: BodyArgs = {})
@@ -106,8 +115,11 @@ export class Body extends Exportable
     {
         super.InitPost(args);
 
-        this.ComputeMass(this.density);
-        this.SetVirtual(args.scale, args.rotation, args.position);
+        this.ComputeMass();
+        this.ForceSetVirtual(
+            args.scale || this.scale,
+            args.rotation || this.rotation,
+            args.position || this.position);
     }
 
     /**
@@ -271,10 +283,17 @@ export class Body extends Exportable
         return contact;
     }
 
-    public SetVirtual(scale?: Vector, rotation?: number, position?: Vector): void
+    protected ForceSetVirtual(scale?: Vector, rotation?: number, position?: Vector): void
     {
-        if(this.Validate && !this.Validate(scale || this.scale,
-            Number.isFinite(rotation) ? rotation : this.rotation,
+        if(typeof rotation === "number" && !Number.isFinite(rotation))
+        {
+            throw new Error("Rotation is not finite!");
+        }
+        
+        // Validate if the underlaying "world" allows the move
+        if(this.Validate && !this.Validate(
+            scale || this.scale,
+            typeof rotation == "number" ? rotation : this.rotation,
             position || this.position))
         {
             return;
@@ -285,6 +304,19 @@ export class Body extends Exportable
         position && (this.position = position);
 
         this.shapes.forEach(s => s.SetVirtual(scale, rotation, position));
+    }
+
+    public SetVirtual(scale?: Vector, rotation?: number, position?: Vector): void
+    {
+        // Do not set, if it is the same
+        if((!scale || scale.Is(this.scale)) &&
+            (typeof rotation !== "number" || this.rotation === rotation) &&
+            (!position || position.Is(position)))
+        {
+            return;
+        }
+
+        this.ForceSetVirtual(scale, rotation, position);
     }
 
     /**
@@ -315,10 +347,10 @@ export class Body extends Exportable
             return;
         }
 
-        const nextposition = this.position.Add(this.v.Scale(dt));
+        const nextPos = this.position.Add(this.v.Scale(dt));
         const nextRot = this.rotation + this.av * dt;
 
-        this.SetVirtual(null, nextRot, nextposition);
+        this.SetVirtual(null, nextRot, nextPos);
     }
 
     /**
@@ -343,16 +375,19 @@ export class Body extends Exportable
 
     /**
      * Calculate centroid and moment of interia
-     * @param density 
      */
-    protected ComputeMass(density: number): void
+    protected ComputeMass(): void
     {
+        if(!this.density)
+        {
+            throw new Error("No density in body!");
+        }
+
         if(!this.shapes.length)
         {
             return;
         }
 
-        this.density = density;
         let c = new Vector(0, 0);
         let area = 0;
         let inertia = 0;
@@ -367,8 +402,8 @@ export class Body extends Exportable
                     const i2 = i1 + 1 < shape.GetPoints().length ? i1 + 1 : 0;
                     const p2 = shape.GetPoints()[i2];
 
-                    const D = Vector.Cross(p1, p2) as number;
-                    const triangleArea = 0.5 * D;
+                    const d = Vector.Cross(p1, p2) as number;
+                    const triangleArea = 0.5 * d;
 
                     area += triangleArea;
 
@@ -378,16 +413,16 @@ export class Body extends Exportable
                     const intx2 = p1.X * p1.X + p2.X * p1.X + p2.X * p2.X;
                     const inty2 = p1.Y * p1.Y + p2.Y * p1.Y + p2.Y * p2.Y;
 
-                    inertia += (0.25 * (1 / 3) * D) * (intx2 + inty2);
+                    inertia += (0.25 * (1 / 3) * d) * (intx2 + inty2);
                 }
             }
         }
 
         c = c.Scale(1.0 / area);
 
-        this.m = density * area;
+        this.m = this.density * area;
         this.im = (this.m) ? 1.0 / this.m : 0.0;
-        this.I = inertia * density;
+        this.I = inertia * this.density;
         this.iI = this.I ? 1.0 / this.I : 0.0;
     }
 
@@ -401,10 +436,7 @@ export class Body extends Exportable
         const a = c.A;
         const b = c.B;
 
-        const kSlop = 0.05; // Penetration allowance
-        const percent = 0.4; // Penetration percentage to correct
-
-        const correction = c.Normal.Scale((Math.max(c.Penetration - kSlop, 0) / (a.im + b.im)) * percent);
+        const correction = c.Normal.Scale((Math.max(c.Penetration - PENETRATION_ALLOWANCE, 0) / (a.im + b.im)) * PENETRATION_CORRECT);
 
         a.position = a.position.Add(correction.Scale(a.im));
         b.position = b.position.Add(correction.Scale(b.im));
@@ -537,7 +569,7 @@ export class Body extends Exportable
         }
     }
     
-    public static CreateBoxBody(scale: Vector, rotation: number, position: Vector, args: BodyArgs = {}): Body
+    public static CreateBox(scale: Vector, rotation: number, position: Vector, args: BodyArgs = {}): Body
     {
         const body = new Body();
         

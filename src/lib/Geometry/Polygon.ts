@@ -1,7 +1,5 @@
 import { Vector } from "./Vector";
 import { BaseShape } from "./BaseShape";
-import { Ref } from "../Util/Ref";
-import { Matrix } from "./Matrix";
 import { Exportable } from "../Exportable";
 
 export class Polygon extends BaseShape
@@ -10,10 +8,14 @@ export class Polygon extends BaseShape
 
     public constructor(vertices: Vector[] = [])
     {
+        super(Polygon.ToConvex(vertices));
+    }
+
+    private static ToConvex(vertices: Vector[] = []): Vector[]
+    {
         if(!vertices.length)
         {
-            super(vertices);
-            return;
+            return [];
         }
 
         let rightMost = 0;
@@ -40,10 +42,11 @@ export class Polygon extends BaseShape
         }
 
         const hull = [];
+
         let outCount = 0;
         let indexHull = rightMost;
 
-        for (; ;) 
+        for (;;) 
         {
             hull[outCount] = indexHull;
 
@@ -82,7 +85,7 @@ export class Polygon extends BaseShape
                 }
             }
 
-            ++outCount;
+            outCount++;
             indexHull = nextHullIndex;
 
             // Conclude algorithm upon wrap-around
@@ -99,17 +102,17 @@ export class Polygon extends BaseShape
             result[i] = vertices[hull[i]];
         }
 
-        super(result);
+        return result;
     }
 
-    public GetSupport(dir: Vector): Vector
+    public GetSupport(direction: Vector): Vector
     {
         let bestProjection = -Infinity;
         let bestVertex: Vector = null;
 
         for (let v of this.GetPoints())
         {
-            const projection = v.Dot(dir);
+            const projection = v.Dot(direction);
 
             if (projection > bestProjection)
             {
@@ -121,34 +124,30 @@ export class Polygon extends BaseShape
         return bestVertex;
     }
 
-    public FindAxisLeastPenetration(faceIndex: Ref<number>, other: Polygon)
+    public FindAxisLeastPenetration(other: Polygon): { BestIndex: number, BestDistance: number }
     {
         let bestDistance: number = -Infinity;
         let bestIndex: number;
 
-        for (let i = 0; i < this.GetPoints().length; ++i)
+        for (let i = 0; i < this.GetLength(); ++i)
         {
-            const au = Matrix.ByRad(this.rotation);
-            const bu = Matrix.ByRad(other.rotation);
-
-            // Retrieve a face normal from A
-            let n = this.GetAxes()[i];
-            const nw = au.ScaleByVector(n);
-
-            // Transform face normal into B's model space
-            const buT = bu.Transpose();
-
-            n = buT.ScaleByVector(nw);
+            // Retrieve a face normal from A and transform face normal into B's model space
+            const n = this.GetAxes()[i]
+                .Rotate(this.rotation)
+                .Rotate(-other.rotation);
 
             // Retrieve support point from B along -n
             const s = other.GetSupport(n.Neg());
 
             // Retrieve vertex on face from A, transform into
             // B's model space
-            let v = this.GetPoints()[i];
-
-            v = au.ScaleByVector(v).Add(this.position).Sub(other.position);
-            v = buT.ScaleByVector(v);
+            const v = this.GetPoints()[i]
+                .Scale(this.scale)
+                .Rotate(this.rotation)
+                .Add(this.position)
+                .Sub(other.position)
+                .Rotate(-other.rotation)
+                .Scale(new Vector(1 / other.scale.X, 1 / other.scale.Y));
 
             // Compute penetration distance (in B's model space)
             const d = n.Dot(s.Sub(v));
@@ -161,14 +160,15 @@ export class Polygon extends BaseShape
             }
         }
 
-        faceIndex.Set(bestIndex);
-
-        return bestDistance;
+        return {
+            BestIndex: bestIndex,
+            BestDistance: bestDistance
+        };
     }
 
-    public FindIncidentFace(other: Polygon, i: number): Vector[]
+    public FindIncidentFace(other: Polygon, i: number): { V1: Vector, V2: Vector }
     {
-        const normal = this.GetAxes()[i]
+        const n = this.GetAxes()[i]
             .Rotate(this.rotation) // To world space
             .Rotate(-other.rotation); // To other's model space
 
@@ -176,9 +176,9 @@ export class Polygon extends BaseShape
         let face = 0;
         let min = Infinity;
 
-        for(let i = 0; i < other.GetPoints().length; ++i)
+        for(let i = 0; i < other.GetLength(); ++i)
         {
-            const dot = normal.Dot(other.GetAxes()[i]);
+            const dot = n.Dot(other.GetAxes()[i]);
 
             if(dot < min)
             {
@@ -189,11 +189,11 @@ export class Polygon extends BaseShape
 
         const v1 = other.GetVirtual()[face];
 
-        face = face + 1 >= other.GetPoints().length ? 0 : face + 1;
+        face = face + 1 >= other.GetLength() ? 0 : face + 1;
 
         const v2 = other.GetVirtual()[face];
 
-        return [v1, v2];
+        return { V1: v1, V2: v2 };
     }
 
     /**
@@ -221,8 +221,7 @@ export class Polygon extends BaseShape
             }
 
             // Calculate normal with 2D cross product between vector and scalar
-            this.axes[i1] = new Vector(face.Y, -face.X);
-            this.axes[i1].Normalize();
+            this.axes[i1] = face.Perp().Normalize();
         }
 
         return this.axes;
