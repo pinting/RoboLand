@@ -33,7 +33,7 @@ export abstract class BaseActor extends Unit
         }
 
         const body = this.GetBody();
-        const newBody = <Body>body.Clone();
+        const newBody = body.Clone() as Body;
         
         newBody.SetVirtual(scale, rotation, position);
 

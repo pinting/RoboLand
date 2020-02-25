@@ -87,6 +87,11 @@ export class OnePlayerDebug extends React.PureComponent<ViewProps, ViewState>
         });
 
         this.renderer.Start();
+
+        // For debug
+        Tools.Extract(window, {
+            world: world
+        });
     }
 
     public componentDidMount(): void

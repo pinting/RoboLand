@@ -63,6 +63,7 @@ export class DevTools extends React.PureComponent<ViewProps, ViewState>
             Logger,
             SimplexNoise,
             ResourceManager,
+            Dump,
             Polygon,
             Body,
             Http

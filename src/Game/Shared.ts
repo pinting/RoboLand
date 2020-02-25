@@ -59,7 +59,7 @@ export class Shared
                     texture: "res/lamp.png",
                     blocking: false,
                     light: 6,
-                    body: Body.CreateBoxBody(
+                    body: Body.CreateBox(
                         new Vector(1, 1), 
                         0,
                         new Vector(i % size, (i -  (i % size)) / size),
@@ -79,7 +79,7 @@ export class Shared
                 cell.Init({
                     texture: "res/stone.png",
                     blocking: true,
-                    body: Body.CreateBoxBody(
+                    body: Body.CreateBox(
                         new Vector(1, 1), 
                         0,
                         new Vector(i % size, (i -  (i % size)) / size),
@@ -96,7 +96,7 @@ export class Shared
                 cell.Init({
                     texture: "res/ground.png",
                     blocking: false,
-                    body: Body.CreateBoxBody(
+                    body: Body.CreateBox(
                         new Vector(1, 1), 
                         0,
                         new Vector(i % size, (i -  (i % size)) / size),

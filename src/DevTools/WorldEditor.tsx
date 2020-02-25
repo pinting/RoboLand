@@ -200,7 +200,7 @@ export class WorldEditor extends React.PureComponent<ViewProps, ViewState>
         }
 
         unit.Init({
-            body: Body.CreateBoxBody(new Vector(1, 1), 0, this.input.newElementVector.Clone()),
+            body: Body.CreateBox(new Vector(1, 1), 0, this.input.newElementVector.Clone()),
             texture: ""
         });
 
