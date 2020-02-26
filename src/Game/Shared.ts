@@ -11,7 +11,6 @@ import { ArrowActor } from "../lib/Unit/Actor/ArrowActor";
 import { Polygon } from "../lib/Geometry/Polygon";
 import { Body } from "../lib/Physics/Body";
 import { Matrix } from "../lib/Geometry/Matrix";
-import { BaseCell } from "../lib/Unit/Cell/BaseCell";
 
 export class Shared
 {
@@ -35,82 +34,6 @@ export class Shared
         Exportable.Dependency(Matrix);
         Exportable.Dependency(Polygon);
         Exportable.Dependency(Body);
-    }
-    /**
-     * Create a sample world.
-     * @param size 
-     */
-    public static CreateSampleWorld(size: number): World
-    {
-        const world = new World;
-
-        world.Init({ size: new Vector(size, size) });
-
-        // Init world with size x size number of GroundCells
-        for(let i = 0; i < size * size; i++)
-        {
-            let cell: BaseCell;
-            
-            if(i % (size - 1) == 0)
-            {
-                // Light
-                cell = new NormalCell();
-                cell.Init({
-                    texture: "res/lamp.png",
-                    blocking: false,
-                    light: 6,
-                    body: Body.CreateBox(
-                        new Vector(1, 1), 
-                        0,
-                        new Vector(i % size, (i -  (i % size)) / size),
-                        { 
-                            z: 1,
-                            density: Infinity
-                        })
-                });
-                
-                world.Add(cell);
-            }
-            
-            if(i < size || i >= size * size - size)
-            {
-                // Stone
-                cell = new NormalCell();
-                cell.Init({
-                    texture: "res/stone.png",
-                    blocking: true,
-                    body: Body.CreateBox(
-                        new Vector(1, 1), 
-                        0,
-                        new Vector(i % size, (i -  (i % size)) / size),
-                        { 
-                            z: 0,
-                            density: Infinity
-                        })
-                });
-            }
-            else
-            { 
-                // Ground
-                cell = new NormalCell();
-                cell.Init({
-                    texture: "res/ground.png",
-                    blocking: false,
-                    body: Body.CreateBox(
-                        new Vector(1, 1), 
-                        0,
-                        new Vector(i % size, (i -  (i % size)) / size),
-                        { 
-                            z: 0,
-                            density: Infinity
-                        })
-                });
-            }
-
-            world.Add(cell);
-        }
-
-        return world;
     }
 
     /**

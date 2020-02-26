@@ -9,6 +9,9 @@ export interface ArrowActorArgs extends BaseActorArgs
     speed?: number;
 }
 
+/**
+ * Arrow actor that destroys upon impact and causes damage to player actors.
+ */
 export class ArrowActor extends BaseActor
 {
     @Exportable.Register(ExportType.NetDisk)
@@ -72,6 +75,8 @@ export class ArrowActor extends BaseActor
         // If the arrow hit anything, dispose it
         if(result.length)
         {
+            // TODO: With this, it cannot jump back from the wall,
+            // which would be really cool
             this.Dispose();
         }
     }

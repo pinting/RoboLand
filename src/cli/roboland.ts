@@ -3,7 +3,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { RoboPack, Resource } from "../lib/RoboPack";
+import { RoboPack, Resource } from "../lib/Util/RoboPack";
 import { Tools } from "../lib/Util/Tools";
 
 export function toBuffer(arrayBuffer: ArrayBuffer): Buffer

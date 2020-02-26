@@ -104,7 +104,7 @@ export abstract class Exportable
     {
         if(!Dependencies.hasOwnProperty(name))
         {
-            Logger.Warn(this, "Class of dump is missing from dependencies", name);
+            Logger.Warn("Class of dump is missing from dependencies", name);
 
             return null;
         }
@@ -208,6 +208,7 @@ export abstract class Exportable
             // Only allow importing registered props
             if(!desc)
             {
+                Logger.Warn("Unregistered property (or no name) in Dump", dump.Name);
                 continue;
             }
 

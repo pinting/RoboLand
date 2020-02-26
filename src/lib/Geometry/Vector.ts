@@ -1,6 +1,9 @@
 import { Exportable, ExportType } from "../Exportable";
 import { Matrix } from "./Matrix";
 
+const BIAS_RELATIVE = 0.95;
+const BIAS_ABSOLULTE = 0.01;
+
 export class Vector extends Exportable
 {
     public static EPSILON = 0.0001;
@@ -151,23 +154,9 @@ export class Vector extends Exportable
         return new Vector(this.X + other.X, this.Y + other.Y);
     }
 
-    /**
-     * Substract a vector from this one.
-     * @param other 
-     */
     public Sub(other: Vector | number): Vector
     {
-        if(typeof other === "number")
-        {
-            if(Number.isNaN(other))
-            {
-                throw new Error("Sub resulted in NaN");
-            }
-
-            return new Vector(this.X - other, this.Y - other);
-        }
-
-        return new Vector(this.X - other.X, this.Y - other.Y);
+        return this.Add(new Vector(-1, -1).Scale(other));
     }
 
     public Neg(): Vector
@@ -192,6 +181,14 @@ export class Vector extends Exportable
         }
 
         return new Vector(this.X * other.X, this.Y * other.Y);
+    }
+
+    public Div(other: Vector | number): Vector
+    {
+        return this.Scale(new Vector(
+            1 / (typeof other === "number" ? other : other.X),
+            1 / (typeof other === "number" ? other : other.Y)
+        ));
     }
 
     /**
@@ -233,10 +230,7 @@ export class Vector extends Exportable
 
     public static BiasGreaterThan(a: number, b: number): boolean
     {
-        const biasRelative = 0.95;
-        const biasAbsolute = 0.01;
-
-        return a >= b * biasRelative + a * biasAbsolute;
+        return a >= b * BIAS_RELATIVE + a * BIAS_ABSOLULTE;
     }
 }
 

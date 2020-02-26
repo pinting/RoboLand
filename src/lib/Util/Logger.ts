@@ -1,3 +1,5 @@
+import { Event } from "./Event";
+
 export enum LogType
 {
     Warn = 1,
@@ -20,6 +22,8 @@ export class Logger
     public static Type: LogType = LogType.Warn;
     public static Filter: string = null;
 
+    public static OnLog: Event<string> = new Event<string>();
+
     /**
      * Log a message.
      * @param self
@@ -37,7 +41,10 @@ export class Logger
 
         if(this.Type >= type && (!this.Filter || this.Filter === name))
         {
-            console.log(`${type && StringLogType(type)} ${name && `[${name}] `}`, ...args);
+            const title = `${type && StringLogType(type)} ${name && `[${name}] `}`;
+
+            console.log(title, ...args);
+            Logger.OnLog.Call(`${title} ${JSON.stringify(args)}`);
         }
     }
 

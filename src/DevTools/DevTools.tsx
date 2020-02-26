@@ -25,7 +25,7 @@ import { NormalCell } from "../lib/Unit/Cell/NormalCell";
 import { DamageCell } from "../lib/Unit/Cell/DamageCell";
 import { KillCell } from "../lib/Unit/Cell/KillCell";
 import { Logger } from "../lib/Util/Logger";
-import { Resource } from "../lib/RoboPack";
+import { Resource } from "../lib/Util/RoboPack";
 import { Dump } from "../lib/Dump";
 
 interface ViewProps
@@ -36,6 +36,7 @@ interface ViewProps
 interface ViewState
 {
     windows: JSX.Element[];
+    log: string[];
 }
 
 export class DevTools extends React.PureComponent<ViewProps, ViewState>
@@ -47,8 +48,12 @@ export class DevTools extends React.PureComponent<ViewProps, ViewState>
         super(props);
 
         Shared.RegisterDependencies();
-        
-        // For debug
+
+        Logger.OnLog.Add(message =>
+        {
+            this.setState({ log: [message, ...this.state.log] });
+        });
+
         Tools.Extract(window, {
             World,
             Tools,
@@ -70,7 +75,8 @@ export class DevTools extends React.PureComponent<ViewProps, ViewState>
         });
     
         this.state = {
-            windows: []
+            windows: [],
+            log: []
         };
     }
 
@@ -86,22 +92,30 @@ export class DevTools extends React.PureComponent<ViewProps, ViewState>
         this.init();
     }
 
-    private async readFileList(list: FileList): Promise<void>
+    /**
+     * The the first element on a file list.
+     * @param list 
+     */
+    private async readFirst(list: FileList): Promise<void>
     {
-        for(var i = 0; i < list.length; i++)
+        if(!list.length)
         {
-            const file = list[i];
-            const reader = new FileReader();
-
-            reader.onload = () =>
-            {
-                const buffer = reader.result as ArrayBuffer;
-
-                ResourceManager.Load(buffer);
-            }
-
-            reader.readAsArrayBuffer(file);
+            return;
         }
+
+        const file = list[0];
+        const reader = new FileReader();
+
+        reader.onload = () =>
+        {
+            const buffer = reader.result as ArrayBuffer;
+
+            // There is no reason to read other elements,
+            // because Load function overwrites the storage
+            ResourceManager.Load(buffer);
+        }
+
+        reader.readAsArrayBuffer(file);
     }
 
     private async addWindow(view: JSX.Element)
@@ -232,7 +246,9 @@ export class DevTools extends React.PureComponent<ViewProps, ViewState>
     {
         return (
             <div>
-                {this.state.windows}
+                <div>
+                    {this.state.windows}
+                </div>
                 <div style={{ textAlign: "center" }}>
                     <Bootstrap.ButtonGroup>
                         <Bootstrap.Button
@@ -240,12 +256,11 @@ export class DevTools extends React.PureComponent<ViewProps, ViewState>
                             onClick={e => this.importButton && this.importButton.click()}>
                                 Import
                                 <input 
-                                    multiple
                                     ref={r => this.importButton = r}
                                     style={{ display: "none" }}
                                     type="file" 
                                     accept=".roboland"
-                                    onChange={e => this.readFileList(e.target.files)} />
+                                    onChange={e => this.readFirst(e.target.files)} />
                         </Bootstrap.Button>
                         <Bootstrap.Button
                             onClick={() => this.createWorldEditor()}>
@@ -273,6 +288,9 @@ export class DevTools extends React.PureComponent<ViewProps, ViewState>
                                 Export
                         </Bootstrap.Button>
                     </Bootstrap.ButtonGroup>
+                </div>
+                <div>
+                    {this.state.log}
                 </div>
             </div>
         );

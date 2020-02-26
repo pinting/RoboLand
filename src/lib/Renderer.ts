@@ -4,7 +4,7 @@ import { Event } from "./Util/Event";
 import { Vector } from "./Geometry/Vector";
 import { Polygon } from "./Geometry/Polygon";
 import { ResourceManager } from "./Util/ResourceManager";
-import { Resource } from "./RoboPack";
+import { Resource } from "./Util/RoboPack";
 
 export interface RendererArgs
 {

@@ -3,6 +3,9 @@ import { BaseCell } from "./BaseCell";
 import { PlayerActor } from "../Actor/PlayerActor";
 import { Exportable } from "../../Exportable";
 
+/**
+ * When player touches it, it gets killed.
+ */
 export class KillCell extends BaseCell
 {
     /**

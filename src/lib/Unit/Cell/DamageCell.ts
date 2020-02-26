@@ -7,6 +7,9 @@ export interface FireCellArgs extends BaseCellArgs
     damage?: number;
 }
 
+/**
+ * Damages the player if being stand on.
+ */
 export class DamageCell extends BaseCell
 {
     @Exportable.Register(ExportType.NetDisk)

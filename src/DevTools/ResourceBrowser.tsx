@@ -5,7 +5,7 @@ import Cristal from "react-cristal";
 import { ResourceManager } from "../lib/Util/ResourceManager";
 import { Helper } from "../Helper";
 import { Tools } from "../lib/Util/Tools";
-import { Resource } from "../lib/RoboPack";
+import { Resource } from "../lib/Util/RoboPack";
 import { Dump } from "../lib/Dump";
 
 interface ViewProps

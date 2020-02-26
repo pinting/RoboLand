@@ -1,17 +1,8 @@
 ﻿{
-    "Name": null,
-    "Class": "World",
+    "Base": "body.json",
     "Payload": [
         {
-            "Base": "world-cells.json"
-        },
-        {
-            "Name": "actors",
-            "Class": "Array",
-            "Payload": []
-        },
-        {
-            "Name": "size",
+            "Name": "scale",
             "Class": "Vector",
             "Payload": [
                 {
@@ -25,10 +16,6 @@
                     "Payload": 1
                 }
             ]
-        },
-        {
-            "Name": "basePlayer",
-            "Base": "player.json"
         }
     ]
 }
