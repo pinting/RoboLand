@@ -1,0 +1,21 @@
+﻿{
+    "Base": "body.json",
+    "Payload": [
+        {
+            "Name": "scale",
+            "Class": "Vector",
+            "Payload": [
+                {
+                    "Name": "X",
+                    "Class": "number",
+                    "Payload": 1
+                },
+                {
+                    "Name": "Y",
+                    "Class": "number",
+                    "Payload": 1
+                }
+            ]
+        }
+    ]
+}
