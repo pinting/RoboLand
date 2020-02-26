@@ -2,7 +2,7 @@ import * as React from "react";
 import * as Bootstrap from "reactstrap";
 
 import { ChildView } from "./ChildView";
-import { Resource } from "../lib/RoboPack";
+import { Resource } from "../lib/Util/RoboPack";
 import { Dump } from "../lib/Dump";
 
 // The tree should never reach this

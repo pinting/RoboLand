@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as Bootstrap from "reactstrap";
 
-import { Resource } from "../lib/RoboPack";
+import { Resource } from "../lib/Util/RoboPack";
 import { Dump } from "../lib/Dump";
 
 interface ChildViewProps

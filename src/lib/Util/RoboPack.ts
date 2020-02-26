@@ -1,4 +1,4 @@
-import { Tools } from "./Util/Tools";
+import { Tools } from "./Tools";
 
 export const FILE_EXT = "roboland";
 
@@ -8,18 +8,21 @@ export interface BufferMeta
     Mime: string;
 }
 
-interface IFileMeta
+interface IPackMeta
 {
-    Items: ISaveItem[]; 
+    Items: IPackItem[]; 
 }
 
-interface ISaveItem
+interface IPackItem
 {
     Length: number;
     Uri: string;
     Hash: string;
 }
 
+/**
+ * A loaded resource. Buffer still needs to parsed into string or bitmap.
+ */
 export class Resource
 {
     public Buffer: ArrayBuffer;
@@ -108,11 +111,23 @@ export class Resource
     }
 }
 
+/**
+ * ROBOPACK structure
+ * 
+ * <ZLibCompression>
+ *     <!-- Meta data hold the order of the resources, their length, hash and URI -->
+ *     <IPackMeta />
+ *     <Buffer />
+ *     <Buffer />
+ *     <Buffer />
+ *     ...
+ * </ZLibCompression>
+ */
 export class RoboPack
 {
     public static async Pack(resources: Resource[]): Promise<ArrayBuffer>
     {
-        const meta: IFileMeta = {
+        const meta: IPackMeta = {
             Items: resources.map(r => ({
                 Uri: r.Uri,
                 Length: r.Buffer.byteLength,
@@ -155,7 +170,7 @@ export class RoboPack
 
         const result = [] as Resource[];
         const rawMeta = uncompressed.slice(0, endOfMeta);
-        const meta = JSON.parse(Tools.ANSIToUTF16(rawMeta)) as IFileMeta;
+        const meta = JSON.parse(Tools.ANSIToUTF16(rawMeta)) as IPackMeta;
 
         let current = endOfMeta;
 

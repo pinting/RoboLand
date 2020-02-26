@@ -4,6 +4,7 @@ import { Exportable, ExportType } from "../../Exportable";
 import { Vector } from "../../Geometry/Vector";
 import { ArrowActor } from "./ArrowActor";
 
+// Delay between shots
 const SHOT_DELAY = 800;
 
 export interface PlayerActorArgs extends BaseActorArgs
@@ -195,6 +196,7 @@ export class PlayerActor extends BaseActor
 
         if(this.lastShot + SHOT_DELAY > now) 
         {
+            // TODO: Should we really throw an exception?
             throw new Error("Shot was too quick");
         }
 

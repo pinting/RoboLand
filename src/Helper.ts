@@ -1,6 +1,5 @@
 import { ResourceManager } from "./lib/Util/ResourceManager";
-import { Tools } from "./lib/Util/Tools";
-import { Resource, RoboPack } from "./lib/RoboPack";
+import { Resource, RoboPack } from "./lib/Util/RoboPack";
 
 declare var navigator: { clipboard: any } & Navigator;
 

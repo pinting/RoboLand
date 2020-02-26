@@ -1,7 +1,7 @@
 {
   "name": "roboland",
-  "version": "0.2.0",
-  "description": "Educational game",
+  "version": "0.3.0",
+  "description": "2D game engine",
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server",

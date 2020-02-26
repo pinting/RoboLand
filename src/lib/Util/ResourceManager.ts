@@ -1,5 +1,5 @@
 import { Event } from "./Event";
-import { RoboPack, Resource } from "../RoboPack";
+import { RoboPack, Resource } from "./RoboPack";
 
 // TODO: Use IndexedDB to store between sessions
 export class ResourceManager
@@ -128,15 +128,19 @@ export class ResourceManager
 
     /**
      * Load a RoboLand resource buffer into the memory. 
+     * This clears the previously loaded resources.
      * @param buffer 
      */
     public static async Load(buffer: ArrayBuffer): Promise<void>
     {
+        this.Clear();
+
         this.storage = await RoboPack.Unpack(buffer);
     }
 
     public static Clear(): void
     {
+        ResourceManager.storage.forEach(res => res.Destroy());
         ResourceManager.storage = [];
 
         this.OnChange.Call();

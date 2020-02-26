@@ -338,13 +338,16 @@ export class World extends Exportable
         return this.basePlayer;
     }
     
+    /**
+     * Init world with size * size number of ground cells.
+     * @param size 
+     */
     public static CreateBox(size: number): World
     {
         const world = new World;
 
         world.Init({ size: new Vector(size, size) });
 
-        // Init world with size * size number of GroundCells
         for(let i = 0; i < size * size; i++)
         {
             const cell = new NormalCell();

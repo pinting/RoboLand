@@ -2,6 +2,8 @@ import { Vector } from "../../Geometry/Vector";
 import { Unit, UnitArgs } from "../Unit";
 import { Body } from "../../Physics/Body";
 
+const COLLISION_LIMIT = 3;
+
 export interface BaseActorArgs extends UnitArgs
 {
     // Empty
@@ -9,6 +11,8 @@ export interface BaseActorArgs extends UnitArgs
 
 export abstract class BaseActor extends Unit
 {
+    private noGround = 0;
+
     /**
      * @inheritDoc
      */
@@ -46,7 +50,21 @@ export abstract class BaseActor extends Unit
 
         if(!next.length)
         {
-            return false;
+            // This fixes a nasty bug in the physics engine.
+            // For some reason, rotation causes invalid moves,
+            // because the engine does not find collisions with
+            // cells under the actor.
+            // TODO: FIX THIS
+            this.noGround++;
+
+            if(this.noGround >= COLLISION_LIMIT)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            this.noGround = 0;
         }
 
         // Remove intersection 
