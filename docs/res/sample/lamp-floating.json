@@ -1,0 +1,16 @@
+﻿{
+    "Base": "lamp.json",
+    "Payload": [
+        {
+            "Base": "lamp-body.json",
+            "Name": "body",
+            "Payload": [
+                {
+                    "Name": "z",
+                    "Class": "number",
+                    "Payload": "1"
+                }
+            ]
+        }
+    ]
+}

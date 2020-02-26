@@ -1,0 +1,10 @@
+﻿{
+    "Base": "body.json",
+    "Payload": [
+        {
+            "Name": "density",
+            "Class": "number",
+            "Payload": "Infinity"
+        }
+    ]
+}
