@@ -82,7 +82,7 @@ export class DevTools extends React.PureComponent<ViewProps, ViewState>
 
     private async init(): Promise<void>
     {
-        const buffer = await Http.Get("res/sample.roboland");
+        const buffer = await Http.Get("res/default.roboland");
         
         await ResourceManager.Load(buffer);
     }
@@ -289,8 +289,8 @@ export class DevTools extends React.PureComponent<ViewProps, ViewState>
                         </Bootstrap.Button>
                     </Bootstrap.ButtonGroup>
                 </div>
-                <div>
-                    {this.state.log}
+                <div style={{ padding: 10 }}>
+                    {this.state.log.map(message => <p key={Tools.Unique()}>{message}</p>)}
                 </div>
             </div>
         );

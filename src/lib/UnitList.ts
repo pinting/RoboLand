@@ -106,7 +106,7 @@ export class UnitList<U extends Unit> implements IReadOnlyUnitList<U>
         if(old)
         {
             Tools.Extract(old, unit);
-            Logger.Info(this, "Unit was moded!", unit);
+            Logger.Debug(this, "Unit was moded!", unit);
         }
         else
         {

@@ -185,7 +185,7 @@
         {
             "Name": "z",
             "Class": "number",
-            "Payload": 1
+            "Payload": 0
         }
     ]
 }

@@ -34,13 +34,13 @@ export class Body extends Exportable
     protected shapes: BaseShape[] = [];
 
     @Exportable.Register(ExportType.NetDisk)
-    protected scale: Vector = new Vector(1, 1);
+    protected scale: Vector;
     
     @Exportable.Register(ExportType.NetDisk)
-    protected rotation: number = 0;
+    protected rotation: number;
     
     @Exportable.Register(ExportType.NetDisk)
-    protected position: Vector = new Vector(0, 0);
+    protected position: Vector;
 
     @Exportable.Register(ExportType.NetDisk)
     protected gravity: Vector = new Vector(0, 0); // Gravity
@@ -117,9 +117,9 @@ export class Body extends Exportable
 
         this.ComputeMass();
         this.ForceSetVirtual(
-            args.scale || this.scale,
-            args.rotation || this.rotation,
-            args.position || this.position);
+            args.scale === undefined ? this.scale : args.scale,
+            args.rotation === undefined ? this.rotation : args.rotation,
+            args.position === undefined ? this.position : args.position);
     }
 
     /**
@@ -289,29 +289,30 @@ export class Body extends Exportable
         {
             throw new Error("Rotation is not finite!");
         }
+
+        const s = scale || this.scale;
+        const r = typeof rotation == "number" ? rotation : this.rotation;
+        const p = position || this.position;
         
         // Validate if the underlaying "world" allows the move
-        if(this.Validate && !this.Validate(
-            scale || this.scale,
-            typeof rotation == "number" ? rotation : this.rotation,
-            position || this.position))
+        if(this.Validate && !this.Validate(s, r, p))
         {
             return;
         }
 
-        scale && (this.scale = scale);
-        rotation && (this.rotation = rotation);
-        position && (this.position = position);
+        this.scale = s;
+        this.rotation = r;
+        this.position = p;
 
         this.shapes.forEach(s => s.SetVirtual(scale, rotation, position));
     }
 
     public SetVirtual(scale?: Vector, rotation?: number, position?: Vector): void
     {
-        // Do not set, if it is the same
-        if((!scale || scale.Is(this.scale)) &&
+        // Do not set, if there is no change
+        if((!scale || (this.scale && scale.Is(this.scale))) &&
             (typeof rotation !== "number" || this.rotation === rotation) &&
-            (!position || position.Is(position)))
+            (!position || (this.position && position.Is(this.position))))
         {
             return;
         }
@@ -573,8 +574,7 @@ export class Body extends Exportable
     {
         const body = new Body();
         
-        body.Init({ ...args, shapes: [Polygon.CreateBox(1)] });
-        body.SetVirtual(scale, rotation, position);
+        body.Init({ scale, rotation, position, shapes: [Polygon.CreateBox(1)], ...args });
 
         return body;
     }

@@ -271,4 +271,9 @@ export class Tools
 
         return merged.buffer;
     }
+
+    public static async RunAsync<T = void>(callback: () => T): Promise<T>
+    {
+        return new Promise(resolve => setTimeout(() => resolve(callback()), 0));
+    }
 }

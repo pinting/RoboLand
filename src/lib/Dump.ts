@@ -92,6 +92,8 @@ export class Dump
     {
         const resolveWithBase = (dump: Dump) =>
         {
+            Logger.Info("Resolving resource", dump.Base);
+
             const resource = ResourceManager.ByUri(dump.Base);
 
             if(!resource)
@@ -117,7 +119,7 @@ export class Dump
             
             if(!base)
             {
-                console.log("No dump was found in buffer", raw);
+                Logger.Warn("No dump was found in buffer", raw);
 
                 return dump;
             }

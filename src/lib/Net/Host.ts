@@ -59,11 +59,11 @@ export class Host extends MessageHandler
 
     /**
      * Init world. Also deletes previously setted units.
-     * @param size 
+     * @param dumb 
      */
-    public async SendSize(size: Vector): Promise<void>
+    public async SendWorld(dumb: Dump): Promise<void>
     {
-        return this.SendMessage(MessageType.Size, Exportable.Export(size));
+        return this.SendMessage(MessageType.World, dumb);
     }
 
     /**
@@ -85,7 +85,7 @@ export class Host extends MessageHandler
 
         if(diff && this.lastTime[id] + SLEEP_TIME >= now && Dump.IsMovementDiff(diff))
         {
-            Logger.Info(this, "Unit was optimized out", unit);
+            Logger.Debug(this, "Unit was optimized out", unit);
             return;
         }
 

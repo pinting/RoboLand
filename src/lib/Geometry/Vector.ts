@@ -170,6 +170,21 @@ export class Vector extends Exportable
      */
     public Scale(other: Vector | number): Vector
     {
+        const m = (a: number, b: number) =>
+        {
+            if(a == -Infinity && b == 0 || a == 0 && b == -Infinity)
+            {
+                return 0;
+            }
+
+            if(a == Infinity && b == 0 || a == 0 && b == Infinity)
+            {
+                return 0;
+            }
+
+            return a * b;
+        }
+
         if(typeof other === "number")
         {
             if(Number.isNaN(other))
@@ -177,10 +192,10 @@ export class Vector extends Exportable
                 throw new Error("Scale resulted in NaN");
             }
     
-            return new Vector(this.X * other, this.Y * other);
+            return new Vector(m(this.X, other), m(this.Y, other));
         }
 
-        return new Vector(this.X * other.X, this.Y * other.Y);
+        return new Vector(m(this.X, other.X), m(this.Y, other.Y));
     }
 
     public Div(other: Vector | number): Vector

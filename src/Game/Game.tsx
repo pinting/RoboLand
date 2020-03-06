@@ -161,19 +161,19 @@ export class Game extends React.PureComponent<GameProps, GameState>
         }
 
         // Load resources
-        const buffer = await Http.Get("res/sample.roboland");
+        const buffer = await Http.Get("res/default.roboland");
         
         await ResourceManager.Load(buffer);
-
-        const rootResource = ResourceManager.ByUri(Shared.DEFAULT_WORLD_URI);
+        
+        const rootResource = ResourceManager.ByUri(World.DEFAULT_WORLD_URI);
         const rootDump = JSON.parse(Tools.ANSIToUTF16(rootResource.Buffer)) as Dump;
         const dump = Dump.Resolve(rootDump);
-        const serverWorld = Exportable.Import(dump);
+        const world = Exportable.Import(dump);
 
-        this.server = new Server(serverWorld);
+        this.server = new Server(world);
 
         // Use the tick of the local client on the server
-        renderer.OnDraw.Add(dt => serverWorld.OnTick.Call(dt));
+        renderer.OnDraw.Add(dt => world.OnTick.Call(dt));
 
         // Enable add button
         this.setState({ showAdd: true });
@@ -199,7 +199,8 @@ export class Game extends React.PureComponent<GameProps, GameState>
     {
         const renderer = new Renderer({ 
             canvas: this.canvas, 
-            world: this.world
+            world: this.world,
+            disableShadows: true
         });
         
         const receiver = await this.createReceiver(renderer);
@@ -280,6 +281,15 @@ export class Game extends React.PureComponent<GameProps, GameState>
      */
     public render(): JSX.Element
     {
+        const containerStyle: React.CSSProperties = {
+            width: "100%",
+            height: "100%",
+            background: "black",
+            position: "fixed",
+            top: 0,
+            left: 0
+        };
+
         const canvasHolderStyle: React.CSSProperties = {
             position: "absolute",
             top: "50%",
@@ -309,9 +319,9 @@ export class Game extends React.PureComponent<GameProps, GameState>
         };
 
         return (
-            <div>
+            <div style={containerStyle}>
                 <div style={canvasHolderStyle}>
-                    <canvas style={{ background: "black" }} ref={c => this.canvas = c}></canvas>
+                    <canvas ref={c => this.canvas = c}></canvas>
                 </div>
                 <div style={bottomRightStyle}>
                     {this.state.showAdd && 

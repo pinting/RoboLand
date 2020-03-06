@@ -17,12 +17,12 @@
                 {
                     "Name": "X",
                     "Class": "number",
-                    "Payload": 1
+                    "Payload": 8
                 },
                 {
                     "Name": "Y",
                     "Class": "number",
-                    "Payload": 1
+                    "Payload": 8
                 }
             ]
         },

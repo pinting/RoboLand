@@ -77428,7 +77428,7 @@ var DevTools = /** @class */ (function (_super) {
             var buffer;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, Http_1.Http.Get("res/sample.roboland")];
+                    case 0: return [4 /*yield*/, Http_1.Http.Get("res/default.roboland")];
                     case 1:
                         buffer = _a.sent();
                         return [4 /*yield*/, ResourceManager_1.ResourceManager.Load(buffer)];
@@ -77557,7 +77557,7 @@ var DevTools = /** @class */ (function (_super) {
                     React.createElement(Bootstrap.Button, { onClick: function () { return _this.createTwoPlayerDebug(); } }, "Two Player Debug"),
                     React.createElement(Bootstrap.Button, { onClick: function () { return _this.createTestRunner(); } }, "Test Runner"),
                     React.createElement(Bootstrap.Button, { color: "primary", onClick: function () { return Helper_1.Helper.Save(); } }, "Export"))),
-            React.createElement("div", null, this.state.log)));
+            React.createElement("div", { style: { padding: 10 } }, this.state.log.map(function (message) { return React.createElement("p", { key: Tools_1.Tools.Unique() }, message); }))));
     };
     return DevTools;
 }(React.PureComponent));
@@ -77715,6 +77715,7 @@ var react_cristal_1 = __webpack_require__(/*! react-cristal */ "./node_modules/r
 var Logger_1 = __webpack_require__(/*! ../lib/Util/Logger */ "./src/lib/Util/Logger.ts");
 var Shared_1 = __webpack_require__(/*! ../Game/Shared */ "./src/Game/Shared.ts");
 var Vector_1 = __webpack_require__(/*! ../lib/Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
+var World_1 = __webpack_require__(/*! ../lib/World */ "./src/lib/World.ts");
 var Tools_1 = __webpack_require__(/*! ../lib/Util/Tools */ "./src/lib/Util/Tools.ts");
 var ResourceManager_1 = __webpack_require__(/*! ../lib/Util/ResourceManager */ "./src/lib/Util/ResourceManager.ts");
 var Exportable_1 = __webpack_require__(/*! ../lib/Exportable */ "./src/lib/Exportable.ts");
@@ -77728,28 +77729,41 @@ var OnePlayerDebug = /** @class */ (function (_super) {
     }
     OnePlayerDebug.prototype.init = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var rootResource, world, raw, rootDump, dump, player, keys;
+            var uri, rootResource, rootDump, dump, world, player, keys;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        Logger_1.Logger.Type = Logger_1.LogType.Warn;
                         Keyboard_1.Keyboard.Init();
-                        rootResource = ResourceManager_1.ResourceManager.ByUri(Shared_1.Shared.DEFAULT_WORLD_URI);
+                        uri = World_1.World.DEFAULT_WORLD_URI;
+                        Logger_1.Logger.Info("Loading root resource", uri);
+                        rootResource = ResourceManager_1.ResourceManager.ByUri(uri);
                         if (!rootResource) {
-                            Logger_1.Logger.Warn("Default root resource is not available", Shared_1.Shared.DEFAULT_WORLD_URI);
+                            Logger_1.Logger.Warn("Default root resource is not available", uri);
                             return [2 /*return*/];
                         }
-                        raw = Tools_1.Tools.ANSIToUTF16(rootResource.Buffer);
-                        rootDump = JSON.parse(raw);
-                        dump = Dump_1.Dump.Resolve(rootDump);
-                        world = Exportable_1.Exportable.Import(dump);
+                        Logger_1.Logger.Info("Parsing JSON", rootResource);
+                        return [4 /*yield*/, Tools_1.Tools.RunAsync(function () {
+                                return JSON.parse(Tools_1.Tools.ANSIToUTF16(rootResource.Buffer));
+                            })];
+                    case 1:
+                        rootDump = _a.sent();
+                        Logger_1.Logger.Info("Resolving Dump", rootDump);
+                        return [4 /*yield*/, Tools_1.Tools.RunAsync(function () { return Dump_1.Dump.Resolve(rootDump); })];
+                    case 2:
+                        dump = _a.sent();
+                        Logger_1.Logger.Info("Importing world", dump);
+                        return [4 /*yield*/, Tools_1.Tools.RunAsync(function () { return Exportable_1.Exportable.Import(dump); })];
+                    case 3:
+                        world = _a.sent();
+                        Logger_1.Logger.Info("Adding player to the world", world);
                         player = world.GetBasePlayer().Clone();
                         player.Init({
                             ignore: false // IMPORTANT
                         });
                         world.Add(player);
-                        // Render the server
+                        // Attach a renderer to the world
+                        Logger_1.Logger.Info("Adding and loading renderer", world);
                         this.renderer = new Renderer_1.Renderer({
                             canvas: this.canvas,
                             world: world,
@@ -77758,7 +77772,7 @@ var OnePlayerDebug = /** @class */ (function (_super) {
                             disableShadows: true
                         });
                         return [4 /*yield*/, this.renderer.Load()];
-                    case 1:
+                    case 4:
                         _a.sent();
                         keys = {
                             up: "ARROWUP",
@@ -77771,6 +77785,7 @@ var OnePlayerDebug = /** @class */ (function (_super) {
                             Shared_1.Shared.SetupControl(player, keys);
                             _this.renderer.SetCenter(player.GetBody().GetPosition());
                         });
+                        Logger_1.Logger.Info("Start rendering", this.renderer);
                         this.renderer.Start();
                         // For debug
                         Tools_1.Tools.Extract(window, {
@@ -78109,7 +78124,7 @@ var TestRunner = /** @class */ (function (_super) {
                             Http: Http_1.Http
                         });
                         // Run tests
-                        Logger_1.Logger.Type = Logger_1.LogType.Info;
+                        Logger_1.Logger.Level = Logger_1.LogType.Info;
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, 4, 5]);
@@ -78414,7 +78429,6 @@ var TwoPlayerDebug = /** @class */ (function (_super) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        Logger_1.Logger.Type = Logger_1.LogType.Warn;
                         Keyboard_1.Keyboard.Init();
                         delay = 1;
                         worldA = new World_1.World();
@@ -78442,9 +78456,9 @@ var TwoPlayerDebug = /** @class */ (function (_super) {
                         channelB2.SetOther(channelB1);
                         receiverA = new Client_1.Client(channelA1, worldA);
                         receiverB = new Client_1.Client(channelB1, worldB);
-                        rootResource = ResourceManager_1.ResourceManager.ByUri(Shared_1.Shared.DEFAULT_WORLD_URI);
+                        rootResource = ResourceManager_1.ResourceManager.ByUri(World_1.World.DEFAULT_WORLD_URI);
                         if (!rootResource) {
-                            Logger_1.Logger.Warn("Default root resource is not available", Shared_1.Shared.DEFAULT_WORLD_URI);
+                            Logger_1.Logger.Warn("Default root resource is not available", World_1.World.DEFAULT_WORLD_URI);
                             return [2 /*return*/];
                         }
                         raw = Tools_1.Tools.ANSIToUTF16(rootResource.Buffer);
@@ -78617,7 +78631,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var react_cristal_1 = __webpack_require__(/*! react-cristal */ "./node_modules/react-cristal/dist/es2015/index.js");
 var Bootstrap = __webpack_require__(/*! reactstrap */ "./node_modules/reactstrap/es/index.js");
-var Shared_1 = __webpack_require__(/*! ../Game/Shared */ "./src/Game/Shared.ts");
 var World_1 = __webpack_require__(/*! ../lib/World */ "./src/lib/World.ts");
 var Renderer_1 = __webpack_require__(/*! ../lib/Renderer */ "./src/lib/Renderer.ts");
 var Vector_1 = __webpack_require__(/*! ../lib/Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
@@ -78633,7 +78646,6 @@ var ArrowActor_1 = __webpack_require__(/*! ../lib/Unit/Actor/ArrowActor */ "./sr
 var Body_1 = __webpack_require__(/*! ../lib/Physics/Body */ "./src/lib/Physics/Body.ts");
 var ResourceManager_1 = __webpack_require__(/*! ../lib/Util/ResourceManager */ "./src/lib/Util/ResourceManager.ts");
 var Dump_1 = __webpack_require__(/*! ../lib/Dump */ "./src/lib/Dump.ts");
-var GENERATE_MAX_LENGTH = 256;
 var DRAG_WAIT = 300;
 var MIN_SIZE = 8;
 var WorldEditor = /** @class */ (function (_super) {
@@ -78875,7 +78887,7 @@ var WorldEditor = /** @class */ (function (_super) {
         return __awaiter(this, void 0, void 0, function () {
             var rootResource, raw, rootDump, dump;
             return __generator(this, function (_a) {
-                rootResource = ResourceManager_1.ResourceManager.ByUri(Shared_1.Shared.DEFAULT_WORLD_URI);
+                rootResource = ResourceManager_1.ResourceManager.ByUri(World_1.World.DEFAULT_WORLD_URI);
                 if (rootResource) {
                     raw = Tools_1.Tools.ANSIToUTF16(rootResource.Buffer);
                     rootDump = JSON.parse(raw);
@@ -79114,26 +79126,26 @@ var Game = /** @class */ (function (_super) {
      */
     Game.prototype.createReceiver = function (renderer) {
         return __awaiter(this, void 0, void 0, function () {
-            var buffer, rootResource, rootDump, dump, serverWorld, localA, localB;
+            var buffer, rootResource, rootDump, dump, world, localA, localB;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         if (this.channel && !this.channel.IsOfferor()) {
                             return [2 /*return*/, new Client_1.Client(this.channel, this.world)];
                         }
-                        return [4 /*yield*/, Http_1.Http.Get("res/sample.roboland")];
+                        return [4 /*yield*/, Http_1.Http.Get("res/default.roboland")];
                     case 1:
                         buffer = _a.sent();
                         return [4 /*yield*/, ResourceManager_1.ResourceManager.Load(buffer)];
                     case 2:
                         _a.sent();
-                        rootResource = ResourceManager_1.ResourceManager.ByUri(Shared_1.Shared.DEFAULT_WORLD_URI);
+                        rootResource = ResourceManager_1.ResourceManager.ByUri(World_1.World.DEFAULT_WORLD_URI);
                         rootDump = JSON.parse(Tools_1.Tools.ANSIToUTF16(rootResource.Buffer));
                         dump = Dump_1.Dump.Resolve(rootDump);
-                        serverWorld = Exportable_1.Exportable.Import(dump);
-                        this.server = new Server_1.Server(serverWorld);
+                        world = Exportable_1.Exportable.Import(dump);
+                        this.server = new Server_1.Server(world);
                         // Use the tick of the local client on the server
-                        renderer.OnDraw.Add(function (dt) { return serverWorld.OnTick.Call(dt); });
+                        renderer.OnDraw.Add(function (dt) { return world.OnTick.Call(dt); });
                         // Enable add button
                         this.setState({ showAdd: true });
                         localA = new FakeChannel_1.FakeChannel();
@@ -79160,7 +79172,8 @@ var Game = /** @class */ (function (_super) {
                     case 0:
                         renderer = new Renderer_1.Renderer({
                             canvas: this.canvas,
-                            world: this.world
+                            world: this.world,
+                            disableShadows: true
                         });
                         return [4 /*yield*/, this.createReceiver(renderer)];
                     case 1:
@@ -79375,10 +79388,6 @@ var Shared = /** @class */ (function () {
             player.Shoot(Tools_1.Tools.Unique());
         }
     };
-    /**
-     * Execution starts here.
-     */
-    Shared.DEFAULT_WORLD_URI = "world.json";
     return Shared;
 }());
 exports.Shared = Shared;
@@ -79764,6 +79773,7 @@ var Dump = /** @class */ (function () {
      */
     Dump.Resolve = function (dump) {
         var resolveWithBase = function (dump) {
+            Logger_1.Logger.Info("Resolving resource", dump.Base);
             var resource = ResourceManager_1.ResourceManager.ByUri(dump.Base);
             if (!resource) {
                 Logger_1.Logger.Warn("Resource is not available", dump.Base);
@@ -79779,7 +79789,7 @@ var Dump = /** @class */ (function () {
                 return dump;
             }
             if (!base) {
-                console.log("No dump was found in buffer", raw);
+                Logger_1.Logger.Warn("No dump was found in buffer", raw);
                 return dump;
             }
             var basePayload = base.Payload && base.Payload.length ? base.Payload : [];
@@ -80064,19 +80074,23 @@ var Exportable = /** @class */ (function () {
         if (access === void 0) { access = 0; }
         // Export each unit of an array
         if (object instanceof Array) {
-            return {
+            var dump = {
                 Name: name,
                 Class: object.constructor.name,
                 Payload: object.map(function (e, i) { return Exportable.Export(e, i.toString(), access); })
             };
+            Logger_1.Logger.Debug("Exported array", object, dump);
+            return dump;
         }
         // Export exportable
         if (object instanceof Exportable) {
-            return {
+            var dump = {
                 Name: name,
                 Class: object.constructor.name,
                 Payload: object.Export(access)
             };
+            Logger_1.Logger.Debug("Exported object", object, dump);
+            return dump;
         }
         // Export native types (string, number or boolean)
         if (["string", "number", "boolean"].includes(typeof object)) {
@@ -80084,11 +80098,13 @@ var Exportable = /** @class */ (function () {
             if (typeof object === "number") {
                 payload = object.toString();
             }
-            return {
+            var dump = {
                 Name: name,
                 Class: typeof object,
                 Payload: payload
             };
+            Logger_1.Logger.Debug("Exported native type", object, dump);
+            return dump;
         }
         return null;
     };
@@ -80097,17 +80113,19 @@ var Exportable = /** @class */ (function () {
      * @param dumps
      */
     Exportable.prototype.Import = function (dumps) {
+        Logger_1.Logger.Debug(this, "Importing properties", dumps);
         this.InitPre();
         var _loop_1 = function (dump) {
             var desc = this_1[ExportMetaKey].find(function (i) { return i.Name == dump.Name; });
             // Only allow importing registered props
             if (!desc) {
-                Logger_1.Logger.Warn("Unregistered property (or no name) in Dump", dump.Name);
+                Logger_1.Logger.Warn(this_1, "Unregistered property (or no name) in Dump", dump.Name);
                 return "continue";
             }
             var imported = Exportable.Import(dump);
             // If undefined skip importing it
             if (imported === undefined) {
+                Logger_1.Logger.Warn(this_1, "Skipping import on undefined", dump);
                 return "continue";
             }
             // Use the setter if defined or use the built in one
@@ -80132,19 +80150,24 @@ var Exportable = /** @class */ (function () {
     Exportable.Import = function (dump) {
         // Import array
         if (dump.Class == "Array") {
-            return dump.Payload.map(function (e) { return Exportable.Import(e); });
+            var result_1 = dump.Payload.map(function (e) { return Exportable.Import(e); });
+            Logger_1.Logger.Debug("Array imported", dump, result_1);
+            return result_1;
         }
         // Import native types
         if (["string", "number", "boolean"].includes(dump.Class)) {
+            var result_2 = dump.Payload;
             if (dump.Class === "number") {
-                return parseFloat(dump.Payload);
+                result_2 = parseFloat(dump.Payload);
             }
-            return dump.Payload;
+            Logger_1.Logger.Debug("Native type imported", dump, result_2);
+            return result_2;
         }
         // Import Exportable types
-        var instance = Exportable.FromName.apply(Exportable, __spreadArrays([dump.Class], (dump.Args || [])));
-        instance && instance.Import(dump.Payload);
-        return instance;
+        var result = Exportable.FromName.apply(Exportable, __spreadArrays([dump.Class], (dump.Args || [])));
+        result && result.Import(dump.Payload);
+        Logger_1.Logger.Debug("Object imported", dump, result);
+        return result;
     };
     __decorate([
         Exportable.Register(ExportType.Net),
@@ -80357,6 +80380,7 @@ Exportable_1.Exportable.Dependency(Matrix);
 Object.defineProperty(exports, "__esModule", { value: true });
 var Polygon_1 = __webpack_require__(/*! ./Polygon */ "./src/lib/Geometry/Polygon.ts");
 var Vector_1 = __webpack_require__(/*! ./Vector */ "./src/lib/Geometry/Vector.ts");
+var Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
 /**
  * Based on ImpulseEngine by Randy Gaul
  */
@@ -80486,10 +80510,15 @@ var Overlap = /** @class */ (function () {
         };
     };
     Overlap.Test = function (a, b) {
+        var contact;
         if (a instanceof Polygon_1.Polygon && b instanceof Polygon_1.Polygon) {
-            return Overlap.PolygonPolygon(a, b);
+            contact = Overlap.PolygonPolygon(a, b);
         }
-        throw new Error("Overlap type is not implemented!");
+        else {
+            throw new Error("Overlap type is not implemented!");
+        }
+        Logger_1.Logger.Debug(this, "Testing if A and B overlap", a, b, contact);
+        return contact;
     };
     return Overlap;
 }());
@@ -80846,13 +80875,22 @@ var Vector = /** @class */ (function (_super) {
      * @param other
      */
     Vector.prototype.Scale = function (other) {
+        var m = function (a, b) {
+            if (a == -Infinity && b == 0 || a == 0 && b == -Infinity) {
+                return 0;
+            }
+            if (a == Infinity && b == 0 || a == 0 && b == Infinity) {
+                return 0;
+            }
+            return a * b;
+        };
         if (typeof other === "number") {
             if (Number.isNaN(other)) {
                 throw new Error("Scale resulted in NaN");
             }
-            return new Vector(this.X * other, this.Y * other);
+            return new Vector(m(this.X, other), m(this.Y, other));
         }
-        return new Vector(this.X * other.X, this.Y * other.Y);
+        return new Vector(m(this.X, other.X), m(this.Y, other.Y));
     };
     Vector.prototype.Div = function (other) {
         return this.Scale(new Vector(1 / (typeof other === "number" ? other : other.X), 1 / (typeof other === "number" ? other : other.Y)));
@@ -80939,7 +80977,7 @@ var FakeChannel = /** @class */ (function () {
         }
     };
     FakeChannel.prototype.Close = function () {
-        Logger_1.Logger.Info("Channel was closed!");
+        Logger_1.Logger.Info(this, "Channel was closed!");
     };
     return FakeChannel;
 }());
@@ -81198,7 +81236,7 @@ var Client = /** @class */ (function (_super) {
      * @param message
      */
     Client.prototype.OnMessage = function (message) {
-        Logger_1.Logger.Info(this, "Message was received", message);
+        Logger_1.Logger.Debug(this, "Message was received", message);
         World_1.World.Current = this.world;
         switch (message.Type) {
             case MessageType_1.MessageType.Unit:
@@ -81210,8 +81248,8 @@ var Client = /** @class */ (function (_super) {
             case MessageType_1.MessageType.Player:
                 this.ReceivePlayer(message.Payload);
                 break;
-            case MessageType_1.MessageType.Size:
-                this.ReceiveSize(message.Payload);
+            case MessageType_1.MessageType.World:
+                this.ReceivePack(message.Payload);
                 break;
             case MessageType_1.MessageType.Command:
                 this.ReceiveCommand(message.Payload);
@@ -81251,7 +81289,7 @@ var Client = /** @class */ (function (_super) {
         return __awaiter(this, void 0, void 0, function () {
             var id, oldUnit, merged, newUnit, newBody, oldBody, posDiff, rotDiff;
             return __generator(this, function (_a) {
-                Logger_1.Logger.Info(this, "Diff was received!", diff);
+                Logger_1.Logger.Debug(this, "Diff was received!", diff);
                 id = diff && diff.Payload && diff.Payload.length &&
                     diff.Payload.find(function (prop) { return prop.Name == "id"; }).Payload;
                 if (!id) {
@@ -81281,7 +81319,7 @@ var Client = /** @class */ (function (_super) {
                     posDiff = newBody.GetPosition().Dist(oldBody.GetPosition());
                     rotDiff = Math.abs(newBody.GetRotation() - oldBody.GetRotation());
                     if (posDiff < MAX_POS_DIFF && rotDiff < MAX_ROT_DIFF) {
-                        Logger_1.Logger.Info(this, "Unit was optimized out", newUnit);
+                        Logger_1.Logger.Debug(this, "Unit was optimized out", newUnit);
                         return [2 /*return*/];
                     }
                 }
@@ -81308,8 +81346,8 @@ var Client = /** @class */ (function (_super) {
      * Receive the size of the world.
      * @param size
      */
-    Client.prototype.ReceiveSize = function (dump) {
-        this.world.Init(Exportable_1.Exportable.Import(dump));
+    Client.prototype.ReceivePack = function (dump) {
+        Tools_1.Tools.Extract(this.world, Exportable_1.Exportable.Import(dump));
     };
     /**
      * Receive a command from another player.
@@ -81451,12 +81489,12 @@ var Host = /** @class */ (function (_super) {
     };
     /**
      * Init world. Also deletes previously setted units.
-     * @param size
+     * @param dumb
      */
-    Host.prototype.SendSize = function (size) {
+    Host.prototype.SendWorld = function (dumb) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.SendMessage(MessageType_1.MessageType.Size, Exportable_1.Exportable.Export(size))];
+                return [2 /*return*/, this.SendMessage(MessageType_1.MessageType.World, dumb)];
             });
         });
     };
@@ -81476,7 +81514,7 @@ var Host = /** @class */ (function (_super) {
                     diff = Dump_1.Dump.Diff(dump, this.last[id]);
                 }
                 if (diff && this.lastTime[id] + SLEEP_TIME >= now && Dump_1.Dump.IsMovementDiff(diff)) {
-                    Logger_1.Logger.Info(this, "Unit was optimized out", unit);
+                    Logger_1.Logger.Debug(this, "Unit was optimized out", unit);
                     return [2 /*return*/];
                 }
                 this.last[id] = dump;
@@ -81637,7 +81675,7 @@ var MessageHandler = /** @class */ (function () {
             case MessageType_1.MessageType.Command:
             case MessageType_1.MessageType.Player:
             case MessageType_1.MessageType.Kick:
-            case MessageType_1.MessageType.Size:
+            case MessageType_1.MessageType.World:
                 this.OnMessage(message);
                 this.SendReceived(message);
                 break;
@@ -81645,7 +81683,7 @@ var MessageHandler = /** @class */ (function () {
                 this.ParseReceived(message);
                 break;
         }
-        Logger_1.Logger.Info(this, "Message was received", message);
+        Logger_1.Logger.Debug(this, "Message was received", message);
     };
     /**
      * Parse incoming ACK.
@@ -81696,7 +81734,7 @@ var MessageHandler = /** @class */ (function () {
                         }
                         // Send Message
                         _this.channel.SendMessage(JSON.stringify(message));
-                        Logger_1.Logger.Info(_this, "Message was sent", message);
+                        Logger_1.Logger.Debug(_this, "Message was sent", message);
                     })];
             });
         });
@@ -81721,7 +81759,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var MessageType;
 (function (MessageType) {
     // OUT
-    MessageType["Size"] = "Size";
+    MessageType["World"] = "World";
     MessageType["Unit"] = "Unit";
     MessageType["Diff"] = "Diff";
     MessageType["Player"] = "Player";
@@ -81849,23 +81887,25 @@ var Server = /** @class */ (function () {
      * with a Client object through an IChannel implementation.
      * @param host
      */
+    // TODO: Refactor this to use RoboPack
     Server.prototype.Add = function (host) {
         return __awaiter(this, void 0, void 0, function () {
-            var playerTag, basePlayer, actors, _loop_1, this_1, _i, _a, spawn, state_1, _b, _c, cell, _d, _e, actor;
+            var playerTag, basePlayer, actors, player, _loop_1, this_1, _i, _a, spawn, state_1;
             var _this = this;
-            return __generator(this, function (_f) {
-                switch (_f.label) {
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
                         // Create player and add it to the world
                         World_1.World.Current = this.world;
                         playerTag = Tools_1.Tools.Unique();
                         basePlayer = this.world.GetBasePlayer();
+                        actors = [];
                         _loop_1 = function (spawn) {
                             actors = this_1.world.GetActors().GetArray().filter(function (u) { return u.GetBody().Collide(spawn); });
                             if (actors.length) {
                                 return "continue";
                             }
-                            var player = basePlayer.Clone();
+                            player = basePlayer.Clone();
                             player.GetBody().Init({
                                 z: spawn.GetZ(),
                                 position: spawn.GetPosition()
@@ -81875,6 +81915,7 @@ var Server = /** @class */ (function () {
                                 parent: playerTag,
                                 ignore: false // IMPORTANT, to set this to ignore
                             });
+                            this_1.world.Add(player);
                             return "break";
                         };
                         this_1 = this;
@@ -81887,45 +81928,19 @@ var Server = /** @class */ (function () {
                         if (actors.length) {
                             throw new Error("Not enough space for new player!");
                         }
-                        this.world.GetActors().Set(basePlayer);
+                        this.world.GetActors().Set(player);
                         // Set size
-                        return [4 /*yield*/, host.SendSize(this.world.GetSize())];
+                        return [4 /*yield*/, host.SendWorld(Exportable_1.Exportable.Export(this.world))];
                     case 1:
                         // Set size
-                        _f.sent();
-                        _b = 0, _c = this.world.GetCells().GetArray();
-                        _f.label = 2;
-                    case 2:
-                        if (!(_b < _c.length)) return [3 /*break*/, 5];
-                        cell = _c[_b];
-                        return [4 /*yield*/, host.SendUnit(cell)];
-                    case 3:
-                        _f.sent();
-                        _f.label = 4;
-                    case 4:
-                        _b++;
-                        return [3 /*break*/, 2];
-                    case 5:
-                        _d = 0, _e = this.world.GetActors().GetArray();
-                        _f.label = 6;
-                    case 6:
-                        if (!(_d < _e.length)) return [3 /*break*/, 9];
-                        actor = _e[_d];
-                        return [4 /*yield*/, host.SendUnit(actor)];
-                    case 7:
-                        _f.sent();
-                        _f.label = 8;
-                    case 8:
-                        _d++;
-                        return [3 /*break*/, 6];
-                    case 9:
+                        _b.sent();
                         // Subscribe to the OnCommand callback
                         host.OnCommand = function (command) { return _this.OnCommand(host, command); };
                         // Set player
-                        return [4 /*yield*/, host.SendPlayer(basePlayer)];
-                    case 10:
+                        return [4 /*yield*/, host.SendPlayer(player)];
+                    case 2:
                         // Set player
-                        _f.sent();
+                        _b.sent();
                         // Add host to the internal host list
                         this.hosts.push(host);
                         return [2 /*return*/];
@@ -81994,9 +82009,6 @@ var Body = /** @class */ (function (_super) {
     function Body() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         _this.shapes = [];
-        _this.scale = new Vector_1.Vector(1, 1);
-        _this.rotation = 0;
-        _this.position = new Vector_1.Vector(0, 0);
         _this.gravity = new Vector_1.Vector(0, 0); // Gravity
         _this.force = new Vector_1.Vector(0, 0); // Force
         _this.v = new Vector_1.Vector(0, 0); // Velocity
@@ -82034,7 +82046,7 @@ var Body = /** @class */ (function (_super) {
         if (args === void 0) { args = {}; }
         _super.prototype.InitPost.call(this, args);
         this.ComputeMass();
-        this.ForceSetVirtual(args.scale || this.scale, args.rotation || this.rotation, args.position || this.position);
+        this.ForceSetVirtual(args.scale === undefined ? this.scale : args.scale, args.rotation === undefined ? this.rotation : args.rotation, args.position === undefined ? this.position : args.position);
     };
     /**
      * Get the radius of the unit.
@@ -82144,20 +82156,23 @@ var Body = /** @class */ (function (_super) {
         if (typeof rotation === "number" && !Number.isFinite(rotation)) {
             throw new Error("Rotation is not finite!");
         }
+        var s = scale || this.scale;
+        var r = typeof rotation == "number" ? rotation : this.rotation;
+        var p = position || this.position;
         // Validate if the underlaying "world" allows the move
-        if (this.Validate && !this.Validate(scale || this.scale, typeof rotation == "number" ? rotation : this.rotation, position || this.position)) {
+        if (this.Validate && !this.Validate(s, r, p)) {
             return;
         }
-        scale && (this.scale = scale);
-        rotation && (this.rotation = rotation);
-        position && (this.position = position);
+        this.scale = s;
+        this.rotation = r;
+        this.position = p;
         this.shapes.forEach(function (s) { return s.SetVirtual(scale, rotation, position); });
     };
     Body.prototype.SetVirtual = function (scale, rotation, position) {
-        // Do not set, if it is the same
-        if ((!scale || scale.Is(this.scale)) &&
+        // Do not set, if there is no change
+        if ((!scale || (this.scale && scale.Is(this.scale))) &&
             (typeof rotation !== "number" || this.rotation === rotation) &&
-            (!position || position.Is(position))) {
+            (!position || (this.position && position.Is(this.position)))) {
             return;
         }
         this.ForceSetVirtual(scale, rotation, position);
@@ -82345,8 +82360,7 @@ var Body = /** @class */ (function (_super) {
     Body.CreateBox = function (scale, rotation, position, args) {
         if (args === void 0) { args = {}; }
         var body = new Body();
-        body.Init(__assign(__assign({}, args), { shapes: [Polygon_1.Polygon.CreateBox(1)] }));
-        body.SetVirtual(scale, rotation, position);
+        body.Init(__assign({ scale: scale, rotation: rotation, position: position, shapes: [Polygon_1.Polygon.CreateBox(1)] }, args));
         return body;
     };
     __decorate([
@@ -83839,7 +83853,7 @@ var UnitList = /** @class */ (function () {
         var old = this.Get(unit.GetId());
         if (old) {
             Tools_1.Tools.Extract(old, unit);
-            Logger_1.Logger.Info(this, "Unit was moded!", unit);
+            Logger_1.Logger.Debug(this, "Unit was moded!", unit);
         }
         else {
             this.units.push(unit);
@@ -84105,15 +84119,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Event_1 = __webpack_require__(/*! ./Event */ "./src/lib/Util/Event.ts");
 var LogType;
 (function (LogType) {
-    LogType[LogType["Warn"] = 1] = "Warn";
-    LogType[LogType["Info"] = 2] = "Info";
+    LogType[LogType["Debug"] = 0] = "Debug";
+    LogType[LogType["Info"] = 1] = "Info";
+    LogType[LogType["Warn"] = 2] = "Warn";
 })(LogType = exports.LogType || (exports.LogType = {}));
 function StringLogType(type) {
     switch (type) {
-        case LogType.Warn:
-            return "WARN";
+        case LogType.Debug:
+            return "DEBUG";
         case LogType.Info:
             return "INFO";
+        case LogType.Warn:
+            return "WARN";
+        default:
+            return "";
     }
 }
 var Logger = /** @class */ (function () {
@@ -84130,21 +84149,24 @@ var Logger = /** @class */ (function () {
         for (var _i = 2; _i < arguments.length; _i++) {
             args[_i - 2] = arguments[_i];
         }
-        if (typeof self == "string") {
-            return this.Log(null, type, self, args);
+        if (typeof self != "object") {
+            return this.Log.apply(this, __spreadArrays([null, type, self], args));
         }
         var name = self ? self.constructor.name : "";
-        if (this.Type >= type && (!this.Filter || this.Filter === name)) {
-            var title = (type && StringLogType(type)) + " " + (name && "[" + name + "] ");
+        if (this.Level <= type && (!this.Filter || this.Filter === name)) {
+            var typeName = StringLogType(type);
+            var title = "" + (typeName ? typeName + " " : "") + (name && "[" + name + "] ");
             console.log.apply(console, __spreadArrays([title], args));
-            Logger.OnLog.Call(title + " " + JSON.stringify(args));
+            this.OnLog.Call(__spreadArrays([title], args).map(function (e) { return e.toString(); }).join(" "));
         }
     };
-    /**
-     * Log an info message.
-     * @param self
-     * @param args
-     */
+    Logger.Debug = function (self) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+        this.Log.apply(this, __spreadArrays([self, LogType.Debug], args));
+    };
     Logger.Info = function (self) {
         var args = [];
         for (var _i = 1; _i < arguments.length; _i++) {
@@ -84152,11 +84174,6 @@ var Logger = /** @class */ (function () {
         }
         this.Log.apply(this, __spreadArrays([self, LogType.Info], args));
     };
-    /**
-     * Log an warn message.
-     * @param self
-     * @param args
-     */
     Logger.Warn = function (self) {
         var args = [];
         for (var _i = 1; _i < arguments.length; _i++) {
@@ -84164,7 +84181,7 @@ var Logger = /** @class */ (function () {
         }
         this.Log.apply(this, __spreadArrays([self, LogType.Warn], args));
     };
-    Logger.Type = LogType.Warn;
+    Logger.Level = LogType.Warn;
     Logger.Filter = null;
     Logger.OnLog = new Event_1.Event();
     return Logger;
@@ -84429,6 +84446,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Tools_1 = __webpack_require__(/*! ./Tools */ "./src/lib/Util/Tools.ts");
+var Logger_1 = __webpack_require__(/*! ./Logger */ "./src/lib/Util/Logger.ts");
 exports.FILE_EXT = "roboland";
 /**
  * A loaded resource. Buffer still needs to parsed into string or bitmap.
@@ -84547,6 +84565,7 @@ var RoboPack = /** @class */ (function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
+                        Logger_1.Logger.Info("Unpacking RoboPack");
                         uncompressed = Tools_1.Tools.ZLibInflate(buffer);
                         view = new Uint8Array(uncompressed);
                         endOfMeta = 0;
@@ -84579,6 +84598,7 @@ var RoboPack = /** @class */ (function () {
                     case 2:
                         _b.sent();
                         result.push(resource);
+                        Logger_1.Logger.Info("Loaded resource", item.Uri);
                         current += length_1;
                         _b.label = 3;
                     case 3:
@@ -85215,6 +85235,13 @@ var Tools = /** @class */ (function () {
         }
         return merged.buffer;
     };
+    Tools.RunAsync = function (callback) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve) { return setTimeout(function () { return resolve(callback()); }, 0); })];
+            });
+        });
+    };
     return Tools;
 }());
 exports.Tools = Tools;
@@ -85265,6 +85292,7 @@ var Body_1 = __webpack_require__(/*! ./Physics/Body */ "./src/lib/Physics/Body.t
 var NormalCell_1 = __webpack_require__(/*! ./Unit/Cell/NormalCell */ "./src/lib/Unit/Cell/NormalCell.ts");
 var Polygon_1 = __webpack_require__(/*! ./Geometry/Polygon */ "./src/lib/Geometry/Polygon.ts");
 var PlayerActor_1 = __webpack_require__(/*! ./Unit/Actor/PlayerActor */ "./src/lib/Unit/Actor/PlayerActor.ts");
+var Logger_1 = __webpack_require__(/*! ./Util/Logger */ "./src/lib/Util/Logger.ts");
 var COLLISION_ITERATIONS = 10;
 var SHADOW_DOT_PER_POINT = 10;
 var SHADOW_STEP = 1 / 4;
@@ -85301,12 +85329,16 @@ var World = /** @class */ (function (_super) {
         this.size = args.size;
         this.cells = [];
         this.actors = [];
+        this.basePlayer = args.basePlayer;
     };
     World.prototype.InitPost = function (args) {
         var _this = this;
         _super.prototype.InitPost.call(this, args);
-        // Generate a shadow map without tracing
-        this.GenerateShadowMap();
+        // Use generated shadow map if available
+        if (!this.shadowMap) {
+            // Or generate a new static shadow map
+            this.GenerateShadowMap();
+        }
         this.OnTick.Add(function (dt) { return _this.Step(dt); });
     };
     World.prototype.Add = function (unit) {
@@ -85381,14 +85413,8 @@ var World = /** @class */ (function (_super) {
      * @inheritDoc
      */
     World.prototype.Import = function (input) {
-        var _this = this;
         World.Current = this;
-        this.OnTick.Add(function (dt) { return _this.Step(dt); });
         _super.prototype.Import.call(this, input);
-        // Use generated shadow map if available
-        if (!this.shadowMap) {
-            this.GenerateShadowMap();
-        }
     };
     /**
      * @inheritDoc
@@ -85408,7 +85434,9 @@ var World = /** @class */ (function (_super) {
         var w = dpp * size.X;
         var h = dpp * size.Y;
         this.shadowMap = new Array(w * h).fill(1);
+        Logger_1.Logger.Info(this, "Generating shadow map");
         this.GetCells().GetArray().forEach(function (unit) { return _this.GenerateShadow(unit); });
+        Logger_1.Logger.Info(this, "Shadow map complete");
     };
     /**
      * Generate shadow for a unit by tracing light.
@@ -85503,6 +85531,10 @@ var World = /** @class */ (function (_super) {
         }
         return world;
     };
+    /**
+     * Execution starts here.
+     */
+    World.DEFAULT_WORLD_URI = "world.json";
     World.Current = null;
     __decorate([
         Exportable_1.Exportable.Register(Exportable_1.ExportType.NetDisk),

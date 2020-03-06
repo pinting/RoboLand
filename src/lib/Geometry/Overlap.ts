@@ -2,6 +2,7 @@ import { Polygon } from "./Polygon";
 import { Vector } from "./Vector";
 import { IContact } from "./IContact";
 import { BaseShape } from "./BaseShape";
+import { Logger } from "../Util/Logger";
 
 /**
  * Based on ImpulseEngine by Randy Gaul
@@ -179,11 +180,19 @@ export class Overlap
 
     public static Test(a: BaseShape, b: BaseShape): IContact
     {
+        let contact: IContact;
+
         if(a instanceof Polygon && b instanceof Polygon)
         {
-            return Overlap.PolygonPolygon(a, b);
+            contact = Overlap.PolygonPolygon(a, b);
+        }
+        else
+        {
+            throw new Error("Overlap type is not implemented!");
         }
 
-        throw new Error("Overlap type is not implemented!");
+        Logger.Debug(this, "Testing if A and B overlap", a, b, contact);
+
+        return contact;
     }
 }

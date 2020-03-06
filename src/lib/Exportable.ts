@@ -156,21 +156,29 @@ export abstract class Exportable
         // Export each unit of an array
         if(object instanceof Array)
         {
-            return {
+            const dump = {
                 Name: name,
                 Class: object.constructor.name,
                 Payload: object.map((e, i) => Exportable.Export(e, i.toString(), access))
             };
+
+            Logger.Debug("Exported array", object, dump);
+
+            return dump;
         }
 
         // Export exportable
         if(object instanceof Exportable)
         {
-            return {
+            const dump = {
                 Name: name,
                 Class: object.constructor.name,
                 Payload: object.Export(access)
             };
+
+            Logger.Debug("Exported object", object, dump);
+
+            return dump;
         }
 
         // Export native types (string, number or boolean)
@@ -183,11 +191,15 @@ export abstract class Exportable
                 payload = object.toString();
             }
 
-            return {
+            const dump = {
                 Name: name,
                 Class: typeof object,
                 Payload: payload
             };
+
+            Logger.Debug("Exported native type", object, dump);
+
+            return dump;
         }
 
         return null;
@@ -199,6 +211,8 @@ export abstract class Exportable
      */
     public Import(dumps: Dump[]): void
     {
+        Logger.Debug(this, "Importing properties", dumps);
+
         this.InitPre();
 
         for (let dump of dumps)
@@ -208,7 +222,7 @@ export abstract class Exportable
             // Only allow importing registered props
             if(!desc)
             {
-                Logger.Warn("Unregistered property (or no name) in Dump", dump.Name);
+                Logger.Warn(this, "Unregistered property (or no name) in Dump", dump.Name);
                 continue;
             }
 
@@ -217,6 +231,7 @@ export abstract class Exportable
             // If undefined skip importing it
             if(imported === undefined)
             {
+                Logger.Warn(this, "Skipping import on undefined", dump);
                 continue;
             }
 
@@ -243,25 +258,35 @@ export abstract class Exportable
         // Import array
         if(dump.Class == "Array")
         {
-            return dump.Payload.map(e => Exportable.Import(e));
+            const result = dump.Payload.map(e => Exportable.Import(e));
+
+            Logger.Debug("Array imported", dump, result);
+
+            return result;
         }
         
         // Import native types
         if(["string", "number", "boolean"].includes(dump.Class))
         {
+            let result = dump.Payload;
+
             if(dump.Class === "number")
             {
-                return parseFloat(dump.Payload);
+                result = parseFloat(dump.Payload);
             }
 
-            return dump.Payload;
+            Logger.Debug("Native type imported", dump, result);
+
+            return result;
         }
 
         // Import Exportable types
-        const instance = Exportable.FromName(dump.Class, ...(dump.Args || []));
+        const result = Exportable.FromName(dump.Class, ...(dump.Args || []));
 
-        instance && instance.Import(dump.Payload);
+        result && result.Import(dump.Payload);
 
-        return instance;
+        Logger.Debug("Object imported", dump, result);
+
+        return result;
     }
 }

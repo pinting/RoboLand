@@ -58,7 +58,7 @@ export class TestRunner extends React.PureComponent<ViewProps, ViewState>
         });
 
         // Run tests
-        Logger.Type = LogType.Info;
+        Logger.Level = LogType.Info;
 
         try
         {

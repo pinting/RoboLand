@@ -1,7 +1,7 @@
 export enum MessageType
 {
     // OUT
-    Size = "Size",
+    World = "World",
     Unit = "Unit",
     Diff = "Diff",
     Player = "Player",

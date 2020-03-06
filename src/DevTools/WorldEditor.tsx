@@ -31,7 +31,6 @@ interface ViewState
     loaded: string[];
 }
 
-const GENERATE_MAX_LENGTH = 256;
 const DRAG_WAIT = 300;
 const MIN_SIZE = 8;
 
@@ -282,7 +281,7 @@ export class WorldEditor extends React.PureComponent<ViewProps, ViewState>
     
     private async init(): Promise<void>
     {
-        const rootResource = ResourceManager.ByUri(Shared.DEFAULT_WORLD_URI);
+        const rootResource = ResourceManager.ByUri(World.DEFAULT_WORLD_URI);
 
         if(rootResource)
         {

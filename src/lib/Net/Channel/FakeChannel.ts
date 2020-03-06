@@ -31,7 +31,7 @@ export class FakeChannel implements IChannel
 
     public Close()
     {
-        Logger.Info("Channel was closed!");
+        Logger.Info(this, "Channel was closed!");
     }
 
     public OnMessage: (message: string) => void = Tools.Noop;

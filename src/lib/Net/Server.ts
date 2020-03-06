@@ -91,6 +91,7 @@ export class Server
      * with a Client object through an IChannel implementation.
      * @param host 
      */
+    // TODO: Refactor this to use RoboPack
     public async Add(host: Host)
     {
         // Create player and add it to the world
@@ -99,7 +100,8 @@ export class Server
         const playerTag = Tools.Unique();
         const basePlayer = this.world.GetBasePlayer();
 
-        let actors: BaseActor[];
+        let actors: BaseActor[] = [];
+        let player: PlayerActor;
 
         for(let spawn of this.spawns)
         {
@@ -110,7 +112,7 @@ export class Server
                 continue;
             }
 
-            const player = basePlayer.Clone() as PlayerActor;
+            player = basePlayer.Clone() as PlayerActor;
 
             player.GetBody().Init({
                 z: spawn.GetZ(),
@@ -123,6 +125,8 @@ export class Server
                 ignore: false // IMPORTANT, to set this to ignore
             });
 
+            this.world.Add(player);
+
             break;
         }
 
@@ -131,28 +135,16 @@ export class Server
             throw new Error("Not enough space for new player!");
         }
 
-        this.world.GetActors().Set(basePlayer);
+        this.world.GetActors().Set(player);
 
         // Set size
-        await host.SendSize(this.world.GetSize());
-
-        // Set cells
-        for(let cell of this.world.GetCells().GetArray())
-        {
-            await host.SendUnit(cell);
-        }
-
-        // Set actors
-        for(let actor of this.world.GetActors().GetArray())
-        {
-            await host.SendUnit(actor);
-        }
+        await host.SendWorld(Exportable.Export(this.world));
         
         // Subscribe to the OnCommand callback
         host.OnCommand = command => this.OnCommand(host, command);
         
         // Set player
-        await host.SendPlayer(basePlayer);
+        await host.SendPlayer(player);
 
         // Add host to the internal host list
         this.hosts.push(host);

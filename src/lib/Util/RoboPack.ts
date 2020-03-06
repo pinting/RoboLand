@@ -1,4 +1,5 @@
 import { Tools } from "./Tools";
+import { Logger } from "./Logger";
 
 export const FILE_EXT = "roboland";
 
@@ -144,6 +145,8 @@ export class RoboPack
 
     public static async Unpack(buffer: ArrayBuffer): Promise<Resource[]>
     {
+        Logger.Info("Unpacking RoboPack");
+
         const uncompressed = Tools.ZLibInflate(buffer);
         const view = new Uint8Array(uncompressed);
 
@@ -184,6 +187,8 @@ export class RoboPack
             await resource.Init(item.Uri, subBuffer);
 
             result.push(resource);
+
+            Logger.Info("Loaded resource", item.Uri);
 
             current += length;
         }

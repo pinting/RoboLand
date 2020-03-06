@@ -12,6 +12,7 @@ import { NormalCell } from "./Unit/Cell/NormalCell";
 import { Polygon } from "./Geometry/Polygon";
 import { PlayerActor } from "./Unit/Actor/PlayerActor";
 import { Dump } from "./Dump";
+import { Logger } from "./Util/Logger";
 
 const COLLISION_ITERATIONS = 10;
 const SHADOW_DOT_PER_POINT = 10;
@@ -21,10 +22,16 @@ const SHADOW_STEP_R = 2;
 export interface WorldArgs extends ExportableArgs
 {
     size?: Vector;
+    basePlayer?: PlayerActor;
 }
 
 export class World extends Exportable
 {
+    /**
+     * Execution starts here.
+     */
+    public static DEFAULT_WORLD_URI = "world.json";
+    
     public static Current: World = null;
 
     @Exportable.Register(ExportType.NetDisk)
@@ -69,14 +76,19 @@ export class World extends Exportable
         this.size = args.size;
         this.cells = [];
         this.actors = [];
+        this.basePlayer = args.basePlayer;
     }
 
     public InitPost(args: WorldArgs): void
     {
         super.InitPost(args);
 
-        // Generate a shadow map without tracing
-        this.GenerateShadowMap();
+        // Use generated shadow map if available
+        if(!this.shadowMap)
+        {
+            // Or generate a new static shadow map
+            this.GenerateShadowMap();
+        }
 
         this.OnTick.Add(dt => this.Step(dt));
     }
@@ -185,16 +197,8 @@ export class World extends Exportable
     public Import(input: Dump[]): void
     {
         World.Current = this;
-
-        this.OnTick.Add(dt => this.Step(dt));
         
         super.Import(input);
-
-        // Use generated shadow map if available
-        if(!this.shadowMap)
-        {
-            this.GenerateShadowMap();
-        }
     }
 
     /**
@@ -221,7 +225,11 @@ export class World extends Exportable
 
         this.shadowMap = new Array(w * h).fill(1);
 
+        Logger.Info(this, "Generating shadow map");
+
         this.GetCells().GetArray().forEach(unit => this.GenerateShadow(unit));
+
+        Logger.Info(this, "Shadow map complete");
     }
 
     /**

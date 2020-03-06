@@ -40,7 +40,6 @@ export class TwoPlayerDebug extends React.PureComponent<ViewProps, ViewState>
      */
     protected async init()
     {
-        Logger.Type = LogType.Warn;
         Keyboard.Init();
         
         const delay = 1;
@@ -77,22 +76,37 @@ export class TwoPlayerDebug extends React.PureComponent<ViewProps, ViewState>
         const receiverA = new Client(channelA1, worldA)
         const receiverB = new Client(channelB1, worldB);
 
-        const rootResource = ResourceManager.ByUri(Shared.DEFAULT_WORLD_URI);
-        let world: World;
+        // Load the world
+        const uri = World.DEFAULT_WORLD_URI;
+
+        Logger.Info("Loading root resource", uri);
+
+        const rootResource = ResourceManager.ByUri(uri);
 
         if(!rootResource)
         {
-            Logger.Warn("Default root resource is not available", Shared.DEFAULT_WORLD_URI);
+            Logger.Warn("Default root resource is not available", uri);
             return;
         }
-        
-        const raw = Tools.ANSIToUTF16(rootResource.Buffer);
-        const rootDump = JSON.parse(raw) as Dump;
-        const dump = Dump.Resolve(rootDump);
 
-        world = Exportable.Import(dump);
+        Logger.Info("Parsing JSON", rootResource);
+
+        const rootDump = await Tools.RunAsync<Dump>(() => 
+            JSON.parse(Tools.ANSIToUTF16(rootResource.Buffer)));
+
+        Logger.Info("Resolving Dump", rootDump);
+
+        const dump = await Tools.RunAsync<Dump>(() => Dump.Resolve(rootDump));
+
+        Logger.Info("Importing world", dump);
+
+        const world = await Tools.RunAsync<World>(() => Exportable.Import(dump));
+
+        Logger.Info("Setting up server", world);
 
         const server = new Server(world);
+
+        Logger.Info("Adding hosts to the server", server);
         
         server.Add(new Host(channelA2, server));
         server.Add(new Host(channelB2, server));
@@ -118,6 +132,9 @@ export class TwoPlayerDebug extends React.PureComponent<ViewProps, ViewState>
                 this.rendererB.SetCenter(player.GetBody().GetPosition());
             });
 
+
+            Logger.Info("Player A loaded", worldA);
+
             this.rendererA.Start();
         };
         
@@ -142,6 +159,8 @@ export class TwoPlayerDebug extends React.PureComponent<ViewProps, ViewState>
                 this.rendererA.SetCenter(player.GetBody().GetPosition());
             });
 
+            Logger.Info("Player B loaded", worldB);
+
             this.rendererB.Start();
         };
     
@@ -159,6 +178,8 @@ export class TwoPlayerDebug extends React.PureComponent<ViewProps, ViewState>
         await rendererS.Load();
     
         rendererS.Start();
+
+        Logger.Info("Server loaded", server, world, rendererS);
 
         // For debug
         Tools.Extract(window, {

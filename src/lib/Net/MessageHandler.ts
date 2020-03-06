@@ -55,7 +55,7 @@ export abstract class MessageHandler
             case MessageType.Command:
             case MessageType.Player:
             case MessageType.Kick:
-            case MessageType.Size:
+            case MessageType.World:
                 this.OnMessage(message);
                 this.SendReceived(message);
                 break;
@@ -64,7 +64,7 @@ export abstract class MessageHandler
                 break;
         }
 
-        Logger.Info(this, "Message was received", message);
+        Logger.Debug(this, "Message was received", message);
     }
 
     /**
@@ -126,7 +126,7 @@ export abstract class MessageHandler
            // Send Message
            this.channel.SendMessage(JSON.stringify(message));
 
-           Logger.Info(this, "Message was sent", message);
+           Logger.Debug(this, "Message was sent", message);
        });
    }
 

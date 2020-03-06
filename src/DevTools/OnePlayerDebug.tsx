@@ -13,6 +13,9 @@ import { Exportable } from "../lib/Exportable";
 import { Keyboard } from "../lib/Util/Keyboard";
 import { Renderer } from "../lib/Renderer";
 import { Dump } from "../lib/Dump";
+import { ArrowActor } from "../lib/Unit/Actor/ArrowActor";
+import { Body } from "../lib/Physics/Body";
+import { NormalCell } from "../lib/Unit/Cell/NormalCell";
 
 interface ViewProps
 {
@@ -32,26 +35,37 @@ export class OnePlayerDebug extends React.PureComponent<ViewProps, ViewState>
     
     private async init(): Promise<void>
     {
-        Logger.Type = LogType.Warn;
         Keyboard.Init();
 
-        // Load or create the world
-        const rootResource = ResourceManager.ByUri(Shared.DEFAULT_WORLD_URI);
-        let world: World;
+        // Load the world
+        const uri = World.DEFAULT_WORLD_URI;
+
+        Logger.Info("Loading root resource", uri);
+
+        const rootResource = ResourceManager.ByUri(uri);
 
         if(!rootResource)
         {
-            Logger.Warn("Default root resource is not available", Shared.DEFAULT_WORLD_URI);
+            Logger.Warn("Default root resource is not available", uri);
             return;
         }
 
-        const raw = Tools.ANSIToUTF16(rootResource.Buffer);
-        const rootDump = JSON.parse(raw) as Dump;
-        const dump = Dump.Resolve(rootDump);
+        Logger.Info("Parsing JSON", rootResource);
 
-        world = Exportable.Import(dump);
+        const rootDump = await Tools.RunAsync<Dump>(() => 
+            JSON.parse(Tools.ANSIToUTF16(rootResource.Buffer)));
 
+        Logger.Info("Resolving Dump", rootDump);
+
+        const dump = await Tools.RunAsync<Dump>(() => Dump.Resolve(rootDump));
+
+        Logger.Info("Importing world", dump);
+
+        const world = await Tools.RunAsync<World>(() => Exportable.Import(dump));
+        
         // Add player
+        Logger.Info("Adding player to the world", world);
+
         const player = world.GetBasePlayer().Clone() as PlayerActor;
 
         player.Init({
@@ -59,8 +73,10 @@ export class OnePlayerDebug extends React.PureComponent<ViewProps, ViewState>
         });
 
         world.Add(player);
+
+        // Attach a renderer to the world
+        Logger.Info("Adding and loading renderer", world);
     
-        // Render the server
         this.renderer = new Renderer({
             canvas: this.canvas,
             world: world, 
@@ -85,6 +101,8 @@ export class OnePlayerDebug extends React.PureComponent<ViewProps, ViewState>
             Shared.SetupControl(player, keys);
             this.renderer.SetCenter(player.GetBody().GetPosition());
         });
+
+        Logger.Info("Start rendering", this.renderer);
 
         this.renderer.Start();
 

@@ -10,6 +10,7 @@ import { Logger } from "../Util/Logger";
 import { Unit } from "../Unit/Unit";
 import { Host } from "./Host";
 import { Dump } from "../Dump";
+import { Vector } from "../Geometry/Vector";
 
 const MAX_POS_DIFF = 0.5;
 const MAX_ROT_DIFF = Math.PI / 4;
@@ -42,7 +43,7 @@ export class Client extends MessageHandler
      */
     protected OnMessage(message: IMessage): void
     {
-        Logger.Info(this, "Message was received", message);
+        Logger.Debug(this, "Message was received", message);
 
         World.Current = this.world;
 
@@ -57,8 +58,8 @@ export class Client extends MessageHandler
             case MessageType.Player:
                 this.ReceivePlayer(message.Payload);
                 break;
-            case MessageType.Size:
-                this.ReceiveSize(message.Payload);
+            case MessageType.World:
+                this.ReceivePack(message.Payload);
                 break;
             case MessageType.Command:
                 this.ReceiveCommand(message.Payload);
@@ -97,7 +98,7 @@ export class Client extends MessageHandler
      */
     private async ReceiveDiff(diff: Dump): Promise<void>
     {
-        Logger.Info(this, "Diff was received!", diff);
+        Logger.Debug(this, "Diff was received!", diff);
 
         // Hack out ID from the dump
         const id = diff && diff.Payload && diff.Payload.length && 
@@ -149,7 +150,7 @@ export class Client extends MessageHandler
 
             if(posDiff < MAX_POS_DIFF && rotDiff < MAX_ROT_DIFF)
             {
-                Logger.Info(this, "Unit was optimized out", newUnit);
+                Logger.Debug(this, "Unit was optimized out", newUnit);
                 return;
             }
         }
@@ -182,9 +183,9 @@ export class Client extends MessageHandler
      * Receive the size of the world.
      * @param size 
      */
-    private ReceiveSize(dump: Dump): void
+    private ReceivePack(dump: Dump): void
     {
-        this.world.Init(Exportable.Import(dump));
+        Tools.Extract(this.world, Exportable.Import(dump));
     }
 
     /**

@@ -15,11 +15,6 @@ import { Matrix } from "../lib/Geometry/Matrix";
 export class Shared
 {
     /**
-     * Execution starts here.
-     */
-    public static DEFAULT_WORLD_URI = "world.json";
-
-    /**
      * Import the inner modules of the engine.
      */
     public static RegisterDependencies()
