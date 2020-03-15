@@ -14,6 +14,7 @@ import { Body } from "../Physics/Body";
 
 export class Client extends MessageHandler
 {
+    private static DisableOptimization = false;
     private static PlayerSyncedFunctions = [
         "Damage",
         "Shoot",
@@ -135,16 +136,18 @@ export class Client extends MessageHandler
 
         Dump.Merge(oldDump, diff);
 
-        let newUnit = Exportable.Import(oldDump) as Unit;
-
-        const newBody = newUnit.GetBody();
-        const oldBody = oldUnit.GetBody();
-
-        // If only a positional difference which is under a limit, skip updating
-        if(Dump.TestDump(diff, ["id", "body"]) && Body.Equal(newBody, oldBody))
+        if(!Client.DisableOptimization && Dump.TestDump(diff, ["id", "body"]))
         {
-            Logger.Debug(this, "Unit was optimized out", newUnit);
-            return;
+            const newUnit = Exportable.Import(oldDump) as Unit;
+            const newBody = newUnit.GetBody();
+            const oldBody = oldUnit.GetBody();
+    
+            // If only a positional difference is present which is under a limit, skip updating
+            if(Body.Equal(newBody, oldBody))
+            {
+                Logger.Debug(this, "Unit was optimized out", newUnit);
+                return;
+            }
         }
 
         return this.ReceiveUnit(oldDump);

@@ -1,7 +1,7 @@
 import * as React from "react";
 import Cristal from "react-cristal";
 
-import { Logger, LogType } from "../lib/Util/Logger";
+import { Logger } from "../lib/Util/Logger";
 import { Shared } from "../Game/Shared";
 import { Renderer } from "../lib/Renderer";
 import { World } from "../lib/World";

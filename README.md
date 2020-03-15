@@ -26,7 +26,6 @@ RoboPack packages can be packed and unpacked with a command line utility. Run `n
 
 ## TODOs
 
-- IMPORTANT! Fix physical glitch which causes two overlaying shapes to not collide. This breaks the game.
 - WebGL based renderer.
 - Importing and exporting Dump hiearchies into the engine should not break the structure. Save relations to export them the same way. Also World Editor should have a feature to create new Units based on Dumps. Currently only brand new Units can be created only.
 - Image view for the resource explorer.
@@ -41,6 +40,7 @@ RoboPack packages can be packed and unpacked with a command line utility. Run `n
 - Move each instance of the game into different workers. (Renderer needs to be redirected. A new communication layer is needed under FakeChannel and IndirectRenderer. Can be called WorkerBridge.)
 - Sound manager. Action scripts could play sounds from Resources, the volume would depent on the distance from the creator of the sound.
 - Animations. The change of the texture could be handled by the Unit itself, so the Renderer can stay the same.
+- Fix physical glitch which causes two overlaying shapes to not collide.
 
 ## Credits
 
@@ -56,4 +56,4 @@ Anyone can help make this project better.
 
 ## License
 
-Copyright (c) 2020 Dénes Tornyi. Licensed under the Apache License license.
+Copyright (c) 2020 Dénes Tornyi. Licensed under the Apache license.

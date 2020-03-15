@@ -9,6 +9,7 @@ import { MessageHandler } from "./MessageHandler";
 import { Server } from "./Server";
 import { Logger } from "../Util/Logger";
 import { Dump } from "../Dump";
+import { Body } from "../Physics/Body";
 
 interface ILastItem
 {
@@ -18,6 +19,7 @@ interface ILastItem
 
 export class Host extends MessageHandler
 {
+    private static DisableOptimization = false;
     private static SleepTime = 1000;
 
     private server: Server;
@@ -61,10 +63,6 @@ export class Host extends MessageHandler
         }
     }
 
-    /**
-     * Send world. Also deletes previously setted units.
-     * @param dumb 
-     */
     public async SendWorld(dumb: Dump): Promise<void>
     {
         const charArray = Tools.UTF16ToANSI(JSON.stringify(dumb));
@@ -78,10 +76,6 @@ export class Host extends MessageHandler
         return this.SendMessage(MessageType.Resources, buffer);
     }
 
-    /**
-     * Set an unit (a cell or an actor).
-     * @param unit 
-     */
     public async SendUnit(unit: Unit): Promise<void>
     {
         const dump = Exportable.Export(unit);
@@ -90,7 +84,7 @@ export class Host extends MessageHandler
         
         let diff: Dump = null;
 
-        if(this.last.hasOwnProperty(id))
+        if(!Host.DisableOptimization && this.last.hasOwnProperty(id))
         {
             const lastItem = this.last[id];
 
@@ -98,8 +92,17 @@ export class Host extends MessageHandler
 
             if(lastItem.Timestamp + Host.SleepTime >= now && Dump.TestDump(diff, ["body"]))
             {
-                Logger.Debug(this, "Unit was optimized out", unit);
-                return;
+                const newUnit = Exportable.Import(dump) as Unit;
+                const oldUnit = Exportable.Import(lastItem.Dump) as Unit;
+                const newBody = newUnit.GetBody();
+                const oldBody = oldUnit.GetBody();
+        
+                // If only a positional difference is present which is under a limit, skip updating
+                if(Body.Equal(newBody, oldBody))
+                {
+                    Logger.Debug(this, "Unit was optimized out", newUnit);
+                    return;
+                }
             }
         }
 
@@ -124,8 +127,8 @@ export class Host extends MessageHandler
     }
 
     /**
-     * Set the active player actor for the client (the actor needs to be 
-     * already sent via SetUnit).
+     * Set the active player actor for the client.
+     * The player must be already present on the other side.
      * @param player 
      */
     public async SendPlayer(player: PlayerActor): Promise<void>
@@ -140,10 +143,6 @@ export class Host extends MessageHandler
         return this.SendMessage(MessageType.Player, player.GetId());
     }
 
-    /**
-     * Send a player's command to a other player.
-     * @param command 
-     */
     public async SendCommand(command: any[]): Promise<void>
     {
         return this.SendMessage(MessageType.Command, Exportable.Export(command));
@@ -170,7 +169,7 @@ export class Host extends MessageHandler
     }
 
     /**
-     * Executed when the Connection receives a COMMAND from the client.
+     * Executed when the host receives a COMMAND from the client.
      * @param command
      */
     public OnCommand: (command: Dump) => void = Tools.Noop;
