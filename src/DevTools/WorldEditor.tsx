@@ -31,11 +31,11 @@ interface IViewState
     loaded: string[];
 }
 
-const DRAG_WAIT = 300;
-const MIN_SIZE = 8;
-
 export class WorldEditor extends React.PureComponent<IViewProps, IViewState>
 {
+    private static DragWait = 300;
+    private static MinSize = 8;
+
     private canvas: HTMLCanvasElement;
     private renderer: Renderer;
 
@@ -45,7 +45,7 @@ export class WorldEditor extends React.PureComponent<IViewProps, IViewState>
     private world: World;
 
     private input = {
-        newWorldSize: new Vector(MIN_SIZE, MIN_SIZE),
+        newWorldSize: new Vector(WorldEditor.MinSize, WorldEditor.MinSize),
         newElementVector: new Vector,
         newElementName: null,
         selectedUnit: null
@@ -265,7 +265,7 @@ export class WorldEditor extends React.PureComponent<IViewProps, IViewState>
     {
         this.mouseDown = true;
 
-        await Tools.Wait(DRAG_WAIT);
+        await Tools.Wait(WorldEditor.DragWait);
 
         if(this.mouseDown)
         {
@@ -336,13 +336,13 @@ export class WorldEditor extends React.PureComponent<IViewProps, IViewState>
                                 type="number" 
                                 placeholder="Width" 
                                 style={{ margin: "10% 0 0 0" }}
-                                min={MIN_SIZE}
-                                defaultValue={MIN_SIZE.toString()}
+                                min={WorldEditor.MinSize}
+                                defaultValue={WorldEditor.MinSize.toString()}
                                 onChange={e => this.input.newWorldSize.X = parseFloat(e.target.value)} />
                             <Bootstrap.Input 
                                 type="number" 
-                                min={MIN_SIZE}
-                                defaultValue={MIN_SIZE.toString()}
+                                min={WorldEditor.MinSize}
+                                defaultValue={WorldEditor.MinSize.toString()}
                                 placeholder="Height" 
                                 onChange={e => this.input.newWorldSize.Y = parseFloat(e.target.value)} />
                             <Bootstrap.Button

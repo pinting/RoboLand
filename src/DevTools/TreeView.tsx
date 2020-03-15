@@ -5,9 +5,6 @@ import { ChildView } from "./ChildView";
 import { Resource } from "../lib/Util/RoboPack";
 import { Dump } from "../lib/Dump";
 
-// The tree should never reach this
-const MAX_DEPTH = 100;
-
 interface IViewProps
 {
     dump: Dump;
@@ -24,6 +21,9 @@ interface IViewState
 
 export abstract class TreeView extends React.PureComponent<IViewProps, IViewState>
 {
+    // The tree should never reach this
+    private static MaxDepth = 100;
+
     constructor(props: IViewProps) 
     {
         super(props);
@@ -116,7 +116,7 @@ export abstract class TreeView extends React.PureComponent<IViewProps, IViewStat
     {
         const dump = this.props.dump;
 
-        if(!dump || (this.props.depth || 0) > MAX_DEPTH)
+        if(!dump || (this.props.depth || 0) > TreeView.MaxDepth)
         {
             return null;
         }
