@@ -8,7 +8,7 @@ import { Tools } from "../lib/Util/Tools";
 import { Resource } from "../lib/Util/RoboPack";
 import { Dump } from "../lib/Dump";
 
-interface ViewProps
+interface IViewProps
 {
     close: () => void;
     edit: (dump: Dump) => Promise<Dump>;
@@ -16,17 +16,17 @@ interface ViewProps
     current?: string;
 }
 
-interface ViewState
+interface IViewState
 {
     resources: Resource[];
 }
 
-export class ResourceBrowser extends React.PureComponent<ViewProps, ViewState>
+export class ResourceBrowser extends React.PureComponent<IViewProps, IViewState>
 {
     private onChangeEvent: number;
     private uploadButton: HTMLInputElement;
 
-    public constructor(props: ViewProps)
+    public constructor(props: IViewProps)
     {
         super(props);
 

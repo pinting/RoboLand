@@ -17,19 +17,19 @@ import { Http } from "../lib/Util/Http";
 import { Exportable } from "../lib/Exportable";
 import { NormalCell } from "../lib/Unit/Cell/NormalCell";
 
-interface ViewProps
+interface IViewProps
 {
     close: () => void;
 }
 
-interface ViewState
+interface IViewState
 {
     errors: string[];
 }
 
-export class TestRunner extends React.PureComponent<ViewProps, ViewState>
+export class TestRunner extends React.PureComponent<IViewProps, IViewState>
 {
-    public constructor(props: ViewProps)
+    public constructor(props: IViewProps)
     {
         super(props);
 

@@ -1,6 +1,7 @@
 import { Vector } from "./Vector";
 import { BaseShape } from "./BaseShape";
 import { Exportable } from "../Exportable";
+import { Tools } from "../Util/Tools";
 
 export class Polygon extends BaseShape
 {
@@ -215,7 +216,7 @@ export class Polygon extends BaseShape
             let face = this.points[i2].Sub(this.points[i1]);
 
             // Ensure no zero-length edges, because that's bad
-            if (face.Len2() <= Vector.EPSILON * Vector.EPSILON)
+            if (face.Len2() <= Tools.Epsilon * Tools.Epsilon)
             {
                 throw new Error("Zero length edges");
             }

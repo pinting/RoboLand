@@ -3,9 +3,10 @@ import { Vector } from "./Vector";
 import { IContact } from "./IContact";
 import { BaseShape } from "./BaseShape";
 import { Logger } from "../Util/Logger";
+import { Tools } from "../Util/Tools";
 
 /**
- * Based on ImpulseEngine by Randy Gaul
+ * Based on ImpulseEngine by Randy Gaul.
  */
 export class Overlap
 {
@@ -73,7 +74,7 @@ export class Overlap
         let inc: Polygon;
       
         // Determine which shape contains reference face
-        if(Vector.BiasGreaterThan(penetrationA, penetrationB))
+        if(Tools.BiasGreaterThan(penetrationA, penetrationB))
         {
             ref = a;
             inc = b;

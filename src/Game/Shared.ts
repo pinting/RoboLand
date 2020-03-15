@@ -40,7 +40,7 @@ export class Shared
      * @param data.right
      * @param data.shoot
      */
-    public static SetupControl(player: PlayerActor, { up, left, down, right, shoot })
+    public static DoControl(player: PlayerActor, { up, left, down, right, shoot })
     {
         if(!player)
         {

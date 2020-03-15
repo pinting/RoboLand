@@ -21,7 +21,7 @@ export class FakeChannel implements IChannel
         this.other = other;
     }
 
-    public SendMessage(message: string): void 
+    public SendMessage(message: ArrayBuffer): void 
     {
         if(this.other)
         {
@@ -34,5 +34,5 @@ export class FakeChannel implements IChannel
         Logger.Info(this, "Channel was closed!");
     }
 
-    public OnMessage: (message: string) => void = Tools.Noop;
+    public OnMessage: (message: ArrayBuffer) => void = Tools.Noop;
 }

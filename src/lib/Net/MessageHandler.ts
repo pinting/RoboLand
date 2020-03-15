@@ -3,6 +3,7 @@ import { MessageType } from "./MessageType";
 import { IMessage } from "./IMessage";
 import { Event } from "../Util/Event";
 import { Logger } from "../Util/Logger";
+import { Tools } from "../Util/Tools";
 
 export abstract class MessageHandler
 {
@@ -19,25 +20,19 @@ export abstract class MessageHandler
     constructor(channel: IChannel)
     {
         this.channel = channel;
-        this.channel.OnMessage = (message: string) => this.ParseMessage(message);
+        this.channel.OnMessage = (message: ArrayBuffer) => this.ParseMessage(message);
     }
 
     /**
-     * Receive a Message through the channel.
-     * @param input 
+     * Receive a message through the channel.
+     * @param merged 
      */
-    private ParseMessage(input: string): void
+    private ParseMessage(merged: ArrayBuffer): void
     {
-        let message: IMessage;
-
-        try 
-        {
-            message = JSON.parse(input);
-        }
-        catch(e)
-        {
-            return;
-        }
+        const endOfMeta = Tools.FindEndOfMeta(merged);
+        const rawMessage = merged.slice(0, endOfMeta);
+        const message = JSON.parse(Tools.ANSIToUTF16(rawMessage)) as IMessage;
+        const buffer = merged.slice(endOfMeta, merged.byteLength);
 
         switch(message.Type)
         {
@@ -46,7 +41,7 @@ export abstract class MessageHandler
                 if(message.Index > this.inIndex || this.inIndex === undefined)
                 {
                     this.inIndex = message.Index;
-                    this.OnMessage(message);
+                    this.OnMessage(message, buffer);
                 }
 
                 this.SendReceived(message);
@@ -55,8 +50,9 @@ export abstract class MessageHandler
             case MessageType.Command:
             case MessageType.Player:
             case MessageType.Kick:
+            case MessageType.Resources:
             case MessageType.World:
-                this.OnMessage(message);
+                this.OnMessage(message, buffer);
                 this.SendReceived(message);
                 break;
             case MessageType.Received:
@@ -64,7 +60,7 @@ export abstract class MessageHandler
                 break;
         }
 
-        Logger.Debug(this, "Message was received", message);
+        Logger.Debug(this, "Message was received", message, buffer);
     }
 
     /**
@@ -73,7 +69,9 @@ export abstract class MessageHandler
      */
     private ParseReceived(message: IMessage)
     {
-        this.receivedEvent.Call(message.Payload);
+        const index = message.Payload as number;
+
+        this.receivedEvent.Call(index);
     }
 
     /**
@@ -86,23 +84,43 @@ export abstract class MessageHandler
     }
 
     /**
-    * Send a Message through the channel.
-    * @param type Type of the Message.
+    * Send a message through the channel.
+    * @param type Type of the message.
     * @param payload
     */
    protected async SendMessage(type: MessageType, payload: any): Promise<void>
    {
        return new Promise<void>((resolve, reject) => 
        {
-           // Create the Message
+           // Create the message
            const message: IMessage = {
                Type: type,
-               Index: this.outIndex++,
-               Payload: payload
+               Index: this.outIndex++
            };
 
+           let buffer: ArrayBuffer;
+
+           if(payload instanceof ArrayBuffer)
+           {
+               buffer = payload;
+           }
+           else
+           {
+               message.Payload = payload;
+           }
+
+           const charArray = Tools.UTF16ToANSI(JSON.stringify(message));
+           const slices = [charArray];
+
+           if(buffer)
+           {
+               slices.push(buffer);
+           }
+
+           const merged = Tools.MergeBuffers(slices);
+
            // Create a new RECEIVED listener if this was not
-           // a acknowledge Message
+           // a acknowledge message
            if (message.Type != MessageType.Received) 
            {
                 const listener = this.receivedEvent.Add(index => 
@@ -123,12 +141,12 @@ export abstract class MessageHandler
                resolve();
            }
 
-           // Send Message
-           this.channel.SendMessage(JSON.stringify(message));
+           // Send message
+           this.channel.SendMessage(merged);
 
            Logger.Debug(this, "Message was sent", message);
        });
    }
 
-   protected abstract OnMessage(message: IMessage): void;
+   protected abstract OnMessage(message: IMessage, buffer: ArrayBuffer): void;
 }

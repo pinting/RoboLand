@@ -4,7 +4,7 @@ import { Tools } from "./Util/Tools";
 import { BaseCell } from "./Unit/Cell/BaseCell";
 import { Unit } from "./Unit/Unit";
 import { UnitList, IReadOnlyUnitList } from "./UnitList";
-import { Exportable, ExportType, ExportableArgs } from "./Exportable";
+import { Exportable, ExportType, IExportableArgs } from "./Exportable";
 import { Event } from "./Util/Event";
 import { Body } from "./Physics/Body";
 import { ICollision } from "./Physics/ICollision";
@@ -14,12 +14,7 @@ import { PlayerActor } from "./Unit/Actor/PlayerActor";
 import { Dump } from "./Dump";
 import { Logger } from "./Util/Logger";
 
-const COLLISION_ITERATIONS = 10;
-const SHADOW_DOT_PER_POINT = 10;
-const SHADOW_STEP = 1 / 4;
-const SHADOW_STEP_R = 2;
-
-export interface WorldArgs extends ExportableArgs
+export interface IWorldArgs extends IExportableArgs
 {
     size?: Vector;
     basePlayer?: PlayerActor;
@@ -27,11 +22,14 @@ export interface WorldArgs extends ExportableArgs
 
 export class World extends Exportable
 {
-    /**
-     * Execution starts here.
-     */
-    public static DEFAULT_WORLD_URI = "world.json";
-    
+    public static RootDump = "world.json";
+
+    private static DisablePhysics = false;
+    private static CollisionIterations = 10;
+    private static ShadowDotPerPoint = 10;
+    private static ShadowStep = 0.25;
+    private static ShadowStepR = 2;
+
     public static Current: World = null;
 
     @Exportable.Register(ExportType.NetDisk)
@@ -64,12 +62,12 @@ export class World extends Exportable
      */
     public OnTick: Event<number> = new Event<number>();
 
-    public Init(args: WorldArgs = {}): void
+    public Init(args: IWorldArgs = {}): void
     {
         super.Init(args);
     }
 
-    public InitPre(args: WorldArgs = {}): void
+    public InitPre(args: IWorldArgs = {}): void
     {
         super.InitPre(args);
 
@@ -79,7 +77,7 @@ export class World extends Exportable
         this.basePlayer = args.basePlayer;
     }
 
-    public InitPost(args: WorldArgs): void
+    public InitPost(args: IWorldArgs): void
     {
         super.InitPost(args);
 
@@ -90,7 +88,10 @@ export class World extends Exportable
             this.GenerateShadowMap();
         }
 
-        this.OnTick.Add(dt => this.Step(dt));
+        if(!World.DisablePhysics)
+        {
+            this.OnTick.Add(dt => this.Step(dt));
+        }
     }
 
     public Add(unit: Unit)
@@ -129,6 +130,14 @@ export class World extends Exportable
             for(let j = i + 1; j < units.GetLength(); j++)
             {
                 const b: Unit = units.GetArray()[j];
+                const aBody = a.GetBody();
+                const bBody = b.GetBody();
+
+                if(aBody.GetDensity() == Infinity && bBody.GetDensity() == Infinity)
+                {
+                    continue;
+                }
+
                 const collision = a.Collide(b);
 
                 if(collision && collision.Points.length)
@@ -144,7 +153,7 @@ export class World extends Exportable
         // Solve collisions
         for(let contact of contacts)
         {
-            Body.ResolveCollision(contact, dt * COLLISION_ITERATIONS);
+            Body.ResolveCollision(contact, dt * World.CollisionIterations);
         }
 
         // Integrate velocities
@@ -202,22 +211,11 @@ export class World extends Exportable
     }
 
     /**
-     * @inheritDoc
-     */
-    public Export(access?: number): Dump[]
-    {
-        // Always generate new shadow map
-        this.GenerateShadowMap();
-
-        return super.Export(access);
-    }
-
-    /**
      * Generate shadow map for the whole world.
      */
     public GenerateShadowMap()
     {
-        const dpp = SHADOW_DOT_PER_POINT;
+        const dpp = World.ShadowDotPerPoint;
         const size = this.GetSize();
     
         const w = dpp * size.X;
@@ -246,7 +244,7 @@ export class World extends Exportable
             return;
         }
         
-        const dpp = SHADOW_DOT_PER_POINT;
+        const dpp = World.ShadowDotPerPoint;
         const size = this.GetSize();
     
         const w = dpp * size.X;
@@ -254,12 +252,12 @@ export class World extends Exportable
         
         const testBody = new Body();
 
-        testBody.Init({ shapes: [Polygon.CreateBox(SHADOW_STEP)] });
+        testBody.Init({ shapes: [Polygon.CreateBox(World.ShadowStep)] });
 
-        for(let r = 0; r < 2 * Math.PI; r += SHADOW_STEP_R * (Math.PI / 180))
+        for(let r = 0; r < 2 * Math.PI; r += World.ShadowStepR * (Math.PI / 180))
         {
             const origin = unit.GetBody().GetPosition();
-            const step = Vector.ByRad(r).Scale(SHADOW_STEP);
+            const step = Vector.ByRad(r).Scale(World.ShadowStep);
 
             for(let point = origin; point.Dist(origin) < unit.GetLight(); point = point.Add(step))
             {
@@ -320,14 +318,14 @@ export class World extends Exportable
         }
     }
 
-    public GetShadow(x: number, y: number, w: number, h: number): number
+    public FindShadow(x: number, y: number, w: number, h: number): number
     {
         if(!this.shadowMap)
         {
             return 0;
         }
 
-        const dpp = SHADOW_DOT_PER_POINT;
+        const dpp = World.ShadowDotPerPoint;
         const size = this.GetSize();
     
         const sw = dpp * size.X;

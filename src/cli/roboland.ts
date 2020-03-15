@@ -50,7 +50,6 @@ async function pack()
                 let string = fs.readFileSync(path.resolve(cwd, name), { encoding: "utf8" });
 
                 // Escape all kind of BOM bullshit, because it should start with a bracket
-                // TODO: Refactor this
                 string = string.slice(string.indexOf("{"));
                 arrayBuffer = Tools.UTF16ToANSI(string);
             }

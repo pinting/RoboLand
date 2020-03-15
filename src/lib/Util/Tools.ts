@@ -2,6 +2,10 @@ import * as pako from "pako";
 
 export class Tools
 {
+    public static Epsilon = 0.0001;
+    public static BiasRelative = 0.95;
+    public static BiasAbsolulte = 0.01;
+
     /**
      * Generate hash from a buffer.
      * @param data 
@@ -64,6 +68,22 @@ export class Tools
     public static Random(min: number, max: number): number
     {
         return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+    public static BiasGreaterThan(a: number, b: number): boolean
+    {
+        return a >= b * Tools.BiasRelative + a * Tools.BiasAbsolulte;
+    }
+
+    /**
+     * Compare if the difference between two numbers are less than epsilon.
+     * @param a 
+     * @param b 
+     * @param eps Default value is Tools.Epsilon
+     */
+    public static Equal(a: number, b: number, eps = Tools.Epsilon)
+    {
+        return Math.abs(a - b) <= eps;
     }
 
     /**
@@ -216,6 +236,11 @@ export class Tools
         });
     }
 
+    public static async RunAsync<T = void>(callback: () => T): Promise<T>
+    {
+        return new Promise(resolve => setTimeout(() => resolve(callback()), 0));
+    }
+
     /**
      * A noop function.
      */
@@ -272,8 +297,37 @@ export class Tools
         return merged.buffer;
     }
 
-    public static async RunAsync<T = void>(callback: () => T): Promise<T>
+    /**
+     * When transporting data in ArrayBuffers, a meta JSON is used to
+     * describe the contents. This JSON is prepended before the original
+     * buffer.
+     * @param buffer 
+     */
+    public static FindEndOfMeta(buffer: ArrayBuffer): number
     {
-        return new Promise(resolve => setTimeout(() => resolve(callback()), 0));
+        const view = new Uint8Array(buffer);
+
+        let endOfMeta = 0;
+        let scope = 0;
+
+        for (let i = 0; i < view.length; i++) 
+        {
+            if(view[i] === "{".charCodeAt(0))
+            {
+                scope++;
+            }
+            else if(view[i] === "}".charCodeAt(0))
+            {
+                scope--;
+
+                if(scope === 0)
+                {
+                    endOfMeta = i + 1;
+                    break;
+                }
+            }
+        }
+
+        return endOfMeta;
     }
 }

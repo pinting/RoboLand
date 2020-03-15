@@ -8,16 +8,21 @@ import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
 import { Logger } from "../Util/Logger";
 import { Unit } from "../Unit/Unit";
-import { Host } from "./Host";
 import { Dump } from "../Dump";
-import { Vector } from "../Geometry/Vector";
-
-const MAX_POS_DIFF = 0.5;
-const MAX_ROT_DIFF = Math.PI / 4;
-const PLAYER_SYNCED_FUNCTIONS = ["Damage", "Shoot", "StopRot", "StartRot", "StartWalk", "StopWalk"];
+import { ResourceManager } from "../Util/ResourceManager";
+import { Body } from "../Physics/Body";
 
 export class Client extends MessageHandler
 {
+    private static PlayerSyncedFunctions = [
+        "Damage",
+        "Shoot",
+        "StopRot",
+        "StartRot",
+        "StartWalk",
+        "StopWalk"
+    ]
+
     private world: World;
     private player: PlayerActor;
     private last: { [id: string]: Dump } = {};
@@ -38,10 +43,10 @@ export class Client extends MessageHandler
     }
 
     /**
-     * Receive a Message through the channel.
+     * Receive a message through the channel.
      * @param message 
      */
-    protected OnMessage(message: IMessage): void
+    protected OnMessage(message: IMessage, buffer: ArrayBuffer): void
     {
         Logger.Debug(this, "Message was received", message);
 
@@ -59,7 +64,10 @@ export class Client extends MessageHandler
                 this.ReceivePlayer(message.Payload);
                 break;
             case MessageType.World:
-                this.ReceivePack(message.Payload);
+                this.ReceiveWorld(buffer);
+                break;
+            case MessageType.Resources:
+                this.ReceiveResources(buffer);
                 break;
             case MessageType.Command:
                 this.ReceiveCommand(message.Payload);
@@ -106,15 +114,14 @@ export class Client extends MessageHandler
 
         if(!id)
         {
-            Logger.Warn(this, "No ID for diff!");
+            Logger.Warn(this, "No ID for diff, cannot proceed!");
             return;
         }
 
         // Check if we already have it
         const oldUnit = this.world.GetUnits().Get(id);
 
-        // Return if we do not have an older version,
-        // because we cannot receive a diff without a base
+        // We cannot receive a diff without a base
         if(!oldUnit)
         {
             Logger.Warn(this, "Received diff, but no base unit!");
@@ -124,38 +131,44 @@ export class Client extends MessageHandler
         World.Current = this.world;
 
         // If we have an older version, merge it
-        const merged = Exportable.Export(oldUnit);
+        const oldDump = Exportable.Export(oldUnit);
 
-        Dump.Merge(merged, diff);
+        Dump.Merge(oldDump, diff);
 
-        let newUnit: Unit;
-
-        try 
-        {
-            newUnit = Exportable.Import(merged);
-        }
-        catch
-        {
-            return;
-        }
+        let newUnit = Exportable.Import(oldDump) as Unit;
 
         const newBody = newUnit.GetBody();
         const oldBody = oldUnit.GetBody();
 
-        // If the position or the rotation difference is under a limit, skip updating
-        if(Dump.IsMovementDiff(diff) && oldBody.GetPosition())
+        // If only a positional difference which is under a limit, skip updating
+        if(Dump.TestDump(diff, ["id", "body"]) && Body.Equal(newBody, oldBody))
         {
-            const posDiff = newBody.GetPosition().Dist(oldBody.GetPosition());
-            const rotDiff = Math.abs(newBody.GetRotation() - oldBody.GetRotation());
-
-            if(posDiff < MAX_POS_DIFF && rotDiff < MAX_ROT_DIFF)
-            {
-                Logger.Debug(this, "Unit was optimized out", newUnit);
-                return;
-            }
+            Logger.Debug(this, "Unit was optimized out", newUnit);
+            return;
         }
 
-        return this.ReceiveUnit(merged);
+        return this.ReceiveUnit(oldDump);
+    }
+
+    /**
+     * Receive resources.
+     * @param buffer 
+     */
+    private ReceiveResources(buffer: ArrayBuffer)
+    {
+        ResourceManager.Load(buffer);
+    }
+
+    /**
+     * Receive the world.
+     * @param size 
+     */
+    private ReceiveWorld(buffer: ArrayBuffer): void
+    {
+        const charArray = Tools.ZLibInflate(buffer);
+        const dump = JSON.parse(Tools.ANSIToUTF16(charArray));
+
+        Tools.Extract(this.world, Exportable.Import(dump));
     }
 
     /**
@@ -168,7 +181,7 @@ export class Client extends MessageHandler
 
         this.OnPlayer(Tools.Hook(player, (target, prop, args) => 
         {
-            if(!PLAYER_SYNCED_FUNCTIONS.includes(prop))
+            if(!Client.PlayerSyncedFunctions.includes(prop))
             {
                 return;
             }
@@ -177,15 +190,6 @@ export class Client extends MessageHandler
 
             this.SendMessage(MessageType.Command, dump);
         }));
-    }
-
-    /**
-     * Receive the size of the world.
-     * @param size 
-     */
-    private ReceivePack(dump: Dump): void
-    {
-        Tools.Extract(this.world, Exportable.Import(dump));
     }
 
     /**

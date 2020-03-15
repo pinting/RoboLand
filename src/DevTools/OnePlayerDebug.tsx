@@ -2,7 +2,7 @@ import * as React from "react";
 import * as Bootstrap from "reactstrap";
 import Cristal from "react-cristal";
 
-import { Logger, LogType } from "../lib/Util/Logger";
+import { Logger } from "../lib/Util/Logger";
 import { Shared } from "../Game/Shared";
 import { PlayerActor } from "../lib/Unit/Actor/PlayerActor";
 import { Vector } from "../lib/Geometry/Vector";
@@ -13,22 +13,19 @@ import { Exportable } from "../lib/Exportable";
 import { Keyboard } from "../lib/Util/Keyboard";
 import { Renderer } from "../lib/Renderer";
 import { Dump } from "../lib/Dump";
-import { ArrowActor } from "../lib/Unit/Actor/ArrowActor";
-import { Body } from "../lib/Physics/Body";
-import { NormalCell } from "../lib/Unit/Cell/NormalCell";
 
-interface ViewProps
+interface IViewProps
 {
     close: () => void;
     world?: Dump;
 }
 
-interface ViewState
+interface IViewState
 {
 
 }
 
-export class OnePlayerDebug extends React.PureComponent<ViewProps, ViewState>
+export class OnePlayerDebug extends React.PureComponent<IViewProps, IViewState>
 {
     private canvas: HTMLCanvasElement;
     private renderer: Renderer;
@@ -38,7 +35,7 @@ export class OnePlayerDebug extends React.PureComponent<ViewProps, ViewState>
         Keyboard.Init();
 
         // Load the world
-        const uri = World.DEFAULT_WORLD_URI;
+        const uri = World.RootDump;
 
         Logger.Info("Loading root resource", uri);
 
@@ -98,7 +95,7 @@ export class OnePlayerDebug extends React.PureComponent<ViewProps, ViewState>
 
         this.renderer.OnDraw.Add(() => 
         {
-            Shared.SetupControl(player, keys);
+            Shared.DoControl(player, keys);
             this.renderer.SetCenter(player.GetBody().GetPosition());
         });
 

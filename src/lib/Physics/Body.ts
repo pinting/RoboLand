@@ -1,12 +1,14 @@
 import { Vector } from "../Geometry/Vector";
-import { Exportable, ExportType, ExportableArgs } from "../Exportable";
+import { Exportable, ExportType, IExportableArgs } from "../Exportable";
 import { IContact } from "../Geometry/IContact";
 import { BaseShape } from "../Geometry/BaseShape";
 import { Overlap } from "../Geometry/Overlap";
 import { Polygon } from "../Geometry/Polygon";
 import { ICollision } from "./ICollision";
+import { Logger } from "../Util/Logger";
+import { Tools } from "../Util/Tools";
 
-export interface BodyArgs extends ExportableArgs
+export interface BodyArgs extends IExportableArgs
 {
     shapes?: BaseShape[];
     position?: Vector;
@@ -25,11 +27,11 @@ export interface BodyArgs extends ExportableArgs
     z?: number; // Z-Index
 }
 
-const PENETRATION_ALLOWANCE = 0.01; // Penetration allowance
-const PENETRATION_CORRECT = 0.01; // Penetration percentage to correct
-
 export class Body extends Exportable
 {
+    private static PenetrationAllowance = 0.01; // Penetration allowance
+    private static PenetrationCorrect = 0.4; // Penetration percentage to correct
+
     @Exportable.Register(ExportType.NetDisk)
     protected shapes: BaseShape[] = [];
 
@@ -86,7 +88,7 @@ export class Body extends Exportable
      * @param rotation The new rotation.
      * @param position The new position.
      */
-    public Validate: (scale: Vector, rotation: number, position: Vector) => boolean;
+    public OnChange: (scale: Vector, rotation: number, position: Vector) => void;
 
     public Init(args: BodyArgs = {})
     {
@@ -121,10 +123,7 @@ export class Body extends Exportable
             args.rotation === undefined ? this.rotation : args.rotation,
             args.position === undefined ? this.position : args.position);
     }
-
-    /**
-     * Get the radius of the unit.
-     */
+    
     public GetRadius(): number
     {
         if(!this.scale)
@@ -179,6 +178,11 @@ export class Body extends Exportable
     {
         return this.z;
     }
+
+    public GetDensity(): number
+    {
+        return this.density;
+    } 
 
     public SetCellFriction(friction: number): void
     {
@@ -269,6 +273,7 @@ export class Body extends Exportable
         // Optimize, if unit is too far away, skip deeper collision detection
         if(dist > this.GetRadius() + other.GetRadius())
         {
+            Logger.Debug(this, "Distance was larger than r1 + r2, skipping SAT");
             return null;
         }
 
@@ -290,29 +295,20 @@ export class Body extends Exportable
             throw new Error("Rotation is not finite!");
         }
 
-        const s = scale || this.scale;
-        const r = typeof rotation == "number" ? rotation : this.rotation;
-        const p = position || this.position;
+        this.scale = scale || this.scale;
+        this.rotation = typeof rotation == "number" ? rotation : this.rotation;
+        this.position = position || this.position;
         
-        // Validate if the underlaying "world" allows the move
-        if(this.Validate && !this.Validate(s, r, p))
-        {
-            return;
-        }
-
-        this.scale = s;
-        this.rotation = r;
-        this.position = p;
-
-        this.shapes.forEach(s => s.SetVirtual(scale, rotation, position));
+        this.OnChange && this.OnChange(this.scale, this.rotation, this.position);
+        this.shapes.forEach(s => s.SetVirtual(this.scale, this.rotation, this.position));
     }
 
     public SetVirtual(scale?: Vector, rotation?: number, position?: Vector): void
     {
-        // Do not set, if there is no change
-        if((!scale || (this.scale && scale.Is(this.scale))) &&
-            (typeof rotation !== "number" || this.rotation === rotation) &&
-            (!position || (this.position && position.Is(this.position))))
+        // Do not set, if the change is smaller than Tools.Epsilon
+        if((!scale || (this.scale && scale.Equal(this.scale))) &&
+            (typeof rotation !== "number" || Tools.Equal(this.rotation, rotation)) &&
+            (!position || (this.position && position.Equal(this.position))))
         {
             return;
         }
@@ -326,7 +322,7 @@ export class Body extends Exportable
      */
     public IntegrateForces(dt: number)
     {
-        if(this.im == 0)
+        if(this.density == Infinity || this.im == 0)
         {
             return;
         }
@@ -343,7 +339,7 @@ export class Body extends Exportable
      */
     public IntegrateVelocity(dt: number)
     {
-        if(this.im == 0 || (!this.av && !this.v.Len()))
+        if(this.density == Infinity || this.im == 0 || (!this.av && !this.v.Len()))
         {
             return;
         }
@@ -361,6 +357,11 @@ export class Body extends Exportable
      */
     private ApplyImpulse(impulse: Vector, contactVector: Vector)
     {
+        if(this.density == Infinity || this.im == 0)
+        {
+            return;
+        }
+        
         this.v = this.v.Add(impulse.Scale(new Vector(this.im, this.im)));
         this.av += this.iI * <number>Vector.Cross(contactVector, impulse);
     }
@@ -375,7 +376,7 @@ export class Body extends Exportable
     }
 
     /**
-     * Calculate centroid and moment of interia
+     * Calculate centroid and moment of interia.
      */
     protected ComputeMass(): void
     {
@@ -419,17 +420,17 @@ export class Body extends Exportable
             }
         }
 
-        c = c.Scale(1.0 / area);
+        c = c.Scale(1 / area);
 
         this.m = this.density * area;
-        this.im = (this.m) ? 1.0 / this.m : 0.0;
+        this.im = (this.m) ? 1 / this.m : 0;
         this.I = inertia * this.density;
-        this.iI = this.I ? 1.0 / this.I : 0.0;
+        this.iI = this.I ? 1 / this.I : 0;
     }
 
     /**
-     * Naive correction of positional penetration
-     * @param c An object that implements the ICollision interface
+     * Naive correction of positional penetration.
+     * @param c An object that implements the ICollision interface.
      * @param dt 
      */
     public static PositionalCorrection(c: ICollision, dt: number = 1 / 60)
@@ -437,15 +438,19 @@ export class Body extends Exportable
         const a = c.A;
         const b = c.B;
 
-        const correction = c.Normal.Scale((Math.max(c.Penetration - PENETRATION_ALLOWANCE, 0) / (a.im + b.im)) * PENETRATION_CORRECT);
+        const pa = Body.PenetrationAllowance;
+        const pc = Body.PenetrationCorrect;
+
+        const correction = c.Normal.Scale((Math.max(c.Penetration - pa, 0) / (a.im + b.im)) * pc);
 
         a.position = a.position.Add(correction.Scale(a.im));
         b.position = b.position.Add(correction.Scale(b.im));
     }
     
     /**
-     * Resolve a collision between two bodies
-     * @param c An object that implements the ICollision interface
+     * Resolve a collision between two bodies.
+     * Based on ImpulseEngine by Randy Gaul.
+     * @param c An object that implements the ICollision interface.
      * @param dt 
      */
     public static ResolveCollision(c: ICollision, dt: number = 1 / 60)
@@ -453,10 +458,12 @@ export class Body extends Exportable
         const a = c.A;
         const b = c.B;
 
-        if(Vector.Equal(a.im + b.im, 0))
+        // If both bodies are having infinite or zero mass, stop resolving
+        if(Tools.Equal(a.im + b.im, 0) || (a.density == Infinity && b.density == Infinity))
         {
             a.v = new Vector(0, 0);
             b.v = new Vector(0, 0);
+
             return;
         }
 
@@ -480,9 +487,9 @@ export class Body extends Exportable
             // Determine if we should perform a resting collision or not
             // The idea is if the only thing moving a object is gravity,
             // then the collision should be performed without any restitution
-            if(rv.Len2() < a.gravity.Scale(dt).Len2() + Vector.EPSILON)
+            if(rv.Len2() < a.gravity.Scale(dt).Len2() + Tools.Epsilon)
             {
-                e = 0.0;
+                e = 0;
             }
         }
 
@@ -514,7 +521,7 @@ export class Body extends Exportable
                 Math.pow(rbCrossN, 2) * b.iI;
 
             // Calculate impulse scalar
-            let j = -(1.0 + e) * contactVel;
+            let j = -(1 + e) * contactVel;
 
             j /= invMassSum;
             j /= c.Points.length;
@@ -547,7 +554,7 @@ export class Body extends Exportable
             jt /= c.Points.length;
 
             // Don't apply tiny friction impulses
-            if(Vector.Equal(jt, 0.0))
+            if(Tools.Equal(jt, 0))
             {
                 return;
             }
@@ -577,6 +584,21 @@ export class Body extends Exportable
         body.Init({ scale, rotation, position, shapes: [Polygon.CreateBox(1)], ...args });
 
         return body;
+    }
+
+    /**
+     * Check if two bodies are equal (or near equal, depending on the epsilon values).
+     * @param a 
+     * @param b 
+     * @param se Scaling epsilon
+     * @param re Rotation epsilon
+     * @param pe Position epsilon
+     */
+    public static Equal(a: Body, b: Body, se: number = 0.5, re: number = Math.PI / 4, pe: number = 0.5): boolean
+    {
+        return a.GetScale().Equal(b.GetScale(), se) && 
+            Tools.Equal(a.GetRotation(), b.GetRotation(), re) && 
+            a.GetPosition().Equal(b.GetPosition(), pe);
     }
 }
 

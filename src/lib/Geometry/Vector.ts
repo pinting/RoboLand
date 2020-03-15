@@ -1,13 +1,9 @@
 import { Exportable, ExportType } from "../Exportable";
 import { Matrix } from "./Matrix";
-
-const BIAS_RELATIVE = 0.95;
-const BIAS_ABSOLULTE = 0.01;
+import { Tools } from "../Util/Tools";
 
 export class Vector extends Exportable
 {
-    public static EPSILON = 0.0001;
-
     @Exportable.Register(ExportType.NetDisk)
     public X: number;
 
@@ -127,16 +123,7 @@ export class Vector extends Exportable
     }
 
     /**
-     * Check if the difference between this and the other vector is inside EPSILON.
-     * @param other 
-     */
-    public Equal(other: Vector): boolean
-    {
-        return Vector.Equal(this.X, other.X) && Vector.Equal(this.Y, other.Y);
-    }
-
-    /**
-     * Add a vector to this one.
+     * Add a vector or a number to this one.
      * @param other 
      */
     public Add(other: Vector | number): Vector
@@ -154,14 +141,21 @@ export class Vector extends Exportable
         return new Vector(this.X + other.X, this.Y + other.Y);
     }
 
+    /**
+     * Substract a number of a vector from this vector.
+     * @param other 
+     */
     public Sub(other: Vector | number): Vector
     {
         return this.Add(new Vector(-1, -1).Scale(other));
     }
 
+    /**
+     * Return the negative of the vector.
+     */
     public Neg(): Vector
     {
-        return new Vector(-this.X, -this.Y);
+        return this.Scale(-1);
     }
 
     /**
@@ -198,6 +192,10 @@ export class Vector extends Exportable
         return new Vector(m(this.X, other.X), m(this.Y, other.Y));
     }
 
+    /**
+     * Devide the vector by another vector or a number.
+     * @param other 
+     */
     public Div(other: Vector | number): Vector
     {
         return this.Scale(new Vector(
@@ -238,14 +236,14 @@ export class Vector extends Exportable
         return l === 0 ? new Vector(0, 0) : new Vector(this.X / l, this.Y / l);
     }
 
-    public static Equal(a: number, b: number)
+    /**
+     * Check if the difference between this and the other vector is inside epsilon.
+     * @param other 
+     * @param eps Default is Tools.Epsilon
+     */
+    public Equal(other: Vector, eps = Tools.Epsilon): boolean
     {
-        return Math.abs(a - b) <= Vector.EPSILON;
-    }
-
-    public static BiasGreaterThan(a: number, b: number): boolean
-    {
-        return a >= b * BIAS_RELATIVE + a * BIAS_ABSOLULTE;
+        return Tools.Equal(this.X, other.X, eps) && Tools.Equal(this.Y, other.Y, eps);
     }
 }
 

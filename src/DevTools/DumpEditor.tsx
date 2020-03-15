@@ -7,7 +7,7 @@ import { TreeView } from "./TreeView";
 import { Resource } from "../lib/Util/RoboPack";
 import { Dump } from "../lib/Dump";
 
-interface ViewProps
+interface IViewProps
 {
     dump: Dump;
     close: () => void;
@@ -15,13 +15,13 @@ interface ViewProps
     find: (current?: string) => Promise<Resource>
 }
 
-interface ViewState
+interface IViewState
 {
     editMode: number;
     draft: Dump;
 }
 
-export class DumpEditor extends React.PureComponent<ViewProps, ViewState>
+export class DumpEditor extends React.PureComponent<IViewProps, IViewState>
 {
     constructor(props)
     {

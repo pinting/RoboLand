@@ -116,14 +116,23 @@ export class ResourceManager
     }
 
     /**
-     * Save the storage of the resource manager into a RoboLand resource buffer.
+     * Save the storage of the resource manager into a RoboPack Blob.
      * @param buffer 
      */
     public static async Save(): Promise<Blob>
     {
-        const buffer = await RoboPack.Pack(this.storage);
+        const buffer = await ResourceManager.GetBuffer();
 
         return new Blob([buffer], { type: "application/octet-stream" });
+    }
+
+    /**
+     * Save the storage into a RoboPack ArrayBuffer.
+     * This does not create a Blob.
+     */
+    public static async GetBuffer(): Promise<ArrayBuffer>
+    {
+        return await RoboPack.Pack(this.storage);
     }
 
     /**

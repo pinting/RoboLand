@@ -15,18 +15,18 @@ import { Exportable } from "../lib/Exportable";
 import { Keyboard } from "../lib/Util/Keyboard";
 import { Dump } from "../lib/Dump";
 
-interface ViewProps 
+interface IViewProps 
 {
     world?: Dump;
     close: () => void;
 }
 
-interface ViewState 
+interface IViewState 
 {
 
 }
 
-export class TwoPlayerDebug extends React.PureComponent<ViewProps, ViewState>
+export class TwoPlayerDebug extends React.PureComponent<IViewProps, IViewState>
 {
     private canvasA: HTMLCanvasElement;
     private canvasB: HTMLCanvasElement;
@@ -51,13 +51,15 @@ export class TwoPlayerDebug extends React.PureComponent<ViewProps, ViewState>
         worldA["_Name"] = "worldA";
         worldB["_Name"] = "worldB";
         
-        this.rendererA = new Renderer({ 
+        this.rendererA = new Renderer({
+            disableShadows: true,
             canvas: this.canvasA,
             world: worldA,
             debug: true
         });
 
         this.rendererB = new Renderer({
+            disableShadows: true,
             canvas: this.canvasB,
             world: worldB,
             debug: true
@@ -77,7 +79,7 @@ export class TwoPlayerDebug extends React.PureComponent<ViewProps, ViewState>
         const receiverB = new Client(channelB1, worldB);
 
         // Load the world
-        const uri = World.DEFAULT_WORLD_URI;
+        const uri = World.RootDump;
 
         Logger.Info("Loading root resource", uri);
 
@@ -125,17 +127,16 @@ export class TwoPlayerDebug extends React.PureComponent<ViewProps, ViewState>
                 right: "ARROWRIGHT",
                 shoot: " "
             };
-            
-            this.rendererB.OnDraw.Add(() => 
+
+            this.rendererA.OnDraw.Add(() => 
             {
-                Shared.SetupControl(player, keys);
-                this.rendererB.SetCenter(player.GetBody().GetPosition());
+                Shared.DoControl(player, keys);
+                this.rendererA.SetCenter(player.GetBody().GetPosition());
             });
 
+            this.rendererA.Start();
 
             Logger.Info("Player A loaded", worldA);
-
-            this.rendererA.Start();
         };
         
         receiverB.OnPlayer = async player =>
@@ -152,16 +153,16 @@ export class TwoPlayerDebug extends React.PureComponent<ViewProps, ViewState>
                 right: "D",
                 shoot: "E"
             };
-            
+
             this.rendererB.OnDraw.Add(() => 
             {
-                Shared.SetupControl(player, keys);
-                this.rendererA.SetCenter(player.GetBody().GetPosition());
+                Shared.DoControl(player, keys);
+                this.rendererB.SetCenter(player.GetBody().GetPosition());
             });
 
-            Logger.Info("Player B loaded", worldB);
-
             this.rendererB.Start();
+
+            Logger.Info("Player B loaded", worldB);
         };
     
         // Render the server

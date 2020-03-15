@@ -2,8 +2,6 @@ import { Vector } from "../../Geometry/Vector";
 import { Unit, UnitArgs } from "../Unit";
 import { Body } from "../../Physics/Body";
 
-const COLLISION_LIMIT = 3;
-
 export interface BaseActorArgs extends UnitArgs
 {
     // Empty
@@ -11,7 +9,12 @@ export interface BaseActorArgs extends UnitArgs
 
 export abstract class BaseActor extends Unit
 {
-    private noGround = 0;
+    private static DisableSurfaceScan = false;
+
+    /**
+     * The last body state that was checked against cells.
+     */
+    private lastBody: Body;
 
     /**
      * @inheritDoc
@@ -24,22 +27,40 @@ export abstract class BaseActor extends Unit
     }
 
     /**
-     * Validate a positional change of the body.
+     * Search for cells the actor is standing on.
      * @param scale 
      * @param rotation 
      * @param position 
      */
-    protected ValidateBody(scale: Vector, rotation: number, position: Vector): boolean
+    protected OnBodyChange(scale: Vector, rotation: number, position: Vector): void
     {
+        // Call super, trigger a World update
+        super.OnBodyChange(scale, rotation, position);
+
+        if(BaseActor.DisableSurfaceScan)
+        {
+            return;
+        }
+
+        // If no world under the cell, skip the rest
         if(this.ignore || !this.world)
         {
-            return true;
+            return;
         }
 
         const body = this.GetBody();
         const newBody = body.Clone() as Body;
         
         newBody.SetVirtual(scale, rotation, position);
+
+        // Do not check for new cells upon every body change,
+        // because SAT is performance hungry
+        if(this.lastBody && Body.Equal(this.lastBody, newBody))
+        {
+            return;
+        }
+
+        this.lastBody = newBody;
 
         // Get the currently covered cells and the next ones
         const prev = body.GetPosition()
@@ -48,33 +69,13 @@ export abstract class BaseActor extends Unit
         
         const next = this.world.GetCells().GetArray().filter(c => c.GetBody().Collide(newBody));
 
-        if(!next.length)
-        {
-            // This fixes a nasty bug in the physics engine.
-            // For some reason, rotation causes invalid moves,
-            // because the engine does not find collisions with
-            // cells under the actor.
-            // TODO: FIX THIS
-            this.noGround++;
-
-            if(this.noGround >= COLLISION_LIMIT)
-            {
-                return false;
-            }
-        }
-        else
-        {
-            this.noGround = 0;
-        }
-
         // Remove intersection 
         const prevFiltered = prev.filter(v => !next.includes(v));
         const nextFiltered = next.filter(v => !prev.includes(v));
 
+        // Finalize
         nextFiltered.forEach(cell => cell.MoveHere(this))
         prevFiltered.forEach(cell => cell.MoveAway(this));
-
-        return true;
     }
 
     /**

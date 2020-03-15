@@ -1,15 +1,16 @@
 export enum MessageType
 {
-    // OUT
+    // To host
     World = "World",
     Unit = "Unit",
     Diff = "Diff",
     Player = "Player",
     Kick = "Kick",
+    Resources = "Resources",
 
-    // IN
+    // To client
     Command = "Command",
 
-    // IN & OUT
+    // To both
     Received = "Received"
 }

@@ -28,22 +28,22 @@ import { Logger } from "../lib/Util/Logger";
 import { Resource } from "../lib/Util/RoboPack";
 import { Dump } from "../lib/Dump";
 
-interface ViewProps
+interface IViewProps
 {
 
 }
 
-interface ViewState
+interface IViewState
 {
     windows: JSX.Element[];
     log: string[];
 }
 
-export class DevTools extends React.PureComponent<ViewProps, ViewState>
+export class DevTools extends React.PureComponent<IViewProps, IViewState>
 {
     private importButton: HTMLInputElement;
 
-    constructor(props: ViewProps) 
+    constructor(props: IViewProps) 
     {
         super(props);
 

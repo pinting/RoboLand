@@ -3,7 +3,6 @@ import { IChannel } from "./Channel/IChannel";
 import { PlayerActor } from "../Unit/Actor/PlayerActor";
 import { Exportable } from "../Exportable";
 import { MessageType } from "./MessageType";
-import { Vector } from "../Geometry/Vector";
 import { Unit } from "../Unit/Unit";
 import { IMessage } from "./IMessage";
 import { MessageHandler } from "./MessageHandler";
@@ -11,14 +10,19 @@ import { Server } from "./Server";
 import { Logger } from "../Util/Logger";
 import { Dump } from "../Dump";
 
-const SLEEP_TIME = 1000;
+interface ILastItem
+{
+    Timestamp: number;
+    Dump: Dump;
+}
 
 export class Host extends MessageHandler
 {
+    private static SleepTime = 1000;
+
     private server: Server;
     private player: PlayerActor;
-    private last: { [id: string]: Dump } = {};
-    private lastTime: { [id: string]: number } = {};
+    private last: { [id: string]: ILastItem } = {};
     
     /**
      * Construct a new connection which communicates with a client.
@@ -40,10 +44,10 @@ export class Host extends MessageHandler
     }
 
     /**
-     * Receive a Message through the channel and parse it.
+     * Receive a message through the channel and parse it.
      * @param message 
      */
-    protected OnMessage(message: IMessage): void
+    protected OnMessage(message: IMessage, buffer: ArrayBuffer): void
     {
         switch(message.Type)
         {
@@ -58,12 +62,20 @@ export class Host extends MessageHandler
     }
 
     /**
-     * Init world. Also deletes previously setted units.
+     * Send world. Also deletes previously setted units.
      * @param dumb 
      */
     public async SendWorld(dumb: Dump): Promise<void>
     {
-        return this.SendMessage(MessageType.World, dumb);
+        const charArray = Tools.UTF16ToANSI(JSON.stringify(dumb));
+        const compressed = Tools.ZLibDeflate(charArray);
+
+        return this.SendMessage(MessageType.World, compressed);
+    }
+
+    public async SendResources(buffer: ArrayBuffer)
+    {
+        return this.SendMessage(MessageType.Resources, buffer);
     }
 
     /**
@@ -78,19 +90,23 @@ export class Host extends MessageHandler
         
         let diff: Dump = null;
 
-        if(this.lastTime.hasOwnProperty(id) && this.last.hasOwnProperty(id))
+        if(this.last.hasOwnProperty(id))
         {
-            diff = Dump.Diff(dump, this.last[id]);
+            const lastItem = this.last[id];
+
+            diff = Dump.Diff(dump, lastItem.Dump);
+
+            if(lastItem.Timestamp + Host.SleepTime >= now && Dump.TestDump(diff, ["body"]))
+            {
+                Logger.Debug(this, "Unit was optimized out", unit);
+                return;
+            }
         }
 
-        if(diff && this.lastTime[id] + SLEEP_TIME >= now && Dump.IsMovementDiff(diff))
-        {
-            Logger.Debug(this, "Unit was optimized out", unit);
-            return;
-        }
-
-        this.last[id] = dump;
-        this.lastTime[id] = now;
+        this.last[id] = {
+            Timestamp: now,
+            Dump: dump
+        };
 
         if(diff)
         {

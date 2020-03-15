@@ -4,19 +4,19 @@ import * as Bootstrap from "reactstrap";
 import { Resource } from "../lib/Util/RoboPack";
 import { Dump } from "../lib/Dump";
 
-interface ChildViewProps
+interface IChildViewProps
 {
     dump: Dump;
     save: (dump: Dump) => void;
     find: (current?: string) => Promise<Resource>;
 }
 
-interface ChildViewState
+interface IChildViewState
 {
 
 }    
 
-export class ChildView extends React.PureComponent<ChildViewProps, ChildViewState>
+export class ChildView extends React.PureComponent<IChildViewProps, IChildViewState>
 {
     private getInputType(): string
     {

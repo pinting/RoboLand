@@ -1,5 +1,5 @@
 /**
- * Inner class to speed upp gradient computations
+ * Inner class to speed up gradient computations
  */
 class Grad
 {

@@ -50,7 +50,7 @@ export class Logger
             const title = `${typeName ? `${typeName} ` : ""}${name && `[${name}] `}`;
 
             console.log(title, ...args);
-            this.OnLog.Call([title, ...args].map(e => e.toString()).join(" "));
+            this.OnLog.Call([title, ...args].map(e => e ? e.toString() : "None").join(" "));
         }
     }
 

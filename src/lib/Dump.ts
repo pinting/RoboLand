@@ -11,7 +11,7 @@ export class Dump
     Args?: any[];
 
     /**
-     * Save an Dump as small resources.
+     * Save a Dump as a Resource.
      * @param dump 
      * @param overwrite
      */
@@ -252,48 +252,19 @@ export class Dump
     }
 
     /**
-     * Return true if only the 
-     * @param diff
+     * Check if the dump only has the given list of properties.
+     * @param dump
+     * @param allowed List of property names that are allowed.
      */
-    // TODO: Fix this
-    public static IsMovementDiff(diff: Dump): boolean
+    public static TestDump(dump: Dump, allowed: string[]): boolean
     {
-        const props = Dump.ToDict(diff);
-
-        // Delete ID if it exists, because we do not need it
-        if(props.id)
+        if(!dump || !dump.Payload || !dump.Payload.length)
         {
-            delete props.id;
+            return;
         }
 
-        // No diff
-        if(Object.keys(props).length == 0)
-        {
-            return true;
-        }
+        const payload = dump.Payload as Dump[];
 
-        // Only position diff
-        if(Object.keys(props).length === 1 &&
-            props.hasOwnProperty("position"))
-        {
-            return true;
-        }
-
-        // Only angle diff
-        if(Object.keys(props).length === 1 &&
-            props.hasOwnProperty("rotation"))
-        {
-            return true;
-        }
-
-        // Only position and angle diff
-        if(Object.keys(props).length === 2 &&
-            props.hasOwnProperty("position") &&
-            props.hasOwnProperty("rotation"))
-        {
-            return true;
-        }
-
-        return false;
+        return !payload.find(dump => !allowed.includes(dump.Name.toString()));
     }
 }

@@ -3,8 +3,17 @@ import { IChannel } from "./IChannel";
 import { Tools } from "../../Util/Tools";
 import { Logger } from "../../Util/Logger";
 
+interface IPacketMeta
+{
+    Id: string;
+    Index: number;
+    Count: number;
+}
+
 export class PeerChannel implements IChannel
 {
+    private static MaxByteLength = 16384;
+
     private readonly config = {
         "iceServers": [
             {
@@ -13,8 +22,9 @@ export class PeerChannel implements IChannel
         ]
     };
 
-    private peerConnection;
-    private dataChannel;
+    private packets: { [id: string]: ArrayBuffer[] } = {};
+    private peerConnection: RTCPeerConnection;
+    private dataChannel: RTCDataChannel;
 
     /**
      * Create a new offer. Return the offer negotiation string.
@@ -30,6 +40,8 @@ export class PeerChannel implements IChannel
         {
             this.peerConnection = new RTCPeerConnection(this.config);
             this.dataChannel = this.peerConnection.createDataChannel("data");
+
+            this.dataChannel.binaryType = "arraybuffer";
 
             this.peerConnection.onicecandidate = e => 
             {
@@ -130,30 +142,72 @@ export class PeerChannel implements IChannel
     }
 
     /**
-     * Parse an incoming Message.
+     * Parse an incoming message.
      * @param event 
      */
-    public ParseMessage(event)
+    public ParseMessage(event: { data?: ArrayBuffer }): void
     {
-        if(event && event.data)
+        if(!event || !event.data || !event.data.byteLength)
         {
-            const uncompressed = Tools.ANSIToUTF16(Tools.ZLibInflate(event.data));
+            return;
+        }
 
-            this.OnMessage(uncompressed);
+        const merged = event.data;
+        const endOfMeta = Tools.FindEndOfMeta(merged);
+        const rawMeta = merged.slice(0, endOfMeta);
+        const meta = JSON.parse(Tools.ANSIToUTF16(rawMeta)) as IPacketMeta;
+        const slice = merged.slice(endOfMeta, merged.byteLength);
+
+        if(!this.packets.hasOwnProperty(meta.Id))
+        {
+            this.packets[meta.Id] = [];
+        }
+
+        const slices = this.packets[meta.Id];
+
+        slices[meta.Index] = slice;
+
+        if(slices.length === meta.Count)
+        {
+            const message = Tools.MergeBuffers(slices);
+            const decompressed = Tools.ZLibInflate(message);
+
+            this.OnMessage(decompressed);
         }
     }
 
     /**
-     * Send a Message through the channel.
+     * Send a message through the channel.
      * @param message 
      */
-    public SendMessage(message: string): void
+    public async SendMessage(message: ArrayBuffer): Promise<void>
     {
-        if(this.IsOpen())
+        if(!this.IsOpen())
         {
-            const compressed = Tools.ZLibDeflate(Tools.UTF16ToANSI(message));
+            Logger.Warn(this, "Channel is closed, but trying to send message")
+            return;
+        }
 
-            this.dataChannel.send(compressed);
+        const compressed = Tools.ZLibDeflate(message);
+
+        const id = Tools.Unique();
+        const count = Math.ceil(compressed.byteLength / PeerChannel.MaxByteLength);
+
+        for(let i = 0; i < count; i++)
+        {
+            const rawMeta = {
+                Id: id,
+                Index: i,
+                Count: count
+            };
+
+            const meta = Tools.UTF16ToANSI(JSON.stringify(rawMeta));
+            const start = i * PeerChannel.MaxByteLength;
+            const length = PeerChannel.MaxByteLength;
+            const slice = compressed.slice(start, start + length);
+            const merged = Tools.MergeBuffers([meta, slice]);
+
+            Tools.RunAsync(() => this.dataChannel.send(merged));
         }
     }
 
@@ -198,7 +252,7 @@ export class PeerChannel implements IChannel
     public OnClose: () => void = Tools.Noop;
 
     /**
-     * Receive a Message from the other peer.
+     * Receive a message from the other peer.
      */
-    public OnMessage: (message: string) => void = Tools.Noop;
+    public OnMessage: (message: ArrayBuffer) => void = Tools.Noop;
 }

@@ -1,11 +1,11 @@
 import { Vector } from "../Geometry/Vector";
 import { World } from "../World";
-import { Exportable, ExportType, ExportableArgs } from "../Exportable";
+import { Exportable, ExportType, IExportableArgs } from "../Exportable";
 import { Logger } from "../Util/Logger";
 import { Body } from "../Physics/Body";
 import { ICollision } from "../Physics/ICollision";
 
-export interface UnitArgs extends ExportableArgs
+export interface UnitArgs extends IExportableArgs
 {
     ignore?: boolean;
     texture?: string;
@@ -114,20 +114,15 @@ export abstract class Unit extends Exportable
         }
 
         this.body = body;
-        this.body.Validate = (scale, rotation, position) => 
-        {
-            if(!this.ignore && this.world)
-            {
-                this.world.OnUpdate.Call(this);
-            }
-
-            return this.ValidateBody(scale, rotation, position);
-        }
+        this.body.OnChange = this.OnBodyChange.bind(this);
     }
 
-    protected ValidateBody(scale: Vector, rotation: Number, position: Vector): boolean
+    protected OnBodyChange(scale: Vector, rotation: Number, position: Vector): void
     {
-        return true;
+        if(!this.ignore && this.world)
+        {
+            this.world.OnUpdate.Call(this);
+        }
     }
     
     public GetLight(): number

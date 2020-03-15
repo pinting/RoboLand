@@ -31,23 +31,23 @@ enum ConnectType
 /**
  * Structure of the connect string.
  */
-interface ConnectFormat
+interface IConnectFormat
 {
     Tab: string;
     Type: ConnectType,
     Payload: string;
 }
 
-interface GameProps {
+interface IProps {
     // Empty
 }
 
-interface GameState {
+interface IState {
     message: string;
     showAdd: boolean;
 }
 
-export class Game extends React.PureComponent<GameProps, GameState>
+export class Game extends React.PureComponent<IProps, IState>
 {
     private canvas: HTMLCanvasElement;
 
@@ -77,7 +77,7 @@ export class Game extends React.PureComponent<GameProps, GameState>
      * Construct a new URL from ConnectFormat.
      * @param format 
      */
-    private static createUrl(format: ConnectFormat)
+    private static createUrl(format: IConnectFormat)
     {
         return location.origin + 
             location.pathname + 
@@ -90,7 +90,7 @@ export class Game extends React.PureComponent<GameProps, GameState>
     /**
      * Read the connect parameter of the location hash.
      */
-    private static readConnect(): ConnectFormat
+    private static readConnect(): IConnectFormat
     {
         try 
         {
@@ -165,7 +165,7 @@ export class Game extends React.PureComponent<GameProps, GameState>
         
         await ResourceManager.Load(buffer);
         
-        const rootResource = ResourceManager.ByUri(World.DEFAULT_WORLD_URI);
+        const rootResource = ResourceManager.ByUri(World.RootDump);
         const rootDump = JSON.parse(Tools.ANSIToUTF16(rootResource.Buffer)) as Dump;
         const dump = Dump.Resolve(rootDump);
         const world = Exportable.Import(dump);
@@ -222,7 +222,7 @@ export class Game extends React.PureComponent<GameProps, GameState>
 
             renderer.OnDraw.Add(() => 
             {
-                Shared.SetupControl(player, keys);
+                Shared.DoControl(player, keys);
                 renderer.SetCenter(player.GetBody().GetPosition());
             });
 

@@ -147,31 +147,10 @@ export class RoboPack
     {
         Logger.Info("Unpacking RoboPack");
 
-        const uncompressed = Tools.ZLibInflate(buffer);
-        const view = new Uint8Array(uncompressed);
-
-        let endOfMeta = 0;
-        let scope = 0;
-
-        for (let i = 0; i < view.length; i++) 
-        {
-            if(view[i] === "{".charCodeAt(0))
-            {
-                scope++;
-            }
-            else if(view[i] === "}".charCodeAt(0))
-            {
-                scope--;
-
-                if(scope === 0)
-                {
-                    endOfMeta = i + 1;
-                    break;
-                }
-            }
-        }
-
         const result = [] as Resource[];
+
+        const uncompressed = Tools.ZLibInflate(buffer);
+        const endOfMeta = Tools.FindEndOfMeta(uncompressed);
         const rawMeta = uncompressed.slice(0, endOfMeta);
         const meta = JSON.parse(Tools.ANSIToUTF16(rawMeta)) as IPackMeta;
 

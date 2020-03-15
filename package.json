@@ -1,8 +1,7 @@
 {
   "name": "roboland",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "2D game engine",
-  "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server",
     "build": "tsc && webpack --build",
@@ -34,14 +33,14 @@
   },
   "devDependencies": {
     "@types/node": "13.7.x",
-    "@types/react": "^16.7.22",
+    "@types/react": "16.7.x",
     "@types/react-dom": "16.0.x",
     "@types/reactstrap": "8.4.x",
     "copy-webpack-plugin": "5.1.x",
     "css-loader": "2.0.x",
     "style-loader": "0.23.x",
     "ts-loader": "5.2.x",
-    "typescript": "3.7.5",
+    "typescript": "3.8.x",
     "webpack": "4.41.x",
     "webpack-cli": "3.1.x",
     "webpack-dev-server": "^3.1.14"

@@ -7,11 +7,12 @@ import { BaseActor } from "../Unit/Actor/BaseActor";
 import { Body } from "../Physics/Body";
 import { Logger } from "../Util/Logger";
 import { Dump } from "../Dump";
-
-const SPAWN_Z = 0;
+import { ResourceManager } from "../Util/ResourceManager";
 
 export class Server
 {
+    private static SpawnZ = 0;
+
     private readonly world: World;
     private readonly spawns: Body[];
     private readonly hosts: Host[] = [];
@@ -27,7 +28,7 @@ export class Server
         this.world = world;
 
         this.spawns = this.world.GetCells().GetArray()
-            .filter(c => !c.IsBlocking() && c.GetBody().GetZ() == SPAWN_Z)
+            .filter(c => !c.IsBlocking() && c.GetBody().GetZ() == Server.SpawnZ)
             .sort((a, b) => Tools.Random(-100, 100))
             .map(c => c.GetBody());
         
@@ -137,7 +138,10 @@ export class Server
 
         this.world.GetActors().Set(player);
 
-        // Set size
+        // Send resources
+        await host.SendResources(await ResourceManager.GetBuffer());
+
+        // Send world
         await host.SendWorld(Exportable.Export(this.world));
         
         // Subscribe to the OnCommand callback

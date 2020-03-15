@@ -8,7 +8,7 @@ import { Dump } from "../lib/Dump";
 // The tree should never reach this
 const MAX_DEPTH = 100;
 
-interface ViewProps
+interface IViewProps
 {
     dump: Dump;
     save: (dump: Dump) => void;
@@ -17,14 +17,14 @@ interface ViewProps
     depth?: number;
 }
 
-interface ViewState 
+interface IViewState 
 {
     isOpen: boolean;
 }
 
-export abstract class TreeView extends React.PureComponent<ViewProps, ViewState>
+export abstract class TreeView extends React.PureComponent<IViewProps, IViewState>
 {
-    constructor(props: ViewProps) 
+    constructor(props: IViewProps) 
     {
         super(props);
 

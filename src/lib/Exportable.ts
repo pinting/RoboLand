@@ -2,7 +2,7 @@ import { Logger } from "./Util/Logger";
 import { Tools } from "./Util/Tools";
 import { Dump } from "./Dump";
 
-const ExportMetaKey = Symbol("ExportMeta");
+const MetaKey = Symbol("MetaKey");
 const Dependencies: { [name: string]: any } = {};
 
 export enum ExportType
@@ -18,14 +18,14 @@ export enum ExportType
     NetDisk = 1
 }
 
-export interface ExportProperty
+export interface IExportProperty
 {
     Access: number;
     Name: string;
     Callback?: (s: any, v: any) => void;
 }
 
-export interface ExportableArgs
+export interface IExportableArgs
 {
     id?: string;
 }
@@ -35,9 +35,9 @@ export abstract class Exportable
     @Exportable.Register(ExportType.Net)
     protected id: string = Tools.Unique();
 
-    private [ExportMetaKey]: ExportProperty[];
+    private [MetaKey]: IExportProperty[];
     
-    public Init(args: ExportableArgs = {})
+    public Init(args: IExportableArgs = {})
     {
         this.InitPre(args);
         this.InitPost(args);
@@ -47,7 +47,7 @@ export abstract class Exportable
      * For direct assignments. This will be called first!
      * @param args 
      */
-    protected InitPre(args: ExportableArgs = {})
+    protected InitPre(args: IExportableArgs = {})
     {
         this.id = args.id === undefined ? this.id : args.id;
     }
@@ -56,7 +56,7 @@ export abstract class Exportable
      * For function setters.
      * @param args 
      */
-    protected InitPost(args: ExportableArgs = {})
+    protected InitPost(args: IExportableArgs = {})
     {
         // Leave for child classes to implement
     }
@@ -83,12 +83,12 @@ export abstract class Exportable
             // We should not use hasOwnProperty
             // because only one ExportMeta should
             // exists on a prototype chain
-            if(!target[ExportMetaKey])
+            if(!target[MetaKey])
             {
-                target[ExportMetaKey] = [];
+                target[MetaKey] = [];
             }
 
-            target[ExportMetaKey].push({
+            target[MetaKey].push({
                 Access: access,
                 Name: name,
                 Callback: cb
@@ -127,7 +127,7 @@ export abstract class Exportable
     {
         const result: Dump[] = [];
 
-        for (let desc of this[ExportMetaKey])
+        for (let desc of this[MetaKey])
         {   
             if(desc.Access < access) 
             {
@@ -217,7 +217,7 @@ export abstract class Exportable
 
         for (let dump of dumps)
         {
-            const desc = this[ExportMetaKey].find(i => i.Name == dump.Name);
+            const desc = this[MetaKey].find(i => i.Name == dump.Name);
 
             // Only allow importing registered props
             if(!desc)

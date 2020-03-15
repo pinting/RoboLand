@@ -6,7 +6,7 @@ import { Polygon } from "./Geometry/Polygon";
 import { ResourceManager } from "./Util/ResourceManager";
 import { Resource } from "./Util/RoboPack";
 
-export interface RendererArgs
+export interface IRendererArgs
 {
     world: World;
     canvas: HTMLCanvasElement;
@@ -23,6 +23,8 @@ export interface RendererArgs
 
 export class Renderer
 {
+    private static MIN_FPS = 1 / 25;
+
     private readonly world: World;
     private readonly canvas: HTMLCanvasElement;
     private readonly context: CanvasRenderingContext2D;
@@ -49,7 +51,7 @@ export class Renderer
     /**
      * Construct a new game object.
      */
-    public constructor(args: RendererArgs)
+    public constructor(args: IRendererArgs)
     {
         this.world = args.world;
         this.canvas = args.canvas;
@@ -289,7 +291,7 @@ export class Renderer
                     const c = this.center.Scale(this.dotPerPoint).Sub(view.Scale(0.5));
 
                     imageData.data[(y * view.Y + x) * 4 + 3] = 
-                        (1 - this.world.GetShadow(x + c.X, y + c.Y, fullView.X, fullView.Y)) * 255;
+                        (1 - this.world.FindShadow(x + c.X, y + c.Y, fullView.X, fullView.Y)) * 255;
                 }
             }
             
@@ -302,13 +304,14 @@ export class Renderer
         }
 
         const now = +new Date;
+        const dt = Math.min((now - this.lastTick) / 1000, Renderer.MIN_FPS);
 
         if(!this.noTick)
         {
-            this.world.OnTick.Call((now - this.lastTick) / 1000);
+            this.world.OnTick.Call(dt);
         }
 
-        this.OnDraw.Call((now - this.lastTick) / 1000);
+        this.OnDraw.Call(dt);
 
         this.lastTick = now;
     }

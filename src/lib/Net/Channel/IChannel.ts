@@ -1,6 +1,6 @@
 export interface IChannel
 {
-    OnMessage(message: string): void;
-    SendMessage(message: string): void;
+    OnMessage(message: ArrayBuffer): void;
+    SendMessage(message: ArrayBuffer): void;
     Close(): void;
 }

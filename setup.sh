@@ -7,4 +7,3 @@ fi;
 
 (cd ./src/res/sample && roboland pack && mv sample.roboland ../)
 (cd ./src/res/default && roboland pack && mv default.roboland ../)
-npm run build

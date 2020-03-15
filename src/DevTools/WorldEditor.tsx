@@ -19,13 +19,13 @@ import { Body } from "../lib/Physics/Body";
 import { ResourceManager } from "../lib/Util/ResourceManager";
 import { Dump } from "../lib/Dump";
 
-interface ViewProps
+interface IViewProps
 {
     close: () => void;
     edit: (dump: Dump) => Promise<Dump>;
 }
 
-interface ViewState
+interface IViewState
 {
     selected: Dump;
     loaded: string[];
@@ -34,7 +34,7 @@ interface ViewState
 const DRAG_WAIT = 300;
 const MIN_SIZE = 8;
 
-export class WorldEditor extends React.PureComponent<ViewProps, ViewState>
+export class WorldEditor extends React.PureComponent<IViewProps, IViewState>
 {
     private canvas: HTMLCanvasElement;
     private renderer: Renderer;
@@ -281,7 +281,7 @@ export class WorldEditor extends React.PureComponent<ViewProps, ViewState>
     
     private async init(): Promise<void>
     {
-        const rootResource = ResourceManager.ByUri(World.DEFAULT_WORLD_URI);
+        const rootResource = ResourceManager.ByUri(World.RootDump);
 
         if(rootResource)
         {
