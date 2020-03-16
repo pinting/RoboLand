@@ -77735,7 +77735,7 @@ var OnePlayerDebug = /** @class */ (function (_super) {
                 switch (_a.label) {
                     case 0:
                         Keyboard_1.Keyboard.Init();
-                        uri = World_1.World.DEFAULT_WORLD_URI;
+                        uri = World_1.World.RootDump;
                         Logger_1.Logger.Info("Loading root resource", uri);
                         rootResource = ResourceManager_1.ResourceManager.ByUri(uri);
                         if (!rootResource) {
@@ -77756,6 +77756,7 @@ var OnePlayerDebug = /** @class */ (function (_super) {
                         return [4 /*yield*/, Tools_1.Tools.RunAsync(function () { return Exportable_1.Exportable.Import(dump); })];
                     case 3:
                         world = _a.sent();
+                        // Add player
                         Logger_1.Logger.Info("Adding player to the world", world);
                         player = world.GetBasePlayer().Clone();
                         player.Init({
@@ -77782,7 +77783,7 @@ var OnePlayerDebug = /** @class */ (function (_super) {
                             shoot: " "
                         };
                         this.renderer.OnDraw.Add(function () {
-                            Shared_1.Shared.SetupControl(player, keys);
+                            Shared_1.Shared.DoControl(player, keys);
                             _this.renderer.SetCenter(player.GetBody().GetPosition());
                         });
                         Logger_1.Logger.Info("Start rendering", this.renderer);
@@ -78239,8 +78240,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var Bootstrap = __webpack_require__(/*! reactstrap */ "./node_modules/reactstrap/es/index.js");
 var ChildView_1 = __webpack_require__(/*! ./ChildView */ "./src/DevTools/ChildView.tsx");
-// The tree should never reach this
-var MAX_DEPTH = 100;
 var TreeView = /** @class */ (function (_super) {
     __extends(TreeView, _super);
     function TreeView(props) {
@@ -78308,7 +78307,7 @@ var TreeView = /** @class */ (function (_super) {
     TreeView.prototype.render = function () {
         var _this = this;
         var dump = this.props.dump;
-        if (!dump || (this.props.depth || 0) > MAX_DEPTH) {
+        if (!dump || (this.props.depth || 0) > TreeView.MaxDepth) {
             return null;
         }
         if (!dump.Payload) {
@@ -78333,6 +78332,8 @@ var TreeView = /** @class */ (function (_super) {
                 React.createElement(Bootstrap.Card, null,
                     React.createElement(Bootstrap.CardBody, null, this.renderItems())))));
     };
+    // The tree should never reach this
+    TreeView.MaxDepth = 100;
     return TreeView;
 }(React.PureComponent));
 exports.TreeView = TreeView;
@@ -78424,7 +78425,7 @@ var TwoPlayerDebug = /** @class */ (function (_super) {
      */
     TwoPlayerDebug.prototype.init = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var delay, worldA, worldB, channelA1, channelA2, channelB1, channelB2, receiverA, receiverB, rootResource, world, raw, rootDump, dump, server, rendererS;
+            var delay, worldA, worldB, channelA1, channelA2, channelB1, channelB2, receiverA, receiverB, uri, rootResource, rootDump, dump, world, server, rendererS;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -78437,11 +78438,13 @@ var TwoPlayerDebug = /** @class */ (function (_super) {
                         worldA["_Name"] = "worldA";
                         worldB["_Name"] = "worldB";
                         this.rendererA = new Renderer_1.Renderer({
+                            disableShadows: true,
                             canvas: this.canvasA,
                             world: worldA,
                             debug: true
                         });
                         this.rendererB = new Renderer_1.Renderer({
+                            disableShadows: true,
                             canvas: this.canvasB,
                             world: worldB,
                             debug: true
@@ -78456,16 +78459,30 @@ var TwoPlayerDebug = /** @class */ (function (_super) {
                         channelB2.SetOther(channelB1);
                         receiverA = new Client_1.Client(channelA1, worldA);
                         receiverB = new Client_1.Client(channelB1, worldB);
-                        rootResource = ResourceManager_1.ResourceManager.ByUri(World_1.World.DEFAULT_WORLD_URI);
+                        uri = World_1.World.RootDump;
+                        Logger_1.Logger.Info("Loading root resource", uri);
+                        rootResource = ResourceManager_1.ResourceManager.ByUri(uri);
                         if (!rootResource) {
-                            Logger_1.Logger.Warn("Default root resource is not available", World_1.World.DEFAULT_WORLD_URI);
+                            Logger_1.Logger.Warn("Default root resource is not available", uri);
                             return [2 /*return*/];
                         }
-                        raw = Tools_1.Tools.ANSIToUTF16(rootResource.Buffer);
-                        rootDump = JSON.parse(raw);
-                        dump = Dump_1.Dump.Resolve(rootDump);
-                        world = Exportable_1.Exportable.Import(dump);
+                        Logger_1.Logger.Info("Parsing JSON", rootResource);
+                        return [4 /*yield*/, Tools_1.Tools.RunAsync(function () {
+                                return JSON.parse(Tools_1.Tools.ANSIToUTF16(rootResource.Buffer));
+                            })];
+                    case 1:
+                        rootDump = _a.sent();
+                        Logger_1.Logger.Info("Resolving Dump", rootDump);
+                        return [4 /*yield*/, Tools_1.Tools.RunAsync(function () { return Dump_1.Dump.Resolve(rootDump); })];
+                    case 2:
+                        dump = _a.sent();
+                        Logger_1.Logger.Info("Importing world", dump);
+                        return [4 /*yield*/, Tools_1.Tools.RunAsync(function () { return Exportable_1.Exportable.Import(dump); })];
+                    case 3:
+                        world = _a.sent();
+                        Logger_1.Logger.Info("Setting up server", world);
                         server = new Server_1.Server(world);
+                        Logger_1.Logger.Info("Adding hosts to the server", server);
                         server.Add(new Host_1.Host(channelA2, server));
                         server.Add(new Host_1.Host(channelB2, server));
                         receiverA.OnPlayer = function (player) { return __awaiter(_this, void 0, void 0, function () {
@@ -78485,11 +78502,12 @@ var TwoPlayerDebug = /** @class */ (function (_super) {
                                             right: "ARROWRIGHT",
                                             shoot: " "
                                         };
-                                        this.rendererB.OnDraw.Add(function () {
-                                            Shared_1.Shared.SetupControl(player, keys);
-                                            _this.rendererB.SetCenter(player.GetBody().GetPosition());
+                                        this.rendererA.OnDraw.Add(function () {
+                                            Shared_1.Shared.DoControl(player, keys);
+                                            _this.rendererA.SetCenter(player.GetBody().GetPosition());
                                         });
                                         this.rendererA.Start();
+                                        Logger_1.Logger.Info("Player A loaded", worldA);
                                         return [2 /*return*/];
                                 }
                             });
@@ -78512,10 +78530,11 @@ var TwoPlayerDebug = /** @class */ (function (_super) {
                                             shoot: "E"
                                         };
                                         this.rendererB.OnDraw.Add(function () {
-                                            Shared_1.Shared.SetupControl(player, keys);
-                                            _this.rendererA.SetCenter(player.GetBody().GetPosition());
+                                            Shared_1.Shared.DoControl(player, keys);
+                                            _this.rendererB.SetCenter(player.GetBody().GetPosition());
                                         });
                                         this.rendererB.Start();
+                                        Logger_1.Logger.Info("Player B loaded", worldB);
                                         return [2 /*return*/];
                                 }
                             });
@@ -78530,9 +78549,10 @@ var TwoPlayerDebug = /** @class */ (function (_super) {
                             dotPerPoint: 10
                         });
                         return [4 /*yield*/, rendererS.Load()];
-                    case 1:
+                    case 4:
                         _a.sent();
                         rendererS.Start();
+                        Logger_1.Logger.Info("Server loaded", server, world, rendererS);
                         // For debug
                         Tools_1.Tools.Extract(window, {
                             worldA: worldA,
@@ -78646,8 +78666,6 @@ var ArrowActor_1 = __webpack_require__(/*! ../lib/Unit/Actor/ArrowActor */ "./sr
 var Body_1 = __webpack_require__(/*! ../lib/Physics/Body */ "./src/lib/Physics/Body.ts");
 var ResourceManager_1 = __webpack_require__(/*! ../lib/Util/ResourceManager */ "./src/lib/Util/ResourceManager.ts");
 var Dump_1 = __webpack_require__(/*! ../lib/Dump */ "./src/lib/Dump.ts");
-var DRAG_WAIT = 300;
-var MIN_SIZE = 8;
 var WorldEditor = /** @class */ (function (_super) {
     __extends(WorldEditor, _super);
     function WorldEditor(props) {
@@ -78655,7 +78673,7 @@ var WorldEditor = /** @class */ (function (_super) {
         _this.disableDrag = true;
         _this.mouseDown = false;
         _this.input = {
-            newWorldSize: new Vector_1.Vector(MIN_SIZE, MIN_SIZE),
+            newWorldSize: new Vector_1.Vector(WorldEditor.MinSize, WorldEditor.MinSize),
             newElementVector: new Vector_1.Vector,
             newElementName: null,
             selectedUnit: null
@@ -78868,7 +78886,7 @@ var WorldEditor = /** @class */ (function (_super) {
                 switch (_a.label) {
                     case 0:
                         this.mouseDown = true;
-                        return [4 /*yield*/, Tools_1.Tools.Wait(DRAG_WAIT)];
+                        return [4 /*yield*/, Tools_1.Tools.Wait(WorldEditor.DragWait)];
                     case 1:
                         _a.sent();
                         if (this.mouseDown) {
@@ -78887,7 +78905,7 @@ var WorldEditor = /** @class */ (function (_super) {
         return __awaiter(this, void 0, void 0, function () {
             var rootResource, raw, rootDump, dump;
             return __generator(this, function (_a) {
-                rootResource = ResourceManager_1.ResourceManager.ByUri(World_1.World.DEFAULT_WORLD_URI);
+                rootResource = ResourceManager_1.ResourceManager.ByUri(World_1.World.RootDump);
                 if (rootResource) {
                     raw = Tools_1.Tools.ANSIToUTF16(rootResource.Buffer);
                     rootDump = JSON.parse(raw);
@@ -78920,8 +78938,8 @@ var WorldEditor = /** @class */ (function (_super) {
                     React.createElement("td", null,
                         React.createElement(Bootstrap.Button, { block: true, style: { margin: 0 }, onClick: this.editSelected.bind(this), color: "primary" }, "Edit Selected"),
                         React.createElement(Bootstrap.Input, { style: { margin: "10% 0 0 0" }, type: "number", placeholder: "Selected Z", min: "0", onChange: function (e) { return _this.selectZ(parseFloat(e.target.value)); } }),
-                        React.createElement(Bootstrap.Input, { type: "number", placeholder: "Width", style: { margin: "10% 0 0 0" }, min: MIN_SIZE, defaultValue: MIN_SIZE.toString(), onChange: function (e) { return _this.input.newWorldSize.X = parseFloat(e.target.value); } }),
-                        React.createElement(Bootstrap.Input, { type: "number", min: MIN_SIZE, defaultValue: MIN_SIZE.toString(), placeholder: "Height", onChange: function (e) { return _this.input.newWorldSize.Y = parseFloat(e.target.value); } }),
+                        React.createElement(Bootstrap.Input, { type: "number", placeholder: "Width", style: { margin: "10% 0 0 0" }, min: WorldEditor.MinSize, defaultValue: WorldEditor.MinSize.toString(), onChange: function (e) { return _this.input.newWorldSize.X = parseFloat(e.target.value); } }),
+                        React.createElement(Bootstrap.Input, { type: "number", min: WorldEditor.MinSize, defaultValue: WorldEditor.MinSize.toString(), placeholder: "Height", onChange: function (e) { return _this.input.newWorldSize.Y = parseFloat(e.target.value); } }),
                         React.createElement(Bootstrap.Button, { block: true, style: { margin: 0 }, onClick: this.createWorld.bind(this) }, "Generate Empty"),
                         React.createElement(Bootstrap.Input, { style: { margin: "10% 0 0 0" }, type: "number", placeholder: "X", onChange: function (e) { return _this.input.newElementVector.X = parseFloat(e.target.value); } }),
                         React.createElement(Bootstrap.Input, { type: "number", placeholder: "Y", onChange: function (e) { return _this.input.newElementVector.Y = parseFloat(e.target.value); } }),
@@ -78937,6 +78955,8 @@ var WorldEditor = /** @class */ (function (_super) {
         var _this = this;
         return (React.createElement(react_cristal_1.default, { onClose: function () { return _this.props.close(); }, title: "World Editor", initialSize: { width: 700, height: 520 }, isResizable: true, initialPosition: "top-center" }, this.renderInner()));
     };
+    WorldEditor.DragWait = 300;
+    WorldEditor.MinSize = 8;
     return WorldEditor;
 }(React.PureComponent));
 exports.WorldEditor = WorldEditor;
@@ -79139,7 +79159,7 @@ var Game = /** @class */ (function (_super) {
                         return [4 /*yield*/, ResourceManager_1.ResourceManager.Load(buffer)];
                     case 2:
                         _a.sent();
-                        rootResource = ResourceManager_1.ResourceManager.ByUri(World_1.World.DEFAULT_WORLD_URI);
+                        rootResource = ResourceManager_1.ResourceManager.ByUri(World_1.World.RootDump);
                         rootDump = JSON.parse(Tools_1.Tools.ANSIToUTF16(rootResource.Buffer));
                         dump = Dump_1.Dump.Resolve(rootDump);
                         world = Exportable_1.Exportable.Import(dump);
@@ -79195,7 +79215,7 @@ var Game = /** @class */ (function (_super) {
                                             shoot: " "
                                         };
                                         renderer.OnDraw.Add(function () {
-                                            Shared_1.Shared.SetupControl(player, keys);
+                                            Shared_1.Shared.DoControl(player, keys);
                                             renderer.SetCenter(player.GetBody().GetPosition());
                                         });
                                         renderer.Start();
@@ -79259,6 +79279,14 @@ var Game = /** @class */ (function (_super) {
      */
     Game.prototype.render = function () {
         var _this = this;
+        var containerStyle = {
+            width: "100%",
+            height: "100%",
+            background: "black",
+            position: "fixed",
+            top: 0,
+            left: 0
+        };
         var canvasHolderStyle = {
             position: "absolute",
             top: "50%",
@@ -79283,9 +79311,9 @@ var Game = /** @class */ (function (_super) {
             height: "50px",
             borderRadius: "50px"
         };
-        return (React.createElement("div", null,
+        return (React.createElement("div", { style: containerStyle },
             React.createElement("div", { style: canvasHolderStyle },
-                React.createElement("canvas", { style: { background: "black" }, ref: function (c) { return _this.canvas = c; } })),
+                React.createElement("canvas", { ref: function (c) { return _this.canvas = c; } })),
             React.createElement("div", { style: bottomRightStyle }, this.state.showAdd &&
                 React.createElement("button", { style: addButtonStyle, onClick: this.clickAdd.bind(this) }, "Add")),
             React.createElement("div", { style: messageStyle }, this.state.message)));
@@ -79347,7 +79375,7 @@ var Shared = /** @class */ (function () {
      * @param data.right
      * @param data.shoot
      */
-    Shared.SetupControl = function (player, _a) {
+    Shared.DoControl = function (player, _a) {
         var up = _a.up, left = _a.left, down = _a.down, right = _a.right, shoot = _a.shoot;
         if (!player) {
             return;
@@ -79674,7 +79702,7 @@ var Dump = /** @class */ (function () {
     function Dump() {
     }
     /**
-     * Save an Dump as small resources.
+     * Save a Dump as a Resource.
      * @param dump
      * @param overwrite
      */
@@ -79889,37 +79917,16 @@ var Dump = /** @class */ (function () {
         return props;
     };
     /**
-     * Return true if only the
-     * @param diff
+     * Check if the dump only has the given list of properties.
+     * @param dump
+     * @param allowed List of property names that are allowed.
      */
-    // TODO: Fix this
-    Dump.IsMovementDiff = function (diff) {
-        var props = Dump.ToDict(diff);
-        // Delete ID if it exists, because we do not need it
-        if (props.id) {
-            delete props.id;
+    Dump.TestDump = function (dump, allowed) {
+        if (!dump || !dump.Payload || !dump.Payload.length) {
+            return;
         }
-        // No diff
-        if (Object.keys(props).length == 0) {
-            return true;
-        }
-        // Only position diff
-        if (Object.keys(props).length === 1 &&
-            props.hasOwnProperty("position")) {
-            return true;
-        }
-        // Only angle diff
-        if (Object.keys(props).length === 1 &&
-            props.hasOwnProperty("rotation")) {
-            return true;
-        }
-        // Only position and angle diff
-        if (Object.keys(props).length === 2 &&
-            props.hasOwnProperty("position") &&
-            props.hasOwnProperty("rotation")) {
-            return true;
-        }
-        return false;
+        var payload = dump.Payload;
+        return !payload.find(function (dump) { return !allowed.includes(dump.Name.toString()); });
     };
     return Dump;
 }());
@@ -79956,7 +79963,7 @@ var __spreadArrays = (this && this.__spreadArrays) || function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Logger_1 = __webpack_require__(/*! ./Util/Logger */ "./src/lib/Util/Logger.ts");
 var Tools_1 = __webpack_require__(/*! ./Util/Tools */ "./src/lib/Util/Tools.ts");
-var ExportMetaKey = Symbol("ExportMeta");
+var MetaKey = Symbol("MetaKey");
 var Dependencies = {};
 var ExportType;
 (function (ExportType) {
@@ -80015,10 +80022,10 @@ var Exportable = /** @class */ (function () {
             // We should not use hasOwnProperty
             // because only one ExportMeta should
             // exists on a prototype chain
-            if (!target[ExportMetaKey]) {
-                target[ExportMetaKey] = [];
+            if (!target[MetaKey]) {
+                target[MetaKey] = [];
             }
-            target[ExportMetaKey].push({
+            target[MetaKey].push({
                 Access: access,
                 Name: name,
                 Callback: cb
@@ -80051,7 +80058,7 @@ var Exportable = /** @class */ (function () {
     Exportable.prototype.Export = function (access) {
         if (access === void 0) { access = 0; }
         var result = [];
-        for (var _i = 0, _a = this[ExportMetaKey]; _i < _a.length; _i++) {
+        for (var _i = 0, _a = this[MetaKey]; _i < _a.length; _i++) {
             var desc = _a[_i];
             if (desc.Access < access) {
                 continue;
@@ -80116,7 +80123,7 @@ var Exportable = /** @class */ (function () {
         Logger_1.Logger.Debug(this, "Importing properties", dumps);
         this.InitPre();
         var _loop_1 = function (dump) {
-            var desc = this_1[ExportMetaKey].find(function (i) { return i.Name == dump.Name; });
+            var desc = this_1[MetaKey].find(function (i) { return i.Name == dump.Name; });
             // Only allow importing registered props
             if (!desc) {
                 Logger_1.Logger.Warn(this_1, "Unregistered property (or no name) in Dump", dump.Name);
@@ -80379,10 +80386,10 @@ Exportable_1.Exportable.Dependency(Matrix);
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var Polygon_1 = __webpack_require__(/*! ./Polygon */ "./src/lib/Geometry/Polygon.ts");
-var Vector_1 = __webpack_require__(/*! ./Vector */ "./src/lib/Geometry/Vector.ts");
 var Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
+var Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 /**
- * Based on ImpulseEngine by Randy Gaul
+ * Based on ImpulseEngine by Randy Gaul.
  */
 var Overlap = /** @class */ (function () {
     function Overlap() {
@@ -80430,7 +80437,7 @@ var Overlap = /** @class */ (function () {
         var ref;
         var inc;
         // Determine which shape contains reference face
-        if (Vector_1.Vector.BiasGreaterThan(penetrationA, penetrationB)) {
+        if (Tools_1.Tools.BiasGreaterThan(penetrationA, penetrationB)) {
             ref = a;
             inc = b;
             refIndex = faceA;
@@ -80553,6 +80560,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var Vector_1 = __webpack_require__(/*! ./Vector */ "./src/lib/Geometry/Vector.ts");
 var BaseShape_1 = __webpack_require__(/*! ./BaseShape */ "./src/lib/Geometry/BaseShape.ts");
 var Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
+var Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 var Polygon = /** @class */ (function (_super) {
     __extends(Polygon, _super);
     function Polygon(vertices) {
@@ -80701,7 +80709,7 @@ var Polygon = /** @class */ (function (_super) {
             var i2 = i1 + 1 < this.points.length ? i1 + 1 : 0;
             var face = this.points[i2].Sub(this.points[i1]);
             // Ensure no zero-length edges, because that's bad
-            if (face.Len2() <= Vector_1.Vector.EPSILON * Vector_1.Vector.EPSILON) {
+            if (face.Len2() <= Tools_1.Tools.Epsilon * Tools_1.Tools.Epsilon) {
                 throw new Error("Zero length edges");
             }
             // Calculate normal with 2D cross product between vector and scalar
@@ -80759,8 +80767,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
 var Matrix_1 = __webpack_require__(/*! ./Matrix */ "./src/lib/Geometry/Matrix.ts");
-var BIAS_RELATIVE = 0.95;
-var BIAS_ABSOLULTE = 0.01;
+var Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 var Vector = /** @class */ (function (_super) {
     __extends(Vector, _super);
     function Vector(x, y) {
@@ -80845,14 +80852,7 @@ var Vector = /** @class */ (function (_super) {
         return this.X == other.X && this.Y == other.Y;
     };
     /**
-     * Check if the difference between this and the other vector is inside EPSILON.
-     * @param other
-     */
-    Vector.prototype.Equal = function (other) {
-        return Vector.Equal(this.X, other.X) && Vector.Equal(this.Y, other.Y);
-    };
-    /**
-     * Add a vector to this one.
+     * Add a vector or a number to this one.
      * @param other
      */
     Vector.prototype.Add = function (other) {
@@ -80864,11 +80864,18 @@ var Vector = /** @class */ (function (_super) {
         }
         return new Vector(this.X + other.X, this.Y + other.Y);
     };
+    /**
+     * Substract a number of a vector from this vector.
+     * @param other
+     */
     Vector.prototype.Sub = function (other) {
         return this.Add(new Vector(-1, -1).Scale(other));
     };
+    /**
+     * Return the negative of the vector.
+     */
     Vector.prototype.Neg = function () {
-        return new Vector(-this.X, -this.Y);
+        return this.Scale(-1);
     };
     /**
      * Scale this vector by another one.
@@ -80892,6 +80899,10 @@ var Vector = /** @class */ (function (_super) {
         }
         return new Vector(m(this.X, other.X), m(this.Y, other.Y));
     };
+    /**
+     * Devide the vector by another vector or a number.
+     * @param other
+     */
     Vector.prototype.Div = function (other) {
         return this.Scale(new Vector(1 / (typeof other === "number" ? other : other.X), 1 / (typeof other === "number" ? other : other.Y)));
     };
@@ -80921,13 +80932,15 @@ var Vector = /** @class */ (function (_super) {
         var l = this.Len();
         return l === 0 ? new Vector(0, 0) : new Vector(this.X / l, this.Y / l);
     };
-    Vector.Equal = function (a, b) {
-        return Math.abs(a - b) <= Vector.EPSILON;
+    /**
+     * Check if the difference between this and the other vector is inside epsilon.
+     * @param other
+     * @param eps Default is Tools.Epsilon
+     */
+    Vector.prototype.Equal = function (other, eps) {
+        if (eps === void 0) { eps = Tools_1.Tools.Epsilon; }
+        return Tools_1.Tools.Equal(this.X, other.X, eps) && Tools_1.Tools.Equal(this.Y, other.Y, eps);
     };
-    Vector.BiasGreaterThan = function (a, b) {
-        return a >= b * BIAS_RELATIVE + a * BIAS_ABSOLULTE;
-    };
-    Vector.EPSILON = 0.0001;
     __decorate([
         Exportable_1.Exportable.Register(Exportable_1.ExportType.NetDisk),
         __metadata("design:type", Number)
@@ -80995,6 +81008,42 @@ exports.FakeChannel = FakeChannel;
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var Tools_1 = __webpack_require__(/*! ../../Util/Tools */ "./src/lib/Util/Tools.ts");
 var Logger_1 = __webpack_require__(/*! ../../Util/Logger */ "./src/lib/Util/Logger.ts");
@@ -81007,6 +81056,7 @@ var PeerChannel = /** @class */ (function () {
                 }
             ]
         };
+        this.packets = {};
         /**
          * Called when channel is opened.
          */
@@ -81016,7 +81066,7 @@ var PeerChannel = /** @class */ (function () {
          */
         this.OnClose = Tools_1.Tools.Noop;
         /**
-         * Receive a Message from the other peer.
+         * Receive a message from the other peer.
          */
         this.OnMessage = Tools_1.Tools.Noop;
     }
@@ -81031,6 +81081,7 @@ var PeerChannel = /** @class */ (function () {
         return new Promise(function (resolve, reject) {
             _this.peerConnection = new RTCPeerConnection(_this.config);
             _this.dataChannel = _this.peerConnection.createDataChannel("data");
+            _this.dataChannel.binaryType = "arraybuffer";
             _this.peerConnection.onicecandidate = function (e) {
                 if (e.candidate == null) {
                     var offer = _this.peerConnection.localDescription;
@@ -81093,24 +81144,64 @@ var PeerChannel = /** @class */ (function () {
         }
     };
     /**
-     * Parse an incoming Message.
+     * Parse an incoming message.
      * @param event
      */
     PeerChannel.prototype.ParseMessage = function (event) {
-        if (event && event.data) {
-            var uncompressed = Tools_1.Tools.ANSIToUTF16(Tools_1.Tools.ZLibInflate(event.data));
-            this.OnMessage(uncompressed);
+        if (!event || !event.data || !event.data.byteLength) {
+            return;
+        }
+        var merged = event.data;
+        var endOfMeta = Tools_1.Tools.FindEndOfMeta(merged);
+        var rawMeta = merged.slice(0, endOfMeta);
+        var meta = JSON.parse(Tools_1.Tools.ANSIToUTF16(rawMeta));
+        var slice = merged.slice(endOfMeta, merged.byteLength);
+        if (!this.packets.hasOwnProperty(meta.Id)) {
+            this.packets[meta.Id] = [];
+        }
+        var slices = this.packets[meta.Id];
+        slices[meta.Index] = slice;
+        if (slices.length === meta.Count) {
+            var message = Tools_1.Tools.MergeBuffers(slices);
+            var decompressed = Tools_1.Tools.ZLibInflate(message);
+            this.OnMessage(decompressed);
         }
     };
     /**
-     * Send a Message through the channel.
+     * Send a message through the channel.
      * @param message
      */
     PeerChannel.prototype.SendMessage = function (message) {
-        if (this.IsOpen()) {
-            var compressed = Tools_1.Tools.ZLibDeflate(Tools_1.Tools.UTF16ToANSI(message));
-            this.dataChannel.send(compressed);
-        }
+        return __awaiter(this, void 0, void 0, function () {
+            var compressed, id, count, _loop_1, i;
+            var _this = this;
+            return __generator(this, function (_a) {
+                if (!this.IsOpen()) {
+                    Logger_1.Logger.Warn(this, "Channel is closed, but trying to send message");
+                    return [2 /*return*/];
+                }
+                compressed = Tools_1.Tools.ZLibDeflate(message);
+                id = Tools_1.Tools.Unique();
+                count = Math.ceil(compressed.byteLength / PeerChannel.MaxByteLength);
+                _loop_1 = function (i) {
+                    var rawMeta = {
+                        Id: id,
+                        Index: i,
+                        Count: count
+                    };
+                    var meta = Tools_1.Tools.UTF16ToANSI(JSON.stringify(rawMeta));
+                    var start = i * PeerChannel.MaxByteLength;
+                    var length_1 = PeerChannel.MaxByteLength;
+                    var slice = compressed.slice(start, start + length_1);
+                    var merged = Tools_1.Tools.MergeBuffers([meta, slice]);
+                    Tools_1.Tools.RunAsync(function () { return _this.dataChannel.send(merged); });
+                };
+                for (i = 0; i < count; i++) {
+                    _loop_1(i);
+                }
+                return [2 /*return*/];
+            });
+        });
     };
     /**
      * Close the channel.
@@ -81135,6 +81226,7 @@ var PeerChannel = /** @class */ (function () {
         return this.dataChannel && this.dataChannel.readyState == "open" &&
             this.peerConnection && this.peerConnection.signalingState == "stable";
     };
+    PeerChannel.MaxByteLength = 16384;
     return PeerChannel;
 }());
 exports.PeerChannel = PeerChannel;
@@ -81208,9 +81300,8 @@ var Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts"
 var MessageHandler_1 = __webpack_require__(/*! ./MessageHandler */ "./src/lib/Net/MessageHandler.ts");
 var Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
 var Dump_1 = __webpack_require__(/*! ../Dump */ "./src/lib/Dump.ts");
-var MAX_POS_DIFF = 0.5;
-var MAX_ROT_DIFF = Math.PI / 4;
-var PLAYER_SYNCED_FUNCTIONS = ["Damage", "Shoot", "StopRot", "StartRot", "StartWalk", "StopWalk"];
+var ResourceManager_1 = __webpack_require__(/*! ../Util/ResourceManager */ "./src/lib/Util/ResourceManager.ts");
+var Body_1 = __webpack_require__(/*! ../Physics/Body */ "./src/lib/Physics/Body.ts");
 var Client = /** @class */ (function (_super) {
     __extends(Client, _super);
     /**
@@ -81232,10 +81323,10 @@ var Client = /** @class */ (function (_super) {
         return _this;
     }
     /**
-     * Receive a Message through the channel.
+     * Receive a message through the channel.
      * @param message
      */
-    Client.prototype.OnMessage = function (message) {
+    Client.prototype.OnMessage = function (message, buffer) {
         Logger_1.Logger.Debug(this, "Message was received", message);
         World_1.World.Current = this.world;
         switch (message.Type) {
@@ -81249,7 +81340,10 @@ var Client = /** @class */ (function (_super) {
                 this.ReceivePlayer(message.Payload);
                 break;
             case MessageType_1.MessageType.World:
-                this.ReceivePack(message.Payload);
+                this.ReceiveWorld(buffer);
+                break;
+            case MessageType_1.MessageType.Resources:
+                this.ReceiveResources(buffer);
                 break;
             case MessageType_1.MessageType.Command:
                 this.ReceiveCommand(message.Payload);
@@ -81287,45 +81381,53 @@ var Client = /** @class */ (function (_super) {
      */
     Client.prototype.ReceiveDiff = function (diff) {
         return __awaiter(this, void 0, void 0, function () {
-            var id, oldUnit, merged, newUnit, newBody, oldBody, posDiff, rotDiff;
+            var id, oldUnit, oldDump, newUnit, newBody, oldBody;
             return __generator(this, function (_a) {
                 Logger_1.Logger.Debug(this, "Diff was received!", diff);
                 id = diff && diff.Payload && diff.Payload.length &&
                     diff.Payload.find(function (prop) { return prop.Name == "id"; }).Payload;
                 if (!id) {
-                    Logger_1.Logger.Warn(this, "No ID for diff!");
+                    Logger_1.Logger.Warn(this, "No ID for diff, cannot proceed!");
                     return [2 /*return*/];
                 }
                 oldUnit = this.world.GetUnits().Get(id);
-                // Return if we do not have an older version,
-                // because we cannot receive a diff without a base
+                // We cannot receive a diff without a base
                 if (!oldUnit) {
                     Logger_1.Logger.Warn(this, "Received diff, but no base unit!");
                     return [2 /*return*/];
                 }
                 World_1.World.Current = this.world;
-                merged = Exportable_1.Exportable.Export(oldUnit);
-                Dump_1.Dump.Merge(merged, diff);
-                try {
-                    newUnit = Exportable_1.Exportable.Import(merged);
-                }
-                catch (_b) {
-                    return [2 /*return*/];
-                }
-                newBody = newUnit.GetBody();
-                oldBody = oldUnit.GetBody();
-                // If the position or the rotation difference is under a limit, skip updating
-                if (Dump_1.Dump.IsMovementDiff(diff) && oldBody.GetPosition()) {
-                    posDiff = newBody.GetPosition().Dist(oldBody.GetPosition());
-                    rotDiff = Math.abs(newBody.GetRotation() - oldBody.GetRotation());
-                    if (posDiff < MAX_POS_DIFF && rotDiff < MAX_ROT_DIFF) {
+                oldDump = Exportable_1.Exportable.Export(oldUnit);
+                Dump_1.Dump.Merge(oldDump, diff);
+                if (!Client.DisableOptimization && Dump_1.Dump.TestDump(diff, ["id", "body"])) {
+                    newUnit = Exportable_1.Exportable.Import(oldDump);
+                    newBody = newUnit.GetBody();
+                    oldBody = oldUnit.GetBody();
+                    // If only a positional difference is present which is under a limit, skip updating
+                    if (Body_1.Body.Equal(newBody, oldBody)) {
                         Logger_1.Logger.Debug(this, "Unit was optimized out", newUnit);
                         return [2 /*return*/];
                     }
                 }
-                return [2 /*return*/, this.ReceiveUnit(merged)];
+                return [2 /*return*/, this.ReceiveUnit(oldDump)];
             });
         });
+    };
+    /**
+     * Receive resources.
+     * @param buffer
+     */
+    Client.prototype.ReceiveResources = function (buffer) {
+        ResourceManager_1.ResourceManager.Load(buffer);
+    };
+    /**
+     * Receive the world.
+     * @param size
+     */
+    Client.prototype.ReceiveWorld = function (buffer) {
+        var charArray = Tools_1.Tools.ZLibInflate(buffer);
+        var dump = JSON.parse(Tools_1.Tools.ANSIToUTF16(charArray));
+        Tools_1.Tools.Extract(this.world, Exportable_1.Exportable.Import(dump));
     };
     /**
      * Receive the player by id.
@@ -81335,19 +81437,12 @@ var Client = /** @class */ (function (_super) {
         var _this = this;
         var player = this.player = this.world.GetActors().Get(id);
         this.OnPlayer(Tools_1.Tools.Hook(player, function (target, prop, args) {
-            if (!PLAYER_SYNCED_FUNCTIONS.includes(prop)) {
+            if (!Client.PlayerSyncedFunctions.includes(prop)) {
                 return;
             }
             var dump = Exportable_1.Exportable.Export([player.GetId(), prop].concat(args));
             _this.SendMessage(MessageType_1.MessageType.Command, dump);
         }));
-    };
-    /**
-     * Receive the size of the world.
-     * @param size
-     */
-    Client.prototype.ReceivePack = function (dump) {
-        Tools_1.Tools.Extract(this.world, Exportable_1.Exportable.Import(dump));
     };
     /**
      * Receive a command from another player.
@@ -81375,6 +81470,15 @@ var Client = /** @class */ (function (_super) {
         Logger_1.Logger.Warn(this, "Kicked from the server!");
         this.channel.Close();
     };
+    Client.DisableOptimization = false;
+    Client.PlayerSyncedFunctions = [
+        "Damage",
+        "Shoot",
+        "StopRot",
+        "StartRot",
+        "StartWalk",
+        "StopWalk"
+    ];
     return Client;
 }(MessageHandler_1.MessageHandler));
 exports.Client = Client;
@@ -81447,7 +81551,7 @@ var MessageType_1 = __webpack_require__(/*! ./MessageType */ "./src/lib/Net/Mess
 var MessageHandler_1 = __webpack_require__(/*! ./MessageHandler */ "./src/lib/Net/MessageHandler.ts");
 var Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
 var Dump_1 = __webpack_require__(/*! ../Dump */ "./src/lib/Dump.ts");
-var SLEEP_TIME = 1000;
+var Body_1 = __webpack_require__(/*! ../Physics/Body */ "./src/lib/Physics/Body.ts");
 var Host = /** @class */ (function (_super) {
     __extends(Host, _super);
     /**
@@ -81457,9 +81561,8 @@ var Host = /** @class */ (function (_super) {
     function Host(channel, server) {
         var _this = _super.call(this, channel) || this;
         _this.last = {};
-        _this.lastTime = {};
         /**
-         * Executed when the Connection receives a COMMAND from the client.
+         * Executed when the host receives a COMMAND from the client.
          * @param command
          */
         _this.OnCommand = Tools_1.Tools.Noop;
@@ -81473,10 +81576,10 @@ var Host = /** @class */ (function (_super) {
         return this.player;
     };
     /**
-     * Receive a Message through the channel and parse it.
+     * Receive a message through the channel and parse it.
      * @param message
      */
-    Host.prototype.OnMessage = function (message) {
+    Host.prototype.OnMessage = function (message, buffer) {
         switch (message.Type) {
             case MessageType_1.MessageType.Command:
                 this.OnCommand(message.Payload);
@@ -81487,38 +81590,50 @@ var Host = /** @class */ (function (_super) {
                 break;
         }
     };
-    /**
-     * Init world. Also deletes previously setted units.
-     * @param dumb
-     */
     Host.prototype.SendWorld = function (dumb) {
         return __awaiter(this, void 0, void 0, function () {
+            var charArray, compressed;
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.SendMessage(MessageType_1.MessageType.World, dumb)];
+                charArray = Tools_1.Tools.UTF16ToANSI(JSON.stringify(dumb));
+                compressed = Tools_1.Tools.ZLibDeflate(charArray);
+                return [2 /*return*/, this.SendMessage(MessageType_1.MessageType.World, compressed)];
             });
         });
     };
-    /**
-     * Set an unit (a cell or an actor).
-     * @param unit
-     */
+    Host.prototype.SendResources = function (buffer) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, this.SendMessage(MessageType_1.MessageType.Resources, buffer)];
+            });
+        });
+    };
     Host.prototype.SendUnit = function (unit) {
         return __awaiter(this, void 0, void 0, function () {
-            var dump, id, now, diff;
+            var dump, id, now, diff, lastItem, newUnit, oldUnit, newBody, oldBody;
             return __generator(this, function (_a) {
                 dump = Exportable_1.Exportable.Export(unit);
                 id = unit.GetId();
                 now = +new Date;
                 diff = null;
-                if (this.lastTime.hasOwnProperty(id) && this.last.hasOwnProperty(id)) {
-                    diff = Dump_1.Dump.Diff(dump, this.last[id]);
+                if (!Host.DisableOptimization && this.last.hasOwnProperty(id)) {
+                    lastItem = this.last[id];
+                    diff = Dump_1.Dump.Diff(dump, lastItem.Dump);
+                    if (lastItem.Timestamp + Host.SleepTime >= now && Dump_1.Dump.TestDump(diff, ["body"])) {
+                        newUnit = Exportable_1.Exportable.Import(dump);
+                        oldUnit = Exportable_1.Exportable.Import(lastItem.Dump);
+                        newBody = newUnit.GetBody();
+                        oldBody = oldUnit.GetBody();
+                        // If only a positional difference is present which is under a limit, skip updating
+                        if (Body_1.Body.Equal(newBody, oldBody)) {
+                            Logger_1.Logger.Debug(this, "Unit was optimized out", newUnit);
+                            return [2 /*return*/];
+                        }
+                    }
                 }
-                if (diff && this.lastTime[id] + SLEEP_TIME >= now && Dump_1.Dump.IsMovementDiff(diff)) {
-                    Logger_1.Logger.Debug(this, "Unit was optimized out", unit);
-                    return [2 /*return*/];
-                }
-                this.last[id] = dump;
-                this.lastTime[id] = now;
+                this.last[id] = {
+                    Timestamp: now,
+                    Dump: dump
+                };
                 if (diff) {
                     // Hack ID into it
                     diff.Payload.push({
@@ -81533,8 +81648,8 @@ var Host = /** @class */ (function (_super) {
         });
     };
     /**
-     * Set the active player actor for the client (the actor needs to be
-     * already sent via SetUnit).
+     * Set the active player actor for the client.
+     * The player must be already present on the other side.
      * @param player
      */
     Host.prototype.SendPlayer = function (player) {
@@ -81548,10 +81663,6 @@ var Host = /** @class */ (function (_super) {
             });
         });
     };
-    /**
-     * Send a player's command to a other player.
-     * @param command
-     */
     Host.prototype.SendCommand = function (command) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -81582,6 +81693,8 @@ var Host = /** @class */ (function (_super) {
             });
         });
     };
+    Host.DisableOptimization = false;
+    Host.SleepTime = 1000;
     return Host;
 }(MessageHandler_1.MessageHandler));
 exports.Host = Host;
@@ -81638,6 +81751,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var MessageType_1 = __webpack_require__(/*! ./MessageType */ "./src/lib/Net/MessageType.ts");
 var Event_1 = __webpack_require__(/*! ../Util/Event */ "./src/lib/Util/Event.ts");
 var Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
+var Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 var MessageHandler = /** @class */ (function () {
     /**
      * Construct a new connection which communicates with a client.
@@ -81651,23 +81765,20 @@ var MessageHandler = /** @class */ (function () {
         this.channel.OnMessage = function (message) { return _this.ParseMessage(message); };
     }
     /**
-     * Receive a Message through the channel.
-     * @param input
+     * Receive a message through the channel.
+     * @param merged
      */
-    MessageHandler.prototype.ParseMessage = function (input) {
-        var message;
-        try {
-            message = JSON.parse(input);
-        }
-        catch (e) {
-            return;
-        }
+    MessageHandler.prototype.ParseMessage = function (merged) {
+        var endOfMeta = Tools_1.Tools.FindEndOfMeta(merged);
+        var rawMessage = merged.slice(0, endOfMeta);
+        var message = JSON.parse(Tools_1.Tools.ANSIToUTF16(rawMessage));
+        var buffer = merged.slice(endOfMeta, merged.byteLength);
         switch (message.Type) {
             case MessageType_1.MessageType.Diff:
                 // Receive only states newer than the current one
                 if (message.Index > this.inIndex || this.inIndex === undefined) {
                     this.inIndex = message.Index;
-                    this.OnMessage(message);
+                    this.OnMessage(message, buffer);
                 }
                 this.SendReceived(message);
                 break;
@@ -81675,22 +81786,24 @@ var MessageHandler = /** @class */ (function () {
             case MessageType_1.MessageType.Command:
             case MessageType_1.MessageType.Player:
             case MessageType_1.MessageType.Kick:
+            case MessageType_1.MessageType.Resources:
             case MessageType_1.MessageType.World:
-                this.OnMessage(message);
+                this.OnMessage(message, buffer);
                 this.SendReceived(message);
                 break;
             case MessageType_1.MessageType.Received:
                 this.ParseReceived(message);
                 break;
         }
-        Logger_1.Logger.Debug(this, "Message was received", message);
+        Logger_1.Logger.Debug(this, "Message was received", message, buffer);
     };
     /**
      * Parse incoming ACK.
      * @param message
      */
     MessageHandler.prototype.ParseReceived = function (message) {
-        this.receivedEvent.Call(message.Payload);
+        var index = message.Payload;
+        this.receivedEvent.Call(index);
     };
     /**
      * Send ACK.
@@ -81700,8 +81813,8 @@ var MessageHandler = /** @class */ (function () {
         this.SendMessage(MessageType_1.MessageType.Received, message.Index);
     };
     /**
-    * Send a Message through the channel.
-    * @param type Type of the Message.
+    * Send a message through the channel.
+    * @param type Type of the message.
     * @param payload
     */
     MessageHandler.prototype.SendMessage = function (type, payload) {
@@ -81709,14 +81822,26 @@ var MessageHandler = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 return [2 /*return*/, new Promise(function (resolve, reject) {
-                        // Create the Message
+                        // Create the message
                         var message = {
                             Type: type,
-                            Index: _this.outIndex++,
-                            Payload: payload
+                            Index: _this.outIndex++
                         };
+                        var buffer;
+                        if (payload instanceof ArrayBuffer) {
+                            buffer = payload;
+                        }
+                        else {
+                            message.Payload = payload;
+                        }
+                        var charArray = Tools_1.Tools.UTF16ToANSI(JSON.stringify(message));
+                        var slices = [charArray];
+                        if (buffer) {
+                            slices.push(buffer);
+                        }
+                        var merged = Tools_1.Tools.MergeBuffers(slices);
                         // Create a new RECEIVED listener if this was not
-                        // a acknowledge Message
+                        // a acknowledge message
                         if (message.Type != MessageType_1.MessageType.Received) {
                             var listener_1 = _this.receivedEvent.Add(function (index) {
                                 if (index === message.Index) {
@@ -81732,8 +81857,8 @@ var MessageHandler = /** @class */ (function () {
                             // Resolve immediately if RECEIVED
                             resolve();
                         }
-                        // Send Message
-                        _this.channel.SendMessage(JSON.stringify(message));
+                        // Send message
+                        _this.channel.SendMessage(merged);
                         Logger_1.Logger.Debug(_this, "Message was sent", message);
                     })];
             });
@@ -81758,15 +81883,16 @@ exports.MessageHandler = MessageHandler;
 Object.defineProperty(exports, "__esModule", { value: true });
 var MessageType;
 (function (MessageType) {
-    // OUT
+    // To host
     MessageType["World"] = "World";
     MessageType["Unit"] = "Unit";
     MessageType["Diff"] = "Diff";
     MessageType["Player"] = "Player";
     MessageType["Kick"] = "Kick";
-    // IN
+    MessageType["Resources"] = "Resources";
+    // To client
     MessageType["Command"] = "Command";
-    // IN & OUT
+    // To both
     MessageType["Received"] = "Received";
 })(MessageType = exports.MessageType || (exports.MessageType = {}));
 
@@ -81823,7 +81949,7 @@ var World_1 = __webpack_require__(/*! ../World */ "./src/lib/World.ts");
 var Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
 var Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 var Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
-var SPAWN_Z = 0;
+var ResourceManager_1 = __webpack_require__(/*! ../Util/ResourceManager */ "./src/lib/Util/ResourceManager.ts");
 var Server = /** @class */ (function () {
     /**
      * Construct a new server with the given world. The server gonna
@@ -81836,7 +81962,7 @@ var Server = /** @class */ (function () {
         this.hosts = [];
         this.world = world;
         this.spawns = this.world.GetCells().GetArray()
-            .filter(function (c) { return !c.IsBlocking() && c.GetBody().GetZ() == SPAWN_Z; })
+            .filter(function (c) { return !c.IsBlocking() && c.GetBody().GetZ() == Server.SpawnZ; })
             .sort(function (a, b) { return Tools_1.Tools.Random(-100, 100); })
             .map(function (c) { return c.GetBody(); });
         this.world.OnUpdate.Add(function (unit) { return _this.hosts
@@ -81890,10 +82016,10 @@ var Server = /** @class */ (function () {
     // TODO: Refactor this to use RoboPack
     Server.prototype.Add = function (host) {
         return __awaiter(this, void 0, void 0, function () {
-            var playerTag, basePlayer, actors, player, _loop_1, this_1, _i, _a, spawn, state_1;
+            var playerTag, basePlayer, actors, player, _loop_1, this_1, _i, _a, spawn, state_1, _b, _c;
             var _this = this;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            return __generator(this, function (_d) {
+                switch (_d.label) {
                     case 0:
                         // Create player and add it to the world
                         World_1.World.Current = this.world;
@@ -81929,18 +82055,26 @@ var Server = /** @class */ (function () {
                             throw new Error("Not enough space for new player!");
                         }
                         this.world.GetActors().Set(player);
-                        // Set size
+                        _c = (_b = host).SendResources;
+                        return [4 /*yield*/, ResourceManager_1.ResourceManager.GetBuffer()];
+                    case 1: 
+                    // Send resources
+                    return [4 /*yield*/, _c.apply(_b, [_d.sent()])];
+                    case 2:
+                        // Send resources
+                        _d.sent();
+                        // Send world
                         return [4 /*yield*/, host.SendWorld(Exportable_1.Exportable.Export(this.world))];
-                    case 1:
-                        // Set size
-                        _b.sent();
+                    case 3:
+                        // Send world
+                        _d.sent();
                         // Subscribe to the OnCommand callback
                         host.OnCommand = function (command) { return _this.OnCommand(host, command); };
                         // Set player
                         return [4 /*yield*/, host.SendPlayer(player)];
-                    case 2:
+                    case 4:
                         // Set player
-                        _b.sent();
+                        _d.sent();
                         // Add host to the internal host list
                         this.hosts.push(host);
                         return [2 /*return*/];
@@ -81948,6 +82082,7 @@ var Server = /** @class */ (function () {
             });
         });
     };
+    Server.SpawnZ = 0;
     return Server;
 }());
 exports.Server = Server;
@@ -82002,8 +82137,8 @@ var Vector_1 = __webpack_require__(/*! ../Geometry/Vector */ "./src/lib/Geometry
 var Exportable_1 = __webpack_require__(/*! ../Exportable */ "./src/lib/Exportable.ts");
 var Overlap_1 = __webpack_require__(/*! ../Geometry/Overlap */ "./src/lib/Geometry/Overlap.ts");
 var Polygon_1 = __webpack_require__(/*! ../Geometry/Polygon */ "./src/lib/Geometry/Polygon.ts");
-var PENETRATION_ALLOWANCE = 0.01; // Penetration allowance
-var PENETRATION_CORRECT = 0.01; // Penetration percentage to correct
+var Logger_1 = __webpack_require__(/*! ../Util/Logger */ "./src/lib/Util/Logger.ts");
+var Tools_1 = __webpack_require__(/*! ../Util/Tools */ "./src/lib/Util/Tools.ts");
 var Body = /** @class */ (function (_super) {
     __extends(Body, _super);
     function Body() {
@@ -82048,9 +82183,6 @@ var Body = /** @class */ (function (_super) {
         this.ComputeMass();
         this.ForceSetVirtual(args.scale === undefined ? this.scale : args.scale, args.rotation === undefined ? this.rotation : args.rotation, args.position === undefined ? this.position : args.position);
     };
-    /**
-     * Get the radius of the unit.
-     */
     Body.prototype.GetRadius = function () {
         if (!this.scale) {
             throw new Error("Get radius failed, no size!");
@@ -82083,6 +82215,9 @@ var Body = /** @class */ (function (_super) {
     };
     Body.prototype.GetZ = function () {
         return this.z;
+    };
+    Body.prototype.GetDensity = function () {
+        return this.density;
     };
     Body.prototype.SetCellFriction = function (friction) {
         if (typeof friction != "number" || Number.isNaN(friction)) {
@@ -82143,6 +82278,7 @@ var Body = /** @class */ (function (_super) {
         var dist = this.position.Dist(other.position);
         // Optimize, if unit is too far away, skip deeper collision detection
         if (dist > this.GetRadius() + other.GetRadius()) {
+            Logger_1.Logger.Debug(this, "Distance was larger than r1 + r2, skipping SAT");
             return null;
         }
         var contact = this.EveryShape(other, function (s1, s2) { return Overlap_1.Overlap.Test(s1, s2); });
@@ -82153,26 +82289,21 @@ var Body = /** @class */ (function (_super) {
         return contact;
     };
     Body.prototype.ForceSetVirtual = function (scale, rotation, position) {
+        var _this = this;
         if (typeof rotation === "number" && !Number.isFinite(rotation)) {
             throw new Error("Rotation is not finite!");
         }
-        var s = scale || this.scale;
-        var r = typeof rotation == "number" ? rotation : this.rotation;
-        var p = position || this.position;
-        // Validate if the underlaying "world" allows the move
-        if (this.Validate && !this.Validate(s, r, p)) {
-            return;
-        }
-        this.scale = s;
-        this.rotation = r;
-        this.position = p;
-        this.shapes.forEach(function (s) { return s.SetVirtual(scale, rotation, position); });
+        this.scale = scale || this.scale;
+        this.rotation = typeof rotation == "number" ? rotation : this.rotation;
+        this.position = position || this.position;
+        this.OnChange && this.OnChange(this.scale, this.rotation, this.position);
+        this.shapes.forEach(function (s) { return s.SetVirtual(_this.scale, _this.rotation, _this.position); });
     };
     Body.prototype.SetVirtual = function (scale, rotation, position) {
-        // Do not set, if there is no change
-        if ((!scale || (this.scale && scale.Is(this.scale))) &&
-            (typeof rotation !== "number" || this.rotation === rotation) &&
-            (!position || (this.position && position.Is(this.position)))) {
+        // Do not set, if the change is smaller than Tools.Epsilon
+        if ((!scale || (this.scale && scale.Equal(this.scale))) &&
+            (typeof rotation !== "number" || Tools_1.Tools.Equal(this.rotation, rotation)) &&
+            (!position || (this.position && position.Equal(this.position)))) {
             return;
         }
         this.ForceSetVirtual(scale, rotation, position);
@@ -82182,7 +82313,7 @@ var Body = /** @class */ (function (_super) {
      * @param dt
      */
     Body.prototype.IntegrateForces = function (dt) {
-        if (this.im == 0) {
+        if (this.density == Infinity || this.im == 0) {
             return;
         }
         var cf = Math.pow(this.cf, dt);
@@ -82194,7 +82325,7 @@ var Body = /** @class */ (function (_super) {
      * @param dt
      */
     Body.prototype.IntegrateVelocity = function (dt) {
-        if (this.im == 0 || (!this.av && !this.v.Len())) {
+        if (this.density == Infinity || this.im == 0 || (!this.av && !this.v.Len())) {
             return;
         }
         var nextPos = this.position.Add(this.v.Scale(dt));
@@ -82207,6 +82338,9 @@ var Body = /** @class */ (function (_super) {
      * @param contactVector
      */
     Body.prototype.ApplyImpulse = function (impulse, contactVector) {
+        if (this.density == Infinity || this.im == 0) {
+            return;
+        }
         this.v = this.v.Add(impulse.Scale(new Vector_1.Vector(this.im, this.im)));
         this.av += this.iI * Vector_1.Vector.Cross(contactVector, impulse);
     };
@@ -82218,7 +82352,7 @@ var Body = /** @class */ (function (_super) {
         this.torque = 0;
     };
     /**
-     * Calculate centroid and moment of interia
+     * Calculate centroid and moment of interia.
      */
     Body.prototype.ComputeMass = function () {
         if (!this.density) {
@@ -82248,35 +82382,39 @@ var Body = /** @class */ (function (_super) {
                 }
             }
         }
-        c = c.Scale(1.0 / area);
+        c = c.Scale(1 / area);
         this.m = this.density * area;
-        this.im = (this.m) ? 1.0 / this.m : 0.0;
+        this.im = (this.m) ? 1 / this.m : 0;
         this.I = inertia * this.density;
-        this.iI = this.I ? 1.0 / this.I : 0.0;
+        this.iI = this.I ? 1 / this.I : 0;
     };
     /**
-     * Naive correction of positional penetration
-     * @param c An object that implements the ICollision interface
+     * Naive correction of positional penetration.
+     * @param c An object that implements the ICollision interface.
      * @param dt
      */
     Body.PositionalCorrection = function (c, dt) {
         if (dt === void 0) { dt = 1 / 60; }
         var a = c.A;
         var b = c.B;
-        var correction = c.Normal.Scale((Math.max(c.Penetration - PENETRATION_ALLOWANCE, 0) / (a.im + b.im)) * PENETRATION_CORRECT);
+        var pa = Body.PenetrationAllowance;
+        var pc = Body.PenetrationCorrect;
+        var correction = c.Normal.Scale((Math.max(c.Penetration - pa, 0) / (a.im + b.im)) * pc);
         a.position = a.position.Add(correction.Scale(a.im));
         b.position = b.position.Add(correction.Scale(b.im));
     };
     /**
-     * Resolve a collision between two bodies
-     * @param c An object that implements the ICollision interface
+     * Resolve a collision between two bodies.
+     * Based on ImpulseEngine by Randy Gaul.
+     * @param c An object that implements the ICollision interface.
      * @param dt
      */
     Body.ResolveCollision = function (c, dt) {
         if (dt === void 0) { dt = 1 / 60; }
         var a = c.A;
         var b = c.B;
-        if (Vector_1.Vector.Equal(a.im + b.im, 0)) {
+        // If both bodies are having infinite or zero mass, stop resolving
+        if (Tools_1.Tools.Equal(a.im + b.im, 0) || (a.density == Infinity && b.density == Infinity)) {
             a.v = new Vector_1.Vector(0, 0);
             b.v = new Vector_1.Vector(0, 0);
             return;
@@ -82295,8 +82433,8 @@ var Body = /** @class */ (function (_super) {
             // Determine if we should perform a resting collision or not
             // The idea is if the only thing moving a object is gravity,
             // then the collision should be performed without any restitution
-            if (rv.Len2() < a.gravity.Scale(dt).Len2() + Vector_1.Vector.EPSILON) {
-                e = 0.0;
+            if (rv.Len2() < a.gravity.Scale(dt).Len2() + Tools_1.Tools.Epsilon) {
+                e = 0;
             }
         }
         for (var i = 0; i < c.Points.length; i++) {
@@ -82319,7 +82457,7 @@ var Body = /** @class */ (function (_super) {
                 Math.pow(raCrossN, 2) * a.iI +
                 Math.pow(rbCrossN, 2) * b.iI;
             // Calculate impulse scalar
-            var j = -(1.0 + e) * contactVel;
+            var j = -(1 + e) * contactVel;
             j /= invMassSum;
             j /= c.Points.length;
             if (!Number.isFinite(j)) {
@@ -82341,7 +82479,7 @@ var Body = /** @class */ (function (_super) {
             jt /= invMassSum;
             jt /= c.Points.length;
             // Don't apply tiny friction impulses
-            if (Vector_1.Vector.Equal(jt, 0.0)) {
+            if (Tools_1.Tools.Equal(jt, 0)) {
                 return;
             }
             // Coulumb's law
@@ -82363,6 +82501,24 @@ var Body = /** @class */ (function (_super) {
         body.Init(__assign({ scale: scale, rotation: rotation, position: position, shapes: [Polygon_1.Polygon.CreateBox(1)] }, args));
         return body;
     };
+    /**
+     * Check if two bodies are equal (or near equal, depending on the epsilon values).
+     * @param a
+     * @param b
+     * @param se Scaling epsilon
+     * @param re Rotation epsilon
+     * @param pe Position epsilon
+     */
+    Body.Equal = function (a, b, se, re, pe) {
+        if (se === void 0) { se = 0.5; }
+        if (re === void 0) { re = Math.PI / 4; }
+        if (pe === void 0) { pe = 0.5; }
+        return a.GetScale().Equal(b.GetScale(), se) &&
+            Tools_1.Tools.Equal(a.GetRotation(), b.GetRotation(), re) &&
+            a.GetPosition().Equal(b.GetPosition(), pe);
+    };
+    Body.PenetrationAllowance = 0.01; // Penetration allowance
+    Body.PenetrationCorrect = 0.4; // Penetration percentage to correct
     __decorate([
         Exportable_1.Exportable.Register(Exportable_1.ExportType.NetDisk),
         __metadata("design:type", Array)
@@ -82674,7 +82830,7 @@ var Renderer = /** @class */ (function () {
                 for (var x = 0; x < view.Y; x++) {
                     var c = this.center.Scale(this.dotPerPoint).Sub(view.Scale(0.5));
                     imageData.data[(y * view.Y + x) * 4 + 3] =
-                        (1 - this.world.GetShadow(x + c.X, y + c.Y, fullView.X, fullView.Y)) * 255;
+                        (1 - this.world.FindShadow(x + c.X, y + c.Y, fullView.X, fullView.Y)) * 255;
                 }
             }
             this.context.putImageData(imageData, 0, 0);
@@ -82683,10 +82839,11 @@ var Renderer = /** @class */ (function () {
             window.requestAnimationFrame(function () { return _this.Render(); });
         }
         var now = +new Date;
+        var dt = Math.min((now - this.lastTick) / 1000, Renderer.MIN_FPS);
         if (!this.noTick) {
-            this.world.OnTick.Call((now - this.lastTick) / 1000);
+            this.world.OnTick.Call(dt);
         }
-        this.OnDraw.Call((now - this.lastTick) / 1000);
+        this.OnDraw.Call(dt);
         this.lastTick = now;
     };
     Renderer.prototype.SetCenter = function (center) {
@@ -82713,6 +82870,7 @@ var Renderer = /** @class */ (function () {
     Renderer.prototype.SetSelectedUnit = function (unit) {
         this.selectedUnit = unit;
     };
+    Renderer.MIN_FPS = 1 / 25;
     return Renderer;
 }());
 exports.Renderer = Renderer;
@@ -82977,13 +83135,11 @@ var __extends = (this && this.__extends) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 var Unit_1 = __webpack_require__(/*! ../Unit */ "./src/lib/Unit/Unit.ts");
-var COLLISION_LIMIT = 3;
+var Body_1 = __webpack_require__(/*! ../../Physics/Body */ "./src/lib/Physics/Body.ts");
 var BaseActor = /** @class */ (function (_super) {
     __extends(BaseActor, _super);
     function BaseActor() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.noGround = 0;
-        return _this;
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     /**
      * @inheritDoc
@@ -82994,44 +83150,42 @@ var BaseActor = /** @class */ (function (_super) {
         this.blocking = args.blocking === undefined ? this.blocking || true : args.blocking;
     };
     /**
-     * Validate a positional change of the body.
+     * Search for cells the actor is standing on.
      * @param scale
      * @param rotation
      * @param position
      */
-    BaseActor.prototype.ValidateBody = function (scale, rotation, position) {
+    BaseActor.prototype.OnBodyChange = function (scale, rotation, position) {
         var _this = this;
+        // Call super, trigger a World update
+        _super.prototype.OnBodyChange.call(this, scale, rotation, position);
+        if (BaseActor.DisableSurfaceScan) {
+            return;
+        }
+        // If no world under the cell, skip the rest
         if (this.ignore || !this.world) {
-            return true;
+            return;
         }
         var body = this.GetBody();
         var newBody = body.Clone();
         newBody.SetVirtual(scale, rotation, position);
+        // Do not check for new cells upon every body change,
+        // because SAT is performance hungry
+        if (this.lastBody && Body_1.Body.Equal(this.lastBody, newBody)) {
+            return;
+        }
+        this.lastBody = newBody;
         // Get the currently covered cells and the next ones
         var prev = body.GetPosition()
             ? this.world.GetCells().GetArray().filter(function (c) { return c.GetBody().Collide(body); })
             : [];
         var next = this.world.GetCells().GetArray().filter(function (c) { return c.GetBody().Collide(newBody); });
-        if (!next.length) {
-            // This fixes a nasty bug in the physics engine.
-            // For some reason, rotation causes invalid moves,
-            // because the engine does not find collisions with
-            // cells under the actor.
-            // TODO: FIX THIS
-            this.noGround++;
-            if (this.noGround >= COLLISION_LIMIT) {
-                return false;
-            }
-        }
-        else {
-            this.noGround = 0;
-        }
         // Remove intersection 
         var prevFiltered = prev.filter(function (v) { return !next.includes(v); });
         var nextFiltered = next.filter(function (v) { return !prev.includes(v); });
+        // Finalize
         nextFiltered.forEach(function (cell) { return cell.MoveHere(_this); });
         prevFiltered.forEach(function (cell) { return cell.MoveAway(_this); });
-        return true;
     };
     /**
      * @inheritDoc
@@ -83046,6 +83200,7 @@ var BaseActor = /** @class */ (function (_super) {
         }
         _super.prototype.Dispose.call(this);
     };
+    BaseActor.DisableSurfaceScan = false;
     return BaseActor;
 }(Unit_1.Unit));
 exports.BaseActor = BaseActor;
@@ -83666,20 +83821,16 @@ var Unit = /** @class */ (function (_super) {
      * @param body
      */
     Unit.prototype.SetBody = function (body) {
-        var _this = this;
         if (!body) {
             return;
         }
         this.body = body;
-        this.body.Validate = function (scale, rotation, position) {
-            if (!_this.ignore && _this.world) {
-                _this.world.OnUpdate.Call(_this);
-            }
-            return _this.ValidateBody(scale, rotation, position);
-        };
+        this.body.OnChange = this.OnBodyChange.bind(this);
     };
-    Unit.prototype.ValidateBody = function (scale, rotation, position) {
-        return true;
+    Unit.prototype.OnBodyChange = function (scale, rotation, position) {
+        if (!this.ignore && this.world) {
+            this.world.OnUpdate.Call(this);
+        }
     };
     Unit.prototype.GetLight = function () {
         return this.light;
@@ -84157,7 +84308,7 @@ var Logger = /** @class */ (function () {
             var typeName = StringLogType(type);
             var title = "" + (typeName ? typeName + " " : "") + (name && "[" + name + "] ");
             console.log.apply(console, __spreadArrays([title], args));
-            this.OnLog.Call(__spreadArrays([title], args).map(function (e) { return e.toString(); }).join(" "));
+            this.OnLog.Call(__spreadArrays([title], args).map(function (e) { return e ? e.toString() : "None"; }).join(" "));
         }
     };
     Logger.Debug = function (self) {
@@ -84338,7 +84489,7 @@ var ResourceManager = /** @class */ (function () {
         this.OnChange.Call();
     };
     /**
-     * Save the storage of the resource manager into a RoboLand resource buffer.
+     * Save the storage of the resource manager into a RoboPack Blob.
      * @param buffer
      */
     ResourceManager.Save = function () {
@@ -84346,10 +84497,24 @@ var ResourceManager = /** @class */ (function () {
             var buffer;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, RoboPack_1.RoboPack.Pack(this.storage)];
+                    case 0: return [4 /*yield*/, ResourceManager.GetBuffer()];
                     case 1:
                         buffer = _a.sent();
                         return [2 /*return*/, new Blob([buffer], { type: "application/octet-stream" })];
+                }
+            });
+        });
+    };
+    /**
+     * Save the storage into a RoboPack ArrayBuffer.
+     * This does not create a Blob.
+     */
+    ResourceManager.GetBuffer = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, RoboPack_1.RoboPack.Pack(this.storage)];
+                    case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });
@@ -84561,28 +84726,14 @@ var RoboPack = /** @class */ (function () {
     };
     RoboPack.Unpack = function (buffer) {
         return __awaiter(this, void 0, void 0, function () {
-            var uncompressed, view, endOfMeta, scope, i, result, rawMeta, meta, current, _i, _a, item, length_1, subBuffer, resource;
+            var result, uncompressed, endOfMeta, rawMeta, meta, current, _i, _a, item, length_1, subBuffer, resource;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         Logger_1.Logger.Info("Unpacking RoboPack");
-                        uncompressed = Tools_1.Tools.ZLibInflate(buffer);
-                        view = new Uint8Array(uncompressed);
-                        endOfMeta = 0;
-                        scope = 0;
-                        for (i = 0; i < view.length; i++) {
-                            if (view[i] === "{".charCodeAt(0)) {
-                                scope++;
-                            }
-                            else if (view[i] === "}".charCodeAt(0)) {
-                                scope--;
-                                if (scope === 0) {
-                                    endOfMeta = i + 1;
-                                    break;
-                                }
-                            }
-                        }
                         result = [];
+                        uncompressed = Tools_1.Tools.ZLibInflate(buffer);
+                        endOfMeta = Tools_1.Tools.FindEndOfMeta(uncompressed);
                         rawMeta = uncompressed.slice(0, endOfMeta);
                         meta = JSON.parse(Tools_1.Tools.ANSIToUTF16(rawMeta));
                         current = endOfMeta;
@@ -84634,7 +84785,7 @@ exports.RoboPack = RoboPack;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
- * Inner class to speed upp gradient computations
+ * Inner class to speed up gradient computations
  */
 var Grad = /** @class */ (function () {
     function Grad(x, y, z, w) {
@@ -85076,6 +85227,19 @@ var Tools = /** @class */ (function () {
     Tools.Random = function (min, max) {
         return Math.floor(Math.random() * (max - min + 1) + min);
     };
+    Tools.BiasGreaterThan = function (a, b) {
+        return a >= b * Tools.BiasRelative + a * Tools.BiasAbsolulte;
+    };
+    /**
+     * Compare if the difference between two numbers are less than epsilon.
+     * @param a
+     * @param b
+     * @param eps Default value is Tools.Epsilon
+     */
+    Tools.Equal = function (a, b, eps) {
+        if (eps === void 0) { eps = Tools.Epsilon; }
+        return Math.abs(a - b) <= eps;
+    };
     /**
      * Copy properties from one object to another.
      * @param to
@@ -85194,6 +85358,13 @@ var Tools = /** @class */ (function () {
             });
         });
     };
+    Tools.RunAsync = function (callback) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve) { return setTimeout(function () { return resolve(callback()); }, 0); })];
+            });
+        });
+    };
     /**
      * A noop function.
      */
@@ -85235,13 +85406,33 @@ var Tools = /** @class */ (function () {
         }
         return merged.buffer;
     };
-    Tools.RunAsync = function (callback) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve) { return setTimeout(function () { return resolve(callback()); }, 0); })];
-            });
-        });
+    /**
+     * When transporting data in ArrayBuffers, a meta JSON is used to
+     * describe the contents. This JSON is prepended before the original
+     * buffer.
+     * @param buffer
+     */
+    Tools.FindEndOfMeta = function (buffer) {
+        var view = new Uint8Array(buffer);
+        var endOfMeta = 0;
+        var scope = 0;
+        for (var i = 0; i < view.length; i++) {
+            if (view[i] === "{".charCodeAt(0)) {
+                scope++;
+            }
+            else if (view[i] === "}".charCodeAt(0)) {
+                scope--;
+                if (scope === 0) {
+                    endOfMeta = i + 1;
+                    break;
+                }
+            }
+        }
+        return endOfMeta;
     };
+    Tools.Epsilon = 0.0001;
+    Tools.BiasRelative = 0.95;
+    Tools.BiasAbsolulte = 0.01;
     return Tools;
 }());
 exports.Tools = Tools;
@@ -85293,10 +85484,6 @@ var NormalCell_1 = __webpack_require__(/*! ./Unit/Cell/NormalCell */ "./src/lib/
 var Polygon_1 = __webpack_require__(/*! ./Geometry/Polygon */ "./src/lib/Geometry/Polygon.ts");
 var PlayerActor_1 = __webpack_require__(/*! ./Unit/Actor/PlayerActor */ "./src/lib/Unit/Actor/PlayerActor.ts");
 var Logger_1 = __webpack_require__(/*! ./Util/Logger */ "./src/lib/Util/Logger.ts");
-var COLLISION_ITERATIONS = 10;
-var SHADOW_DOT_PER_POINT = 10;
-var SHADOW_STEP = 1 / 4;
-var SHADOW_STEP_R = 2;
 var World = /** @class */ (function (_super) {
     __extends(World, _super);
     function World() {
@@ -85339,7 +85526,9 @@ var World = /** @class */ (function (_super) {
             // Or generate a new static shadow map
             this.GenerateShadowMap();
         }
-        this.OnTick.Add(function (dt) { return _this.Step(dt); });
+        if (!World.DisablePhysics) {
+            this.OnTick.Add(function (dt) { return _this.Step(dt); });
+        }
     };
     World.prototype.Add = function (unit) {
         if (unit instanceof BaseCell_1.BaseCell) {
@@ -85364,6 +85553,11 @@ var World = /** @class */ (function (_super) {
             var a = units.GetArray()[i];
             for (var j = i + 1; j < units.GetLength(); j++) {
                 var b = units.GetArray()[j];
+                var aBody = a.GetBody();
+                var bBody = b.GetBody();
+                if (aBody.GetDensity() == Infinity && bBody.GetDensity() == Infinity) {
+                    continue;
+                }
                 var collision = a.Collide(b);
                 if (collision && collision.Points.length) {
                     contacts.push(collision);
@@ -85375,7 +85569,7 @@ var World = /** @class */ (function (_super) {
         // Solve collisions
         for (var _i = 0, contacts_1 = contacts; _i < contacts_1.length; _i++) {
             var contact = contacts_1[_i];
-            Body_1.Body.ResolveCollision(contact, dt * COLLISION_ITERATIONS);
+            Body_1.Body.ResolveCollision(contact, dt * World.CollisionIterations);
         }
         // Integrate velocities
         units.GetArray().forEach(function (unit) { return unit.GetBody().IntegrateVelocity(dt); });
@@ -85417,19 +85611,11 @@ var World = /** @class */ (function (_super) {
         _super.prototype.Import.call(this, input);
     };
     /**
-     * @inheritDoc
-     */
-    World.prototype.Export = function (access) {
-        // Always generate new shadow map
-        this.GenerateShadowMap();
-        return _super.prototype.Export.call(this, access);
-    };
-    /**
      * Generate shadow map for the whole world.
      */
     World.prototype.GenerateShadowMap = function () {
         var _this = this;
-        var dpp = SHADOW_DOT_PER_POINT;
+        var dpp = World.ShadowDotPerPoint;
         var size = this.GetSize();
         var w = dpp * size.X;
         var h = dpp * size.Y;
@@ -85449,15 +85635,15 @@ var World = /** @class */ (function (_super) {
         if (!unit.GetLight()) {
             return;
         }
-        var dpp = SHADOW_DOT_PER_POINT;
+        var dpp = World.ShadowDotPerPoint;
         var size = this.GetSize();
         var w = dpp * size.X;
         var h = dpp * size.Y;
         var testBody = new Body_1.Body();
-        testBody.Init({ shapes: [Polygon_1.Polygon.CreateBox(SHADOW_STEP)] });
-        for (var r = 0; r < 2 * Math.PI; r += SHADOW_STEP_R * (Math.PI / 180)) {
+        testBody.Init({ shapes: [Polygon_1.Polygon.CreateBox(World.ShadowStep)] });
+        for (var r = 0; r < 2 * Math.PI; r += World.ShadowStepR * (Math.PI / 180)) {
             var origin_1 = unit.GetBody().GetPosition();
-            var step = Vector_1.Vector.ByRad(r).Scale(SHADOW_STEP);
+            var step = Vector_1.Vector.ByRad(r).Scale(World.ShadowStep);
             for (var point = origin_1; point.Dist(origin_1) < unit.GetLight(); point = point.Add(step)) {
                 var cx = Math.floor(point.X * dpp);
                 var cy = Math.floor(point.Y * dpp);
@@ -85497,11 +85683,11 @@ var World = /** @class */ (function (_super) {
             }
         }
     };
-    World.prototype.GetShadow = function (x, y, w, h) {
+    World.prototype.FindShadow = function (x, y, w, h) {
         if (!this.shadowMap) {
             return 0;
         }
-        var dpp = SHADOW_DOT_PER_POINT;
+        var dpp = World.ShadowDotPerPoint;
         var size = this.GetSize();
         var sw = dpp * size.X;
         var sh = dpp * size.Y;
@@ -85531,10 +85717,12 @@ var World = /** @class */ (function (_super) {
         }
         return world;
     };
-    /**
-     * Execution starts here.
-     */
-    World.DEFAULT_WORLD_URI = "world.json";
+    World.RootDump = "world.json";
+    World.DisablePhysics = false;
+    World.CollisionIterations = 10;
+    World.ShadowDotPerPoint = 10;
+    World.ShadowStep = 0.25;
+    World.ShadowStepR = 2;
     World.Current = null;
     __decorate([
         Exportable_1.Exportable.Register(Exportable_1.ExportType.NetDisk),
