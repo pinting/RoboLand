@@ -33,7 +33,7 @@ module.exports = {
     plugins: [
         new copyWebpackPlugin([
             {
-                ignore: ["*.js", "*.ts", "*.tsx"],
+                ignore: ["*.ts", "*.tsx"],
                 context: path.resolve(__dirname, "src"),
                 from: "**/*",
                 to: "./"

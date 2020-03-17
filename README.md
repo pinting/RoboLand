@@ -49,6 +49,7 @@ RoboPack packages can be packed and unpacked with a command line utility. Run `n
 - William Bittle - For his 2D physics engine, dyn4j
 - Randy Gaul - For his great ImpulseEngine from which I ported parts
 - Ábel Neczpál - For realising my rotating function was messed up
+- Gregg Tavares - For his WebGL examples which I based the renderer on
 
 ## Contributing
 

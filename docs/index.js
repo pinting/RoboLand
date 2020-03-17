@@ -77768,11 +77768,11 @@ var OnePlayerDebug = /** @class */ (function (_super) {
                         this.renderer = new Renderer_1.Renderer({
                             canvas: this.canvas,
                             world: world,
-                            debug: true,
+                            debugMode: true,
                             viewport: new Vector_1.Vector(10, 10),
                             disableShadows: true
                         });
-                        return [4 /*yield*/, this.renderer.Load()];
+                        return [4 /*yield*/, this.renderer.LoadTextures()];
                     case 4:
                         _a.sent();
                         keys = {
@@ -78441,13 +78441,13 @@ var TwoPlayerDebug = /** @class */ (function (_super) {
                             disableShadows: true,
                             canvas: this.canvasA,
                             world: worldA,
-                            debug: true
+                            debugMode: true
                         });
                         this.rendererB = new Renderer_1.Renderer({
                             disableShadows: true,
                             canvas: this.canvasB,
                             world: worldB,
-                            debug: true
+                            debugMode: true
                         });
                         channelA1 = new FakeChannel_1.FakeChannel(delay);
                         channelA2 = new FakeChannel_1.FakeChannel(delay);
@@ -78492,7 +78492,7 @@ var TwoPlayerDebug = /** @class */ (function (_super) {
                                 switch (_a.label) {
                                     case 0:
                                         worldA.Origin = player.GetId();
-                                        return [4 /*yield*/, this.rendererA.Load()];
+                                        return [4 /*yield*/, this.rendererA.LoadTextures()];
                                     case 1:
                                         _a.sent();
                                         keys = {
@@ -78519,7 +78519,7 @@ var TwoPlayerDebug = /** @class */ (function (_super) {
                                 switch (_a.label) {
                                     case 0:
                                         worldB.Origin = player.GetId();
-                                        return [4 /*yield*/, this.rendererB.Load()];
+                                        return [4 /*yield*/, this.rendererB.LoadTextures()];
                                     case 1:
                                         _a.sent();
                                         keys = {
@@ -78542,13 +78542,13 @@ var TwoPlayerDebug = /** @class */ (function (_super) {
                         rendererS = new Renderer_1.Renderer({
                             canvas: this.canvasS,
                             world: world,
-                            debug: false,
+                            debugMode: false,
                             disableShadows: true,
                             center: world.GetSize().Scale(1 / 2),
                             viewport: world.GetSize(),
                             dotPerPoint: 10
                         });
-                        return [4 /*yield*/, rendererS.Load()];
+                        return [4 /*yield*/, rendererS.LoadTextures()];
                     case 4:
                         _a.sent();
                         rendererS.Start();
@@ -78713,7 +78713,7 @@ var WorldEditor = /** @class */ (function (_super) {
                             center: this.world.GetSize().Scale(1 / 2)
                         });
                         this.input.selectedUnit = null;
-                        return [4 /*yield*/, this.renderer.Load()];
+                        return [4 /*yield*/, this.renderer.LoadTextures()];
                     case 1:
                         _a.sent();
                         this.renderer.Start();
@@ -78798,7 +78798,7 @@ var WorldEditor = /** @class */ (function (_super) {
                         else if (newUnit instanceof BaseActor_1.BaseActor) {
                             this.world.GetActors().Set(newUnit);
                         }
-                        return [4 /*yield*/, this.renderer.Load()];
+                        return [4 /*yield*/, this.renderer.LoadTextures()];
                     case 3:
                         _a.sent();
                         return [3 /*break*/, 5];
@@ -78834,7 +78834,7 @@ var WorldEditor = /** @class */ (function (_super) {
                         else if (unit instanceof BaseCell_1.BaseCell) {
                             this.world.GetCells().Set(unit);
                         }
-                        return [4 /*yield*/, this.renderer.Load()];
+                        return [4 /*yield*/, this.renderer.LoadTextures()];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -78854,7 +78854,7 @@ var WorldEditor = /** @class */ (function (_super) {
                     return [2 /*return*/];
                 }
                 click = this.findClick(this.canvas, event);
-                vector = this.renderer.FindVector(click.X, click.Y);
+                vector = this.renderer.FindVectorByPixel(click.X, click.Y);
                 unit = this.world.GetUnits().FindNearest(vector);
                 if (!unit) {
                     return [2 /*return*/];
@@ -78875,7 +78875,7 @@ var WorldEditor = /** @class */ (function (_super) {
             return;
         }
         var click = this.findClick(this.canvas, event);
-        var newOffset = this.renderer.FindVector(click.X, click.Y);
+        var newOffset = this.renderer.FindVectorByPixel(click.X, click.Y);
         if (this.input.selectedUnit) {
             this.input.selectedUnit.GetBody().SetVirtual(null, null, newOffset);
         }
@@ -79204,7 +79204,7 @@ var Game = /** @class */ (function (_super) {
                                 switch (_a.label) {
                                     case 0:
                                         this.world.Origin = player.GetId();
-                                        return [4 /*yield*/, renderer.Load()];
+                                        return [4 /*yield*/, renderer.LoadTextures()];
                                     case 1:
                                         _a.sent();
                                         keys = {
@@ -82635,9 +82635,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Event_1 = __webpack_require__(/*! ./Util/Event */ "./src/lib/Util/Event.ts");
 var Vector_1 = __webpack_require__(/*! ./Geometry/Vector */ "./src/lib/Geometry/Vector.ts");
-var Polygon_1 = __webpack_require__(/*! ./Geometry/Polygon */ "./src/lib/Geometry/Polygon.ts");
 var ResourceManager_1 = __webpack_require__(/*! ./Util/ResourceManager */ "./src/lib/Util/ResourceManager.ts");
 var RoboPack_1 = __webpack_require__(/*! ./Util/RoboPack */ "./src/lib/Util/RoboPack.ts");
+/**
+ * The WebGL parts are based on the examples of Gregg Tavares.
+ */
+// TODO: Implement debug grid drawing
+// TODO: Implement shadows
 var Renderer = /** @class */ (function () {
     /**
      * Construct a new game object.
@@ -82651,66 +82655,143 @@ var Renderer = /** @class */ (function () {
         this.OnDraw = new Event_1.Event();
         this.world = args.world;
         this.canvas = args.canvas;
-        this.context = this.canvas.getContext("2d");
         this.dotPerPoint = args.dotPerPoint || 25;
-        this.debug = args.debug || false;
-        this.debugColor = args.debugColor || "purple";
+        this.debugMode = args.debugMode || false;
         this.disableShadows = args.disableShadows || false;
         this.viewport = args.viewport || new Vector_1.Vector(6, 6);
         this.center = args.center || new Vector_1.Vector(0, 0);
         this.noTick = args.noTick || false;
         this.selectedZ = args.selectedZ || undefined;
+        this.gl = this.canvas.getContext("webgl");
+        this.matrixStack = new Mat4Stack();
+        // Setup GLSL program
+        this.program = this.gl.createProgram();
+        var vertexShader = this.gl.createShader(this.gl.VERTEX_SHADER);
+        this.gl.shaderSource(vertexShader, Renderer.VertexShader);
+        this.gl.compileShader(vertexShader);
+        this.gl.attachShader(this.program, vertexShader);
+        var fragmentShader = this.gl.createShader(this.gl.FRAGMENT_SHADER);
+        this.gl.shaderSource(fragmentShader, Renderer.FragmentShader);
+        this.gl.compileShader(fragmentShader);
+        this.gl.attachShader(this.program, fragmentShader);
+        this.gl.linkProgram(this.program);
+        if (!this.gl.getProgramParameter(this.program, this.gl.LINK_STATUS)) {
+            throw new Error("Could not compile WebGL program");
+        }
+        // Look up where the vertex data needs to go.
+        this.positionLocation = this.gl.getAttribLocation(this.program, "a_position");
+        this.textureCoordLocation = this.gl.getAttribLocation(this.program, "a_textureCoord");
+        // Lookup uniforms
+        this.matrixLocation = this.gl.getUniformLocation(this.program, "u_matrix");
+        this.textureMatrixLocation = this.gl.getUniformLocation(this.program, "u_textureMatrix");
+        this.textureLocation = this.gl.getUniformLocation(this.program, "u_texture");
+        // Create a buffer.
+        this.positionBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
+        // Put a unit quad in the buffer
+        var positions = [
+            0, 0,
+            0, 1,
+            1, 0,
+            1, 0,
+            0, 1,
+            1, 1,
+        ];
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(positions), this.gl.STATIC_DRAW);
+        // Create a buffer for texture coords
+        this.textureCoordBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureCoordBuffer);
+        // Put textureCoords in the buffer
+        var textureCoords = [
+            0, 0,
+            0, 1,
+            1, 0,
+            1, 0,
+            0, 1,
+            1, 1,
+        ];
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(textureCoords), this.gl.STATIC_DRAW);
     }
-    /**
-     * Load textures from the resources.
-     */
-    Renderer.prototype.Load = function () {
+    Renderer.prototype.DrawImage = function (texture, sx, sy, sw, sh, dx, dy, dw, dh) {
+        this.gl.bindTexture(this.gl.TEXTURE_2D, texture.Object);
+        // Tell WebGL to use our shader program pair
+        this.gl.useProgram(this.program);
+        // Setup the attributes to pull data from our buffers
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.positionBuffer);
+        this.gl.enableVertexAttribArray(this.positionLocation);
+        this.gl.vertexAttribPointer(this.positionLocation, 2, this.gl.FLOAT, false, 0, 0);
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureCoordBuffer);
+        this.gl.enableVertexAttribArray(this.textureCoordLocation);
+        this.gl.vertexAttribPointer(this.textureCoordLocation, 2, this.gl.FLOAT, false, 0, 0);
+        // This matirx will convert from pixels to clip space
+        var matrix = Mat4.Orthographic(0, this.gl.canvas.width, this.gl.canvas.height, 0, -1, 1);
+        // This matrix moves the origin to the one represented by
+        // the current matrix stack.
+        matrix = Mat4.Multiply(matrix, this.matrixStack.GetHead());
+        // This matrix will translate our quad to dx, dy
+        matrix = Mat4.Translate(matrix, dx, dy, 0);
+        // This matrix will scale our 1 unit quad
+        // from 1 unit to texture.Width, texture.Height units
+        matrix = Mat4.Scale(matrix, dw, dh, 1);
+        // Set the matrix.
+        this.gl.uniformMatrix4fv(this.matrixLocation, false, matrix);
+        // Because texture coordinates go from 0 to 1
+        // and because our texture coordinates are already a unit quad
+        // we can select an area of the texture by scaling the unit quad down
+        var textureMatrix = Mat4.Translation(sx / texture.Width, sy / texture.Height, 0);
+        textureMatrix = Mat4.Scale(textureMatrix, sw / texture.Width, sh / texture.Height, 1);
+        // Set the texture matrix.
+        this.gl.uniformMatrix4fv(this.textureMatrixLocation, false, textureMatrix);
+        // Tell the shader to get the texture from texture unit 0
+        this.gl.uniform1i(this.textureLocation, 0);
+        // Draw the quad (2 triangles, 6 vertices)
+        this.gl.drawArrays(this.gl.TRIANGLES, 0, 6);
+    };
+    Renderer.prototype.LoadTexture = function (url) {
+        var _this = this;
+        var texture = this.gl.createTexture();
+        this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+        // Fill the texture with a 1x1 debug pixel.
+        this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 1, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, Renderer.DebugColor);
+        // Assume all images are not a power of 2
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+        var info = {
+            Width: 1,
+            Height: 1,
+            Object: texture
+        };
+        var image = new Image();
+        image.addEventListener("load", function () {
+            info.Width = image.width;
+            info.Height = image.height;
+            _this.gl.bindTexture(_this.gl.TEXTURE_2D, info.Object);
+            _this.gl.texImage2D(_this.gl.TEXTURE_2D, 0, _this.gl.RGBA, _this.gl.RGBA, _this.gl.UNSIGNED_BYTE, image);
+        });
+        image.src = url;
+        return info;
+    };
+    Renderer.prototype.LoadTextures = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
+            var textures, _i, textures_1, resource, uri;
             return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve, reject) {
-                        var textures = ResourceManager_1.ResourceManager.GetList().filter(function (r) {
-                            return RoboPack_1.Resource.GetMeta(r.Buffer).Mime === "image/png";
-                        });
-                        var i = 0;
-                        var _loop_1 = function (resource) {
-                            if (!resource) {
-                                i++;
-                                return { value: void 0 };
-                            }
-                            var uri = resource.Uri;
-                            if (_this.textures[uri] !== undefined) {
-                                i++;
-                                return { value: void 0 };
-                            }
-                            var texture = new Image();
-                            texture.onerror = function () { return reject(); };
-                            texture.onload = function () {
-                                _this.textures[uri] = texture;
-                                if (++i == textures.length) {
-                                    resolve();
-                                }
-                            };
-                            texture.src = resource.GetUrl();
-                            _this.textures[uri] = null;
-                        };
-                        for (var _i = 0, textures_1 = textures; _i < textures_1.length; _i++) {
-                            var resource = textures_1[_i];
-                            var state_1 = _loop_1(resource);
-                            if (typeof state_1 === "object")
-                                return state_1.value;
-                        }
-                        if (!textures.length) {
-                            resolve();
-                        }
-                    })];
+                textures = ResourceManager_1.ResourceManager.GetList().filter(function (r) {
+                    return RoboPack_1.Resource.GetMeta(r.Buffer).Mime === "image/png";
+                });
+                for (_i = 0, textures_1 = textures; _i < textures_1.length; _i++) {
+                    resource = textures_1[_i];
+                    uri = resource.Uri;
+                    this.textures[uri] = this.LoadTexture(resource.GetUrl());
+                }
+                return [2 /*return*/];
             });
         });
     };
     /**
      * Find a Vector under a pixel point.
      */
-    Renderer.prototype.FindVector = function (x, y) {
+    Renderer.prototype.FindVectorByPixel = function (x, y) {
         var view = this.viewport.Scale(this.dotPerPoint);
         var dx = this.dotPerPoint;
         var dy = this.dotPerPoint;
@@ -82723,72 +82804,32 @@ var Renderer = /** @class */ (function () {
      * @param unit
      */
     Renderer.prototype.DrawUnit = function (unit) {
-        var _this = this;
         if (!unit || !unit.GetBody()) {
             return;
         }
         var body = unit.GetBody();
         var position = body.GetPosition();
         var scale = body.GetScale();
+        var rotation = body.GetRotation();
         var texture = this.textures[unit.GetTexture()];
         var s = scale.Scale(this.dotPerPoint);
         var c = (position.Sub(this.center).Add(this.viewport.Scale(0.5))).Scale(this.dotPerPoint);
         var p = c.Sub(s.Scale(0.5));
-        var rot = function (angle) {
-            _this.context.translate(c.X, c.Y);
-            _this.context.rotate(angle);
-            _this.context.translate(-c.X, -c.Y);
-        };
-        rot(body.GetRotation());
-        if (texture) {
-            this.context.drawImage(texture, p.X, p.Y, s.X, s.Y);
-        }
-        else {
-            this.context.fillStyle = this.debugColor;
-            this.context.fillRect(p.X, p.Y, s.X, s.Y);
-        }
-        rot(-unit.GetBody().GetRotation());
-    };
-    /**
-     * Draw grid for an unit.
-     * @param unit
-     * @param color
-     */
-    Renderer.prototype.DrawGrid = function (unit, color) {
-        var shapes = unit.GetBody().GetShapes();
-        var first = null;
-        this.context.beginPath();
-        for (var _i = 0, shapes_1 = shapes; _i < shapes_1.length; _i++) {
-            var shape = shapes_1[_i];
-            if (shape instanceof Polygon_1.Polygon) {
-                for (var _a = 0, _b = shape.GetVirtual(); _a < _b.length; _a++) {
-                    var base = _b[_a];
-                    var p = (base.Sub(this.center).Add(this.viewport.Scale(0.5))).Scale(this.dotPerPoint);
-                    if (first) {
-                        this.context.lineTo(p.X, p.Y);
-                    }
-                    else {
-                        this.context.moveTo(p.X, p.Y);
-                        first = p;
-                    }
-                }
-            }
-        }
-        first && this.context.lineTo(first.X, first.Y);
-        this.context.strokeStyle = color;
-        this.context.stroke();
+        this.matrixStack.Push();
+        this.matrixStack.Translate(p.X + s.X / 2, p.Y + s.Y / 2);
+        this.matrixStack.RotateZ(rotation);
+        this.matrixStack.Translate(-s.X / 2, -s.Y / 2);
+        this.DrawImage(texture, 0, 0, texture.Width, texture.Height, 0, 0, s.X, s.Y);
+        this.matrixStack.Pop();
     };
     /**
      * Update the canvas.
      */
     Renderer.prototype.Render = function () {
         var _this = this;
-        var fullView = this.world.GetSize().Scale(this.dotPerPoint);
         var view = this.viewport.Scale(this.dotPerPoint);
         this.canvas.width = view.X;
         this.canvas.height = view.Y;
-        this.context.fillStyle = "black";
-        this.context.fillRect(0, 0, view.X, view.Y);
         // Draw units in the order of their Z index
         var levels = [];
         var process = function (unit) {
@@ -82809,37 +82850,18 @@ var Renderer = /** @class */ (function () {
             .GetActors()
             .GetArray()
             .forEach(process);
+        // Tell WebGL how to convert from clip space to pixels
+        this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+        this.gl.clear(this.gl.COLOR_BUFFER_BIT);
         for (var _i = 0, levels_1 = levels; _i < levels_1.length; _i++) {
             var level = levels_1[_i];
             level && level.forEach(function (unit) { return _this.DrawUnit(unit); });
-        }
-        // Draw grid if debug mode is enabled
-        if (this.debug) {
-            this.world
-                .GetUnits()
-                .GetArray()
-                .forEach(function (unit) { return _this.DrawGrid(unit, _this.debugColor); });
-        }
-        if (this.selectedUnit) {
-            this.DrawGrid(this.selectedUnit, this.debugColor);
-        }
-        // Apply shadow map onto the picture
-        if (!this.disableShadows) {
-            var imageData = this.context.getImageData(0, 0, view.X, view.Y);
-            for (var y = 0; y < view.X; y++) {
-                for (var x = 0; x < view.Y; x++) {
-                    var c = this.center.Scale(this.dotPerPoint).Sub(view.Scale(0.5));
-                    imageData.data[(y * view.Y + x) * 4 + 3] =
-                        (1 - this.world.FindShadow(x + c.X, y + c.Y, fullView.X, fullView.Y)) * 255;
-                }
-            }
-            this.context.putImageData(imageData, 0, 0);
         }
         if (!this.stop) {
             window.requestAnimationFrame(function () { return _this.Render(); });
         }
         var now = +new Date;
-        var dt = Math.min((now - this.lastTick) / 1000, Renderer.MIN_FPS);
+        var dt = Math.min((now - this.lastTick) / 1000, Renderer.MinFps);
         if (!this.noTick) {
             this.world.OnTick.Call(dt);
         }
@@ -82870,10 +82892,339 @@ var Renderer = /** @class */ (function () {
     Renderer.prototype.SetSelectedUnit = function (unit) {
         this.selectedUnit = unit;
     };
-    Renderer.MIN_FPS = 1 / 25;
+    Renderer.VertexShader = "\n        attribute vec4 a_position;\n        attribute vec2 a_textureCoord;\n\n        uniform mat4 u_matrix;\n        uniform mat4 u_textureMatrix;\n\n        varying vec2 v_textureCoord;\n\n        void main() \n        {\n            gl_Position = u_matrix * a_position;\n            v_textureCoord = (u_textureMatrix * vec4(a_textureCoord, 0, 1)).xy;\n        }\n    ";
+    Renderer.FragmentShader = "\n        precision mediump float;\n\n        varying vec2 v_textureCoord;\n\n        uniform sampler2D texture;\n\n        void main()\n        {\n            gl_FragColor = texture2D(texture, v_textureCoord);\n        }\n    ";
+    Renderer.MinFps = 1 / 25;
+    Renderer.DebugColor = new Uint8Array([0, 0, 0, 255]);
     return Renderer;
 }());
 exports.Renderer = Renderer;
+var Mat4 = /** @class */ (function () {
+    function Mat4() {
+    }
+    /**
+     * Makes an identity matrix.
+     */
+    Mat4.Identity = function () {
+        var output = new Float32Array(16);
+        output[0] = 1;
+        output[1] = 0;
+        output[2] = 0;
+        output[3] = 0;
+        output[4] = 0;
+        output[5] = 1;
+        output[6] = 0;
+        output[7] = 0;
+        output[8] = 0;
+        output[9] = 0;
+        output[10] = 1;
+        output[11] = 0;
+        output[12] = 0;
+        output[13] = 0;
+        output[14] = 0;
+        output[15] = 1;
+        return output;
+    };
+    /**
+     * Multiply by a scaling matrix.
+     * @param input
+     * @param sx
+     * @param sy
+     * @param sz
+     */
+    Mat4.Scale = function (input, sx, sy, sz) {
+        var output = new Float32Array(16);
+        output[0] = sx * input[0 * 4 + 0];
+        output[1] = sx * input[0 * 4 + 1];
+        output[2] = sx * input[0 * 4 + 2];
+        output[3] = sx * input[0 * 4 + 3];
+        output[4] = sy * input[1 * 4 + 0];
+        output[5] = sy * input[1 * 4 + 1];
+        output[6] = sy * input[1 * 4 + 2];
+        output[7] = sy * input[1 * 4 + 3];
+        output[8] = sz * input[2 * 4 + 0];
+        output[9] = sz * input[2 * 4 + 1];
+        output[10] = sz * input[2 * 4 + 2];
+        output[11] = sz * input[2 * 4 + 3];
+        if (input !== output) {
+            output[12] = input[12];
+            output[13] = input[13];
+            output[14] = input[14];
+            output[15] = input[15];
+        }
+        return output;
+    };
+    /**
+     * Multiply by translation matrix.
+     * @param input
+     * @param tx
+     * @param ty
+     * @param tz
+     */
+    Mat4.Translate = function (input, tx, ty, tz) {
+        var output = new Float32Array(16);
+        var m00 = input[0];
+        var m01 = input[1];
+        var m02 = input[2];
+        var m03 = input[3];
+        var m10 = input[1 * 4 + 0];
+        var m11 = input[1 * 4 + 1];
+        var m12 = input[1 * 4 + 2];
+        var m13 = input[1 * 4 + 3];
+        var m20 = input[2 * 4 + 0];
+        var m21 = input[2 * 4 + 1];
+        var m22 = input[2 * 4 + 2];
+        var m23 = input[2 * 4 + 3];
+        var m30 = input[3 * 4 + 0];
+        var m31 = input[3 * 4 + 1];
+        var m32 = input[3 * 4 + 2];
+        var m33 = input[3 * 4 + 3];
+        if (input !== output) {
+            output[0] = m00;
+            output[1] = m01;
+            output[2] = m02;
+            output[3] = m03;
+            output[4] = m10;
+            output[5] = m11;
+            output[6] = m12;
+            output[7] = m13;
+            output[8] = m20;
+            output[9] = m21;
+            output[10] = m22;
+            output[11] = m23;
+        }
+        output[12] = m00 * tx + m10 * ty + m20 * tz + m30;
+        output[13] = m01 * tx + m11 * ty + m21 * tz + m31;
+        output[14] = m02 * tx + m12 * ty + m22 * tz + m32;
+        output[15] = m03 * tx + m13 * ty + m23 * tz + m33;
+        return output;
+    };
+    /**
+     * Makes a translation matrix.
+     * @param tx
+     * @param ty
+     * @param tz
+     */
+    Mat4.Translation = function (tx, ty, tz) {
+        var output = new Float32Array(16);
+        output[0] = 1;
+        output[1] = 0;
+        output[2] = 0;
+        output[3] = 0;
+        output[4] = 0;
+        output[5] = 1;
+        output[6] = 0;
+        output[7] = 0;
+        output[8] = 0;
+        output[9] = 0;
+        output[10] = 1;
+        output[11] = 0;
+        output[12] = tx;
+        output[13] = ty;
+        output[14] = tz;
+        output[15] = 1;
+        return output;
+    };
+    /**
+     * Multiply by a Z rotation matrix.
+     * @param other
+     * @param angle
+     */
+    Mat4.RotateZ = function (other, angle) {
+        var output = new Float32Array(16);
+        var m00 = other[0 * 4 + 0];
+        var m01 = other[0 * 4 + 1];
+        var m02 = other[0 * 4 + 2];
+        var m03 = other[0 * 4 + 3];
+        var m10 = other[1 * 4 + 0];
+        var m11 = other[1 * 4 + 1];
+        var m12 = other[1 * 4 + 2];
+        var m13 = other[1 * 4 + 3];
+        var c = Math.cos(angle);
+        var s = Math.sin(angle);
+        output[0] = c * m00 + s * m10;
+        output[1] = c * m01 + s * m11;
+        output[2] = c * m02 + s * m12;
+        output[3] = c * m03 + s * m13;
+        output[4] = c * m10 - s * m00;
+        output[5] = c * m11 - s * m01;
+        output[6] = c * m12 - s * m02;
+        output[7] = c * m13 - s * m03;
+        if (other !== output) {
+            output[8] = other[8];
+            output[9] = other[9];
+            output[10] = other[10];
+            output[11] = other[11];
+            output[12] = other[12];
+            output[13] = other[13];
+            output[14] = other[14];
+            output[15] = other[15];
+        }
+        return output;
+    };
+    /**
+     * Computes a 4-by-4 orthographic projection matrix given the coordinates of the
+     * planes defining the axis-aligned, box-shaped viewing volume. The matrix
+     * generated sends that box to the unit box. Note that although left and right
+     * are X coordinates and bottom and top are Y coordinates, near and far
+     * are not Z coordinates, but rather they are distances along the negative
+     * Z-axis. We assume a unit box extending from -1 to 1 in the X and Y
+     * dimensions and from -1 to 1 in the Z dimension.
+     * @param left The X coordinate of the left plane of the box.
+     * @param right The X coordinate of the right plane of the box.
+     * @param bottom The Y coordinate of the bottom plane of the box.
+     * @param top The Y coordinate of the right plane of the box.
+     * @param near The negative Z coordinate of the near plane of the box.
+     * @param far The negative Z coordinate of the far plane of the box.
+     */
+    Mat4.Orthographic = function (left, right, bottom, top, near, far) {
+        var output = new Float32Array(16);
+        output[0] = 2 / (right - left);
+        output[1] = 0;
+        output[2] = 0;
+        output[3] = 0;
+        output[4] = 0;
+        output[5] = 2 / (top - bottom);
+        output[6] = 0;
+        output[7] = 0;
+        output[8] = 0;
+        output[9] = 0;
+        output[10] = 2 / (near - far);
+        output[11] = 0;
+        output[12] = (left + right) / (left - right);
+        output[13] = (bottom + top) / (bottom - top);
+        output[14] = (near + far) / (near - far);
+        output[15] = 1;
+        return output;
+    };
+    /**
+     * Multiply by translation matrix.
+     * @param a
+     * @param b
+     */
+    Mat4.Multiply = function (a, b) {
+        var output = new Float32Array(16);
+        var b00 = b[0 * 4 + 0];
+        var b01 = b[0 * 4 + 1];
+        var b02 = b[0 * 4 + 2];
+        var b03 = b[0 * 4 + 3];
+        var b10 = b[1 * 4 + 0];
+        var b11 = b[1 * 4 + 1];
+        var b12 = b[1 * 4 + 2];
+        var b13 = b[1 * 4 + 3];
+        var b20 = b[2 * 4 + 0];
+        var b21 = b[2 * 4 + 1];
+        var b22 = b[2 * 4 + 2];
+        var b23 = b[2 * 4 + 3];
+        var b30 = b[3 * 4 + 0];
+        var b31 = b[3 * 4 + 1];
+        var b32 = b[3 * 4 + 2];
+        var b33 = b[3 * 4 + 3];
+        var a00 = a[0 * 4 + 0];
+        var a01 = a[0 * 4 + 1];
+        var a02 = a[0 * 4 + 2];
+        var a03 = a[0 * 4 + 3];
+        var a10 = a[1 * 4 + 0];
+        var a11 = a[1 * 4 + 1];
+        var a12 = a[1 * 4 + 2];
+        var a13 = a[1 * 4 + 3];
+        var a20 = a[2 * 4 + 0];
+        var a21 = a[2 * 4 + 1];
+        var a22 = a[2 * 4 + 2];
+        var a23 = a[2 * 4 + 3];
+        var a30 = a[3 * 4 + 0];
+        var a31 = a[3 * 4 + 1];
+        var a32 = a[3 * 4 + 2];
+        var a33 = a[3 * 4 + 3];
+        output[0] = b00 * a00 + b01 * a10 + b02 * a20 + b03 * a30;
+        output[1] = b00 * a01 + b01 * a11 + b02 * a21 + b03 * a31;
+        output[2] = b00 * a02 + b01 * a12 + b02 * a22 + b03 * a32;
+        output[3] = b00 * a03 + b01 * a13 + b02 * a23 + b03 * a33;
+        output[4] = b10 * a00 + b11 * a10 + b12 * a20 + b13 * a30;
+        output[5] = b10 * a01 + b11 * a11 + b12 * a21 + b13 * a31;
+        output[6] = b10 * a02 + b11 * a12 + b12 * a22 + b13 * a32;
+        output[7] = b10 * a03 + b11 * a13 + b12 * a23 + b13 * a33;
+        output[8] = b20 * a00 + b21 * a10 + b22 * a20 + b23 * a30;
+        output[9] = b20 * a01 + b21 * a11 + b22 * a21 + b23 * a31;
+        output[10] = b20 * a02 + b21 * a12 + b22 * a22 + b23 * a32;
+        output[11] = b20 * a03 + b21 * a13 + b22 * a23 + b23 * a33;
+        output[12] = b30 * a00 + b31 * a10 + b32 * a20 + b33 * a30;
+        output[13] = b30 * a01 + b31 * a11 + b32 * a21 + b33 * a31;
+        output[14] = b30 * a02 + b31 * a12 + b32 * a22 + b33 * a32;
+        output[15] = b30 * a03 + b31 * a13 + b32 * a23 + b33 * a33;
+        return output;
+    };
+    return Mat4;
+}());
+var Mat4Stack = /** @class */ (function () {
+    function Mat4Stack() {
+        this.stack = [];
+        // Since the stack is empty this will put an initial matrix in it
+        this.Pop();
+    }
+    /**
+     * Gets a copy of the current matrix (top of the stack)
+     */
+    Mat4Stack.prototype.GetHead = function () {
+        return this.stack[this.stack.length - 1].slice();
+    };
+    /**
+     * Lets us set the current matrix
+     * @param mat
+     */
+    Mat4Stack.prototype.SetHead = function (mat) {
+        this.stack[this.stack.length - 1] = mat;
+        return mat;
+    };
+    /**
+     * Pops the top of the stack restoring the previously saved matrix
+     */
+    Mat4Stack.prototype.Pop = function () {
+        this.stack.pop();
+        // Never let the stack be totally empty
+        if (this.stack.length < 1) {
+            this.stack[0] = Mat4.Identity();
+        }
+    };
+    /**
+     * Pushes a copy of the current matrix on the stack
+     */
+    Mat4Stack.prototype.Push = function () {
+        this.stack.push(this.GetHead());
+    };
+    /**
+     * Scales the current matrix
+     * @param x
+     * @param y
+     * @param z
+     */
+    Mat4Stack.prototype.Scale = function (x, y, z) {
+        if (z === void 0) { z = 1; }
+        var mat = this.GetHead();
+        this.SetHead(Mat4.Scale(mat, x, y, z));
+    };
+    /**
+     * Translates the current matrix
+     * @param x
+     * @param y
+     * @param z
+     */
+    Mat4Stack.prototype.Translate = function (x, y, z) {
+        if (z === void 0) { z = 0; }
+        var mat = this.GetHead();
+        this.SetHead(Mat4.Translate(mat, x, y, z));
+    };
+    /**
+     * Rotates the current matrix around Z
+     * @param angle
+     */
+    Mat4Stack.prototype.RotateZ = function (angle) {
+        var mat = this.GetHead();
+        this.SetHead(Mat4.RotateZ(mat, angle));
+    };
+    return Mat4Stack;
+}());
+exports.Mat4Stack = Mat4Stack;
 
 
 /***/ }),

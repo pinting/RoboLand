@@ -55,14 +55,14 @@ export class TwoPlayerDebug extends React.PureComponent<IViewProps, IViewState>
             disableShadows: true,
             canvas: this.canvasA,
             world: worldA,
-            debug: true
+            debugMode: true
         });
 
         this.rendererB = new Renderer({
             disableShadows: true,
             canvas: this.canvasB,
             world: worldB,
-            debug: true
+            debugMode: true
         });
         
         const channelA1 = new FakeChannel(delay);
@@ -117,7 +117,7 @@ export class TwoPlayerDebug extends React.PureComponent<IViewProps, IViewState>
         {
             worldA.Origin = player.GetId();
     
-            await this.rendererA.Load();
+            await this.rendererA.LoadTextures();
             
             const keys = 
             {
@@ -143,7 +143,7 @@ export class TwoPlayerDebug extends React.PureComponent<IViewProps, IViewState>
         {
             worldB.Origin = player.GetId();
     
-            await this.rendererB.Load();
+            await this.rendererB.LoadTextures();
     
             const keys = 
             {
@@ -169,14 +169,14 @@ export class TwoPlayerDebug extends React.PureComponent<IViewProps, IViewState>
         const rendererS = new Renderer({ 
             canvas: this.canvasS,
             world: world, 
-            debug: false,
+            debugMode: false,
             disableShadows: true,
             center: world.GetSize().Scale(1 / 2),
             viewport: world.GetSize(),
             dotPerPoint: 10
         });
     
-        await rendererS.Load();
+        await rendererS.LoadTextures();
     
         rendererS.Start();
 

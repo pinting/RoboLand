@@ -77,12 +77,12 @@ export class OnePlayerDebug extends React.PureComponent<IViewProps, IViewState>
         this.renderer = new Renderer({
             canvas: this.canvas,
             world: world, 
-            debug: true,
+            debugMode: true,
             viewport: new Vector(10, 10),
             disableShadows: true
         });
     
-        await this.renderer.Load();
+        await this.renderer.LoadTextures();
             
         const keys = 
         {

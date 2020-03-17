@@ -97,7 +97,7 @@ export class WorldEditor extends React.PureComponent<IViewProps, IViewState>
         
         this.input.selectedUnit = null;
         
-        await this.renderer.Load();
+        await this.renderer.LoadTextures();
     
         this.renderer.Start();
     }
@@ -175,7 +175,7 @@ export class WorldEditor extends React.PureComponent<IViewProps, IViewState>
                 this.world.GetActors().Set(newUnit);
             }
             
-            await this.renderer.Load();
+            await this.renderer.LoadTextures();
         }
         catch(e)
         {
@@ -212,7 +212,7 @@ export class WorldEditor extends React.PureComponent<IViewProps, IViewState>
             this.world.GetCells().Set(unit);
         }
 
-        await this.renderer.Load();
+        await this.renderer.LoadTextures();
     }
 
     /**
@@ -227,7 +227,7 @@ export class WorldEditor extends React.PureComponent<IViewProps, IViewState>
         }
 
         const click = this.findClick(this.canvas, event);
-        const vector = this.renderer.FindVector(click.X, click.Y);
+        const vector = this.renderer.FindVectorByPixel(click.X, click.Y);
         const unit = this.world.GetUnits().FindNearest(vector);
 
         if(!unit)
@@ -253,7 +253,7 @@ export class WorldEditor extends React.PureComponent<IViewProps, IViewState>
         }
 
         const click = this.findClick(this.canvas, event);
-        const newOffset = this.renderer.FindVector(click.X, click.Y);
+        const newOffset = this.renderer.FindVectorByPixel(click.X, click.Y);
 
         if(this.input.selectedUnit)
         {

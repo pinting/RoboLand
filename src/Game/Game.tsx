@@ -209,7 +209,7 @@ export class Game extends React.PureComponent<IProps, IState>
         {
             this.world.Origin = player.GetId();
 
-            await renderer.Load();
+            await renderer.LoadTextures();
             
             const keys = 
             {
