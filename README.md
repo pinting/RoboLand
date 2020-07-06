@@ -4,7 +4,7 @@ RoboLand is an open source 2D video game engine with P2P networking I develop in
 
 <img src="https://github.com/pinting/RoboLand/raw/master/screenshot.png" width="600" />
 
-Watch a potato [recording](https://youtu.be/qVQ_61eYZTw) about the current features.
+Watch a [recording](https://youtu.be/wgxkm6gv-LE) about the current features.
 
 Check out the [demo](https://pinting.github.io/RoboLand/)!
 
@@ -26,7 +26,7 @@ RoboPack packages can be packed and unpacked with a command line utility. Run `n
 
 ## TODOs
 
-- WebGL based renderer.
+- Transparent textures and static shadows with WebGL.
 - Importing and exporting Dump hiearchies into the engine should not break the structure. Save relations to export them the same way. Also World Editor should have a feature to create new Units based on Dumps. Currently only brand new Units can be created only.
 - Image view for the resource explorer.
 - Shape/Polygon Editor.
@@ -37,23 +37,19 @@ RoboPack packages can be packed and unpacked with a command line utility. Run `n
 - Add sandboxes.
 - Add action scripts - small scripts saved into the world file and run on world events.
 - Move platform dependent code into a dynamically attached module.
-- Move each instance of the game into different workers. (Renderer needs to be redirected. A new communication layer is needed under FakeChannel and IndirectRenderer. Can be called WorkerBridge.)
+- Move each instance of the game into different workers. (WIP in the engine-updates branch.)
 - Sound manager. Action scripts could play sounds from Resources, the volume would depent on the distance from the creator of the sound.
 - Animations. The change of the texture could be handled by the Unit itself, so the Renderer can stay the same.
 - Fix physical glitch which causes two overlaying shapes to not collide.
 
 ## Credits
 
-- Stefan Gustavson - For your simplex noise implementation
-- Jim Riecken - Thanks, I learnt a lot from SAT.js
-- William Bittle - For his 2D physics engine, dyn4j
-- Randy Gaul - For his great ImpulseEngine from which I ported parts
-- Ábel Neczpál - For realising my rotating function was messed up
-- Gregg Tavares - For his WebGL examples which I based the renderer on
-
-## Contributing
-
-Anyone can help make this project better.
+- Stefan Gustavson - For your simplex noise implementation.
+- Jim Riecken - Thanks, I learnt a lot from your SAT.js library.
+- William Bittle - For his 2D physics engine, dyn4j.
+- Randy Gaul - For his great ImpulseEngine from which I ported parts.
+- Ábel Neczpál - For realising my rotating function was messed up.
+- Gregg Tavares - For his WebGL examples which I based the renderer on.
 
 ## License
 
