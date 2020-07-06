@@ -111,7 +111,7 @@ export class UnitList<U extends Unit> implements IReadOnlyUnitList<U>
         else
         {
             this.units.push(unit);
-            Logger.Info(this, "Unit was added!", unit);
+            Logger.Debug(this, "Unit was added!", unit);
         }
 
         this.updateEvent.Call(unit);
@@ -137,7 +137,7 @@ export class UnitList<U extends Unit> implements IReadOnlyUnitList<U>
             unit.Dispose();
         }
 
-        Logger.Info(this, "Unit was removed!", unit);
+        Logger.Debug(this, "Unit was removed!", unit);
         this.updateEvent.Call(unit);
 
         return true;

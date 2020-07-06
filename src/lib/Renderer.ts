@@ -4,6 +4,7 @@ import { Event } from "./Util/Event";
 import { Vector } from "./Geometry/Vector";
 import { ResourceManager } from "./Util/ResourceManager";
 import { Resource } from "./Util/RoboPack";
+import { Master } from "./Master";
 
 export interface ITextureInfo
 {
@@ -14,6 +15,7 @@ export interface ITextureInfo
 
 export interface IRendererArgs
 {
+    master: Master;
     world: World;
     canvas: HTMLCanvasElement;
 
@@ -33,7 +35,7 @@ export interface IRendererArgs
 // TODO: Implement shadows
 export class Renderer
 {
-    private static VertexShader = 
+    public static VertexShader = 
     `
         attribute vec4 a_position;
         attribute vec2 a_textureCoord;
@@ -50,7 +52,7 @@ export class Renderer
         }
     `;
 
-    private static FragmentShader =
+    public static FragmentShader =
     `
         precision mediump float;
 
@@ -64,9 +66,10 @@ export class Renderer
         }
     `;
 
-    private static MinFps = 1 / 25;
-    private static DebugColor = new Uint8Array([0, 0, 0, 255]);
+    public static MinFps = 1 / 25;
+    public static DebugColor = new Uint8Array([0, 0, 0, 255]);
 
+    private readonly master: Master;
     private readonly world: World;
     private readonly canvas: HTMLCanvasElement;
     private readonly gl: WebGLRenderingContext;
@@ -104,6 +107,7 @@ export class Renderer
      */
     public constructor(args: IRendererArgs)
     {
+        this.master = args.master;
         this.world = args.world;
         this.canvas = args.canvas;
 
@@ -335,7 +339,7 @@ export class Renderer
     /**
      * Update the canvas.
      */
-    private Render()
+    private async Render()
     {
         const view = this.viewport.Scale(this.dotPerPoint);
 
@@ -380,11 +384,6 @@ export class Renderer
         {
             level && level.forEach(unit => this.DrawUnit(unit));
         }
-    
-        if(!this.stop)
-        {
-            window.requestAnimationFrame(() => this.Render());
-        }
 
         const now = +new Date;
         const dt = Math.min((now - this.lastTick) / 1000, Renderer.MinFps);
@@ -392,6 +391,12 @@ export class Renderer
         if(!this.noTick)
         {
             this.world.OnTick.Call(dt);
+            await this.master.Step(dt);
+        }
+    
+        if(!this.stop)
+        {
+            window.requestAnimationFrame(() => this.Render());
         }
 
         this.OnDraw.Call(dt);

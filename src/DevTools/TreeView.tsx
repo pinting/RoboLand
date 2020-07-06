@@ -22,7 +22,7 @@ interface IViewState
 export abstract class TreeView extends React.PureComponent<IViewProps, IViewState>
 {
     // The tree should never reach this
-    private static MaxDepth = 100;
+    public static MaxDepth = 100;
 
     constructor(props: IViewProps) 
     {

@@ -1,7 +1,6 @@
 import * as React from "react";
 import * as Bootstrap from "reactstrap";
 
-import { Shared } from "../Game/Shared";
 import { WorldEditor } from "./WorldEditor";
 import { Tools } from "../lib/Util/Tools";
 import { DumpEditor } from "./DumpEditor";
@@ -11,6 +10,7 @@ import { TestRunner } from "./TestRunner";
 import { ResourceBrowser } from "./ResourceBrowser";
 import { Helper } from "../Helper";
 import { World } from "../lib/World";
+import { Slave } from "../lib/Slave";
 import { ResourceManager } from "../lib/Util/ResourceManager";
 import { SimplexNoise } from "../lib/Util/SimplexNoise";
 import { Http } from "../lib/Util/Http";
@@ -47,8 +47,6 @@ export class DevTools extends React.PureComponent<IViewProps, IViewState>
     {
         super(props);
 
-        Shared.RegisterDependencies();
-
         Logger.OnLog.Add(message =>
         {
             this.setState({ log: [message, ...this.state.log] });
@@ -56,6 +54,7 @@ export class DevTools extends React.PureComponent<IViewProps, IViewState>
 
         Tools.Extract(window, {
             World,
+            Slave,
             Tools,
             Exportable,
             Vector,

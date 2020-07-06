@@ -9,7 +9,7 @@ export interface BaseActorArgs extends UnitArgs
 
 export abstract class BaseActor extends Unit
 {
-    private static DisableSurfaceScan = false;
+    public static DisableSurfaceScan = false;
 
     /**
      * The last body state that was checked against cells.

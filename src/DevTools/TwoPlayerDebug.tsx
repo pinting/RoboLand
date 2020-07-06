@@ -14,6 +14,7 @@ import { ResourceManager } from "../lib/Util/ResourceManager";
 import { Exportable } from "../lib/Exportable";
 import { Keyboard } from "../lib/Util/Keyboard";
 import { Dump } from "../lib/Dump";
+import { Master } from "../lib/Master";
 
 interface IViewProps 
 {
@@ -33,15 +34,16 @@ export class TwoPlayerDebug extends React.PureComponent<IViewProps, IViewState>
     private canvasS: HTMLCanvasElement;
 
     private rendererA: Renderer;
+    private masterA: Master;
+
     private rendererB: Renderer;
+    private masterB: Master;
 
     /**
      * Create 2 clients and 1 server and render everthing onto the 3 canvases.
      */
     protected async init()
     {
-        Keyboard.Init();
-        
         const delay = 1;
 
         const worldA: World = new World();
@@ -51,17 +53,21 @@ export class TwoPlayerDebug extends React.PureComponent<IViewProps, IViewState>
         worldA["_Name"] = "worldA";
         worldB["_Name"] = "worldB";
         
+        this.masterA = new Master(worldA);
         this.rendererA = new Renderer({
             disableShadows: true,
             canvas: this.canvasA,
             world: worldA,
+            master: this.masterA,
             debugMode: true
         });
 
+        this.masterB = new Master(worldB);
         this.rendererB = new Renderer({
             disableShadows: true,
             canvas: this.canvasB,
             world: worldB,
+            master: this.masterB,
             debugMode: true
         });
         
@@ -166,9 +172,11 @@ export class TwoPlayerDebug extends React.PureComponent<IViewProps, IViewState>
         };
     
         // Render the server
+        const master = new Master(world);
         const rendererS = new Renderer({ 
             canvas: this.canvasS,
             world: world, 
+            master: master,
             debugMode: false,
             disableShadows: true,
             center: world.GetSize().Scale(1 / 2),

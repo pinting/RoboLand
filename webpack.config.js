@@ -2,10 +2,13 @@ const copyWebpackPlugin = require("copy-webpack-plugin");
 const path = require("path");
 
 module.exports = {
-    entry: "./src/index.ts",
+    entry: {
+        master: "./src/master.ts",
+        slave: "./src/slave.ts"
+    },
     output: {
         path: path.resolve(__dirname, "docs"),
-        filename: "./index.js"
+        filename: "./[name].js"
     },
     mode: "development",
     devtool: "source-map",

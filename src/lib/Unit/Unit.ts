@@ -3,7 +3,7 @@ import { World } from "../World";
 import { Exportable, ExportType, IExportableArgs } from "../Exportable";
 import { Logger } from "../Util/Logger";
 import { Body } from "../Physics/Body";
-import { ICollision } from "../Physics/ICollision";
+import { Collision } from "../Physics/Collision";
 
 export interface UnitArgs extends IExportableArgs
 {
@@ -21,25 +21,25 @@ export abstract class Unit extends Exportable
     protected world: World = World.Current;
     protected tickEvent: number;
     
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected ignore: boolean;
 
-    @Exportable.Register(ExportType.Net, (s, v) => s.Dispose(v))
+    @Exportable.Register(ExportType.Net + ExportType.Thread, (s, v) => s.Dispose(v))
     protected disposed: boolean = false;
 
-    @Exportable.Register(ExportType.Net)
+    @Exportable.Register(ExportType.Net + ExportType.Thread)
     protected parent: string = this.world && this.world.Origin; // ID of the parent unit
 
-    @Exportable.Register(ExportType.NetDisk, (s, v) => s.SetBody(v))
+    @Exportable.Register(ExportType.All, (s, v) => s.SetBody(v))
     protected body: Body;
 
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected texture: string;
 
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected blocking: boolean = false;
 
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected light: number = 0;
 
     public Init(args: UnitArgs = {})
@@ -67,14 +67,6 @@ export abstract class Unit extends Exportable
         {
             this.tickEvent = this.world.OnTick.Add(dt => this.OnTick(dt));
         }
-    }
-
-    /**
-     * Get the id of the unit.
-     */
-    public GetId(): string
-    {
-        return this.id;
     }
 
     /**
@@ -168,7 +160,7 @@ export abstract class Unit extends Exportable
      * Check if the unit collides with another.
      * @param unit 
      */
-    public Collide(unit: Unit): ICollision
+    public Collide(unit: Unit): Collision
     {
         if(unit == this || unit.GetId() == this.GetId())
         {

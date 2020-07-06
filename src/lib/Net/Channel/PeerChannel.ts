@@ -1,4 +1,3 @@
-import * as webrtc from "webrtc-adapter"
 import { IChannel } from "./IChannel";
 import { Tools } from "../../Util/Tools";
 import { Logger } from "../../Util/Logger";
@@ -12,7 +11,7 @@ interface IPacketMeta
 
 export class PeerChannel implements IChannel
 {
-    private static MaxByteLength = 16384;
+    public static MaxByteLength = 16384;
 
     private readonly config = {
         "iceServers": [

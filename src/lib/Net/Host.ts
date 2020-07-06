@@ -1,7 +1,7 @@
 import { Tools } from "../Util/Tools";
 import { IChannel } from "./Channel/IChannel";
 import { PlayerActor } from "../Unit/Actor/PlayerActor";
-import { Exportable } from "../Exportable";
+import { Exportable, ExportType } from "../Exportable";
 import { MessageType } from "./MessageType";
 import { Unit } from "../Unit/Unit";
 import { IMessage } from "./IMessage";
@@ -19,8 +19,8 @@ interface ILastItem
 
 export class Host extends MessageHandler
 {
-    private static DisableOptimization = false;
-    private static SleepTime = 1000;
+    public static DisableOptimization = false;
+    public static SleepTime = 1000;
 
     private server: Server;
     private player: PlayerActor;
@@ -78,7 +78,7 @@ export class Host extends MessageHandler
 
     public async SendUnit(unit: Unit): Promise<void>
     {
-        const dump = Exportable.Export(unit);
+        const dump = Exportable.Export(unit, null, ExportType.Net);
         const id = unit.GetId();
         const now = +new Date;
         
@@ -145,7 +145,7 @@ export class Host extends MessageHandler
 
     public async SendCommand(command: any[]): Promise<void>
     {
-        return this.SendMessage(MessageType.Command, Exportable.Export(command));
+        return this.SendMessage(MessageType.Command, Exportable.Export(command, null, ExportType.Net));
     }
 
     /**

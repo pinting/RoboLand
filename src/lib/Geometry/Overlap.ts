@@ -1,6 +1,6 @@
 import { Polygon } from "./Polygon";
 import { Vector } from "./Vector";
-import { IContact } from "./IContact";
+import { Contact } from "./Contact";
 import { BaseShape } from "./BaseShape";
 import { Logger } from "../Util/Logger";
 import { Tools } from "../Util/Tools";
@@ -49,7 +49,7 @@ export class Overlap
         return sp;
     }
 
-    public static PolygonPolygon(a: Polygon, b: Polygon): IContact
+    public static PolygonPolygon(a: Polygon, b: Polygon): Contact
     {
         // Check for a separating axis with A's face planes
         const { BestIndex: faceA, BestDistance: penetrationA } = a.FindAxisLeastPenetration(b);
@@ -172,16 +172,12 @@ export class Overlap
             penetration /= cp;
         }
 
-        return {
-            Normal: normal,
-            Penetration: penetration,
-            Points: contacts
-        };
+        return new Contact(penetration, normal, contacts);
     }
 
-    public static Test(a: BaseShape, b: BaseShape): IContact
+    public static Test(a: BaseShape, b: BaseShape): Contact
     {
-        let contact: IContact;
+        let contact: Contact;
 
         if(a instanceof Polygon && b instanceof Polygon)
         {

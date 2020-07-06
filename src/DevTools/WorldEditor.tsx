@@ -2,7 +2,6 @@ import * as React from "react";
 import Cristal from "react-cristal";
 import * as Bootstrap from "reactstrap";
 
-import { Shared } from "../Game/Shared";
 import { World } from "../lib/World";
 import { Renderer } from "../lib/Renderer";
 import { Vector } from "../lib/Geometry/Vector";
@@ -18,6 +17,7 @@ import { ArrowActor } from "../lib/Unit/Actor/ArrowActor";
 import { Body } from "../lib/Physics/Body";
 import { ResourceManager } from "../lib/Util/ResourceManager";
 import { Dump } from "../lib/Dump";
+import { Master } from "../lib/Master";
 
 interface IViewProps
 {
@@ -33,11 +33,12 @@ interface IViewState
 
 export class WorldEditor extends React.PureComponent<IViewProps, IViewState>
 {
-    private static DragWait = 300;
-    private static MinSize = 8;
+    public static DragWait = 300;
+    public static MinSize = 8;
 
     private canvas: HTMLCanvasElement;
     private renderer: Renderer;
+    private master: Master;
 
     private disableDrag: boolean = true;
     private mouseDown: boolean = false;
@@ -86,10 +87,12 @@ export class WorldEditor extends React.PureComponent<IViewProps, IViewState>
 
     private async createRenderer(): Promise<void>
     {
+        this.master = new Master(this.world);
         this.renderer = new Renderer({
             dotPerPoint: 64,
             canvas: this.canvas, 
             world: this.world,
+            master: this.master,
             disableShadows: true,
             viewport: this.world.GetSize(),
             center: this.world.GetSize().Scale(1 / 2)
@@ -122,7 +125,7 @@ export class WorldEditor extends React.PureComponent<IViewProps, IViewState>
 
     private async saveWorld()
     {
-        const dump = Exportable.Export(this.world, null, ExportType.NetDisk);
+        const dump = Exportable.Export(this.world, null, ExportType.Disk);
 
         await Dump.Save(dump, true);
 
@@ -138,7 +141,7 @@ export class WorldEditor extends React.PureComponent<IViewProps, IViewState>
             return;
         }
 
-        const dump = Exportable.Export(unit, null, ExportType.NetDisk);
+        const dump = Exportable.Export(unit, null, ExportType.Disk);
 
         try 
         {

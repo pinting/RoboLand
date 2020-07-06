@@ -14,10 +14,10 @@ export interface ArrowActorArgs extends BaseActorArgs
  */
 export class ArrowActor extends BaseActor
 {
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected damage: number;
     
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected speed: number;
 
     /**
@@ -86,5 +86,3 @@ export class ArrowActor extends BaseActor
         return this.speed;
     }
 }
-
-Exportable.Dependency(ArrowActor);

@@ -40,23 +40,6 @@ export class TestRunner extends React.PureComponent<IViewProps, IViewState>
 
     private async init(): Promise<void>
     {
-        // For debug
-        Tools.Extract(window, {
-            World,
-            Tools,
-            Exportable,
-            Vector,
-            Matrix,
-            NormalCell,
-            PlayerActor,
-            Logger,
-            SimplexNoise,
-            ResourceManager,
-            Polygon,
-            Body,
-            Http
-        });
-
         // Run tests
         Logger.Level = LogType.Info;
 

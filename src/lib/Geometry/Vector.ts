@@ -4,10 +4,10 @@ import { Tools } from "../Util/Tools";
 
 export class Vector extends Exportable
 {
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     public X: number;
 
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     public Y: number;
     
     constructor(x: number = 0, y: number = 0)
@@ -246,5 +246,3 @@ export class Vector extends Exportable
         return Tools.Equal(this.X, other.X, eps) && Tools.Equal(this.Y, other.Y, eps);
     }
 }
-
-Exportable.Dependency(Vector);

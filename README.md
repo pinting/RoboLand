@@ -28,14 +28,7 @@ RoboPack packages can be packed and unpacked with a command line utility. Run `n
 
 - Transparent textures and static shadows with WebGL.
 - Importing and exporting Dump hiearchies into the engine should not break the structure. Save relations to export them the same way. Also World Editor should have a feature to create new Units based on Dumps. Currently only brand new Units can be created only.
-- Image view for the resource explorer.
-- Shape/Polygon Editor.
-- Add circles to Geometry.
 - Use IndexedDB to manage different workplaces (packs).
-- Fix networking optimization
-- Write tests for network optimization.
-- Add sandboxes.
-- Add action scripts - small scripts saved into the world file and run on world events.
 - Move platform dependent code into a dynamically attached module.
 - Move each instance of the game into different workers. (WIP in the engine-updates branch.)
 - Sound manager. Action scripts could play sounds from Resources, the volume would depent on the distance from the creator of the sound.

@@ -13,10 +13,10 @@ export abstract class BaseCell extends Unit
 {
     protected actors: string[] = [];
 
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected gravity: Vector; // Gravity inside the cell
 
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected cf: number; // Cell friction
 
     /**

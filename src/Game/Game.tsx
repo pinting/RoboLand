@@ -2,23 +2,24 @@ import * as React from "react";
 import Cristal from "react-cristal";
 import * as Bootstrap from "reactstrap";
 
-import { World } from "../lib/World";
 import { Server } from '../lib/Net/Server';
-import { Renderer } from "../lib/Renderer";
 import { Host } from "../lib/Net/Host";
-import { FakeChannel } from "../lib/Net/Channel/FakeChannel";
-import { Client } from "../lib/Net/Client";
-import { PeerChannel } from "../lib/Net/Channel/PeerChannel";
-import { Tools } from "../lib/Util/Tools";
 import { Helper } from "../Helper";
 import { Shared } from "./Shared";
-import { Keyboard } from "../lib/Util/Keyboard";
 import { Params } from "../Params";
 import { ResourceManager } from "../lib/Util/ResourceManager";
 import { Exportable } from "../lib/Exportable";
 import { Http } from "../lib/Util/Http";
 import { Dump } from "../lib/Dump";
-
+import { Boot } from "../lib/Boot";
+import { PlayerActor } from "../lib/Unit/Actor/PlayerActor";
+import { World } from "../lib/World";
+import { FakeChannel } from "../lib/Net/Channel/FakeChannel";
+import { Client } from "../lib/Net/Client";
+import { PeerChannel } from "../lib/Net/Channel/PeerChannel";
+import { Tools } from "../lib/Util/Tools";
+import { Renderer } from "../lib/Renderer";
+import { Master } from "../lib/Master";
 /**
  * Type of the connect format.
  */
@@ -53,6 +54,7 @@ export class Game extends React.PureComponent<IProps, IState>
 
     private tabId: string = Tools.Unique();
     private world: World = new World();
+    private master: Master;
 
     private channel: PeerChannel;
     private server: Server;
@@ -64,9 +66,6 @@ export class Game extends React.PureComponent<IProps, IState>
     {
         super(props);
         
-        Keyboard.Init();
-        Shared.RegisterDependencies();
-    
         this.state = {
             message: "",
             showAdd: false
@@ -197,9 +196,12 @@ export class Game extends React.PureComponent<IProps, IState>
      */
     private async start()
     {
+        this.master = new Master(this.world);
+        
         const renderer = new Renderer({ 
             canvas: this.canvas, 
             world: this.world,
+            master: this.master,
             disableShadows: true
         });
         

@@ -3,24 +3,33 @@ import { Tools } from "./Util/Tools";
 import { Dump } from "./Dump";
 
 const MetaKey = Symbol("MetaKey");
-const Dependencies: { [name: string]: any } = {};
 
 export enum ExportType
 {
     /**
      * NETWORK only
      */
-    Net = 0,
+    Net = 1,
 
     /**
-     * NETWORK and DISK
+     * DISK only
      */
-    NetDisk = 1
+    Disk = 2,
+
+    /**
+     * THREAD only
+     */
+    Thread = 4,
+
+    /**
+     * ALL type
+     */
+    All = 7
 }
 
 export interface IExportProperty
 {
-    Access: number;
+    Type: number;
     Name: string;
     Callback?: (s: any, v: any) => void;
 }
@@ -32,9 +41,11 @@ export interface IExportableArgs
 
 export abstract class Exportable
 {
-    @Exportable.Register(ExportType.Net)
+    private static Dependencies: { [name: string]: any } = {};
+    
+    @Exportable.Register(ExportType.Net + ExportType.Thread)
     protected id: string = Tools.Unique();
-
+    
     private [MetaKey]: IExportProperty[];
     
     public Init(args: IExportableArgs = {})
@@ -60,6 +71,14 @@ export abstract class Exportable
     {
         // Leave for child classes to implement
     }
+
+    /**
+     * Get the id of the exportable.
+     */
+    public GetId(): string
+    {
+        return this.id;
+    }
     
     /**
      * Register a class with a name as a dependency.
@@ -68,15 +87,15 @@ export abstract class Exportable
      */
     public static Dependency(classObj: any, name: string = null)
     {
-        Dependencies[name || classObj.name] = classObj;
+        Exportable.Dependencies[name || classObj.name] = classObj;
     }
 
     /**
      * Decorator to register a property as something to export.
-     * @param access Set the access level.
+     * @param type The types the property registered under (e.g. network or disk).
      * @param cb Used to set the property insted of the default way.
      */
-    public static Register(access: number = 0, cb: (s: any, v: any) => void = null) 
+    public static Register(type: number = ExportType.All, cb: (s: any, v: any) => void = null) 
     {
         return (target: Exportable, name: string) =>
         {
@@ -89,7 +108,7 @@ export abstract class Exportable
             }
 
             target[MetaKey].push({
-                Access: access,
+                Type: type,
                 Name: name,
                 Callback: cb
             });
@@ -102,14 +121,14 @@ export abstract class Exportable
      */
     public static FromName<T extends Exportable>(name: string, ...args: any[]): T
     {
-        if(!Dependencies.hasOwnProperty(name))
+        if(!Exportable.Dependencies.hasOwnProperty(name))
         {
             Logger.Warn("Class of dump is missing from dependencies", name);
 
             return null;
         }
 
-        const classObj = Dependencies[name];
+        const classObj = Exportable.Dependencies[name];
 
         return classObj && new classObj(...args);
     }
@@ -121,20 +140,20 @@ export abstract class Exportable
 
     /**
      * Self export to Dump.
-     * @param access
+     * @param type
      */
-    public Export(access: number = 0): Dump[]
+    public Export(type: number = ExportType.All): Dump[]
     {
         const result: Dump[] = [];
 
         for (let desc of this[MetaKey])
         {   
-            if(desc.Access < access) 
+            if((desc.Type & type) == 0)
             {
                 continue;
             }
 
-            const dump = Exportable.Export(this[desc.Name], desc.Name, access);
+            const dump = Exportable.Export(this[desc.Name], desc.Name, type);
 
             if(dump)
             {
@@ -148,10 +167,10 @@ export abstract class Exportable
     /**
      * Export an object to Dump (standalone).
      * @param object
-     * @param access
+     * @param type
      * @param name Name to export with.
      */
-    public static Export(object: any, name: string = null, access: number = 0): Dump
+    public static Export(object: any, name: string = null, type: number = ExportType.All): Dump
     {
         // Export each unit of an array
         if(object instanceof Array)
@@ -159,7 +178,7 @@ export abstract class Exportable
             const dump = {
                 Name: name,
                 Class: object.constructor.name,
-                Payload: object.map((e, i) => Exportable.Export(e, i.toString(), access))
+                Payload: object.map((e, i) => Exportable.Export(e, i.toString(), type))
             };
 
             Logger.Debug("Exported array", object, dump);
@@ -173,7 +192,7 @@ export abstract class Exportable
             const dump = {
                 Name: name,
                 Class: object.constructor.name,
-                Payload: object.Export(access)
+                Payload: object.Export(type)
             };
 
             Logger.Debug("Exported object", object, dump);

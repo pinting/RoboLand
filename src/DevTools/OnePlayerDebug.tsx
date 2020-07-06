@@ -10,9 +10,9 @@ import { World } from "../lib/World";
 import { Tools } from "../lib/Util/Tools";
 import { ResourceManager } from "../lib/Util/ResourceManager";
 import { Exportable } from "../lib/Exportable";
-import { Keyboard } from "../lib/Util/Keyboard";
 import { Renderer } from "../lib/Renderer";
 import { Dump } from "../lib/Dump";
+import { Master } from "../lib/Master";
 
 interface IViewProps
 {
@@ -29,11 +29,11 @@ export class OnePlayerDebug extends React.PureComponent<IViewProps, IViewState>
 {
     private canvas: HTMLCanvasElement;
     private renderer: Renderer;
-    
+    private master: Master;
+    private world: World;
+
     private async init(): Promise<void>
     {
-        Keyboard.Init();
-
         // Load the world
         const uri = World.RootDump;
 
@@ -69,14 +69,16 @@ export class OnePlayerDebug extends React.PureComponent<IViewProps, IViewState>
             ignore: false // IMPORTANT
         });
 
-        world.Add(player);
+        world.Set(player);
 
         // Attach a renderer to the world
         Logger.Info("Adding and loading renderer", world);
     
+        this.master = new Master(world);
         this.renderer = new Renderer({
             canvas: this.canvas,
-            world: world, 
+            world: world,
+            master: this.master, 
             debugMode: true,
             viewport: new Vector(10, 10),
             disableShadows: true
@@ -117,6 +119,10 @@ export class OnePlayerDebug extends React.PureComponent<IViewProps, IViewState>
     public componentWillUnmount(): void
     {
         this.renderer.Stop();
+
+        this.renderer = null;
+        this.world = null;
+        this.master = null;
     }
 
     private renderInner(): JSX.Element

@@ -12,7 +12,7 @@ export interface FireCellArgs extends BaseCellArgs
  */
 export class DamageCell extends BaseCell
 {
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected damage: number;
 
     /**
@@ -51,5 +51,3 @@ export class DamageCell extends BaseCell
         });
     }
 }
-
-Exportable.Dependency(DamageCell);

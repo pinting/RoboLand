@@ -34838,7 +34838,7 @@
             ]
         },
         {
-            "Name": "shadowMap",
+            "Name": "ShadowMap",
             "Class": "Array",
             "Payload": [
                 {

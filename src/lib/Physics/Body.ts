@@ -1,10 +1,10 @@
 import { Vector } from "../Geometry/Vector";
 import { Exportable, ExportType, IExportableArgs } from "../Exportable";
-import { IContact } from "../Geometry/IContact";
+import { Contact } from "../Geometry/Contact";
 import { BaseShape } from "../Geometry/BaseShape";
 import { Overlap } from "../Geometry/Overlap";
 import { Polygon } from "../Geometry/Polygon";
-import { ICollision } from "./ICollision";
+import { Collision } from "./Collision";
 import { Logger } from "../Util/Logger";
 import { Tools } from "../Util/Tools";
 
@@ -32,49 +32,49 @@ export class Body extends Exportable
     private static PenetrationAllowance = 0.01; // Penetration allowance
     private static PenetrationCorrect = 0.4; // Penetration percentage to correct
 
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected shapes: BaseShape[] = [];
 
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected scale: Vector;
     
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected rotation: number;
     
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected position: Vector;
 
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected gravity: Vector = new Vector(0, 0); // Gravity
     
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected force: Vector = new Vector(0, 0); // Force
     
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected v: Vector = new Vector(0, 0); // Velocity
     
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected av: number = 0; // Angular velocity
     
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected torque: number = 0; // Torque
     
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected sf: number = 0.5; // Static friction
     
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected df: number = 0.3; // Dynamic friction
     
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected cf: number = 0.05; // Cell friction
     
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected r: number = 0.2; // Restitution
 
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected density: number = 1; // Mass density
     
-    @Exportable.Register(ExportType.NetDisk)
+    @Exportable.Register(ExportType.All)
     protected z: number = 0; // Z-Index
     
     protected I: number;  // Moment of inertia
@@ -261,7 +261,7 @@ export class Body extends Exportable
         this.shapes.push(shape);
     }
 
-    public Collide(other: Body): ICollision
+    public Collide(other: Body): Collision
     {
         if(this.GetZ() != other.GetZ())
         {
@@ -277,15 +277,9 @@ export class Body extends Exportable
             return null;
         }
 
-        const contact = this.EveryShape<IContact>(other, (s1, s2) => Overlap.Test(s1, s2)) as ICollision;
+        const c = this.EveryShape<Contact>(other, (s1, s2) => Overlap.Test(s1, s2)) as Contact;
 
-        if(contact)
-        {
-            contact.A = this;
-            contact.B = other;
-        }
-
-        return contact;
+        return c && new Collision(c.Penetration, c.Normal, c.Points, this, other);
     }
 
     protected ForceSetVirtual(scale?: Vector, rotation?: number, position?: Vector): void
@@ -433,7 +427,7 @@ export class Body extends Exportable
      * @param c An object that implements the ICollision interface.
      * @param dt 
      */
-    public static PositionalCorrection(c: ICollision, dt: number = 1 / 60)
+    public static PositionalCorrection(c: Collision, dt: number = 1 / 60)
     {
         const a = c.A;
         const b = c.B;
@@ -453,7 +447,7 @@ export class Body extends Exportable
      * @param c An object that implements the ICollision interface.
      * @param dt 
      */
-    public static ResolveCollision(c: ICollision, dt: number = 1 / 60)
+    public static ResolveCollision(c: Collision, dt: number = 1 / 60)
     {
         const a = c.A;
         const b = c.B;
@@ -601,5 +595,3 @@ export class Body extends Exportable
             a.GetPosition().Equal(b.GetPosition(), pe);
     }
 }
-
-Exportable.Dependency(Body);

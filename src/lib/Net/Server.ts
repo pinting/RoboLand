@@ -1,7 +1,7 @@
 import { World } from "../World";
 import { PlayerActor } from "../Unit/Actor/PlayerActor";
 import { Host } from "./Host";
-import { Exportable } from "../Exportable";
+import { Exportable, ExportType } from "../Exportable";
 import { Tools } from "../Util/Tools";
 import { BaseActor } from "../Unit/Actor/BaseActor";
 import { Body } from "../Physics/Body";
@@ -11,7 +11,7 @@ import { ResourceManager } from "../Util/ResourceManager";
 
 export class Server
 {
-    private static SpawnZ = 0;
+    public static SpawnZ = 0;
 
     private readonly world: World;
     private readonly spawns: Body[];
@@ -126,7 +126,7 @@ export class Server
                 ignore: false // IMPORTANT, to set this to ignore
             });
 
-            this.world.Add(player);
+            this.world.Set(player);
 
             break;
         }
@@ -142,7 +142,7 @@ export class Server
         await host.SendResources(await ResourceManager.GetBuffer());
 
         // Send world
-        await host.SendWorld(Exportable.Export(this.world));
+        await host.SendWorld(Exportable.Export(this.world, null, ExportType.Net));
         
         // Subscribe to the OnCommand callback
         host.OnCommand = command => this.OnCommand(host, command);

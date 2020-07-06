@@ -238,5 +238,3 @@ export class Polygon extends BaseShape
         ])
     }
 }
-
-Exportable.Dependency(Polygon);

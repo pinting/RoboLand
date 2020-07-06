@@ -1,7 +1,7 @@
 import { IChannel } from "./Channel/IChannel";
 import { MessageType } from "./MessageType";
 import { World } from "../World";
-import { Exportable } from "../Exportable";
+import { Exportable, ExportType } from "../Exportable";
 import { PlayerActor } from "../Unit/Actor/PlayerActor";
 import { Tools } from "../Util/Tools";
 import { IMessage } from "./IMessage";
@@ -14,8 +14,8 @@ import { Body } from "../Physics/Body";
 
 export class Client extends MessageHandler
 {
-    private static DisableOptimization = false;
-    private static PlayerSyncedFunctions = [
+    public static DisableOptimization = false;
+    public static PlayerSyncedFunctions = [
         "Damage",
         "Shoot",
         "StopRot",
@@ -40,7 +40,7 @@ export class Client extends MessageHandler
 
         // Add updated unit to network cache
         this.world.OnUpdate.Add(unit => 
-            this.last[unit.GetId()] = Exportable.Export(unit));
+            this.last[unit.GetId()] = Exportable.Export(unit, null, ExportType.Net));
     }
 
     /**
@@ -95,7 +95,7 @@ export class Client extends MessageHandler
         Logger.Info(this, "Unit was received!", unit, dump);
 
         // Add unit to the world
-        this.world.Add(unit);
+        this.world.Set(unit);
 
         // Add to network cache
         this.last[unit.GetId()] = dump;
@@ -132,7 +132,7 @@ export class Client extends MessageHandler
         World.Current = this.world;
 
         // If we have an older version, merge it
-        const oldDump = Exportable.Export(oldUnit);
+        const oldDump = Exportable.Export(oldUnit, null, ExportType.Net);
 
         Dump.Merge(oldDump, diff);
 
@@ -221,7 +221,7 @@ export class Client extends MessageHandler
         player[args[1]].bind(player)(...args.slice(2));
 
         // Add to network cache
-        this.last[player.GetId()] = Exportable.Export(player);
+        this.last[player.GetId()] = Exportable.Export(player, null, ExportType.Net);
     }
 
     /**

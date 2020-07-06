@@ -8,5 +8,3 @@ export class NormalCell extends BaseCell
 {
     
 }
-
-Exportable.Dependency(NormalCell);

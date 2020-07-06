@@ -19,5 +19,3 @@ export class KillCell extends BaseCell
         }
     }
 }
-
-Exportable.Dependency(KillCell);
